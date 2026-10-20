@@ -15,10 +15,33 @@ export function authErrorMessage(error: unknown) {
     return "E-poçt və ya şifrə düzgün deyil. Mövcud hesabının şifrəsini yaz və ya şifrəni yenilə.";
   if (code === "user_already_exists")
     return "Bu e-poçtla hesab artıq var. Daxil ol və ya şifrəni yenilə.";
+  if (
+    code === "email_address_not_authorized" ||
+    /email.*not authorized/i.test(message)
+  )
+    return "Bu ünvana məktub göndərilə bilmədi. Xidmətin e-poçt göndəriş ayarları yoxlanmalıdır.";
+  if (code === "email_address_invalid")
+    return "E-poçt ünvanını yoxla və yenidən yaz.";
   if (e?.status === 429 || code.includes("rate_limit"))
     return "Çox sayda cəhd edildi. Bir qədər gözləyib yenidən yoxla.";
-  if (code === "otp_expired")
-    return "Kodun və ya linkin vaxtı bitib. Yeni təsdiq məktubu istə.";
+  if (
+    code === "phone_provider_disabled" ||
+    code === "sms_send_failed" ||
+    /phone.*not enabled|sms.*provider|unsupported phone provider|error sending.*sms|failed to send.*sms/i.test(
+      message,
+    )
+  )
+    return "SMS xidməti hazırda əlçatan deyil. E-poçtla davam et və ya sonra yoxla.";
+  if (/error sending|failed to send|smtp/i.test(message))
+    return "Təsdiq məktubu göndərilə bilmədi. Bir az sonra yenidən yoxla.";
+  if (code === "phone_number_invalid") return "Düzgün mobil nömrə yaz.";
+  if (code === "otp_disabled")
+    return "SMS ilə giriş hələ aktiv deyil. E-poçtla davam edə bilərsən.";
+  if (
+    code === "otp_expired" ||
+    /token.*expired|token.*invalid|otp.*expired/i.test(message)
+  )
+    return "Kod və ya link düzgün deyil, yaxud vaxtı bitib. Yenisini istə.";
   if (code === "weak_password")
     return "Daha güclü şifrə seç: ən azı 8 simvol istifadə et.";
   if (/fetch|network|timeout/i.test(e?.message ?? ""))

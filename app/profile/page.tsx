@@ -12,7 +12,8 @@ import {
   periodName,
 } from "../../lib/marketplace";
 export default function Profile() {
-  const [email, setEmail] = useState(""),
+  const [identity, setIdentity] = useState(""),
+    [userId, setUserId] = useState(""),
     [loading, setLoading] = useState(true),
     [listings, setListings] = useState<Listing[]>([]),
     [error, setError] = useState(""),
@@ -29,7 +30,8 @@ export default function Profile() {
       .getUser()
       .then(async ({ data, error }) => {
         if (error || !data.user) return;
-        setEmail(data.user.email ?? "");
+        setUserId(data.user.id);
+        setIdentity(data.user.phone || data.user.email || "Hesab");
         const role = await client
           .from("profiles")
           .select("role")
@@ -80,10 +82,10 @@ export default function Profile() {
             <p className="eyebrow">ŞƏXSİ KABİNET</p>
             <h1>Hesabım</h1>
             <p className="muted">
-              {email || "Elanlarını bir yerdən idarə et."}
+              {identity || "Elanlarını bir yerdən idarə et."}
             </p>
           </div>
-          {email && (
+          {userId && (
             <button className="secondary" onClick={logout}>
               Hesabdan çıx
             </button>
@@ -91,7 +93,7 @@ export default function Profile() {
         </div>
         {loading ? (
           <p role="status">Yüklənir...</p>
-        ) : !email ? (
+        ) : !userId ? (
           <div className="empty">
             <h2>
               {!supabase ? "Giriş xidməti hazırlanır" : "Hesabına daxil ol"}
@@ -102,123 +104,131 @@ export default function Profile() {
             </Link>
           </div>
         ) : (
-          <>
-            <div className="stats">
-              <div>
-                <b>{listings.length}</b>
-                <span>Bütün elanlar</span>
+          <div className="cabinetLayout">
+            <nav className="cabinetNav" aria-label="Şəxsi kabinet">
+              <Link href="/profile" aria-current="page">
+                Elanlarım
+              </Link>
+              <Link href="/?favorites=1">Seçilmişlər</Link>
+              <Link href="/account">Profil ayarları</Link>
+              <Link href="/help">Kömək və qaydalar</Link>
+              {admin && <Link href="/admin">Admin paneli</Link>}
+            </nav>
+            <div className="cabinetContent">
+              <div className="stats">
+                <div>
+                  <b>{listings.length}</b>
+                  <span>Bütün elanlar</span>
+                </div>
+                <div>
+                  <b>
+                    {listings.filter((x) => x.status === "published").length}
+                  </b>
+                  <span>Yayımlanmış</span>
+                </div>
+                <div>
+                  <b>{listings.filter((x) => x.status === "pending").length}</b>
+                  <span>Yoxlanılır</span>
+                </div>
               </div>
-              <div>
-                <b>{listings.filter((x) => x.status === "published").length}</b>
-                <span>Yayımlanmış</span>
-              </div>
-              <div>
-                <b>{listings.filter((x) => x.status === "pending").length}</b>
-                <span>Yoxlanılır</span>
-              </div>
-            </div>
-            <div className="sectionTitle">
-              <h2>Elanlarım</h2>
-              <div className="contactActions">
-                <Link className="secondary" href="/account">
-                  Profil ayarları
-                </Link>
-                {admin && (
-                  <Link className="secondary" href="/admin">
-                    Admin paneli
+              <div className="sectionTitle">
+                <h2>Elanlarım</h2>
+                <div className="contactActions">
+                  <Link className="add" href="/new">
+                    + Yeni elan
                   </Link>
-                )}
-                <Link className="add" href="/new">
-                  + Yeni elan
-                </Link>
+                </div>
               </div>
-            </div>
-            {!listings.length && !error && (
-              <div className="empty">
-                <h3>İlk elanını yaratmağa hazırsan?</h3>
-                <p>İstifadə etmədiyin əşyanı kirayə ver.</p>
-                <Link href="/new" className="add">
-                  Elan yerləşdir
-                </Link>
-              </div>
-            )}
-            <div className="profileTabs" aria-label="Elan vəziyyəti">
-              {[
-                ["", "Hamısı"],
-                ["published", "Yayımlanmış"],
-                ["pending", "Yoxlanılır"],
-                ["rejected", "Rədd edilmiş"],
-                ["archived", "Arxiv"],
-              ].map(([status, label]) => (
-                <button
-                  key={status}
-                  className="secondary"
-                  aria-pressed={statusFilter === status}
-                  onClick={() => setStatusFilter(status)}
-                >
-                  {label} (
-                  {
-                    listings.filter((x) => !status || x.status === status)
-                      .length
-                  }
-                  )
-                </button>
-              ))}
-            </div>
-            {!!listings.length &&
-              !listings.some(
-                (x) => !statusFilter || x.status === statusFilter,
-              ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
-            <div className="accountListings">
-              {listings
-                .filter((x) => !statusFilter || x.status === statusFilter)
-                .map((x) => (
-                  <article key={x.id}>
-                    <img
-                      src={x.images?.[0] || "/placeholder.svg"}
-                      alt={x.title}
-                    />
-                    <div>
-                      <span className={`status ${x.status}`}>
-                        {statusName(x.status)}
-                      </span>
-                      <h3>{x.title}</h3>
-                      <p>
-                        {money(x.price)} ₼ / {periodName(x.rental_period)} ·{" "}
-                        {x.city}
-                      </p>
-                      {x.status === "rejected" && x.rejection_reason && (
-                        <p className="error">Səbəb: {x.rejection_reason}</p>
-                      )}
-                      <small>
-                        {new Date(x.created_at).toLocaleDateString("az-AZ")}
-                      </small>
-                    </div>
-                    <div className="accountItemActions">
-                      <Link className="secondary" href={`/edit/${x.id}`}>
-                        {x.status === "archived"
-                          ? "Yenilə və göndər"
-                          : "Redaktə et"}
-                      </Link>
-                      {x.status === "published" && (
-                        <Link className="secondary" href={`/listings/${x.id}`}>
-                          Elana bax
-                        </Link>
-                      )}
-                      {x.status !== "archived" && (
-                        <button
-                          className="secondary"
-                          disabled={!!busy}
-                          onClick={() => archive(x)}
-                        >
-                          {busy === x.id ? "Gözləyin..." : "Arxivə keçir"}
-                        </button>
-                      )}
-                    </div>
-                  </article>
+              {!listings.length && !error && (
+                <div className="empty">
+                  <h3>İlk elanını yaratmağa hazırsan?</h3>
+                  <p>İstifadə etmədiyin əşyanı kirayə ver.</p>
+                  <Link href="/new" className="add">
+                    Elan yerləşdir
+                  </Link>
+                </div>
+              )}
+              <div className="profileTabs" aria-label="Elan vəziyyəti">
+                {[
+                  ["", "Hamısı"],
+                  ["published", "Yayımlanmış"],
+                  ["pending", "Yoxlanılır"],
+                  ["rejected", "Rədd edilmiş"],
+                  ["archived", "Arxiv"],
+                ].map(([status, label]) => (
+                  <button
+                    key={status}
+                    className="secondary"
+                    aria-pressed={statusFilter === status}
+                    onClick={() => setStatusFilter(status)}
+                  >
+                    {label} (
+                    {
+                      listings.filter((x) => !status || x.status === status)
+                        .length
+                    }
+                    )
+                  </button>
                 ))}
+              </div>
+              {!!listings.length &&
+                !listings.some(
+                  (x) => !statusFilter || x.status === statusFilter,
+                ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
+              <div className="accountListings">
+                {listings
+                  .filter((x) => !statusFilter || x.status === statusFilter)
+                  .map((x) => (
+                    <article key={x.id}>
+                      <img
+                        src={x.images?.[0] || "/placeholder.svg"}
+                        alt={x.title}
+                      />
+                      <div>
+                        <span className={`status ${x.status}`}>
+                          {statusName(x.status)}
+                        </span>
+                        <h3>{x.title}</h3>
+                        <p>
+                          {money(x.price)} ₼ / {periodName(x.rental_period)} ·{" "}
+                          {x.city}
+                        </p>
+                        {x.status === "rejected" && x.rejection_reason && (
+                          <p className="error">Səbəb: {x.rejection_reason}</p>
+                        )}
+                        <small>
+                          {new Date(x.created_at).toLocaleDateString("az-AZ")}
+                        </small>
+                      </div>
+                      <div className="accountItemActions">
+                        <Link className="secondary" href={`/edit/${x.id}`}>
+                          {x.status === "archived"
+                            ? "Yenilə və göndər"
+                            : "Redaktə et"}
+                        </Link>
+                        {x.status === "published" && (
+                          <Link
+                            className="secondary"
+                            href={`/listings/${x.id}`}
+                          >
+                            Elana bax
+                          </Link>
+                        )}
+                        {x.status !== "archived" && (
+                          <button
+                            className="secondary"
+                            disabled={!!busy}
+                            onClick={() => archive(x)}
+                          >
+                            {busy === x.id ? "Gözləyin..." : "Arxivə keçir"}
+                          </button>
+                        )}
+                      </div>
+                    </article>
+                  ))}
+              </div>
             </div>
-          </>
+          </div>
         )}
         {error && (
           <p className="error" role="alert">

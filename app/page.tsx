@@ -268,61 +268,15 @@ export default function Home() {
     <>
       <Header />
       <main>
-        <section className="hero">
-          <div className="heroInner">
-            <div>
-              <p className="eyebrow">AZƏRBAYCANIN KİRAYƏ PLATFORMASI</p>
-              <h1>
-                Almaq əvəzinə,
-                <br />
-                <span>kirayələ.</span>
-              </h1>
-              <p className="lead">
-                Bir günlük planlardan uzunmüddətli ehtiyaclara.
-                <br />
-                Ev, avtomobil və daha çoxu — bir ünvanda.
-              </p>
-              <div className="heroActions">
-                <a href="#elanlar" className="add heroCta">
-                  Kirayə elanlarını kəşf et →
-                </a>
-                <Link href="/new" className="heroLink">
-                  Elan yerləşdir →
-                </Link>
-              </div>
-              <div className="heroBenefits">
-                <span>✓ Birbaşa əlaqə</span>
-                <span>✓ Günlük və aylıq</span>
-                <span>✓ Bir hesab, bütün elanlar</span>
-              </div>
-            </div>
-            <div className="heroVisual" aria-label="Kirayə üçün rahat məkanlar">
-              <div className="heroCorner">EV · AVTOMOBİL · DAHA ÇOXU</div>
-              <div className="heroImage" />
-              <div className="heroMiniCard">
-                <CategoryIcon id="car" />
-                <div>
-                  <b>Yolun açıq olsun.</b>
-                  <small>Səfərin üçün avtomobil tap</small>
-                </div>
-                <span>→</span>
-              </div>
-              <div className="floatingLabel">
-                <span>
-                  <CategoryIcon id="property" />
-                </span>
-                <div>
-                  <b>Növbəti ünvanını tap</b>
-                  <small>Bir evdən daha çoxu.</small>
-                </div>
-              </div>
-              <span className="heroStamp">
-                DAHA AĞILLI SEÇİM
-                <br />
-                <b>kirayələ.</b>
-              </span>
-            </div>
+        <section className="catalogIntro">
+          <div>
+            <p>Azərbaycan üzrə kirayə elanları</p>
+            <h1>Kirayə elanları</h1>
+            <span>Ev, avtomobil, avadanlıq və digər kirayə təklifləri.</span>
           </div>
+          <Link className="introAction" href="/new">
+            Elan yerləşdir →
+          </Link>
         </section>
         <div className="searchWrap">
           <form

@@ -59,7 +59,9 @@ const { chromium } = require("playwright");
       await route.fulfill({ status: 204, headers: cors });
       return;
     }
-    if (path.endsWith("/auth/v1/token")) {
+    if (path.endsWith("/auth/v1/settings"))
+      body = { external: { email: true, phone: false } };
+    else if (path.endsWith("/auth/v1/token")) {
       if (rejectLogin) {
         status = 400;
         body = {
@@ -118,6 +120,7 @@ const { chromium } = require("playwright");
   }
   try {
     await page.goto(`${base}/login`);
+    await page.getByRole("button", { name: "E-poçtla", exact: true }).click();
     await check(
       "six-character existing password reaches the authentication service",
       async () => {

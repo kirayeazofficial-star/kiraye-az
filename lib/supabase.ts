@@ -11,3 +11,18 @@ export const supabase =
   /^(sb_publishable_|eyJ)/.test(key)
     ? createClient(url, key)
     : null;
+
+// The public Auth settings endpoint reports enabled providers, never credentials.
+export async function getAuthCapabilities() {
+  if (!supabase || !url || !key) return { phone: false, email: false };
+  const response = await fetch(`${url.replace(/\/$/, "")}/auth/v1/settings`, {
+    headers: { apikey: key },
+    signal: AbortSignal.timeout(10000),
+  });
+  if (!response.ok) throw new Error("Auth settings unavailable");
+  const settings = await response.json();
+  return {
+    phone: settings.external?.phone === true,
+    email: settings.external?.email === true,
+  };
+}

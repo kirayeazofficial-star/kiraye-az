@@ -12,7 +12,7 @@ export default function Help() {
           {[
             [
               "Elan necə yerləşdirilir?",
-              "Hesab yarat, e-poçtunu təsdiqlə, şəkilləri və kirayə şərtlərini əlavə et. Elan idarəçi təsdiqindən sonra yayımlanır.",
+              "Hesabına daxil ol, şəkilləri və kirayə şərtlərini əlavə et. Elan idarəçi təsdiqindən sonra yayımlanır.",
             ],
             [
               "Elanımı necə dəyişə bilərəm?",
@@ -29,6 +29,10 @@ export default function Help() {
             [
               "Şübhəli elanı necə bildirim?",
               "Elan səhifəsində “Bu elandan şikayət et” seç. Hesabına daxil olub səbəbi və qısa təsviri yaz. İdarəçi şikayəti yoxlayacaq.",
+            ],
+            [
+              "Telefonla necə daxil olum?",
+              "Giriş səhifəsində “Telefonla” seç və mobil nömrəni yaz. SMS xidməti aktiv olduqda gələn kodla şifrəsiz daxil ola bilərsən. Xidmət aktiv deyilsə, e-poçtla davam et.",
             ],
             [
               "Təsdiq məktubu gəlmir?",

@@ -14,6 +14,7 @@ import { categories, cities, type Listing } from "../../lib/marketplace";
 
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const [user, setUser] = useState(""),
+    [loginPhone, setLoginPhone] = useState(""),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -33,6 +34,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       .getUser()
       .then(async ({ data }) => {
         setUser(data.user?.id ?? "");
+        setLoginPhone(data.user?.phone ?? "");
         if (listingId && data.user && supabase) {
           const result = await supabase
             .from("listings")
@@ -534,7 +536,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                   Telefon nömrəsi
                   <input
                     name="contact"
-                    defaultValue={initial?.contact}
+                    defaultValue={initial?.contact || loginPhone}
                     type="tel"
                     required
                     maxLength={25}

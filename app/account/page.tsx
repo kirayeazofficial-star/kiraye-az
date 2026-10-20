@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabase";
 import { normalizePhone } from "../../lib/rental-details";
 export default function Account() {
   const [user, setUser] = useState(""),
+    [loginPhone, setLoginPhone] = useState(""),
     [loading, setLoading] = useState(true),
     [busy, setBusy] = useState(false),
     [name, setName] = useState(""),
@@ -23,6 +24,7 @@ export default function Account() {
       .then(async ({ data, error }) => {
         if (error || !data.user) return;
         setUser(data.user.id);
+        setLoginPhone(data.user.phone || "");
         const profile = await client
           .from("profiles")
           .select("display_name,phone")
@@ -30,7 +32,7 @@ export default function Account() {
           .maybeSingle();
         if (profile.error) throw profile.error;
         setName(profile.data?.display_name ?? "");
-        setPhone(profile.data?.phone ?? "");
+        setPhone(profile.data?.phone || data.user.phone || "");
       })
       .catch(() => setNotice("Məlumatları yükləmək mümkün olmadı."))
       .finally(() => setLoading(false));
@@ -66,8 +68,7 @@ export default function Account() {
         </p>
         <h1>Profil məlumatları</h1>
         <p className="muted">
-          Adın və əlaqə məlumatların. Rol və idarəçi icazəsi buradan
-          dəyişdirilmir.
+          Elanlarında görünəcək adını və əlaqə nömrəni idarə et.
         </p>
         {loading ? (
           <p role="status">Yüklənir...</p>
@@ -77,6 +78,13 @@ export default function Account() {
           </div>
         ) : (
           <form className="listingForm accountForm" onSubmit={save}>
+            {loginPhone && (
+              <p className="notice">
+                Giriş nömrən: <strong>{loginPhone}</strong>
+                <br />
+                Aşağıdakı əlaqə nömrəsi giriş nömrəni dəyişmir.
+              </p>
+            )}
             <label>
               Ad və soyad
               <input

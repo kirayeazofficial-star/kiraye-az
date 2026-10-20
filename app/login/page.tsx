@@ -7,35 +7,95 @@ import {
 } from "../../lib/auth-messages";
 import { authCallbackUrl } from "../../lib/auth-flow";
 import { supabase } from "../../lib/supabase";
+import PhoneLogin from "../components/PhoneLogin";
 import "./style.css";
+type Verification = "signup" | "recovery";
+const pendingKey = "kiraye:pending-confirmation";
 export default function Login() {
+  const [method, setMethod] = useState<"phone" | "email">("phone");
   const [mode, setMode] = useState<"login" | "signup" | "reset">("login"),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
     [emailAddress, setEmailAddress] = useState(""),
-    [verification, setVerification] = useState<"signup" | "recovery" | null>(
-      null,
-    ),
+    [verification, setVerification] = useState<Verification | null>(null),
     [unconfirmed, setUnconfirmed] = useState(false),
-    [showPassword, setShowPassword] = useState(false);
+    [showPassword, setShowPassword] = useState(false),
+    [useCode, setUseCode] = useState(false),
+    [cooldown, setCooldown] = useState(0);
+  function clearPending() {
+    try {
+      sessionStorage.removeItem(pendingKey);
+    } catch {}
+  }
+  function pending(type: Verification, email: string) {
+    setVerification(type);
+    setUseCode(false);
+    setCooldown(60);
+    setNotice("");
+    try {
+      sessionStorage.setItem(
+        pendingKey,
+        JSON.stringify({
+          type,
+          email,
+          retryAt: Date.now() + 60000,
+          expiresAt: Date.now() + 1800000,
+        }),
+      );
+    } catch {}
+  }
+  function goToAccount() {
+    clearPending();
+    window.location.href = safeLoginDestination(
+      new URLSearchParams(window.location.search).get("next"),
+    );
+  }
   useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(pendingKey) || "null");
+      if (
+        saved &&
+        ["signup", "recovery"].includes(saved.type) &&
+        typeof saved.email === "string" &&
+        saved.email.length <= 254 &&
+        Number.isFinite(saved.retryAt) &&
+        saved.expiresAt > Date.now()
+      ) {
+        setMethod("email");
+        setEmailAddress(saved.email);
+        setVerification(saved.type);
+        setCooldown(
+          Math.max(0, Math.ceil((saved.retryAt - Date.now()) / 1000)),
+        );
+      } else sessionStorage.removeItem(pendingKey);
+    } catch {}
     if (!supabase) return;
     let active = true;
     supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (active && data.session)
+        if (active && data.session) {
+          clearPending();
           window.location.replace(
             safeLoginDestination(
               new URLSearchParams(window.location.search).get("next"),
             ),
           );
+        }
       })
       .catch(() => {});
     return () => {
       active = false;
     };
   }, []);
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setTimeout(
+      () => setCooldown((value) => Math.max(0, value - 1)),
+      1000,
+    );
+    return () => clearTimeout(timer);
+  }, [cooldown]);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (busy) return;
@@ -47,7 +107,7 @@ export default function Login() {
     }
     const form = new FormData(e.currentTarget),
       email = String(form.get("email")).trim(),
-      password = String(form.get("password") ?? "");
+      password = String(form.get("password") || "");
     setEmailAddress(email);
     setBusy(true);
     setNotice("");
@@ -58,10 +118,7 @@ export default function Login() {
           redirectTo: authCallbackUrl(window.location.origin, true),
         });
         if (error) throw error;
-        setVerification("recovery");
-        setNotice(
-          "Bu e-poçtla hesab varsa, şifrəni yeniləmə linki göndəriləcək.",
-        );
+        pending("recovery", email);
       } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -69,13 +126,18 @@ export default function Login() {
           options: { emailRedirectTo: authCallbackUrl(window.location.origin) },
         });
         if (error) throw error;
-        if (data.session) window.location.href = "/profile";
-        else {
-          setVerification("signup");
-          setNotice(
-            "E-poçtuna təsdiq göndərildi. Linki aç və ya məktubda kod varsa, aşağıda yaz.",
-          );
+        if (data.session) {
+          goToAccount();
+          return;
         }
+        if (data.user?.identities && data.user.identities.length === 0) {
+          setMode("login");
+          setNotice(
+            "Bu ünvanla artıq hesabın varsa, daxil ol və ya şifrəni yenilə. Qeydiyyatı təkrar etmək lazım deyil.",
+          );
+          return;
+        }
+        pending("signup", email);
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -89,8 +151,7 @@ export default function Login() {
             setUnconfirmed(true);
           throw error;
         }
-        const next = new URLSearchParams(window.location.search).get("next");
-        window.location.href = safeLoginDestination(next);
+        goToAccount();
       }
     } catch (error) {
       setNotice(authErrorMessage(error));
@@ -102,13 +163,14 @@ export default function Login() {
     e.preventDefault();
     if (!supabase || !verification || busy) return;
     const token = String(
-      new FormData(e.currentTarget).get("code") ?? "",
+      new FormData(e.currentTarget).get("code") || "",
     ).trim();
     if (!/^\d{6,10}$/.test(token)) {
-      setNotice("Məktubdakı 6–10 rəqəmli kodu yazın.");
+      setNotice("Məktubdakı 6–10 rəqəmli kodu yaz.");
       return;
     }
     setBusy(true);
+    setNotice("");
     try {
       const { error } = await supabase.auth.verifyOtp({
         email: emailAddress,
@@ -116,17 +178,19 @@ export default function Login() {
         type: verification,
       });
       if (error) throw error;
-      window.location.href =
-        verification === "recovery" ? "/reset-password" : "/profile";
-    } catch {
-      setNotice("Kod səhvdir və ya vaxtı bitib. Yeni kod istəyin.");
+      clearPending();
+      if (verification === "recovery") window.location.href = "/reset-password";
+      else goToAccount();
+    } catch (error) {
+      setNotice(authErrorMessage(error));
     } finally {
       setBusy(false);
     }
   }
   async function resend() {
-    if (!supabase || !emailAddress || busy) return;
+    if (!supabase || !emailAddress || busy || cooldown > 0) return;
     setBusy(true);
+    setNotice("");
     try {
       const { error } =
         verification === "recovery"
@@ -141,172 +205,280 @@ export default function Login() {
               },
             });
       if (error) throw error;
-      setVerification(verification === "recovery" ? "recovery" : "signup");
-      setNotice(
-        "Yeni təsdiq məktubu göndərildi. Ən son məktubdan istifadə edin.",
+      pending(
+        verification === "recovery" ? "recovery" : "signup",
+        emailAddress,
       );
       setUnconfirmed(false);
-    } catch {
-      setNotice("Məktub göndərilmədi. Bir az gözləyib yenidən yoxlayın.");
+    } catch (error) {
+      setNotice(authErrorMessage(error));
+      if ((error as { status?: number })?.status === 429) setCooldown(60);
     } finally {
       setBusy(false);
     }
   }
+  function changeMode(next: "login" | "signup" | "reset") {
+    clearPending();
+    setVerification(null);
+    setUseCode(false);
+    setMode(next);
+    setNotice("");
+    setUnconfirmed(false);
+  }
   return (
     <main className="loginPage">
-      <Link className="logo" href="/">
-        kiraye<span>.az</span>
-      </Link>
-      <section>
-        <div className="authEmblem">⌂</div>
-        <p className="eyebrow">KİRAYƏ ÜÇÜN BİR ÜNVAN</p>
-        <h1>
-          {mode === "signup"
-            ? "Aramıza xoş gəldin"
-            : mode === "reset"
-              ? "Şifrəni yenilə"
-              : "Xoş gəldin!"}
-        </h1>
-        <p className="authLead">
-          {mode === "signup"
-            ? "Hesab yarat, elan yerləşdir və kirayə verməyə başla."
-            : mode === "reset"
-              ? "Hesabının e-poçt ünvanını yaz."
-              : "Elanlarını idarə etmək üçün hesabına daxil ol."}
-        </p>
-        {!verification && (
-          <form onSubmit={submit}>
-            <fieldset className="authFields" disabled={busy}>
-              <label>
-                E-poçt
-                <input
-                  autoComplete="email"
-                  name="email"
-                  value={emailAddress}
-                  onChange={(e) => setEmailAddress(e.target.value)}
-                  type="email"
-                  required
-                  placeholder="ad@example.com"
-                  maxLength={254}
-                />
-              </label>
-              {mode !== "reset" && (
-                <label>
-                  Şifrə
-                  <input
-                    autoComplete={
-                      mode === "signup" ? "new-password" : "current-password"
-                    }
-                    aria-label="Şifrə"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    minLength={mode === "signup" ? 8 : 1}
-                    required
-                    placeholder={
-                      mode === "signup"
-                        ? "Ən azı 8 simvol"
-                        : "Hesabının şifrəsi"
-                    }
-                    maxLength={128}
-                  />
-                  <button
-                    className="passwordToggle"
-                    type="button"
-                    aria-pressed={showPassword}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? "Şifrəni gizlət" : "Şifrəni göstər"}
-                  </button>
-                </label>
-              )}
-              <button disabled={busy}>
-                {busy
-                  ? "Gözləyin..."
-                  : mode === "signup"
-                    ? "Hesab yarat"
-                    : mode === "reset"
-                      ? "Yeniləmə linki göndər"
-                      : "Daxil ol →"}
-              </button>
-            </fieldset>
-          </form>
-        )}
-        {verification && (
-          <form onSubmit={verifyCode} className="verificationForm">
-            <p className="authLead">
-              {emailAddress} ünvanına gələn ən son məktubu yoxla. Məktubda
-              rəqəmli kod varsa, onu burada təsdiqləyə bilərsən.
-            </p>
-            <label>
-              Təsdiq kodu
-              <input
-                name="code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                pattern="[0-9]{6,10}"
-                minLength={6}
-                maxLength={10}
-                required
-                placeholder="E-poçtdakı kod"
-              />
-            </label>
-            <button disabled={busy}>
-              {busy ? "Yoxlanılır..." : "Kodu təsdiqlə"}
+      <div className="authHeader">
+        <Link className="logo" href="/">
+          kiraye<span>.az</span>
+        </Link>
+        <Link href="/help">Kömək</Link>
+      </div>
+      <div className="authShell">
+        <section aria-labelledby="auth-title">
+          <h1 id="auth-title">
+            {method === "phone"
+              ? "Hesaba giriş"
+              : verification
+                ? "E-poçtunu yoxla"
+                : mode === "signup"
+                  ? "Hesab yarat"
+                  : mode === "reset"
+                    ? "Şifrəni yenilə"
+                    : "Hesaba giriş"}
+          </h1>
+          <div className="authMethods" aria-label="Giriş üsulu">
+            <button
+              type="button"
+              aria-pressed={method === "phone"}
+              onClick={() => {
+                setMethod("phone");
+                setNotice("");
+              }}
+            >
+              Telefonla
             </button>
             <button
               type="button"
-              className="resendButton"
-              disabled={busy}
-              onClick={resend}
+              aria-pressed={method === "email"}
+              onClick={() => setMethod("email")}
             >
-              Yeni məktub göndər
+              E-poçtla
             </button>
-          </form>
-        )}
-        {unconfirmed && (
-          <button className="link" disabled={busy} onClick={resend}>
-            E-poçtu təsdiqlə / Yeni məktub göndər
-          </button>
-        )}
-        {notice && (
-          <div className="notice" role="status">
-            {notice}
-            {!supabase && (
-              <a className="authBack" href="https://kiraye-az.vercel.app/login">
-                Əsas saytda daxil ol →
-              </a>
-            )}
           </div>
-        )}
-        {mode === "login" && (
-          <button
-            className="link"
-            disabled={busy}
-            onClick={() => {
-              setMode("reset");
-              setVerification(null);
-              setNotice("");
-            }}
-          >
-            Şifrəni unutmusunuz?
-          </button>
-        )}
-        <button
-          className="link"
-          onClick={() => {
-            setMode(mode === "login" ? "signup" : "login");
-            setVerification(null);
-            setNotice("");
-          }}
-        >
-          {mode === "login"
-            ? "Hesabın yoxdur? Qeydiyyatdan keç"
-            : "Hesabın var? Daxil ol"}
-        </button>
+          {method === "phone" ? (
+            <PhoneLogin
+              onSuccess={goToAccount}
+              onEmail={() => setMethod("email")}
+            />
+          ) : (
+            <>
+              {!verification && (
+                <p className="authLead">
+                  {mode === "signup"
+                    ? "Elan yerləşdirmək üçün qeydiyyatdan keç."
+                    : mode === "reset"
+                      ? "Hesabına bağlı e-poçt ünvanını yaz."
+                      : "Saytda qeydiyyatdan keçdiyin məlumatlarla daxil ol."}
+                </p>
+              )}
+              {!verification ? (
+                <form onSubmit={submit}>
+                  <fieldset className="authFields" disabled={busy}>
+                    <label>
+                      E-poçt
+                      <input
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        value={emailAddress}
+                        onChange={(e) => setEmailAddress(e.target.value)}
+                        required
+                        maxLength={254}
+                        placeholder="ad@example.com"
+                      />
+                    </label>
+                    {mode !== "reset" && (
+                      <label>
+                        Şifrə
+                        <div className="passwordField">
+                          <input
+                            aria-label="Şifrə"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            autoComplete={
+                              mode === "signup"
+                                ? "new-password"
+                                : "current-password"
+                            }
+                            minLength={mode === "signup" ? 8 : 1}
+                            maxLength={128}
+                            required
+                            placeholder={
+                              mode === "signup" ? "Ən azı 8 simvol" : "Şifrən"
+                            }
+                          />
+                          <button
+                            type="button"
+                            className="passwordToggle"
+                            aria-label={
+                              showPassword ? "Şifrəni gizlət" : "Şifrəni göstər"
+                            }
+                            aria-pressed={showPassword}
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? "Gizlət" : "Göstər"}
+                          </button>
+                        </div>
+                      </label>
+                    )}
+                    <button className="authSubmit" disabled={busy}>
+                      {busy
+                        ? "Gözləyin..."
+                        : mode === "signup"
+                          ? "Hesab yarat"
+                          : mode === "reset"
+                            ? "Yeniləmə linki göndər"
+                            : "Daxil ol →"}
+                    </button>
+                  </fieldset>
+                </form>
+              ) : (
+                <div className="confirmationPanel">
+                  <p className="authLead">
+                    {verification === "recovery"
+                      ? "Bu ünvanla hesab varsa, şifrəni yeniləmə məktubu üçün sorğu qəbul edildi."
+                      : "Təsdiq məktubu üçün sorğu qəbul edildi."}
+                  </p>
+                  <div className="confirmationEmail">{emailAddress}</div>
+                  <p className="confirmationInstruction">
+                    Məktubdakı{" "}
+                    <strong>
+                      {verification === "recovery"
+                        ? "şifrəni yenilə"
+                        : "hesabı təsdiqlə"}
+                    </strong>{" "}
+                    linkini aç. Standart təsdiq məktubunda rəqəmli kod olmaya
+                    bilər.
+                  </p>
+                  <p className="mailHelp">
+                    Məktub görünmür? Spam və Promosyonlar qovluqlarını yoxla.
+                    Çatdırılma bir neçə dəqiqə çəkə bilər.
+                  </p>
+                  <div className="confirmationActions">
+                    <button
+                      className="authSubmit"
+                      type="button"
+                      disabled={busy || cooldown > 0}
+                      onClick={resend}
+                    >
+                      {busy
+                        ? "Sorğu göndərilir..."
+                        : cooldown > 0
+                          ? `Yenidən göndər (${cooldown} san)`
+                          : "Yenidən göndər"}
+                    </button>
+                    <button
+                      type="button"
+                      className="link"
+                      disabled={busy}
+                      onClick={() =>
+                        changeMode(
+                          verification === "recovery" ? "reset" : "signup",
+                        )
+                      }
+                    >
+                      E-poçtu dəyiş
+                    </button>
+                  </div>
+                  <button
+                    className="codeDisclosure"
+                    type="button"
+                    disabled={busy}
+                    aria-expanded={useCode}
+                    onClick={() => {
+                      setUseCode(!useCode);
+                      setNotice("");
+                    }}
+                  >
+                    {useCode
+                      ? "Kod girişini bağla"
+                      : "Məktubda rəqəmli kod var"}
+                  </button>
+                  {useCode && (
+                    <form className="verificationForm" onSubmit={verifyCode}>
+                      <label>
+                        Təsdiq kodu
+                        <input
+                          name="code"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          pattern="[0-9]{6,10}"
+                          minLength={6}
+                          maxLength={10}
+                          required
+                          placeholder="000000"
+                        />
+                      </label>
+                      <button className="authSubmit" disabled={busy}>
+                        {busy ? "Yoxlanılır..." : "Kodu təsdiqlə"}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )}
+              {unconfirmed && (
+                <button
+                  className="link"
+                  disabled={busy || cooldown > 0}
+                  onClick={resend}
+                >
+                  E-poçtu təsdiqlə / Yeni məktub göndər
+                </button>
+              )}
+              {notice && (
+                <div className="notice" role="status">
+                  {notice}
+                  {!supabase && (
+                    <a
+                      className="authBack"
+                      href="https://kiraye-az.vercel.app/login"
+                    >
+                      Əsas saytda daxil ol →
+                    </a>
+                  )}
+                </div>
+              )}
+              <div className="authFooter">
+                {mode === "login" && !verification && (
+                  <button
+                    className="link"
+                    disabled={busy}
+                    onClick={() => changeMode("reset")}
+                  >
+                    Şifrəni unutmusunuz?
+                  </button>
+                )}
+                <button
+                  className="link"
+                  disabled={busy}
+                  onClick={() =>
+                    changeMode(
+                      mode === "login" && !verification ? "signup" : "login",
+                    )
+                  }
+                >
+                  {mode === "login" && !verification
+                    ? "Hesabın yoxdur? Qeydiyyatdan keç"
+                    : "Hesabın var? Daxil ol"}
+                </button>
+              </div>
+            </>
+          )}
+        </section>
         <Link className="authBack" href="/">
           ← Elanlara qayıt
         </Link>
-      </section>
+      </div>
     </main>
   );
 }

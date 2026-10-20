@@ -1,6 +1,10 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  authErrorMessage,
+  safeLoginDestination,
+} from "../../lib/auth-messages";
 import { authCallbackUrl } from "../../lib/auth-flow";
 import { supabase } from "../../lib/supabase";
 import "./style.css";
@@ -12,7 +16,26 @@ export default function Login() {
     [verification, setVerification] = useState<"signup" | "recovery" | null>(
       null,
     ),
-    [unconfirmed, setUnconfirmed] = useState(false);
+    [unconfirmed, setUnconfirmed] = useState(false),
+    [showPassword, setShowPassword] = useState(false);
+  useEffect(() => {
+    if (!supabase) return;
+    let active = true;
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (active && data.session)
+          window.location.replace(
+            safeLoginDestination(
+              new URLSearchParams(window.location.search).get("next"),
+            ),
+          );
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (busy) return;
@@ -59,18 +82,18 @@ export default function Login() {
           password,
         });
         if (error) {
-          if (error.code === "email_not_confirmed") setUnconfirmed(true);
+          if (
+            error.code === "email_not_confirmed" ||
+            /email not confirmed/i.test(error.message)
+          )
+            setUnconfirmed(true);
           throw error;
         }
         const next = new URLSearchParams(window.location.search).get("next");
-        window.location.href = next === "/new" ? "/new" : "/profile";
+        window.location.href = safeLoginDestination(next);
       }
-    } catch {
-      setNotice(
-        mode === "login"
-          ? "Daxil olmaq mümkün olmadı. E-poçt, şifrə və e-poçt təsdiqini yoxlayın."
-          : "Sorğu tamamlanmadı. Məlumatları yoxlayıb bir az sonra yenidən cəhd edin.",
-      );
+    } catch (error) {
+      setNotice(authErrorMessage(error));
     } finally {
       setBusy(false);
     }
@@ -153,49 +176,66 @@ export default function Login() {
         </p>
         {!verification && (
           <form onSubmit={submit}>
-            <label>
-              E-poçt
-              <input
-                autoComplete="email"
-                name="email"
-                type="email"
-                required
-                placeholder="ad@example.com"
-                maxLength={254}
-              />
-            </label>
-            {mode !== "reset" && (
+            <fieldset className="authFields" disabled={busy}>
               <label>
-                Şifrə
+                E-poçt
                 <input
-                  autoComplete={
-                    mode === "signup" ? "new-password" : "current-password"
-                  }
-                  name="password"
-                  type="password"
-                  minLength={8}
+                  autoComplete="email"
+                  name="email"
+                  value={emailAddress}
+                  onChange={(e) => setEmailAddress(e.target.value)}
+                  type="email"
                   required
-                  placeholder="Ən azı 8 simvol"
-                  maxLength={128}
+                  placeholder="ad@example.com"
+                  maxLength={254}
                 />
               </label>
-            )}
-            <button disabled={busy}>
-              {busy
-                ? "Gözləyin..."
-                : mode === "signup"
-                  ? "Hesab yarat"
-                  : mode === "reset"
-                    ? "Yeniləmə linki göndər"
-                    : "Daxil ol →"}
-            </button>
+              {mode !== "reset" && (
+                <label>
+                  Şifrə
+                  <input
+                    autoComplete={
+                      mode === "signup" ? "new-password" : "current-password"
+                    }
+                    aria-label="Şifrə"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    minLength={mode === "signup" ? 8 : 1}
+                    required
+                    placeholder={
+                      mode === "signup"
+                        ? "Ən azı 8 simvol"
+                        : "Hesabının şifrəsi"
+                    }
+                    maxLength={128}
+                  />
+                  <button
+                    className="passwordToggle"
+                    type="button"
+                    aria-pressed={showPassword}
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? "Şifrəni gizlət" : "Şifrəni göstər"}
+                  </button>
+                </label>
+              )}
+              <button disabled={busy}>
+                {busy
+                  ? "Gözləyin..."
+                  : mode === "signup"
+                    ? "Hesab yarat"
+                    : mode === "reset"
+                      ? "Yeniləmə linki göndər"
+                      : "Daxil ol →"}
+              </button>
+            </fieldset>
           </form>
         )}
         {verification && (
           <form onSubmit={verifyCode} className="verificationForm">
             <p className="authLead">
-              {emailAddress} ünvanına gələn məktubu yoxla. Link localhost açırsa
-              və məktubda rəqəmli kod varsa, onu burada təsdiqləyə bilərsən.
+              {emailAddress} ünvanına gələn ən son məktubu yoxla. Məktubda
+              rəqəmli kod varsa, onu burada təsdiqləyə bilərsən.
             </p>
             <label>
               Təsdiq kodu
@@ -231,11 +271,17 @@ export default function Login() {
         {notice && (
           <div className="notice" role="status">
             {notice}
+            {!supabase && (
+              <a className="authBack" href="https://kiraye-az.vercel.app/login">
+                Əsas saytda daxil ol →
+              </a>
+            )}
           </div>
         )}
         {mode === "login" && (
           <button
             className="link"
+            disabled={busy}
             onClick={() => {
               setMode("reset");
               setVerification(null);

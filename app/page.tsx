@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { searchCatalog, PAGE_SIZE } from "../lib/catalog";
+import { supabase } from "../lib/supabase";
 import { matchesRentalFilters } from "../lib/rental-details";
 import ListingDetails from "./components/ListingDetails";
 import CategoryIcon from "./components/CategoryIcon";
@@ -12,10 +14,7 @@ import {
   cities,
   Listing,
   examples,
-  loadListings,
   readFavorites,
-  money,
-  periodName,
   categoryName,
 } from "../lib/marketplace";
 
@@ -42,7 +41,10 @@ export default function Home() {
     [gearbox, setGearbox] = useState(""),
     [noDeposit, setNoDeposit] = useState(false),
     [from, setFrom] = useState(""),
-    [until, setUntil] = useState("");
+    [until, setUntil] = useState(""),
+    [total, setTotal] = useState(0),
+    [retry, setRetry] = useState(0),
+    [layout, setLayout] = useState("grid");
   useEffect(() => {
     setFavorites(readFavorites());
     setOnlyFavorites(
@@ -50,27 +52,89 @@ export default function Home() {
     );
     const syncFavorites = () => setFavorites(readFavorites());
     window.addEventListener("kiraye:favorites", syncFavorites);
+    return () => window.removeEventListener("kiraye:favorites", syncFavorites);
+  }, []);
+  const favoriteIds = onlyFavorites ? favorites.join(",") : "";
+  useEffect(() => {
+    if (!supabase) {
+      setDemo(true);
+      setLoading(false);
+      setNotice(
+        "Hazırda nümunə elanlara baxırsınız. Real elanlar xidmət aktivləşdirildikdən sonra görünəcək.",
+      );
+      return;
+    }
     let active = true;
-    loadListings()
-      .then((items) => {
-        if (active) setListings(items);
+    setLoading(true);
+    const timer = setTimeout(() => {
+      searchCatalog({
+        category,
+        city,
+        period,
+        query,
+        min,
+        max,
+        sort,
+        page,
+        rooms,
+        area,
+        brand,
+        gearbox,
+        noDeposit,
+        from,
+        until,
+        favorites: onlyFavorites
+          ? favoriteIds
+            ? favoriteIds.split(",")
+            : []
+          : null,
       })
-      .catch(() => {
-        if (active) {
-          setDemo(true);
-          setNotice(
-            "Hazırda nümunə elanlara baxırsınız. Real elanlar xidmət aktivləşdirildikdən sonra görünəcək.",
-          );
-        }
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
+        .then(({ items, total }) => {
+          if (active) {
+            setListings(items);
+            setTotal(total);
+            setDemo(false);
+            setNotice("");
+          }
+        })
+        .catch(() => {
+          if (active) {
+            setListings([]);
+            setTotal(0);
+            setDemo(false);
+            setNotice(
+              "Elanları yükləmək mümkün olmadı. Bağlantını yoxlayıb yenidən cəhd et.",
+            );
+          }
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    }, 250);
     return () => {
       active = false;
-      window.removeEventListener("kiraye:favorites", syncFavorites);
+      clearTimeout(timer);
     };
-  }, []);
+  }, [
+    category,
+    city,
+    period,
+    query,
+    min,
+    max,
+    sort,
+    page,
+    rooms,
+    area,
+    brand,
+    gearbox,
+    noDeposit,
+    from,
+    until,
+    onlyFavorites,
+    favoriteIds,
+    retry,
+  ]);
   useEffect(() => {
     setPage(1);
   }, [
@@ -100,7 +164,7 @@ export default function Home() {
       if (e.key === "Tab") {
         const items = Array.from(
           document.querySelectorAll<HTMLElement>(
-            "[role=dialog] button, [role=dialog] a[href]",
+            "[role=dialog] button:not([disabled]), [role=dialog] a[href], [role=dialog] input:not([disabled]), [role=dialog] select:not([disabled]), [role=dialog] textarea:not([disabled])",
           ),
         );
         const first = items[0],
@@ -121,58 +185,57 @@ export default function Home() {
       previous?.focus();
     };
   }, [detail]);
-  const filtered = useMemo(
-    () =>
-      (demo ? examples : listings)
-        .filter(
-          (x) =>
-            (!category || x.category === category) &&
-            (!city || x.city === city) &&
-            (!period || x.rental_period === period) &&
-            (!min || x.price >= Number(min)) &&
-            (!max || x.price <= Number(max)) &&
-            (!onlyFavorites || favorites.includes(x.id)) &&
-            matchesRentalFilters(x, {
-              rooms,
-              area,
-              brand,
-              gearbox,
-              noDeposit,
-              from,
-              until,
-            }) &&
-            `${x.title} ${x.city} ${x.district ?? ""}`
-              .toLocaleLowerCase("az")
-              .includes(query.toLocaleLowerCase("az")),
-        )
-        .sort((a, b) =>
-          sort === "low"
-            ? a.price - b.price
-            : sort === "high"
-              ? b.price - a.price
-              : Date.parse(b.created_at) - Date.parse(a.created_at),
-        ),
-    [
-      demo,
-      listings,
-      category,
-      city,
-      period,
-      min,
-      max,
-      onlyFavorites,
-      favorites,
-      query,
-      sort,
-      rooms,
-      area,
-      brand,
-      gearbox,
-      noDeposit,
-      from,
-      until,
-    ],
-  );
+  const filtered = useMemo(() => {
+    if (!demo) return listings;
+    return examples
+      .filter(
+        (x) =>
+          (!category || x.category === category) &&
+          (!city || x.city === city) &&
+          (!period || x.rental_period === period) &&
+          (!min || x.price >= Number(min)) &&
+          (!max || x.price <= Number(max)) &&
+          (!onlyFavorites || favorites.includes(x.id)) &&
+          matchesRentalFilters(x, {
+            rooms,
+            area,
+            brand,
+            gearbox,
+            noDeposit,
+            from,
+            until,
+          }) &&
+          `${x.title} ${x.city} ${x.district ?? ""}`
+            .toLocaleLowerCase("az")
+            .includes(query.toLocaleLowerCase("az")),
+      )
+      .sort((a, b) =>
+        sort === "low"
+          ? a.price - b.price
+          : sort === "high"
+            ? b.price - a.price
+            : Date.parse(b.created_at) - Date.parse(a.created_at),
+      );
+  }, [
+    demo,
+    listings,
+    category,
+    city,
+    period,
+    min,
+    max,
+    onlyFavorites,
+    favorites,
+    query,
+    sort,
+    rooms,
+    area,
+    brand,
+    gearbox,
+    noDeposit,
+    from,
+    until,
+  ]);
   function favorite(id: string) {
     const next = favorites.includes(id)
       ? favorites.filter((x) => x !== id)
@@ -354,7 +417,7 @@ export default function Home() {
               <p className="muted">
                 {loading
                   ? "Elanlar yüklənir..."
-                  : `${filtered.length} ${demo ? "nümunə " : ""}elan tapıldı`}
+                  : `${demo ? filtered.length : total} ${demo ? "nümunə " : ""}elan tapıldı`}
               </p>
             </div>
             <select
@@ -366,6 +429,22 @@ export default function Home() {
               <option value="low">Əvvəlcə ucuz</option>
               <option value="high">Əvvəlcə bahalı</option>
             </select>
+          </div>
+          <div className="viewControls">
+            <button
+              className="secondary"
+              aria-pressed={layout === "grid"}
+              onClick={() => setLayout("grid")}
+            >
+              ▦ Kartlar
+            </button>
+            <button
+              className="secondary"
+              aria-pressed={layout === "list"}
+              onClick={() => setLayout("list")}
+            >
+              ☰ Siyahı
+            </button>
           </div>
           <div className="filterRow">
             <label>
@@ -491,17 +570,25 @@ export default function Home() {
           {notice && (
             <p className="notice" role="status">
               {notice}
+              {!demo && (
+                <button
+                  className="textButton"
+                  onClick={() => setRetry(retry + 1)}
+                >
+                  Yenidən yoxla
+                </button>
+              )}
             </p>
           )}
           {loading ? (
             <div className="grid">
-              {[1, 2, 3].map((i) => (
+              {Array.from({ length: 8 }, (_, i) => i).map((i) => (
                 <div className="skeleton" key={i} />
               ))}
             </div>
           ) : (
-            <div className="grid">
-              {filtered.slice(0, page * 9).map((x) => (
+            <div className={layout === "list" ? "grid catalogList" : "grid"}>
+              {filtered.map((x) => (
                 <ListingCard
                   key={x.id}
                   item={x}
@@ -518,16 +605,41 @@ export default function Home() {
             <div className="empty">
               <span>⌕</span>
               <h3>Uyğun elan tapılmadı</h3>
-              <p>Başqa sözlə axtar və ya filtrləri dəyiş.</p>
+              <p>Başqa sözlə axtar və ya öz kirayə elanını yerləşdir.</p>
+              <Link className="add" href="/new">
+                + Elan yerləşdir
+              </Link>
               <button className="add" onClick={reset}>
                 Bütün elanlara bax
               </button>
             </div>
           )}
-          {filtered.length > page * 9 && (
-            <button className="loadMore" onClick={() => setPage(page + 1)}>
-              Daha çox elan göstər ↓
-            </button>
+          {!demo && total > PAGE_SIZE && (
+            <nav className="pagination" aria-label="Elan səhifələri">
+              <button
+                className="secondary"
+                disabled={page === 1 || loading}
+                onClick={() => {
+                  setPage(page - 1);
+                  document.getElementById("elanlar")?.scrollIntoView();
+                }}
+              >
+                ← Əvvəlki
+              </button>
+              <span>
+                {page} / {Math.ceil(total / PAGE_SIZE)}
+              </span>
+              <button
+                className="secondary"
+                disabled={page * PAGE_SIZE >= total || loading}
+                onClick={() => {
+                  setPage(page + 1);
+                  document.getElementById("elanlar")?.scrollIntoView();
+                }}
+              >
+                Növbəti →
+              </button>
+            </nav>
           )}
         </section>
         <section className="publishBanner wrap">

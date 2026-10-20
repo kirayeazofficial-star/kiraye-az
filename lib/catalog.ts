@@ -1,0 +1,94 @@
+import { supabase } from "./supabase";
+import type { Listing } from "./marketplace";
+import type { RentalFilters } from "./rental-details";
+export const PAGE_SIZE = 18;
+export type CatalogQuery = RentalFilters & {
+  category: string;
+  city: string;
+  period: string;
+  query: string;
+  min: string;
+  max: string;
+  sort: string;
+  page: number;
+  favorites: string[] | null;
+};
+const number = (value: string) =>
+  value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0
+    ? Number(value)
+    : null;
+const date = (value: string) =>
+  /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+  Number.isFinite(Date.parse(value)) &&
+  new Date(value).toISOString().slice(0, 10) === value
+    ? value
+    : null;
+export function applyCatalogFilters<T>(builder: T, input: CatalogQuery): T {
+  // Fixed field names and stripped PostgREST punctuation prevent query expression injection.
+  let q = builder as any;
+  q = q.eq("status", "published");
+  if (input.category) q = q.eq("category", input.category);
+  if (input.city) q = q.eq("city", input.city);
+  if (input.period) q = q.eq("rental_period", input.period);
+  if (number(input.min) !== null) q = q.gte("price", number(input.min));
+  if (number(input.max) !== null) q = q.lte("price", number(input.max));
+  const search = input.query
+    .replace(/[(),.%_"\\]/g, " ")
+    .trim()
+    .replace(/\s+/g, "%")
+    .slice(0, 120);
+  if (search)
+    q = q.or(
+      `title.ilike.%${search}%,city.ilike.%${search}%,district.ilike.%${search}%`,
+    );
+  if (input.rooms === "4+") q = q.gte("rooms", 4);
+  else if (number(input.rooms) !== null) q = q.eq("rooms", number(input.rooms));
+  if (number(input.area) !== null) q = q.gte("area_m2", number(input.area));
+  if (input.brand)
+    q = q.ilike(
+      "attributes->>brand",
+      `%${input.brand.replace(/[%_]/g, "").slice(0, 40)}%`,
+    );
+  if (input.gearbox) q = q.eq("attributes->>gearbox", input.gearbox);
+  if (input.noDeposit) q = q.eq("deposit", 0);
+  if (date(input.from)) {
+    q = q
+      .or(`available_from.is.null,available_from.lte.${input.from}`)
+      .or(`available_until.is.null,available_until.gte.${input.from}`);
+  }
+  if (date(input.until)) {
+    q = q
+      .or(`available_until.is.null,available_until.gte.${input.until}`)
+      .or(`available_from.is.null,available_from.lte.${input.until}`);
+  }
+  if (date(input.from) && date(input.until)) {
+    const days = Math.max(
+      1,
+      (Date.parse(input.until) - Date.parse(input.from)) / 86400000,
+    );
+    q = q.lte("min_days", days);
+  }
+  if (input.favorites) q = q.in("id", input.favorites);
+  if (input.sort === "low" || input.sort === "high")
+    q = q.order("price", { ascending: input.sort === "low" });
+  q = q
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false });
+  const page = Math.max(1, Math.floor(input.page) || 1);
+  return q.range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1) as T;
+}
+export async function searchCatalog(input: CatalogQuery) {
+  if (!supabase) throw new Error("unconfigured");
+  const favorites = input.favorites?.filter((id) =>
+    /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id),
+  );
+  if (favorites?.length === 0) return { items: [] as Listing[], total: 0 };
+  if (input.from && input.until && input.from > input.until)
+    return { items: [] as Listing[], total: 0 };
+  const { data, count, error } = await applyCatalogFilters(
+    supabase.from("listings").select("*", { count: "exact" }),
+    { ...input, favorites: favorites ?? null },
+  );
+  if (error) throw error;
+  return { items: data as Listing[], total: count ?? 0 };
+}

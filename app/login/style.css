@@ -158,3 +158,52 @@
     margin-bottom: 18px;
   }
 }
+.authFields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.loginPage form .passwordToggle {
+  display: block;
+  width: auto;
+  margin: 8px 0 0 auto;
+  background: none;
+  color: #8170bd;
+  font-size: 11px;
+  padding: 3px 0;
+  box-shadow: none;
+}
+.loginPage form .passwordToggle:hover {
+  background: none;
+  color: #5742a2;
+}
+.loginPage section {
+  margin-top: 28px;
+  margin-bottom: 28px;
+  padding: 28px 34px;
+}
+.loginPage h1 {
+  font-size: 31px;
+}
+.authEmblem {
+  width: 43px;
+  height: 43px;
+  font-size: 25px;
+  margin-bottom: 15px;
+}
+.authLead {
+  margin-bottom: 18px;
+}
+.loginPage label {
+  margin: 14px 0;
+}
+.loginPage input {
+  padding: 13px;
+}
+.loginPage .link {
+  margin-top: 16px;
+}
+.authBack {
+  margin-top: 22px;
+}

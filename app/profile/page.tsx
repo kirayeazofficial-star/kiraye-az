@@ -17,7 +17,8 @@ export default function Profile() {
     [listings, setListings] = useState<Listing[]>([]),
     [error, setError] = useState(""),
     [admin, setAdmin] = useState(false),
-    [busy, setBusy] = useState("");
+    [busy, setBusy] = useState(""),
+    [statusFilter, setStatusFilter] = useState("");
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
@@ -141,52 +142,81 @@ export default function Profile() {
                 </Link>
               </div>
             )}
-            <div className="accountListings">
-              {listings.map((x) => (
-                <article key={x.id}>
-                  <img
-                    src={x.images?.[0] || "/placeholder.svg"}
-                    alt={x.title}
-                  />
-                  <div>
-                    <span className={`status ${x.status}`}>
-                      {statusName(x.status)}
-                    </span>
-                    <h3>{x.title}</h3>
-                    <p>
-                      {money(x.price)} ₼ / {periodName(x.rental_period)} ·{" "}
-                      {x.city}
-                    </p>
-                    {x.status === "rejected" && x.rejection_reason && (
-                      <p className="error">Səbəb: {x.rejection_reason}</p>
-                    )}
-                    <small>
-                      {new Date(x.created_at).toLocaleDateString("az-AZ")}
-                    </small>
-                  </div>
-                  <div className="accountItemActions">
-                    <Link className="secondary" href={`/edit/${x.id}`}>
-                      {x.status === "archived"
-                        ? "Yenilə və göndər"
-                        : "Redaktə et"}
-                    </Link>
-                    {x.status === "published" && (
-                      <Link className="secondary" href={`/listings/${x.id}`}>
-                        Elana bax
-                      </Link>
-                    )}
-                    {x.status !== "archived" && (
-                      <button
-                        className="secondary"
-                        disabled={!!busy}
-                        onClick={() => archive(x)}
-                      >
-                        {busy === x.id ? "Gözləyin..." : "Arxivə keçir"}
-                      </button>
-                    )}
-                  </div>
-                </article>
+            <div className="profileTabs" aria-label="Elan vəziyyəti">
+              {[
+                ["", "Hamısı"],
+                ["published", "Yayımlanmış"],
+                ["pending", "Yoxlanılır"],
+                ["rejected", "Rədd edilmiş"],
+                ["archived", "Arxiv"],
+              ].map(([status, label]) => (
+                <button
+                  key={status}
+                  className="secondary"
+                  aria-pressed={statusFilter === status}
+                  onClick={() => setStatusFilter(status)}
+                >
+                  {label} (
+                  {
+                    listings.filter((x) => !status || x.status === status)
+                      .length
+                  }
+                  )
+                </button>
               ))}
+            </div>
+            {!!listings.length &&
+              !listings.some(
+                (x) => !statusFilter || x.status === statusFilter,
+              ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
+            <div className="accountListings">
+              {listings
+                .filter((x) => !statusFilter || x.status === statusFilter)
+                .map((x) => (
+                  <article key={x.id}>
+                    <img
+                      src={x.images?.[0] || "/placeholder.svg"}
+                      alt={x.title}
+                    />
+                    <div>
+                      <span className={`status ${x.status}`}>
+                        {statusName(x.status)}
+                      </span>
+                      <h3>{x.title}</h3>
+                      <p>
+                        {money(x.price)} ₼ / {periodName(x.rental_period)} ·{" "}
+                        {x.city}
+                      </p>
+                      {x.status === "rejected" && x.rejection_reason && (
+                        <p className="error">Səbəb: {x.rejection_reason}</p>
+                      )}
+                      <small>
+                        {new Date(x.created_at).toLocaleDateString("az-AZ")}
+                      </small>
+                    </div>
+                    <div className="accountItemActions">
+                      <Link className="secondary" href={`/edit/${x.id}`}>
+                        {x.status === "archived"
+                          ? "Yenilə və göndər"
+                          : "Redaktə et"}
+                      </Link>
+                      {x.status === "published" && (
+                        <Link className="secondary" href={`/listings/${x.id}`}>
+                          Elana bax
+                        </Link>
+                      )}
+                      {x.status !== "archived" && (
+                        <button
+                          className="secondary"
+                          disabled={!!busy}
+                          onClick={() => archive(x)}
+                        >
+                          {busy === x.id ? "Gözləyin..." : "Arxivə keçir"}
+                        </button>
+                      )}
+                    </div>
+                  </article>
+                ))}
             </div>
           </>
         )}

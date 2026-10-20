@@ -1,5 +1,26 @@
+"use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { supabase } from "../../lib/supabase";
 export default function Header() {
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    if (!supabase) return;
+    let active = true;
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (active) setSignedIn(!!session);
+    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (active) setSignedIn(!!data.session);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+  }, []);
   return (
     <>
       <div className="topbar">
@@ -13,13 +34,13 @@ export default function Header() {
           <small>KİRAYƏ ÜÇÜN BİR ÜNVAN</small>
         </Link>
         <nav aria-label="Əsas menyu">
-          <Link href="/#elanlar">Elanlar</Link>
+          <a href="/#elanlar">Elanlar</a>
           <a href="/?favorites=1#elanlar">♡ Seçilmişlər</a>
-          <Link href="/profile">Şəxsi kabinet</Link>
+          <Link href="/help">Kömək</Link>
         </nav>
         <div className="headerActions">
-          <Link className="accountLink" href="/login">
-            Daxil ol
+          <Link className="accountLink" href={signedIn ? "/profile" : "/login"}>
+            {signedIn ? "Hesabım" : "Daxil ol"}
           </Link>
           <Link className="add" href="/new">
             + Elan yerləşdir
@@ -36,8 +57,8 @@ export default function Header() {
         <Link className="mobilePublish" href="/new">
           +<span>Elan yerləşdir</span>
         </Link>
-        <Link href="/profile">
-          ◎<span>Hesabım</span>
+        <Link href={signedIn ? "/profile" : "/login"}>
+          ◎<span>{signedIn ? "Hesabım" : "Daxil ol"}</span>
         </Link>
       </nav>
     </>

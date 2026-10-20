@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Listing,
   categoryName,
@@ -20,13 +21,14 @@ export default function ListingCard({
       <div
         className="photo"
         style={{
-          backgroundImage: `url("${item.images?.[0] || "/placeholder.svg"}"), url("/placeholder.svg")`,
+          backgroundImage: `url("${item.images?.[0] || "/placeholder.svg"}"),url('/placeholder.svg')`,
         }}
       >
-        <button
+        <Link
+          prefetch={false}
           className="photoOpen"
+          href={`/listings/${item.id}`}
           aria-label={`${item.title} — ətraflı bax`}
-          onClick={onOpen}
         />
         <span className="badge">
           {item.demo ? "Nümunə" : categoryName(item.category)}
@@ -41,8 +43,15 @@ export default function ListingCard({
         >
           {favorite ? "♥" : "♡"}
         </button>
+        <button
+          className="quickView"
+          aria-label={`${item.title} — sürətli baxış`}
+          onClick={onOpen}
+        >
+          Sürətli baxış
+        </button>
       </div>
-      <button className="cardBody" onClick={onOpen}>
+      <Link prefetch={false} className="cardBody" href={`/listings/${item.id}`}>
         <strong className="price">
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
@@ -60,7 +69,7 @@ export default function ListingCard({
               : new Date(item.created_at).toLocaleDateString("az-AZ")}
           </span>
         </div>
-      </button>
+      </Link>
     </article>
   );
 }

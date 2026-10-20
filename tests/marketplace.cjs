@@ -88,7 +88,7 @@ const { chromium } = require(
       assert.equal(await page.locator(".listingCard").count(), 1);
     });
     await check("detail modal, focus cycle and escape", async () => {
-      await page.locator(".cardBody").first().click();
+      await page.locator(".quickView").first().click();
       await page.getByRole("dialog").waitFor();
       assert.match(
         await page.getByRole("dialog").innerText(),

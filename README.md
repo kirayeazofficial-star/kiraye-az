@@ -31,6 +31,14 @@ Create `.env.local` using `.env.example` and supply the project URL and browser-
 
 Import this GitHub repository, use the Next.js preset, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in project environment variables, then redeploy. No secret/service-role key is needed. NEXT_PUBLIC values are embedded at build time. Set domain/DNS and Supabase callback URLs for the final hostname. Choose a Vercel plan appropriate for commercial use.
 
+## Login and deployment fixes
+
+- Login accepts existing shorter passwords; the eight-character minimum applies only to new registration. Invalid credentials, missing confirmation, expired codes and rate limits have separate messages.
+- Preview email callbacks use the stable production hostname by default. Only production variables are required on the primary site; enable Preview bindings separately if preview sign-in is needed.
+- Header follows session state; profile has status tabs; logout clears the session.
+- The public catalog runs search/filter/sort/count in Supabase before pagination (18 results/page). Failed live requests show an error and retry action, rather than replacing real results with sample listings. Samples are explicitly labeled only in the unconfigured state.
+- Compact grid/list layouts and real listing links improve navigation. Quick previews remain available separately.
+
 ## Checks
 
 ```sh
@@ -39,9 +47,12 @@ npm run lint
 npm run test:ui
 node tests/auth-flow.cjs
 node tests/rental-details.cjs
+node tests/catalog.cjs
 ```
 
 Build includes TypeScript validation. UI tests need `npm run dev -- --port 3001` or a production server on port 3001. They exercise the disconnected/demo state with browser-safe Supabase variables absent. `PLAYWRIGHT_MODULE_PATH` may point to an existing Playwright module; browser binaries must be installed. Set `CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium` to use a system browser.
+
+`tests/account-workflow.cjs` requires a configured browser-public Supabase URL/key and running server. It intercepts all Supabase requests and simulates login, navigation, photo submission, editing, archive and logout; it does not create real accounts, send emails or prove a real user's password is valid. Run with `TEST_BASE_URL=http://127.0.0.1:3013 node tests/account-workflow.cjs`. Do not rebuild the same `.next` directory while browser tests are running. The disconnected suite requires empty Supabase variables at build time; test it separately before building the configured version.
 
 Database-policy tests use an isolated PGlite instance: `PGLITE_MODULE_PATH=/path/to/@electric-sql/pglite node tests/schema.cjs`. They stub the Supabase auth/storage schemas and do not replace live integration tests.
 
@@ -63,4 +74,4 @@ Responsive category marketplace, city/price/period/search/sort filters, persiste
 
 ## Launch limits
 
-No payments, reservations, VIP listings, in-app chat or automated identity verification. Photo bucket is public, including photos uploaded for pending listings; don't upload sensitive material. Feed currently loads the latest 200 listings; introduce server pagination/indexed search before scaling. Rate limits, legal/privacy review, retention/deletion operations and monitoring should be finalized before public launch. Backend integration needs real project credentials and SQL activation and is not established by a successful local build.
+No payments, reservations, VIP listings, in-app chat or automated identity verification. Photo bucket is public, including photos uploaded for pending listings; don't upload sensitive material. The public feed searches and sorts in the database and pages 18 results at a time; owner/admin queues still load up to 200 rows, so introduce queue pagination before high-volume moderation. Rate limits, legal/privacy review, retention/deletion operations and monitoring should be finalized before public launch. Backend integration needs real project credentials and SQL activation and is not established by a successful local build.

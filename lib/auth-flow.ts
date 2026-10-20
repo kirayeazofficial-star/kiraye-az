@@ -11,7 +11,10 @@ export function authCallbackUrl(origin: string, recovery = false) {
       /* Keep the current site for invalid optional configuration. */
     }
   }
-  if (["localhost", "127.0.0.1", "0.0.0.0", "[::1]"].includes(base.hostname))
+  if (
+    ["localhost", "127.0.0.1", "0.0.0.0", "[::1]"].includes(base.hostname) ||
+    (!configured && base.hostname.endsWith(".vercel.app"))
+  )
     base = new URL("https://kiraye-az.vercel.app");
   return `${base.origin}/auth/callback${recovery ? "?flow=recovery" : ""}`;
 }

@@ -46,6 +46,12 @@ const { authCallbackUrl, completeEmailAuth } = exported;
       "https://kiraye.az/auth/callback?flow=recovery",
     ),
   );
+  await check("preview emails return to the stable production hostname", () =>
+    assert.equal(
+      authCallbackUrl("https://kiraye-preview-aaa-c624.vercel.app"),
+      "https://kiraye-az.vercel.app/auth/callback",
+    ),
+  );
   const session = { access_token: "test-session" };
   const client = {
     auth: { getSession: async () => ({ data: { session }, error: null }) },

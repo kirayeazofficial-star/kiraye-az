@@ -119,6 +119,9 @@ export default function Profile() {
             <div className="sectionTitle">
               <h2>Elanlarım</h2>
               <div className="contactActions">
+                <Link className="secondary" href="/account">
+                  Profil ayarları
+                </Link>
                 {admin && (
                   <Link className="secondary" href="/admin">
                     Admin paneli
@@ -154,19 +157,34 @@ export default function Profile() {
                       {money(x.price)} ₼ / {periodName(x.rental_period)} ·{" "}
                       {x.city}
                     </p>
+                    {x.status === "rejected" && x.rejection_reason && (
+                      <p className="error">Səbəb: {x.rejection_reason}</p>
+                    )}
                     <small>
                       {new Date(x.created_at).toLocaleDateString("az-AZ")}
                     </small>
                   </div>
-                  {x.status !== "archived" && (
-                    <button
-                      className="secondary"
-                      disabled={!!busy}
-                      onClick={() => archive(x)}
-                    >
-                      {busy === x.id ? "Gözləyin..." : "Arxivə keçir"}
-                    </button>
-                  )}
+                  <div className="accountItemActions">
+                    <Link className="secondary" href={`/edit/${x.id}`}>
+                      {x.status === "archived"
+                        ? "Yenilə və göndər"
+                        : "Redaktə et"}
+                    </Link>
+                    {x.status === "published" && (
+                      <Link className="secondary" href={`/listings/${x.id}`}>
+                        Elana bax
+                      </Link>
+                    )}
+                    {x.status !== "archived" && (
+                      <button
+                        className="secondary"
+                        disabled={!!busy}
+                        onClick={() => archive(x)}
+                      >
+                        {busy === x.id ? "Gözləyin..." : "Arxivə keçir"}
+                      </button>
+                    )}
+                  </div>
                 </article>
               ))}
             </div>

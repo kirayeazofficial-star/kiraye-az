@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ReportQueue from "../components/ReportQueue";
 import Header from "../components/Header";
 import { supabase } from "../../lib/supabase";
 import {
@@ -15,7 +16,8 @@ export default function Admin() {
     [items, setItems] = useState<Listing[]>([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(""),
-    [filter, setFilter] = useState("pending");
+    [filter, setFilter] = useState("pending"),
+    [reasons, setReasons] = useState<Record<string, string>>({});
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
@@ -40,12 +42,19 @@ export default function Admin() {
   }, []);
   async function moderate(id: string, status: string) {
     if (!supabase || busy) return;
+    if (status === "rejected" && (reasons[id]?.trim().length ?? 0) < 10) {
+      setError("Rədd səbəbini ən azı 10 simvolla yazın.");
+      return;
+    }
     setBusy(id);
     setError("");
     try {
       const result = await supabase
         .from("listings")
-        .update({ status })
+        .update({
+          status,
+          rejection_reason: status === "rejected" ? reasons[id].trim() : null,
+        })
         .eq("id", id)
         .select("id")
         .single();
@@ -115,6 +124,19 @@ export default function Admin() {
                     {money(x.price)} ₼ · {x.city} · {x.contact}
                   </p>
                   <p className="description">{x.description}</p>
+                  <label className="moderationReason">
+                    Rədd səbəbi
+                    <textarea
+                      maxLength={500}
+                      minLength={10}
+                      rows={2}
+                      value={reasons[x.id] ?? ""}
+                      onChange={(e) =>
+                        setReasons({ ...reasons, [x.id]: e.target.value })
+                      }
+                      placeholder="Elan sahibinə görünəcək səbəbi yazın."
+                    />
+                  </label>
                   <div className="contactActions">
                     <button
                       disabled={!!busy || x.status === "published"}
@@ -140,6 +162,7 @@ export default function Admin() {
                   </div>
                 </article>
               ))}
+            <ReportQueue />
           </>
         )}
         {error && (

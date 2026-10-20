@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { matchesRentalFilters } from "../lib/rental-details";
+import ListingDetails from "./components/ListingDetails";
 import CategoryIcon from "./components/CategoryIcon";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -32,13 +34,22 @@ export default function Home() {
     [favorites, setFavorites] = useState<string[]>([]),
     [onlyFavorites, setOnlyFavorites] = useState(false),
     [detail, setDetail] = useState<Listing | null>(null),
-    [image, setImage] = useState(0),
-    [page, setPage] = useState(1);
+    [page, setPage] = useState(1),
+    [advanced, setAdvanced] = useState(false),
+    [rooms, setRooms] = useState(""),
+    [area, setArea] = useState(""),
+    [brand, setBrand] = useState(""),
+    [gearbox, setGearbox] = useState(""),
+    [noDeposit, setNoDeposit] = useState(false),
+    [from, setFrom] = useState(""),
+    [until, setUntil] = useState("");
   useEffect(() => {
     setFavorites(readFavorites());
     setOnlyFavorites(
       new URLSearchParams(window.location.search).has("favorites"),
     );
+    const syncFavorites = () => setFavorites(readFavorites());
+    window.addEventListener("kiraye:favorites", syncFavorites);
     let active = true;
     loadListings()
       .then((items) => {
@@ -57,11 +68,28 @@ export default function Home() {
       });
     return () => {
       active = false;
+      window.removeEventListener("kiraye:favorites", syncFavorites);
     };
   }, []);
   useEffect(() => {
     setPage(1);
-  }, [query, city, category, period, min, max, sort, onlyFavorites]);
+  }, [
+    query,
+    city,
+    category,
+    period,
+    min,
+    max,
+    sort,
+    onlyFavorites,
+    rooms,
+    area,
+    brand,
+    gearbox,
+    noDeposit,
+    from,
+    until,
+  ]);
   useEffect(() => {
     if (!detail) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -104,6 +132,15 @@ export default function Home() {
             (!min || x.price >= Number(min)) &&
             (!max || x.price <= Number(max)) &&
             (!onlyFavorites || favorites.includes(x.id)) &&
+            matchesRentalFilters(x, {
+              rooms,
+              area,
+              brand,
+              gearbox,
+              noDeposit,
+              from,
+              until,
+            }) &&
             `${x.title} ${x.city} ${x.district ?? ""}`
               .toLocaleLowerCase("az")
               .includes(query.toLocaleLowerCase("az")),
@@ -127,6 +164,13 @@ export default function Home() {
       favorites,
       query,
       sort,
+      rooms,
+      area,
+      brand,
+      gearbox,
+      noDeposit,
+      from,
+      until,
     ],
   );
   function favorite(id: string) {
@@ -136,6 +180,7 @@ export default function Home() {
     setFavorites(next);
     try {
       localStorage.setItem("kiraye-favorites", JSON.stringify(next));
+      window.dispatchEvent(new Event("kiraye:favorites"));
     } catch {
       setNotice("Seçilmişləri bu brauzerdə saxlamaq mümkün olmadı.");
     }
@@ -148,6 +193,13 @@ export default function Home() {
     setMax("");
     setQuery("");
     setOnlyFavorites(false);
+    setRooms("");
+    setArea("");
+    setBrand("");
+    setGearbox("");
+    setNoDeposit(false);
+    setFrom("");
+    setUntil("");
   }
   return (
     <>
@@ -345,10 +397,97 @@ export default function Home() {
             >
               ♡ Seçilmişlər ({favorites.length})
             </button>
+            <button
+              className="filterToggleButton"
+              aria-expanded={advanced}
+              onClick={() => setAdvanced(!advanced)}
+            >
+              Ətraflı filtrlər
+            </button>
             <button className="textButton" onClick={reset}>
               Filtrləri təmizlə
             </button>
           </div>
+          {advanced && (
+            <div className="advancedFilters">
+              <label>
+                Otaq sayı
+                <select
+                  aria-label="Otaq sayı"
+                  value={rooms}
+                  onChange={(e) => setRooms(e.target.value)}
+                >
+                  <option value="">İstənilən</option>
+                  <option value="1">1 otaq</option>
+                  <option value="2">2 otaq</option>
+                  <option value="3">3 otaq</option>
+                  <option value="4+">4 və daha çox</option>
+                </select>
+              </label>
+              <label>
+                Minimum sahə (m²)
+                <input
+                  aria-label="Minimum sahə"
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  type="number"
+                  min="0"
+                />
+              </label>
+              <label>
+                Avtomobil markası
+                <input
+                  aria-label="Avtomobil markası"
+                  value={brand}
+                  onChange={(e) => setBrand(e.target.value)}
+                  placeholder="Hyundai"
+                />
+              </label>
+              <label>
+                Sürətlər qutusu
+                <select
+                  aria-label="Sürətlər qutusu"
+                  value={gearbox}
+                  onChange={(e) => setGearbox(e.target.value)}
+                >
+                  <option value="">İstənilən</option>
+                  <option>Avtomat</option>
+                  <option>Mexaniki</option>
+                </select>
+              </label>
+              <label>
+                Başlanğıc tarixi
+                <input
+                  aria-label="Başlanğıc tarixi"
+                  type="date"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                />
+              </label>
+              <label>
+                Son tarix
+                <input
+                  aria-label="Son tarix"
+                  type="date"
+                  min={from || undefined}
+                  value={until}
+                  onChange={(e) => setUntil(e.target.value)}
+                />
+              </label>
+              <label className="checkLabel">
+                <input
+                  type="checkbox"
+                  checked={noDeposit}
+                  onChange={(e) => setNoDeposit(e.target.checked)}
+                />{" "}
+                Depozitsiz
+              </label>
+              <p className="homeHelp">
+                Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır.
+                Mövcudluğu əlaqə saxlayaraq dəqiqləşdir.
+              </p>
+            </div>
+          )}
           {notice && (
             <p className="notice" role="status">
               {notice}
@@ -370,7 +509,6 @@ export default function Home() {
                   onFavorite={() => favorite(x.id)}
                   onOpen={() => {
                     setDetail(x);
-                    setImage(0);
                   }}
                 />
               ))}
@@ -456,68 +594,7 @@ export default function Home() {
             >
               ×
             </button>
-            <img
-              className="detailImage"
-              src={detail.images?.[image] || "/placeholder.svg"}
-              alt={detail.title}
-            />
-            {detail.images?.length > 1 && (
-              <div className="thumbnails">
-                {detail.images.map((src, i) => (
-                  <button
-                    aria-label={`${i + 1}-ci şəkil`}
-                    key={src}
-                    onClick={() => setImage(i)}
-                  >
-                    <img src={src} alt="" />
-                  </button>
-                ))}
-              </div>
-            )}
-            <span className="tag">
-              {categoryName(detail.category)}
-              {detail.demo ? " · Nümunə elan" : ""}
-            </span>
-            <h2 id="detail-title">{detail.title}</h2>
-            <p className="muted">
-              ⌖ {detail.city} {detail.district}
-            </p>
-            <strong className="detailPrice">
-              {money(detail.price)} ₼{" "}
-              <small>/ {periodName(detail.rental_period)}</small>
-            </strong>
-            <p className="description">{detail.description}</p>
-            {(detail.rooms || detail.area_m2) && (
-              <p>
-                {detail.rooms ? `${detail.rooms} otaq · ` : ""}
-                {detail.area_m2 ? `${detail.area_m2} m²` : ""}
-              </p>
-            )}
-            {detail.contact && !detail.demo ? (
-              <div className="contactActions">
-                <a
-                  className="add"
-                  href={`tel:${detail.contact.replace(/[^+\d]/g, "")}`}
-                >
-                  Zəng et · {detail.contact}
-                </a>
-                <a
-                  className="secondary"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={`https://wa.me/${detail.contact.replace(/\D/g, "").replace(/^0/, "994")}`}
-                >
-                  WhatsApp
-                </a>
-              </div>
-            ) : (
-              <p className="notice">
-                Nümunə elandır, real kirayə təklifi deyil.
-              </p>
-            )}
-            <p className="safetyNote">
-              Təhlükəsizliyin üçün əmlakı görmədən beh göndərmə.
-            </p>
+            <ListingDetails key={detail.id} item={detail} compact />
           </section>
         </div>
       )}

@@ -12,6 +12,8 @@ export default function Footer() {
         <Link href="/new">Elan yerləşdir</Link>
         <Link href="/profile">Şəxsi kabinet</Link>
         <Link href="/rules">Qaydalar və təhlükəsizlik</Link>
+        <Link href="/help">Kömək</Link>
+        <Link href="/privacy">Məxfilik</Link>
         <small>© {new Date().getFullYear()} kiraye.az</small>
       </div>
     </footer>

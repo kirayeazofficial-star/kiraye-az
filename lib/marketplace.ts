@@ -38,6 +38,18 @@ export type Listing = {
   rooms?: number;
   area_m2?: number;
   demo?: boolean;
+  deposit?: number;
+  min_days?: number;
+  available_from?: string | null;
+  available_until?: string | null;
+  rejection_reason?: string | null;
+  attributes?: {
+    brand?: string;
+    model?: string;
+    year?: number;
+    gearbox?: string;
+    amenities?: string[];
+  };
 };
 export const categoryName = (id: string) =>
   categories.find((c) => c.id === id)?.name ?? id;
@@ -120,6 +132,16 @@ export const examples: Listing[] = [
   contact: "",
   created_at: "2026-10-20",
   demo: true,
+  rooms: i === 0 ? 2 : i === 2 ? 4 : undefined,
+  area_m2: i === 0 ? 65 : i === 2 ? 180 : i === 3 ? 85 : undefined,
+  deposit: i === 1 ? 100 : 0,
+  min_days: 1,
+  attributes:
+    i === 1
+      ? { brand: "Hyundai", model: "Elantra", year: 2022, gearbox: "Avtomat" }
+      : i === 0
+        ? { amenities: ["Wi-Fi", "Kondisioner", "Mebel"] }
+        : {},
 }));
 export async function loadListings(
   scope: "public" | "mine" | "admin" = "public",

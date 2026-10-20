@@ -1789,5 +1789,318 @@ footer > div:last-child {
   }
 }
 
-.publishBanner:after{content:"";width:110px;height:110px;right:270px;bottom:-32px;border-top:14px solid #d9d5ff;border-right:14px solid #d9d5ff;transform:rotate(-15deg);opacity:.65}
-@media(max-width:720px){.publishBanner:after{right:15px;bottom:-25px;width:90px;height:90px}}
+.publishBanner:after {
+  content: "";
+  width: 110px;
+  height: 110px;
+  right: 270px;
+  bottom: -32px;
+  border-top: 14px solid #d9d5ff;
+  border-right: 14px solid #d9d5ff;
+  transform: rotate(-15deg);
+  opacity: 0.65;
+}
+@media (max-width: 720px) {
+  .publishBanner:after {
+    right: 15px;
+    bottom: -25px;
+    width: 90px;
+    height: 90px;
+  }
+}
+
+/* Rental details, owner tools and moderation */
+.listingDetailPage {
+  min-height: 65vh;
+  padding-bottom: 65px;
+}
+.listingDetails {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 38px;
+  align-items: start;
+}
+.listingGallery {
+  position: sticky;
+  top: 24px;
+}
+.listingMainImage {
+  width: 100%;
+  height: 390px;
+  display: block;
+  object-fit: cover;
+  border-radius: 16px;
+  background: #eef0f8;
+}
+.listingInfo h1 {
+  font-size: 32px;
+  letter-spacing: -1px;
+  line-height: 1.3;
+}
+.listingInfo h3 {
+  font-size: 16px;
+}
+.listingInfo .detailPrice {
+  font-size: 30px;
+  margin: 22px 0;
+}
+.detailTools {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.detailTools .secondary {
+  font-size: 11px;
+  padding: 10px 12px;
+}
+.detailSpecs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 22px 0;
+  margin: 24px 0;
+}
+.detailSpecs dt {
+  font-size: 11px;
+  color: #929ab0;
+}
+.detailSpecs dd {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 7px 0 0;
+  color: #3f4e6b;
+}
+.amenityTags {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+.amenityTags span {
+  background: #eeecfb;
+  border-radius: 7px;
+  color: #796cab;
+  padding: 8px 11px;
+  font-size: 11px;
+}
+.listingInfo .contactActions {
+  margin-top: 25px;
+}
+.compactDetails {
+  display: block;
+}
+.compactDetails .listingGallery {
+  position: static;
+}
+.compactDetails .listingMainImage {
+  height: 260px;
+  margin-bottom: 24px;
+}
+.compactDetails h2 {
+  font-size: 24px;
+}
+.compactDetails .detailSpecs {
+  gap: 12px;
+}
+.modal.detail {
+  width: min(100%, 710px);
+}
+.modal.detail .listingInfo .detailPrice {
+  font-size: 26px;
+}
+.reportForm {
+  margin: 15px 0;
+  padding: 20px;
+  background: #f5f4fc;
+  border: 1px solid #e8e5f5;
+  border-radius: 12px;
+}
+.reportForm label,
+.moderationReason {
+  display: block;
+  font-size: 12px;
+  margin: 14px 0;
+}
+.reportForm select,
+.reportForm textarea,
+.moderationReason textarea {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+.reportQueue {
+  margin-top: 50px;
+  border-top: 1px solid var(--line);
+  padding-top: 30px;
+}
+.accountItemActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  max-width: 240px;
+  justify-content: flex-end;
+}
+.accountItemActions .secondary {
+  padding: 11px;
+  font-size: 11px;
+}
+.accountForm {
+  max-width: 580px;
+  margin-top: 30px;
+}
+.amenitiesField {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+.amenitiesField > p {
+  width: 100%;
+  margin: 0 0 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.listingForm .amenitiesField label {
+  margin: 0;
+  font-size: 11px;
+}
+.listingForm .amenitiesField input {
+  margin: 2px 0 0;
+}
+.advancedFilters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: end;
+  background: #f1f3fa;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+.advancedFilters label {
+  font-size: 11px;
+  color: #7d88a3;
+}
+.advancedFilters input,
+.advancedFilters select {
+  display: block;
+  margin-top: 8px;
+  max-width: 170px;
+  font-size: 12px;
+}
+.filterToggleButton {
+  font-size: 12px;
+  border: 1px solid #dadfec;
+  border-radius: 8px;
+  padding: 11px 14px;
+  background: #fff;
+  color: #5d638f;
+}
+.thumbnails button[aria-pressed="true"] {
+  border-color: #7869c8;
+  outline: 2px solid #cbc4f6;
+  outline-offset: 2px;
+}
+.homeHelp {
+  margin-top: 20px;
+  color: #8a94ac;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.homeHelp a {
+  color: #7667b4;
+  text-decoration: underline;
+}
+.helpGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin: 35px 0;
+}
+.helpCard {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 27px;
+  border-radius: 14px;
+}
+.helpCard h2 {
+  font-size: 21px;
+}
+.helpCard p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #828ca4;
+}
+.helpCard a {
+  color: #7965bc;
+  font-size: 12px;
+}
+.accountListings article > div:not(.accountItemActions) {
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .listingDetails {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+  .listingGallery {
+    position: static;
+  }
+  .listingMainImage {
+    height: 360px;
+  }
+  .helpGrid {
+    gap: 15px;
+  }
+  .accountItemActions {
+    max-width: 180px;
+  }
+}
+@media (max-width: 720px) {
+  .listingInfo h1 {
+    font-size: 26px;
+  }
+  .listingMainImage {
+    height: 245px;
+  }
+  .listingInfo .detailPrice {
+    font-size: 27px;
+  }
+  .compactDetails .listingMainImage {
+    height: 215px;
+  }
+  .listingDetails {
+    gap: 20px;
+  }
+  .detailTools {
+    gap: 8px;
+  }
+  .detailSpecs {
+    gap: 14px;
+  }
+  .reportForm {
+    padding: 16px;
+  }
+  .accountItemActions {
+    max-width: none;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .advancedFilters {
+    gap: 12px;
+    padding: 16px;
+  }
+  .advancedFilters input,
+  .advancedFilters select {
+    max-width: 145px;
+  }
+  .helpGrid {
+    grid-template-columns: 1fr;
+  }
+  .helpCard {
+    padding: 23px;
+  }
+}

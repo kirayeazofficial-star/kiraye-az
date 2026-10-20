@@ -23,6 +23,13 @@ alter table public.listings add column if not exists contact text not null defau
 alter table public.listings add column if not exists images text[] not null default '{}';
 alter table public.listings drop constraint if exists listings_category_check;
 alter table public.listings add constraint listings_category_check check(category in ('property','car','motorcycle','villa','commercial','equipment','bicycle','event'));
+alter table public.listings add column if not exists deposit numeric(12,2) not null default 0;
+alter table public.listings add column if not exists min_days integer not null default 1;
+alter table public.listings add column if not exists available_from date;
+alter table public.listings add column if not exists available_until date;
+alter table public.listings add column if not exists rejection_reason text;
+alter table public.listings drop constraint if exists listings_rental_terms_check;
+alter table public.listings add constraint listings_rental_terms_check check(deposit between 0 and 1000000 and min_days between 1 and 365 and (available_from is null or available_until is null or available_from<=available_until));
 create index if not exists listings_public_feed on public.listings(status,created_at desc);
 create index if not exists listings_owner on public.listings(owner_id,created_at desc);
 
@@ -50,11 +57,16 @@ create trigger protect_profile_role before insert or update on public.profiles f
 create or replace function public.validate_listing() returns trigger
 language plpgsql set search_path = '' as $$
 begin
- if TG_OP='UPDATE' and new.owner_id is distinct from old.owner_id then raise exception 'Owner cannot be changed'; end if;
+ if TG_OP='UPDATE' and (new.owner_id is distinct from old.owner_id or new.id is distinct from old.id or new.created_at is distinct from old.created_at) then raise exception 'Listing identity cannot be changed'; end if;
  if auth.uid() is not null and not public.is_admin() then
   if TG_OP='INSERT' and (new.owner_id <> auth.uid() or new.status <> 'pending') then raise exception 'New listings require review'; end if;
   if TG_OP='UPDATE' and new.status not in ('pending','archived') then raise exception 'Only administrators can publish listings'; end if;
  end if;
+ if new.status<>'rejected' then new.rejection_reason=null; end if;
+ if new.status='rejected' and (new.rejection_reason is null or char_length(trim(new.rejection_reason))<10 or char_length(new.rejection_reason)>500) then raise exception 'Provide a rejection reason'; end if;
+ if jsonb_typeof(new.attributes)<>'object' then raise exception 'Invalid attributes'; end if;
+ if char_length(new.attributes::text)>5000 then raise exception 'Attributes too large'; end if;
+ if char_length(trim(new.city)) not between 2 and 80 or char_length(coalesce(new.district,''))>80 then raise exception 'Invalid location'; end if;
  if new.price > 1000000 or new.price <= 0 then raise exception 'Invalid price'; end if;
  if new.description is null or char_length(trim(new.description)) < 30 or char_length(new.description)>5000 then raise exception 'Description must contain 30-5000 characters'; end if;
  if new.contact is null or new.contact !~ '^\+?[0-9 ()-]{9,25}$' then raise exception 'Invalid contact'; end if;
@@ -96,6 +108,40 @@ drop policy if exists "owners remove listing photos" on storage.objects;
 create policy "public listing photos" on storage.objects for select to anon,authenticated using(bucket_id='listing-images');
 create policy "owners upload listing photos" on storage.objects for insert to authenticated with check(bucket_id='listing-images' and (storage.foldername(name))[1]=(select auth.uid())::text);
 create policy "owners remove listing photos" on storage.objects for delete to authenticated using(bucket_id='listing-images' and (storage.foldername(name))[1]=(select auth.uid())::text);
+
+-- Create account profiles automatically and preserve existing roles during upgrades.
+create or replace function public.kiraye_create_profile() returns trigger
+language plpgsql security definer set search_path='' as $$
+begin
+ insert into public.profiles(id) values(new.id) on conflict(id) do nothing;
+ return new;
+end;
+$$;
+drop trigger if exists kiraye_create_profile on auth.users;
+create trigger kiraye_create_profile after insert on auth.users for each row execute function public.kiraye_create_profile();
+insert into public.profiles(id) select id from auth.users on conflict(id) do nothing;
+
+-- One authenticated report per listing/person. Only moderators can resolve reports.
+create table if not exists public.listing_reports(
+ id uuid primary key default gen_random_uuid(),
+ listing_id uuid not null references public.listings(id) on delete cascade,
+ reporter_id uuid not null references auth.users(id) on delete cascade,
+ reason text not null check(reason in ('Saxta və ya şübhəli elan','Yanlış qiymət və məlumat','Artıq kirayəyə verilib','Uyğunsuz məzmun','Başqa səbəb')),
+ message text not null check(char_length(trim(message)) between 10 and 1000),
+ status text not null default 'open' check(status in ('open','resolved')),
+ created_at timestamptz not null default now(),
+ unique(listing_id,reporter_id)
+);
+create index if not exists listing_reports_queue on public.listing_reports(status,created_at desc);
+alter table public.listing_reports enable row level security;
+drop policy if exists "reporters and admins read reports" on public.listing_reports;
+drop policy if exists "users report public listings" on public.listing_reports;
+drop policy if exists "admins resolve reports" on public.listing_reports;
+create policy "reporters and admins read reports" on public.listing_reports for select to authenticated using(reporter_id=(select auth.uid()) or (select public.is_admin()));
+create policy "users report public listings" on public.listing_reports for insert to authenticated with check(reporter_id=(select auth.uid()) and status='open' and exists(select 1 from public.listings where id=listing_id and status='published' and owner_id<>(select auth.uid())));
+create policy "admins resolve reports" on public.listing_reports for update to authenticated using((select public.is_admin())) with check((select public.is_admin()));
+grant select,insert,update on public.listing_reports to authenticated;
+
 commit;
 
 -- To designate the owner, run separately in the SQL Editor after signing up:

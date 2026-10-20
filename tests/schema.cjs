@@ -28,8 +28,15 @@ const { PGlite } = require(
   checks++;
   console.log("PASS schema applies twice without data loss");
   await db.exec(
-    `insert into public.profiles(id,role) values('${owner}','user'),('${other}','user'),('${admin}','admin')`,
+    `insert into public.profiles(id,role) values('${owner}','user'),('${other}','user'),('${admin}','admin') on conflict(id) do update set role=excluded.role`,
   );
+  await db.exec(sql);
+  assert.equal((await db.query(`select role from public.profiles where id='${admin}'`)).rows[0].role,'admin');
+  checks++;console.log('PASS schema upgrades preserve administrator role');
+  const newUser='44444444-4444-4444-8444-444444444444';
+  await db.exec(`insert into auth.users(id,email) values('${newUser}','new@example.com')`);
+  assert.equal((await db.query(`select role from public.profiles where id='${newUser}'`)).rows[0].role,'user');
+  checks++;console.log('PASS new accounts receive a profile automatically');
   async function as(id) {
     await db.exec("reset role");
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
@@ -119,6 +126,123 @@ const { PGlite } = require(
   );
   checks++;
   console.log("PASS anonymous sees published listing");
+  await as(owner);
+  await db.exec(
+    `update public.listings set title='Updated title for review',status='pending',deposit=100,min_days=2 where id='${id}'`,
+  );
+  checks++;
+  console.log("PASS owner edits return listing to moderation");
+  await as(null);
+  assert.equal(
+    (await db.query("select * from public.listings")).rows.length,
+    0,
+  );
+  checks++;
+  console.log("PASS edited listing hidden until reapproved");
+  await as(admin);
+  await denied(
+    "admin must give rejection reason",
+    `update public.listings set status='rejected' where id='${id}'`,
+  );
+  await db.exec(
+    `update public.listings set status='rejected',rejection_reason='Please provide clearer photographs' where id='${id}'`,
+  );
+  await as(owner);
+  assert.equal(
+    (
+      await db.query(
+        `select rejection_reason from public.listings where id='${id}'`,
+      )
+    ).rows[0].rejection_reason,
+    "Please provide clearer photographs",
+  );
+  checks++;
+  console.log("PASS owner can see moderation rejection reason");
+  await denied(
+    "negative deposit rejected",
+    `update public.listings set status='pending',deposit=-1 where id='${id}'`,
+  );
+  await denied(
+    "zero rental period rejected",
+    `update public.listings set status='pending',min_days=0 where id='${id}'`,
+  );
+  await denied(
+    "invalid availability range rejected",
+    `update public.listings set status='pending',available_from='2026-12-10',available_until='2026-12-01' where id='${id}'`,
+  );
+  await denied(
+    "owner cannot change listing identity",
+    `update public.listings set status='pending',created_at='2020-01-01' where id='${id}'`,
+  );
+  await as(admin);
+  await db.exec(
+    `update public.listings set status='published' where id='${id}'`,
+  );
+  assert.equal(
+    (
+      await db.query(
+        `select rejection_reason from public.listings where id='${id}'`,
+      )
+    ).rows[0].rejection_reason,
+    null,
+  );
+  checks++;
+  console.log("PASS approval clears previous rejection reason");
+  await as(owner);
+  await denied(
+    "owner cannot report own listing",
+    `insert into public.listing_reports(listing_id,reporter_id,reason,message) values('${id}','${owner}','Başqa səbəb','This is a detailed report')`,
+  );
+  await as(other);
+  await denied(
+    "reporter identity cannot be forged",
+    `insert into public.listing_reports(listing_id,reporter_id,reason,message) values('${id}','${owner}','Başqa səbəb','This is a detailed report')`,
+  );
+  const report = await db.query(
+    `insert into public.listing_reports(listing_id,reporter_id,reason,message) values('${id}','${other}','Başqa səbəb','This is a detailed report') returning id`,
+  );
+  const reportId = report.rows[0].id;
+  checks++;
+  console.log("PASS authenticated visitor reports a published listing");
+  await denied(
+    "duplicate report rejected",
+    `insert into public.listing_reports(listing_id,reporter_id,reason,message) values('${id}','${other}','Başqa səbəb','This is a detailed report')`,
+  );
+  assert.equal(
+    (
+      await db.query(
+        `update public.listing_reports set status='resolved' where id='${reportId}' returning id`,
+      )
+    ).rows.length,
+    0,
+  );
+  checks++;
+  console.log("PASS reporter cannot resolve own report");
+  await as(admin);
+  await db.exec(
+    `insert into public.listing_reports(listing_id,reporter_id,reason,message) values('${id}','${admin}','Başqa səbəb','An independent detailed report')`,
+  );
+  assert.equal(
+    (await db.query("select * from public.listing_reports")).rows.length,
+    2,
+  );
+  await db.exec(
+    `update public.listing_reports set status='resolved' where id='${reportId}'`,
+  );
+  checks++;
+  console.log("PASS admin sees and resolves reports");
+  await as(other);
+  assert.equal(
+    (await db.query("select * from public.listing_reports")).rows.length,
+    1,
+  );
+  checks++;
+  console.log("PASS reporters cannot read each other reports");
+  await as(null);
+  await denied(
+    "anonymous reports rejected",
+    `insert into public.listing_reports(listing_id,reporter_id,reason,message) values('${id}','${other}','Başqa səbəb','This is a detailed report')`,
+  );
   await as(owner);
   await denied(
     "published content cannot be edited without re-review",

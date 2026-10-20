@@ -21,8 +21,10 @@ export function authCallbackUrl(
     (!configured && base.hostname.endsWith(".vercel.app"))
   )
     base = new URL("https://kiraye-az.vercel.app");
-  const callback = new URL("/auth/callback", base.origin);
-  if (recovery) callback.searchParams.set("flow", "recovery");
+  const callback = new URL(
+    recovery ? "/reset-password" : "/auth/callback",
+    base.origin,
+  );
   if (next && safeLoginDestination(next) !== "/profile")
     callback.searchParams.set("next", safeLoginDestination(next));
   return callback.toString();
@@ -69,7 +71,9 @@ export async function completeEmailAuth(client: SupabaseClient, href: string) {
     throw new Error(
       "Təsdiq tamamlanmadı. Giriş səhifəsindən yeni link və ya kod istəyin.",
     );
-  return type === "recovery" || url.searchParams.get("flow") === "recovery"
+  return type === "recovery" ||
+    url.searchParams.get("flow") === "recovery" ||
+    url.pathname === "/reset-password"
     ? "/reset-password"
     : safeLoginDestination(url.searchParams.get("next"));
 }

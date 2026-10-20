@@ -1,3 +1,4 @@
+import "./auth-return";
 import { createClient } from "@supabase/supabase-js";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const key =
@@ -9,7 +10,31 @@ export const supabase =
   /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url) &&
   key &&
   /^(sb_publishable_|eyJ)/.test(key)
-    ? createClient(url, key)
+    ? createClient(url, key, {
+        global: {
+          fetch: async (input, init) => {
+            const requestUrl =
+              typeof input === "string"
+                ? input
+                : input instanceof URL
+                  ? input.href
+                  : input.url;
+            if (!requestUrl.includes("/auth/v1/")) return fetch(input, init);
+            const controller = new AbortController();
+            const abort = () => controller.abort();
+            const signal = init?.signal;
+            if (signal?.aborted) abort();
+            else signal?.addEventListener("abort", abort, { once: true });
+            const timer = setTimeout(abort, 20000);
+            try {
+              return await fetch(input, { ...init, signal: controller.signal });
+            } finally {
+              clearTimeout(timer);
+              signal?.removeEventListener("abort", abort);
+            }
+          },
+        },
+      })
     : null;
 
 // The public Auth settings endpoint reports enabled providers, never credentials.

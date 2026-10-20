@@ -93,6 +93,7 @@ export default function Login() {
     );
   }
   useEffect(() => {
+    let recoveryPending = false;
     try {
       const stored = JSON.parse(
         sessionStorage.getItem("kiraye:auth-retry-at") || "null",
@@ -115,6 +116,7 @@ export default function Login() {
         Number.isFinite(saved.retryAt) &&
         saved.expiresAt > Date.now()
       ) {
+        recoveryPending = saved.type === "recovery";
         setMethod("email");
         setEmailAddress(saved.email);
         setVerification(saved.type);
@@ -131,9 +133,11 @@ export default function Login() {
         if (active && data.session) {
           clearPending();
           window.location.replace(
-            safeLoginDestination(
-              new URLSearchParams(window.location.search).get("next"),
-            ),
+            recoveryPending
+              ? "/reset-password"
+              : safeLoginDestination(
+                  new URLSearchParams(window.location.search).get("next"),
+                ),
           );
         }
       })
@@ -443,6 +447,11 @@ export default function Login() {
                     Məktub görünmür? Spam və Promosyonlar qovluqlarını yoxla.
                     Çatdırılma bir neçə dəqiqə çəkə bilər.
                   </p>
+                  {verification === "recovery" && (
+                    <Link className="recoveryAction" href="/reset-password">
+                      Linki açmışam — yeni şifrə təyin et
+                    </Link>
+                  )}
                   <div className="confirmationActions">
                     <button
                       className="authSubmit"

@@ -19,9 +19,11 @@ Kod Google OAuth girişini, normal e-poçt girişini, elan qəbulu, kabinet və 
    ```text
    https://kiraye-az.vercel.app/auth/callback**
    https://kiraye.az/auth/callback**
+   https://kiraye-az.vercel.app/reset-password
+   https://kiraye.az/reset-password
    ```
 
-   Sondakı `**` kabinetə və ya yarımçıq elan səhifəsinə qayıdış üçün callback query parametrlərinə icazə verir. Sayt qayıdış ünvanını özü məhdudlaşdırır; xarici sayta yönləndirmə qəbul edilmir. Şifrə yeniləməsi üçün əvvəlki `/reset-password` və `/profile` ünvanlarını da saxlamaq olar.
+   Sondakı `**` kabinetə və ya yarımçıq elan səhifəsinə qayıdış üçün callback query parametrlərinə icazə verir. Sayt qayıdış ünvanını özü məhdudlaşdırır; xarici sayta yönləndirmə qəbul edilmir. Şifrə yeniləməsi üçün `/reset-password` ünvanı mütləq saxlanmalıdır. Əvvəlki `/profile` ünvanını da saxlamaq olar.
 7. Giriş səhifəsini yenilə və “Google ilə davam et” seç. Google-da istifadə olunan e-poçt admin hesabına uyğun gəlməlidir. Admin icazəsi ayrıca `supabase/assign-owner-admin.sql` ilə verilir; Google ilə giriş avtomatik admin etmir.
 
 Google Cloud və Supabase idarəçi hesabları buradan əlçatan olmadığına görə Client ID/Secret yaratmaq və provider-i aktivləşdirmək layihə sahibinin hesabında edilməlidir. Öz Gmail şifrən və ya istifadəçinin Google şifrəsi sayta daxil edilmir.

@@ -55,7 +55,7 @@ const { authCallbackUrl, completeEmailAuth } = exported;
   await check("password recovery retains its destination through PKCE", () =>
     assert.equal(
       authCallbackUrl("https://kiraye.az", true),
-      "https://kiraye.az/auth/callback?flow=recovery",
+      "https://kiraye.az/reset-password",
     ),
   );
   await check("preview emails return to the stable production hostname", () =>
@@ -224,7 +224,7 @@ const { authCallbackUrl, completeEmailAuth } = exported;
         );
         assert.equal(
           authCallbackUrl("http://localhost:3000", true),
-          "https://kiraye.az/auth/callback?flow=recovery",
+          "https://kiraye.az/reset-password",
         );
       } finally {
         delete testEnv.NEXT_PUBLIC_SITE_URL;

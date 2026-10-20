@@ -44,9 +44,13 @@ export function authErrorMessage(error: unknown) {
     /token.*expired|token.*invalid|otp.*expired/i.test(message)
   )
     return "Kod və ya link düzgün deyil, yaxud vaxtı bitib. Yenisini istə.";
+  if (code === "same_password")
+    return "Yeni şifrə əvvəlki şifrədən fərqli olmalıdır.";
+  if (code === "reauthentication_needed")
+    return "Yeni bərpa linki istəyib şifrəni yenidən təyin et.";
   if (code === "weak_password")
     return "Daha güclü şifrə seç: ən azı 8 simvol istifadə et.";
-  if (/fetch|network|timeout/i.test(e?.message ?? ""))
+  if (/fetch|network|timeout|abort|Bağlantı gecikir/i.test(e?.message ?? ""))
     return "Bağlantı qurulmadı. İnternetini yoxlayıb yenidən cəhd et.";
   return "Sorğu tamamlanmadı. Bir az sonra yenidən yoxla.";
 }

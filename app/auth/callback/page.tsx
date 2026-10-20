@@ -3,26 +3,34 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../../lib/supabase";
 import { completeEmailAuth } from "../../../lib/auth-flow";
+import { authReturnHref, finishWithin } from "../../../lib/auth-return";
 import "../../login/style.css";
 export default function AuthCallback() {
   const [error, setError] = useState("");
-  const started = useRef(false);
+  const work = useRef<Promise<string> | null>(null);
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
     if (!supabase) {
       setError("Giriş xidməti hazır deyil. Bir az sonra yenidən yoxlayın.");
       return;
     }
-    completeEmailAuth(supabase, window.location.href)
+    let active = true;
+    work.current ??= finishWithin(
+      completeEmailAuth(supabase, authReturnHref(window.location.href)),
+    );
+    work.current
       .then((destination) => {
+        if (!active) return;
         window.history.replaceState(null, "", "/auth/callback");
         window.location.replace(destination);
       })
       .catch((err) => {
+        if (!active) return;
         window.history.replaceState(null, "", "/auth/callback");
         setError(err instanceof Error ? err.message : "Təsdiq tamamlanmadı.");
       });
+    return () => {
+      active = false;
+    };
   }, []);
   return (
     <main className="loginPage">

@@ -1,30 +1,266 @@
 "use client";
-
 import { FormEvent, useState } from "react";
+import Link from "next/link";
+import { authCallbackUrl } from "../../lib/auth-flow";
 import { supabase } from "../../lib/supabase";
 import "./style.css";
-
 export default function Login() {
-  const [creating, setCreating] = useState(false);
-  const [notice, setNotice] = useState("");
-  const [busy, setBusy] = useState(false);
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!supabase) { setNotice("Giriş xidməti hazırlanır. Bir az sonra yenidən cəhd et."); return; }
-    const form = new FormData(event.currentTarget);
-    const email = String(form.get("email")), password = String(form.get("password"));
+  const [mode, setMode] = useState<"login" | "signup" | "reset">("login"),
+    [notice, setNotice] = useState(""),
+    [busy, setBusy] = useState(false),
+    [emailAddress, setEmailAddress] = useState(""),
+    [verification, setVerification] = useState<"signup" | "recovery" | null>(
+      null,
+    ),
+    [unconfirmed, setUnconfirmed] = useState(false);
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (busy) return;
+    if (!supabase) {
+      setNotice(
+        "Giriş xidməti hələ aktivləşdirilməyib. Bir az sonra yenidən yoxlayın.",
+      );
+      return;
+    }
+    const form = new FormData(e.currentTarget),
+      email = String(form.get("email")).trim(),
+      password = String(form.get("password") ?? "");
+    setEmailAddress(email);
     setBusy(true);
+    setNotice("");
+    setUnconfirmed(false);
     try {
-      const response = creating
-        ? await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } })
-        : await supabase.auth.signInWithPassword({ email, password });
-      setNotice(response.error ? response.error.message : creating ? "Hesab yaradıldı. E-poçtuna gələn təsdiq linkinə bas." : "Uğurla daxil oldun.");
-      if (!creating && !response.error) window.location.href = "/";
+      if (mode === "reset") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: authCallbackUrl(window.location.origin, true),
+        });
+        if (error) throw error;
+        setVerification("recovery");
+        setNotice(
+          "Bu e-poçtla hesab varsa, şifrəni yeniləmə linki göndəriləcək.",
+        );
+      } else if (mode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: authCallbackUrl(window.location.origin) },
+        });
+        if (error) throw error;
+        if (data.session) window.location.href = "/profile";
+        else {
+          setVerification("signup");
+          setNotice(
+            "E-poçtuna təsdiq göndərildi. Linki aç və ya məktubda kod varsa, aşağıda yaz.",
+          );
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          if (error.code === "email_not_confirmed") setUnconfirmed(true);
+          throw error;
+        }
+        const next = new URLSearchParams(window.location.search).get("next");
+        window.location.href = next === "/new" ? "/new" : "/profile";
+      }
     } catch {
-      setNotice("Giriş xidməti ilə əlaqə qurulmadı. Bir az sonra yenidən yoxla.");
+      setNotice(
+        mode === "login"
+          ? "Daxil olmaq mümkün olmadı. E-poçt, şifrə və e-poçt təsdiqini yoxlayın."
+          : "Sorğu tamamlanmadı. Məlumatları yoxlayıb bir az sonra yenidən cəhd edin.",
+      );
     } finally {
       setBusy(false);
     }
   }
-  return <main className="loginPage"><a className="logo" href="/">kiraye<span>.az</span></a><section><p>{creating ? "PULSUZ QEYDİYYAT" : "GİRİŞ"}</p><h1>{creating ? "Hesabını yarat" : "Xoş gördük"}</h1><form onSubmit={submit}><label>E-poçt<input name="email" type="email" required placeholder="ad@example.com" /></label><label>Şifrə<input name="password" type="password" minLength={6} required placeholder="Ən az 6 simvol" /></label><button type="submit" disabled={busy}>{busy ? "Gözləyin..." : creating ? "Hesab yarat" : "Daxil ol"}</button></form>{notice && <div className="notice">{notice}</div>}<button className="link" onClick={() => {setCreating(!creating);setNotice("");}}>{creating ? "Hesabın var? Daxil ol" : "Hesabın yoxdur? Qeydiyyatdan keç"}</button></section></main>;
+  async function verifyCode(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!supabase || !verification || busy) return;
+    const token = String(
+      new FormData(e.currentTarget).get("code") ?? "",
+    ).trim();
+    if (!/^\d{6,10}$/.test(token)) {
+      setNotice("Məktubdakı 6–10 rəqəmli kodu yazın.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: emailAddress,
+        token,
+        type: verification,
+      });
+      if (error) throw error;
+      window.location.href =
+        verification === "recovery" ? "/reset-password" : "/profile";
+    } catch {
+      setNotice("Kod səhvdir və ya vaxtı bitib. Yeni kod istəyin.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function resend() {
+    if (!supabase || !emailAddress || busy) return;
+    setBusy(true);
+    try {
+      const { error } =
+        verification === "recovery"
+          ? await supabase.auth.resetPasswordForEmail(emailAddress, {
+              redirectTo: authCallbackUrl(window.location.origin, true),
+            })
+          : await supabase.auth.resend({
+              type: "signup",
+              email: emailAddress,
+              options: {
+                emailRedirectTo: authCallbackUrl(window.location.origin),
+              },
+            });
+      if (error) throw error;
+      setVerification(verification === "recovery" ? "recovery" : "signup");
+      setNotice(
+        "Yeni təsdiq məktubu göndərildi. Ən son məktubdan istifadə edin.",
+      );
+      setUnconfirmed(false);
+    } catch {
+      setNotice("Məktub göndərilmədi. Bir az gözləyib yenidən yoxlayın.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <main className="loginPage">
+      <Link className="logo" href="/">
+        kiraye<span>.az</span>
+      </Link>
+      <section>
+        <div className="authEmblem">⌂</div>
+        <p className="eyebrow">KİRAYƏ ÜÇÜN BİR ÜNVAN</p>
+        <h1>
+          {mode === "signup"
+            ? "Aramıza xoş gəldin"
+            : mode === "reset"
+              ? "Şifrəni yenilə"
+              : "Xoş gəldin!"}
+        </h1>
+        <p className="authLead">
+          {mode === "signup"
+            ? "Hesab yarat, elan yerləşdir və kirayə verməyə başla."
+            : mode === "reset"
+              ? "Hesabının e-poçt ünvanını yaz."
+              : "Elanlarını idarə etmək üçün hesabına daxil ol."}
+        </p>
+        {!verification && (
+          <form onSubmit={submit}>
+            <label>
+              E-poçt
+              <input
+                autoComplete="email"
+                name="email"
+                type="email"
+                required
+                placeholder="ad@example.com"
+                maxLength={254}
+              />
+            </label>
+            {mode !== "reset" && (
+              <label>
+                Şifrə
+                <input
+                  autoComplete={
+                    mode === "signup" ? "new-password" : "current-password"
+                  }
+                  name="password"
+                  type="password"
+                  minLength={8}
+                  required
+                  placeholder="Ən azı 8 simvol"
+                  maxLength={128}
+                />
+              </label>
+            )}
+            <button disabled={busy}>
+              {busy
+                ? "Gözləyin..."
+                : mode === "signup"
+                  ? "Hesab yarat"
+                  : mode === "reset"
+                    ? "Yeniləmə linki göndər"
+                    : "Daxil ol →"}
+            </button>
+          </form>
+        )}
+        {verification && (
+          <form onSubmit={verifyCode} className="verificationForm">
+            <p className="authLead">
+              {emailAddress} ünvanına gələn məktubu yoxla. Link localhost açırsa
+              və məktubda rəqəmli kod varsa, onu burada təsdiqləyə bilərsən.
+            </p>
+            <label>
+              Təsdiq kodu
+              <input
+                name="code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6,10}"
+                minLength={6}
+                maxLength={10}
+                required
+                placeholder="E-poçtdakı kod"
+              />
+            </label>
+            <button disabled={busy}>
+              {busy ? "Yoxlanılır..." : "Kodu təsdiqlə"}
+            </button>
+            <button
+              type="button"
+              className="resendButton"
+              disabled={busy}
+              onClick={resend}
+            >
+              Yeni məktub göndər
+            </button>
+          </form>
+        )}
+        {unconfirmed && (
+          <button className="link" disabled={busy} onClick={resend}>
+            E-poçtu təsdiqlə / Yeni məktub göndər
+          </button>
+        )}
+        {notice && (
+          <div className="notice" role="status">
+            {notice}
+          </div>
+        )}
+        {mode === "login" && (
+          <button
+            className="link"
+            onClick={() => {
+              setMode("reset");
+              setVerification(null);
+              setNotice("");
+            }}
+          >
+            Şifrəni unutmusunuz?
+          </button>
+        )}
+        <button
+          className="link"
+          onClick={() => {
+            setMode(mode === "login" ? "signup" : "login");
+            setVerification(null);
+            setNotice("");
+          }}
+        >
+          {mode === "login"
+            ? "Hesabın yoxdur? Qeydiyyatdan keç"
+            : "Hesabın var? Daxil ol"}
+        </button>
+        <Link className="authBack" href="/">
+          ← Elanlara qayıt
+        </Link>
+      </section>
+    </main>
+  );
 }

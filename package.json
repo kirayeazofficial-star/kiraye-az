@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "tsc --noEmit --incremental false",
+    "test:ui": "node tests/marketplace.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

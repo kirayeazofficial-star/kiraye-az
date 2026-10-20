@@ -1,2 +1,160 @@
-.loginPage{min-height:100vh;background:#eff5ff;padding:36px max(20px,calc((100% - 1060px)/2));font-family:Arial,sans-serif}.loginPage section{width:min(100%,460px);margin:80px auto;background:#fff;padding:34px;border-radius:18px;box-shadow:0 20px 55px #142f5620}.loginPage h1{margin:6px 0 25px;font-size:34px}.loginPage p{color:#2166c4;font-size:12px;font-weight:bold;letter-spacing:1px}.loginPage label{display:block;margin:16px 0;font-size:13px;font-weight:bold}.loginPage input{display:block;width:100%;box-sizing:border-box;margin-top:7px;padding:13px;border:1px solid #d8e2f0;border-radius:8px;font:inherit}.loginPage form button{width:100%;border:0;border-radius:8px;padding:14px;background:#ff6b21;color:#fff;font-weight:bold;cursor:pointer}.link{display:block;margin:20px auto 0;border:0;background:none;color:#1565d8;font-weight:bold;cursor:pointer}.notice{margin-top:16px;padding:12px;background:#edf4ff;border-radius:8px;color:#25578e;font-size:14px}
-.profileAction{display:block;margin-top:20px;padding:14px;border-radius:8px;background:#ff6b21;color:#fff;text-align:center;text-decoration:none;font-weight:bold}
+.loginPage {
+  min-height: 100dvh;
+  background: #f1f4ea;
+  padding: 32px max(20px, calc((100% - 1150px) / 2));
+}
+.loginPage section {
+  width: min(100%, 460px);
+  margin: 55px auto;
+  background: #fff;
+  padding: 38px;
+  border: 1px solid #e2e9db;
+  border-radius: 18px;
+  box-shadow: 0 20px 55px #344b2010;
+}
+.loginPage h1 {
+  font-size: 34px;
+  letter-spacing: -1.3px;
+  margin-bottom: 15px;
+}
+.authLead {
+  color: #859078;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-bottom: 25px;
+}
+.loginPage label {
+  display: block;
+  margin: 17px 0;
+  font-size: 12px;
+  font-weight: 700;
+}
+.loginPage input {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+}
+.loginPage form button {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 15px;
+  background: #c9f271;
+  color: #233d22;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.link {
+  display: block;
+  margin: 20px auto 0;
+  border: 0;
+  background: none;
+  color: #577440;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.authBack {
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  color: #939b89;
+  margin-top: 28px;
+}
+@media (max-width: 600px) {
+  .loginPage section {
+    padding: 27px 23px;
+    margin-top: 35px;
+  }
+  .loginPage h1 {
+    font-size: 29px;
+  }
+}
+
+.loginPage {
+  background:
+    radial-gradient(ellipse at 10% 10%, #e3e2ff, transparent 50%),
+    radial-gradient(ellipse at 90% 90%, #ffebdf, transparent 50%), #f5f6fc;
+}
+.loginPage section {
+  border-color: #e6e8f5;
+  box-shadow: 0 24px 70px #1f2d5810;
+  border-radius: 22px;
+  padding: 36px 40px;
+}
+.loginPage h1 {
+  color: #202d4d;
+}
+.loginPage .authLead {
+  color: #8a93aa;
+}
+.loginPage .eyebrow {
+  color: #9288c9;
+  letter-spacing: 1.6px;
+  font-size: 9px;
+}
+.loginPage form button {
+  background: #ff784b;
+  color: #fff;
+  padding: 16px;
+  box-shadow: 0 7px 20px #ff784b20;
+}
+.loginPage form button:hover {
+  background: #eb663a;
+}
+.loginPage .link {
+  color: #7669c7;
+}
+.loginPage input {
+  background: #fafbff;
+  border-color: #e4e7f3;
+  padding: 15px;
+}
+.authEmblem {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  background: #eeebff;
+  color: #8070cd;
+  border-radius: 16px;
+  font-size: 28px;
+  margin-bottom: 22px;
+}
+.authBack {
+  color: #9ca5b9;
+}
+.loginPage .resendButton {
+  background: #f1effa;
+  color: #8272b5;
+  box-shadow: none;
+  font-size: 12px;
+  padding: 12px;
+}
+.loginPage .verificationForm .authLead {
+  font-size: 12px;
+}
+.verificationForm input[name="code"] {
+  font-size: 22px;
+  letter-spacing: 5px;
+  text-align: center;
+}
+.loginPage .notice {
+  font-size: 12px;
+}
+@media (max-width: 600px) {
+  .loginPage section {
+    padding: 28px 24px;
+  }
+  .loginPage {
+    padding-bottom: 40px;
+  }
+  .authEmblem {
+    width: 45px;
+    height: 45px;
+    border-radius: 14px;
+    margin-bottom: 18px;
+  }
+}

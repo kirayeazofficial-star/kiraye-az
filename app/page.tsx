@@ -1,33 +1,526 @@
 "use client";
-
-import { FormEvent, useEffect, useMemo, useState } from "react";
-
-type Listing = { id: string; category: string; title: string; price: number; term: string; place: string; image: string; contact?: string };
-const categories = ["Ev və mənzil", "Avtomobil", "Motosiklet", "Villa və bağ evi", "Kommersiya", "Avadanlıq", "Velosiped", "Tədbir üçün"];
-const initial: Listing[] = [
-  { id:"home", category:"Ev və mənzil", title:"Nizami metrosu yaxınlığında 2 otaqlı mənzil", price:45, term:"günlük", place:"Bakı, Nəsimi", image:"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80" },
-  { id:"car", category:"Avtomobil", title:"Hyundai Elantra 2022", price:55, term:"günlük", place:"Bakı", image:"https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80" },
-  { id:"villa", category:"Villa və bağ evi", title:"Mərdəkan bağ evi, hovuzlu", price:180, term:"günlük", place:"Bakı, Mərdəkan", image:"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80" }
-  ,{ id:"office", category:"Kommersiya", title:"28 Mayda hazır ofis, 85 m²", price:1200, term:"aylıq", place:"Bakı, Nəsimi", image:"https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" }
-  ,{ id:"camera", category:"Avadanlıq", title:"Sony kamera və çəkiliş dəsti", price:35, term:"günlük", place:"Bakı", image:"https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=900&q=80" }
-  ,{ id:"bike", category:"Velosiped", title:"Şəhər velosipedi, dəbilqə daxil", price:12, term:"günlük", place:"Bakı, Sahil", image:"https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=900&q=80" }
-];
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import CategoryIcon from "./components/CategoryIcon";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import ListingCard from "./components/ListingCard";
+import {
+  categories,
+  cities,
+  Listing,
+  examples,
+  loadListings,
+  readFavorites,
+  money,
+  periodName,
+  categoryName,
+} from "../lib/marketplace";
 
 export default function Home() {
-  const [category, setCategory] = useState("Hamısı"), [query, setQuery] = useState(""), [city, setCity] = useState("Bütün şəhərlər"), [term, setTerm] = useState("Bütün müddətlər"), [maxPrice, setMaxPrice] = useState(""), [moreFilters, setMoreFilters] = useState(false), [form, setForm] = useState(false), [detail, setDetail] = useState<Listing|null>(null), [listings, setListings] = useState(initial), [favorites, setFavorites] = useState<string[]>([]);
-  useEffect(() => { const saved = localStorage.getItem("kiraye-listings"), fav = localStorage.getItem("kiraye-favorites"); if(saved) setListings([...initial, ...JSON.parse(saved)]); if(fav) setFavorites(JSON.parse(fav)); }, []);
-  const filtered = useMemo(() => listings.filter(x => (category === "Hamısı" || x.category === category) && (city === "Bütün şəhərlər" || x.place.includes(city)) && (term === "Bütün müddətlər" || x.term === term) && (!maxPrice || x.price <= Number(maxPrice)) && (x.title+" "+x.place).toLocaleLowerCase("az").includes(query.toLocaleLowerCase("az"))), [category, city, term, maxPrice, query, listings]);
-  const favorite = (id:string) => setFavorites(current => { const next=current.includes(id)?current.filter(x=>x!==id):[...current,id]; localStorage.setItem("kiraye-favorites",JSON.stringify(next)); return next; });
-  const create = (event:FormEvent<HTMLFormElement>) => { event.preventDefault(); const data=new FormData(event.currentTarget); const next:Listing={id:crypto.randomUUID(),category:String(data.get("category")),title:String(data.get("title")).trim(),price:Number(data.get("price")),term:String(data.get("term")),place:String(data.get("place")).trim(),contact:String(data.get("contact")).trim(),image:"https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=900&q=80"}; if(!next.title||!next.price||!next.place||!next.contact)return; const custom=[next,...listings.filter(x=>!initial.some(y=>y.id===x.id))]; localStorage.setItem("kiraye-listings",JSON.stringify(custom)); setListings([next,...listings]); setForm(false); setCategory("Hamısı"); setTimeout(()=>document.getElementById("elanlar")?.scrollIntoView({behavior:"smooth"})); };
-  const toListings=()=>document.getElementById("elanlar")?.scrollIntoView({behavior:"smooth"});
-  return <main>
-    <header className="header"><a className="logo" href="#top">kiraye<span>.az</span></a><nav><a href="#elanlar">Elanlar</a><a href="#nece-isleyir">Necə işləyir?</a><a href="/profile">Hesabım</a></nav><div><a href="/login" style={{marginRight:12,color:"#1565d8",fontWeight:700,textDecoration:"none"}}>Daxil ol</a><button className="add" onClick={()=>setForm(true)}>+ Elan yerləşdir</button></div></header>
-    <section className="hero" id="top"><div><p className="eyebrow">AZƏRBAYCANIN KİRAYƏ BAZARI</p><h1>Axtardığın kirayə<br/>buradan başlayır.</h1><p className="lead">Ev, avtomobil, motosiklet və daha çoxu — bir yerdə.</p><p className="trust">✓ Elanlar yoxlanılır &nbsp; ✓ Birbaşa əlaqə</p></div><div className="search"><div className="searchTop"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Elan, rayon, marka axtar..."/><button onClick={toListings} className="searchButton">Axtar</button></div><div className="chips">{["Hamısı",...categories].map(x=><button key={x} onClick={()=>setCategory(x)} className={category===x?"active":""}>{x}</button>)}</div><div className="quickFilters"><select value={city} onChange={e=>setCity(e.target.value)}><option>Bütün şəhərlər</option><option>Bakı</option><option>Sumqayıt</option><option>Gəncə</option></select><select value={term} onChange={e=>setTerm(e.target.value)}><option>Bütün müddətlər</option><option>günlük</option><option>aylıq</option></select><select value={maxPrice} onChange={e=>setMaxPrice(e.target.value)}><option value="">Qiymət, ₼</option><option value="50">50 ₼-dək</option><option value="100">100 ₼-dək</option><option value="200">200 ₼-dək</option><option value="500">500 ₼-dək</option></select><button className="filterToggle" onClick={()=>setMoreFilters(!moreFilters)}>☷ Filtrlər</button></div>{moreFilters&&<div className="filterHint"><b>{category==="Avtomobil"?"Marka və il":category==="Motosiklet"?"Marka və mühərrik həcmi":"Otaq sayı, sahə və imkanlar"}</b><span> Bu detallı filtrlər real elan bazası ilə birlikdə aktiv olacaq.</span></div>}</div></section>
-    <section className="wrap"><div className="sectionTitle"><div><p className="eyebrow">KATEQORİYALAR</p><h2>Nə kirayələmək istəyirsən?</h2></div></div><div className="categories">{categories.map((x,i)=><button key={x} onClick={()=>{setCategory(x);toListings();}}><span className="icon">{["⌂","▣","◉","⌑","▦","⚒","◎","✦"][i]}</span><strong>{x}</strong><small>{x==="Ev və mənzil"||x.includes("Villa")||x==="Kommersiya"?"Günlük və aylıq":"Günlük kirayə"}</small><span>→</span></button>)}</div></section>
-    <section className="listings wrap" id="elanlar"><div className="sectionTitle"><div><p className="eyebrow">ELANLAR</p><h2>{category==="Hamısı"?"Yeni elanlar":category}</h2><small className="resultCount">{filtered.length} elan tapıldı</small></div><button className="textButton" onClick={()=>{setCategory("Hamısı");setQuery("");setCity("Bütün şəhərlər");setTerm("Bütün müddətlər");setMaxPrice("");}}>Filtri sıfırla</button></div><div className="grid">{filtered.map(x=><article key={x.id}><div className="photo" style={{backgroundImage:`url(${x.image})`}}><span>{x.category}</span><button onClick={()=>favorite(x.id)} className={favorites.includes(x.id)?"favorite":""}>{favorites.includes(x.id)?"♥":"♡"}</button></div><button className="card cardButton" onClick={()=>setDetail(x)}><h3>{x.title}</h3><p>{x.place}</p><strong>{x.price} ₼ <small>/ {x.term}</small></strong></button></article>)}</div>{!filtered.length&&<div className="empty"><p>Bu axtarışa uyğun elan tapılmadı.</p><button className="add" onClick={()=>setForm(true)}>İlk elanı sən yerləşdir</button></div>}</section>
-    <section className="how" id="nece-isleyir"><div className="wrap"><p className="eyebrow">SADƏ VƏ TƏHLÜKƏSİZ</p><h2>Elan vermək 3 addımda</h2><div className="steps"><div><b>1</b><h3>Elanı yarat</h3><p>Şəkil, qiymət və məlumatları əlavə et.</p></div><div><b>2</b><h3>Təsdiq gözlə</h3><p>Elan yoxlanıldıqdan sonra yayımlansın.</p></div><div><b>3</b><h3>Müştəri tap</h3><p>Zəng və WhatsApp ilə əlaqə saxla.</p></div></div></div></section><footer id="footer"><a className="logo" href="#top">kiraye<span>.az</span></a><p>Ev, avtomobil və daha çoxunun kirayəsi.</p><small>© 2026 kiraye.az.</small></footer>
-    {form&&<Form onClose={()=>setForm(false)} onSubmit={create}/>} {detail&&<Detail item={detail} onClose={()=>setDetail(null)}/>}
-  </main>;
+  const [listings, setListings] = useState<Listing[]>([]),
+    [loading, setLoading] = useState(true),
+    [notice, setNotice] = useState(""),
+    [demo, setDemo] = useState(false);
+  const [category, setCategory] = useState(""),
+    [query, setQuery] = useState(""),
+    [city, setCity] = useState(""),
+    [period, setPeriod] = useState(""),
+    [min, setMin] = useState(""),
+    [max, setMax] = useState(""),
+    [sort, setSort] = useState("new"),
+    [favorites, setFavorites] = useState<string[]>([]),
+    [onlyFavorites, setOnlyFavorites] = useState(false),
+    [detail, setDetail] = useState<Listing | null>(null),
+    [image, setImage] = useState(0),
+    [page, setPage] = useState(1);
+  useEffect(() => {
+    setFavorites(readFavorites());
+    setOnlyFavorites(
+      new URLSearchParams(window.location.search).has("favorites"),
+    );
+    let active = true;
+    loadListings()
+      .then((items) => {
+        if (active) setListings(items);
+      })
+      .catch(() => {
+        if (active) {
+          setDemo(true);
+          setNotice(
+            "Hazırda nümunə elanlara baxırsınız. Real elanlar xidmət aktivləşdirildikdən sonra görünəcək.",
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+  useEffect(() => {
+    setPage(1);
+  }, [query, city, category, period, min, max, sort, onlyFavorites]);
+  useEffect(() => {
+    if (!detail) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const before = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDetail(null);
+      if (e.key === "Tab") {
+        const items = Array.from(
+          document.querySelectorAll<HTMLElement>(
+            "[role=dialog] button, [role=dialog] a[href]",
+          ),
+        );
+        const first = items[0],
+          last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = before;
+      window.removeEventListener("keydown", onKey);
+      previous?.focus();
+    };
+  }, [detail]);
+  const filtered = useMemo(
+    () =>
+      (demo ? examples : listings)
+        .filter(
+          (x) =>
+            (!category || x.category === category) &&
+            (!city || x.city === city) &&
+            (!period || x.rental_period === period) &&
+            (!min || x.price >= Number(min)) &&
+            (!max || x.price <= Number(max)) &&
+            (!onlyFavorites || favorites.includes(x.id)) &&
+            `${x.title} ${x.city} ${x.district ?? ""}`
+              .toLocaleLowerCase("az")
+              .includes(query.toLocaleLowerCase("az")),
+        )
+        .sort((a, b) =>
+          sort === "low"
+            ? a.price - b.price
+            : sort === "high"
+              ? b.price - a.price
+              : Date.parse(b.created_at) - Date.parse(a.created_at),
+        ),
+    [
+      demo,
+      listings,
+      category,
+      city,
+      period,
+      min,
+      max,
+      onlyFavorites,
+      favorites,
+      query,
+      sort,
+    ],
+  );
+  function favorite(id: string) {
+    const next = favorites.includes(id)
+      ? favorites.filter((x) => x !== id)
+      : [...favorites, id];
+    setFavorites(next);
+    try {
+      localStorage.setItem("kiraye-favorites", JSON.stringify(next));
+    } catch {
+      setNotice("Seçilmişləri bu brauzerdə saxlamaq mümkün olmadı.");
+    }
+  }
+  function reset() {
+    setCategory("");
+    setCity("");
+    setPeriod("");
+    setMin("");
+    setMax("");
+    setQuery("");
+    setOnlyFavorites(false);
+  }
+  return (
+    <>
+      <Header />
+      <main>
+        <section className="hero">
+          <div className="heroInner">
+            <div>
+              <p className="eyebrow">AZƏRBAYCANIN KİRAYƏ PLATFORMASI</p>
+              <h1>
+                Almaq əvəzinə,
+                <br />
+                <span>kirayələ.</span>
+              </h1>
+              <p className="lead">
+                Bir günlük planlardan uzunmüddətli ehtiyaclara.
+                <br />
+                Ev, avtomobil və daha çoxu — bir ünvanda.
+              </p>
+              <div className="heroActions">
+                <a href="#elanlar" className="add heroCta">
+                  Kirayə elanlarını kəşf et →
+                </a>
+                <Link href="/new" className="heroLink">
+                  Elan yerləşdir →
+                </Link>
+              </div>
+              <div className="heroBenefits">
+                <span>✓ Birbaşa əlaqə</span>
+                <span>✓ Günlük və aylıq</span>
+                <span>✓ Bir hesab, bütün elanlar</span>
+              </div>
+            </div>
+            <div className="heroVisual" aria-label="Kirayə üçün rahat məkanlar">
+              <div className="heroCorner">EV · AVTOMOBİL · DAHA ÇOXU</div>
+              <div className="heroImage" />
+              <div className="heroMiniCard">
+                <CategoryIcon id="car" />
+                <div>
+                  <b>Yolun açıq olsun.</b>
+                  <small>Səfərin üçün avtomobil tap</small>
+                </div>
+                <span>→</span>
+              </div>
+              <div className="floatingLabel">
+                <span>
+                  <CategoryIcon id="property" />
+                </span>
+                <div>
+                  <b>Növbəti ünvanını tap</b>
+                  <small>Bir evdən daha çoxu.</small>
+                </div>
+              </div>
+              <span className="heroStamp">
+                DAHA AĞILLI SEÇİM
+                <br />
+                <b>kirayələ.</b>
+              </span>
+            </div>
+          </div>
+        </section>
+        <div className="searchWrap">
+          <form
+            className="searchPanel"
+            onSubmit={(e) => {
+              e.preventDefault();
+              document
+                .getElementById("elanlar")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            <label className="queryField">
+              <span>Nə axtarırsan?</span>
+              <input
+                aria-label="Elan axtar"
+                placeholder="Ev, avtomobil, avadanlıq..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
+            <label>
+              <span>Harada?</span>
+              <select
+                aria-label="Şəhər"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              >
+                <option value="">Bütün şəhərlər</option>
+                {cities.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>Kirayə müddəti</span>
+              <select
+                aria-label="Kirayə müddəti"
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+              >
+                <option value="">İstənilən müddət</option>
+                <option value="daily">Günlük</option>
+                <option value="monthly">Aylıq</option>
+              </select>
+            </label>
+            <button className="add">Elanları axtar →</button>
+          </form>
+        </div>
+        <section className="wrap categorySection">
+          <div className="sectionTitle">
+            <div>
+              <p className="eyebrow">HƏR EHTİYACA BİR SEÇİM</p>
+              <h2>Nə kirayələmək istəyirsən?</h2>
+            </div>
+            <button className="textButton" onClick={reset}>
+              Bütün kateqoriyalar →
+            </button>
+          </div>
+          <div className="categories">
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                aria-label={`${c.name} elanlarına bax`}
+                className={category === c.id ? "active" : ""}
+                onClick={() => {
+                  setCategory(c.id === category ? "" : c.id);
+                  document
+                    .getElementById("elanlar")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                <span className="categoryIcon">
+                  <CategoryIcon id={c.id} />
+                </span>
+                <strong>{c.name}</strong>
+                <small>Elanlara bax →</small>
+              </button>
+            ))}
+          </div>
+        </section>
+        <section className="wrap listingSection" id="elanlar">
+          <div className="sectionTitle">
+            <div>
+              <p className="eyebrow">SƏNİN ÜÇÜN SEÇİMLƏR</p>
+              <h2>
+                {onlyFavorites
+                  ? "Seçilmiş elanlar"
+                  : category
+                    ? categoryName(category)
+                    : "Kirayə elanları"}
+              </h2>
+              <p className="muted">
+                {loading
+                  ? "Elanlar yüklənir..."
+                  : `${filtered.length} ${demo ? "nümunə " : ""}elan tapıldı`}
+              </p>
+            </div>
+            <select
+              aria-label="Sıralama"
+              value={sort}
+              onChange={(e) => setSort(e.target.value)}
+            >
+              <option value="new">Əvvəlcə yenilər</option>
+              <option value="low">Əvvəlcə ucuz</option>
+              <option value="high">Əvvəlcə bahalı</option>
+            </select>
+          </div>
+          <div className="filterRow">
+            <label>
+              Minimum qiymət
+              <input
+                aria-label="Minimum qiymət"
+                type="number"
+                min="0"
+                placeholder="0 ₼"
+                value={min}
+                onChange={(e) => setMin(e.target.value)}
+              />
+            </label>
+            <label>
+              Maksimum qiymət
+              <input
+                aria-label="Maksimum qiymət"
+                type="number"
+                min="0"
+                placeholder="İstənilən ₼"
+                value={max}
+                onChange={(e) => setMax(e.target.value)}
+              />
+            </label>
+            <button
+              className={`pill ${onlyFavorites ? "active" : ""}`}
+              aria-pressed={onlyFavorites}
+              onClick={() => setOnlyFavorites(!onlyFavorites)}
+            >
+              ♡ Seçilmişlər ({favorites.length})
+            </button>
+            <button className="textButton" onClick={reset}>
+              Filtrləri təmizlə
+            </button>
+          </div>
+          {notice && (
+            <p className="notice" role="status">
+              {notice}
+            </p>
+          )}
+          {loading ? (
+            <div className="grid">
+              {[1, 2, 3].map((i) => (
+                <div className="skeleton" key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid">
+              {filtered.slice(0, page * 9).map((x) => (
+                <ListingCard
+                  key={x.id}
+                  item={x}
+                  favorite={favorites.includes(x.id)}
+                  onFavorite={() => favorite(x.id)}
+                  onOpen={() => {
+                    setDetail(x);
+                    setImage(0);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+          {!loading && !filtered.length && (
+            <div className="empty">
+              <span>⌕</span>
+              <h3>Uyğun elan tapılmadı</h3>
+              <p>Başqa sözlə axtar və ya filtrləri dəyiş.</p>
+              <button className="add" onClick={reset}>
+                Bütün elanlara bax
+              </button>
+            </div>
+          )}
+          {filtered.length > page * 9 && (
+            <button className="loadMore" onClick={() => setPage(page + 1)}>
+              Daha çox elan göstər ↓
+            </button>
+          )}
+        </section>
+        <section className="publishBanner wrap">
+          <div>
+            <p className="eyebrow">İSTİFADƏ ETMƏDİYİN ƏŞYA GƏLİRİN OLSUN</p>
+            <h2>Səndə var, başqasına lazımdır.</h2>
+            <p>Elanını yerləşdir, kirayə vermək istəyənlərlə əlaqə qur.</p>
+          </div>
+          <Link href="/new" className="add">
+            İlk elanını yerləşdir →
+          </Link>
+        </section>
+        <section className="wrap how">
+          <div>
+            <p className="eyebrow">BİR NEÇƏ SADƏ ADDIM</p>
+            <h2>Kirayə vermək asandır.</h2>
+          </div>
+          <div className="steps">
+            {[
+              [
+                "01",
+                "Elanını yarat",
+                "Şəkilləri, qiyməti və əlaqə məlumatlarını əlavə et.",
+              ],
+              [
+                "02",
+                "Təsdiqi gözlə",
+                "Elanın yoxlanıldıqdan sonra saytda yayımlanır.",
+              ],
+              [
+                "03",
+                "Birbaşa əlaqə qur",
+                "Maraqlananlarla danış, şərtləri birlikdə razılaşdır.",
+              ],
+            ].map((s) => (
+              <div key={s[0]}>
+                <b>{s[0]}</b>
+                <h3>{s[1]}</h3>
+                <p>{s[2]}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+      <Footer />
+      {detail && (
+        <div
+          className="modalBack"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setDetail(null);
+          }}
+        >
+          <section
+            className="modal detail"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="detail-title"
+          >
+            <button
+              autoFocus
+              className="close"
+              aria-label="Bağla"
+              onClick={() => setDetail(null)}
+            >
+              ×
+            </button>
+            <img
+              className="detailImage"
+              src={detail.images?.[image] || "/placeholder.svg"}
+              alt={detail.title}
+            />
+            {detail.images?.length > 1 && (
+              <div className="thumbnails">
+                {detail.images.map((src, i) => (
+                  <button
+                    aria-label={`${i + 1}-ci şəkil`}
+                    key={src}
+                    onClick={() => setImage(i)}
+                  >
+                    <img src={src} alt="" />
+                  </button>
+                ))}
+              </div>
+            )}
+            <span className="tag">
+              {categoryName(detail.category)}
+              {detail.demo ? " · Nümunə elan" : ""}
+            </span>
+            <h2 id="detail-title">{detail.title}</h2>
+            <p className="muted">
+              ⌖ {detail.city} {detail.district}
+            </p>
+            <strong className="detailPrice">
+              {money(detail.price)} ₼{" "}
+              <small>/ {periodName(detail.rental_period)}</small>
+            </strong>
+            <p className="description">{detail.description}</p>
+            {(detail.rooms || detail.area_m2) && (
+              <p>
+                {detail.rooms ? `${detail.rooms} otaq · ` : ""}
+                {detail.area_m2 ? `${detail.area_m2} m²` : ""}
+              </p>
+            )}
+            {detail.contact && !detail.demo ? (
+              <div className="contactActions">
+                <a
+                  className="add"
+                  href={`tel:${detail.contact.replace(/[^+\d]/g, "")}`}
+                >
+                  Zəng et · {detail.contact}
+                </a>
+                <a
+                  className="secondary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href={`https://wa.me/${detail.contact.replace(/\D/g, "").replace(/^0/, "994")}`}
+                >
+                  WhatsApp
+                </a>
+              </div>
+            ) : (
+              <p className="notice">
+                Nümunə elandır, real kirayə təklifi deyil.
+              </p>
+            )}
+            <p className="safetyNote">
+              Təhlükəsizliyin üçün əmlakı görmədən beh göndərmə.
+            </p>
+          </section>
+        </div>
+      )}
+    </>
+  );
 }
-function Form({onClose,onSubmit}:{onClose:()=>void;onSubmit:(e:FormEvent<HTMLFormElement>)=>void}) { return <div className="modalBack"><form className="modal" onSubmit={onSubmit}><button type="button" className="close" onClick={onClose}>×</button><p className="eyebrow">PULSUZ ELAN</p><h2>Elanını yarat</h2><p className="muted">Elan yoxlanıldıqdan sonra yayımlanacaq.</p><label>Kateqoriya<select name="category">{categories.map(x=><option key={x}>{x}</option>)}</select></label><label>Elanın başlığı<input name="title" required placeholder="Məsələn: 2 otaqlı mənzil"/></label><div className="formGrid"><label>Qiymət (₼)<input name="price" required min="1" type="number" placeholder="45"/></label><label>Müddət<select name="term"><option>günlük</option><option>aylıq</option></select></label></div><label>Şəhər / rayon<input name="place" required placeholder="Bakı, Nəsimi"/></label><label>Əlaqə nömrəsi<input name="contact" required type="tel" placeholder="050 123 45 67"/></label><button className="add wide">Elanı göndər →</button></form></div>; }
-function Detail({item,onClose}:{item:Listing;onClose:()=>void}) { return <div className="modalBack"><div className="modal detail"><button className="close" onClick={onClose}>×</button><div className="detailImage" style={{backgroundImage:`url(${item.image})`}}/><span className="tag">{item.category}</span><h2>{item.title}</h2><p className="muted">{item.place}</p><h3>{item.price} ₼ <small>/ {item.term}</small></h3>{item.contact?<a className="add wide" href={`tel:${item.contact.replace(/\\s/g,"")}`}>Zəng et: {item.contact}</a>:<p className="notice">Əlaqə məlumatı tezliklə aktiv olacaq.</p>}</div></div>; }

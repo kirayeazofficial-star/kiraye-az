@@ -159,7 +159,14 @@ const { chromium } = require(
     });
     await check("login gives actionable unavailable state", async () => {
       await page.goto(`${base}/login`);
-      await page.getByRole("button", { name: "E-poçtla", exact: true }).click();
+      if (
+        await page
+          .getByRole("button", { name: "E-poçtla", exact: true })
+          .count()
+      )
+        await page
+          .getByRole("button", { name: "E-poçtla", exact: true })
+          .click();
       await page.getByLabel("E-poçt", { exact: true }).fill("test@example.com");
       await page.getByLabel("Şifrə", { exact: true }).fill("long-password");
       await page

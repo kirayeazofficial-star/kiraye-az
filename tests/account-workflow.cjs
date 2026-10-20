@@ -120,7 +120,10 @@ const { chromium } = require("playwright");
   }
   try {
     await page.goto(`${base}/login`);
-    await page.getByRole("button", { name: "E-poçtla", exact: true }).click();
+    if (
+      await page.getByRole("button", { name: "E-poçtla", exact: true }).count()
+    )
+      await page.getByRole("button", { name: "E-poçtla", exact: true }).click();
     await check(
       "six-character existing password reaches the authentication service",
       async () => {
@@ -133,6 +136,25 @@ const { chromium } = require("playwright");
           .getByRole("status")
           .filter({ hasText: "E-poçt və ya şifrə düzgün deyil" })
           .waitFor();
+      },
+    );
+    await check(
+      "invalid password offers direct recovery while preserving email",
+      async () => {
+        await page
+          .getByRole("button", { name: "Şifrəni yenilə →", exact: true })
+          .click();
+        await page
+          .getByRole("heading", { name: "Şifrəni yenilə", exact: true })
+          .waitFor();
+        assert.equal(
+          await page.getByLabel("E-poçt", { exact: true }).inputValue(),
+          user.email,
+        );
+        await page
+          .getByRole("button", { name: "Hesabın var? Daxil ol", exact: true })
+          .click();
+        await page.getByLabel("Şifrə", { exact: true }).fill("old123");
       },
     );
     await check(
@@ -197,14 +219,12 @@ const { chromium } = require("playwright");
         await page
           .getByRole("button", { name: "Üz qabığı et", exact: true })
           .click();
-        await page
-          .getByLabel("Elan şəkilləri", { exact: true })
-          .setInputFiles(
-            Array.from({ length: 5 }, (_, i) => ({
-              ...extraPhoto,
-              name: `extra-${i}.png`,
-            })),
-          );
+        await page.getByLabel("Elan şəkilləri", { exact: true }).setInputFiles(
+          Array.from({ length: 5 }, (_, i) => ({
+            ...extraPhoto,
+            name: `extra-${i}.png`,
+          })),
+        );
         await page.getByRole("alert").filter({ hasText: "1–6 ədəd" }).waitFor();
         assert.equal(await page.locator(".uploadPreviews img").count(), 2);
         await page

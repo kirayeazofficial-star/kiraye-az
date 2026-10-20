@@ -8,15 +8,13 @@ import {
 } from "../../lib/auth-messages";
 export default function GoogleLogin() {
   const [enabled, setEnabled] = useState<boolean | null>(null);
-  const [settingsError, setSettingsError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   async function check() {
-    setSettingsError(false);
     try {
       setEnabled((await getAuthCapabilities()).google);
     } catch {
-      setSettingsError(true);
+      setEnabled(false);
     }
   }
   useEffect(() => {
@@ -47,6 +45,7 @@ export default function GoogleLogin() {
       setBusy(false);
     }
   }
+  if (enabled !== true) return null;
   return (
     <div className="googleLogin">
       <button
@@ -75,19 +74,6 @@ export default function GoogleLogin() {
         </svg>
         {busy ? "Google-a yönləndirilir..." : "Google ilə davam et"}
       </button>
-      {enabled === false && (
-        <p className="providerHelp">
-          Google ilə giriş hələ aktiv deyil. E-poçtla davam edə bilərsən.
-        </p>
-      )}
-      {settingsError && (
-        <p className="providerHelp">
-          Google girişini yoxlamaq mümkün olmadı.{" "}
-          <button className="link" type="button" onClick={check}>
-            Yenidən yoxla
-          </button>
-        </p>
-      )}
       {notice && (
         <p className="notice" role="status">
           {notice}

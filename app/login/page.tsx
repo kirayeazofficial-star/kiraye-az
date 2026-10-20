@@ -6,7 +6,7 @@ import {
   safeLoginDestination,
 } from "../../lib/auth-messages";
 import { authCallbackUrl } from "../../lib/auth-flow";
-import { supabase } from "../../lib/supabase";
+import { getAuthCapabilities, supabase } from "../../lib/supabase";
 import { rateLimitSeconds } from "../../lib/auth-throttle";
 import GoogleLogin from "../components/GoogleLogin";
 import PhoneLogin from "../components/PhoneLogin";
@@ -14,6 +14,19 @@ import "./style.css";
 type Verification = "signup" | "recovery";
 const pendingKey = "kiraye:pending-confirmation";
 export default function Login() {
+  const [phoneEnabled, setPhoneEnabled] = useState(false);
+  const [loginFailed, setLoginFailed] = useState(false);
+  useEffect(() => {
+    let active = true;
+    getAuthCapabilities()
+      .then((value) => {
+        if (active) setPhoneEnabled(value.phone);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
   const [method, setMethod] = useState<"phone" | "email">("email");
   const [mode, setMode] = useState<"login" | "signup" | "reset">("login"),
     [notice, setNotice] = useState(""),
@@ -33,6 +46,12 @@ export default function Login() {
     requestScope === (mode === "login" ? "login" : "mail");
   function handleAuthError(error: unknown, scope: "mail" | "login" | "verify") {
     setNotice(authErrorMessage(error));
+    const value = error as { code?: string; message?: string };
+    setLoginFailed(
+      scope === "login" &&
+        (value?.code === "invalid_credentials" ||
+          /invalid login credentials/i.test(value?.message || "")),
+    );
     const seconds = rateLimitSeconds(error);
     if (seconds) {
       setRequestScope(scope);
@@ -266,6 +285,7 @@ export default function Login() {
     setVerification(null);
     setUseCode(false);
     setMode(next);
+    setLoginFailed(false);
     setNotice("");
     setUnconfirmed(false);
   }
@@ -291,25 +311,27 @@ export default function Login() {
                     : "Hesaba giriş"}
           </h1>
           {!verification && method === "email" && <GoogleLogin />}
-          <div className="authMethods" aria-label="Giriş üsulu">
-            <button
-              type="button"
-              aria-pressed={method === "phone"}
-              onClick={() => {
-                setMethod("phone");
-                setNotice("");
-              }}
-            >
-              Telefonla
-            </button>
-            <button
-              type="button"
-              aria-pressed={method === "email"}
-              onClick={() => setMethod("email")}
-            >
-              E-poçtla
-            </button>
-          </div>
+          {phoneEnabled && (
+            <div className="authMethods" aria-label="Giriş üsulu">
+              <button
+                type="button"
+                aria-pressed={method === "phone"}
+                onClick={() => {
+                  setMethod("phone");
+                  setNotice("");
+                }}
+              >
+                Telefonla
+              </button>
+              <button
+                type="button"
+                aria-pressed={method === "email"}
+                onClick={() => setMethod("email")}
+              >
+                E-poçtla
+              </button>
+            </div>
+          )}
           {method === "phone" ? (
             <PhoneLogin
               onSuccess={goToAccount}
@@ -375,6 +397,15 @@ export default function Login() {
                           </button>
                         </div>
                       </label>
+                    )}
+                    {mode === "login" && (
+                      <button
+                        type="button"
+                        className="forgotPassword"
+                        onClick={() => changeMode("reset")}
+                      >
+                        Şifrəni unutmusunuz?
+                      </button>
                     )}
                     <button
                       className="authSubmit"
@@ -497,6 +528,15 @@ export default function Login() {
               {notice && (
                 <div className="notice" role="status">
                   {notice}
+                  {loginFailed && (
+                    <button
+                      type="button"
+                      className="recoveryAction"
+                      onClick={() => changeMode("reset")}
+                    >
+                      Şifrəni yenilə →
+                    </button>
+                  )}
                   {!supabase && (
                     <a
                       className="authBack"
@@ -508,15 +548,6 @@ export default function Login() {
                 </div>
               )}
               <div className="authFooter">
-                {mode === "login" && !verification && (
-                  <button
-                    className="link"
-                    disabled={busy}
-                    onClick={() => changeMode("reset")}
-                  >
-                    Şifrəni unutmusunuz?
-                  </button>
-                )}
                 <button
                   className="link"
                   disabled={busy}

@@ -122,11 +122,17 @@ vm.runInNewContext(
       });
     });
     await page.goto(`${base}/login`);
-    await page.getByRole("button", { name: "Telefonla", exact: true }).click();
+    if (enabled && !settingsError)
+      await page
+        .getByRole("button", { name: "Telefonla", exact: true })
+        .click();
     return { page, context, calls };
   }
   async function signup(page) {
-    await page.getByRole("button", { name: "E-poçtla", exact: true }).click();
+    if (
+      await page.getByRole("button", { name: "E-poçtla", exact: true }).count()
+    )
+      await page.getByRole("button", { name: "E-poçtla", exact: true }).click();
     await page
       .getByRole("button", {
         name: "Hesabın yoxdur? Qeydiyyatdan keç",
@@ -163,41 +169,20 @@ vm.runInNewContext(
       },
     );
     await check(
-      "disabled SMS provider never claims to send or calls OTP; email fallback works",
+      "disabled or unreachable phone provider keeps the email form usable",
       async () => {
-        const { page, context, calls } = await setup({ enabled: false });
-        await page
-          .getByText("SMS ilə giriş hələ aktiv deyil", { exact: true })
-          .waitFor();
-        assert.equal(
-          await page
-            .getByRole("button", { name: "SMS kodu al", exact: true })
-            .isDisabled(),
-          true,
-        );
-        assert.equal(calls.filter((x) => x.path.endsWith("/otp")).length, 0);
-        await page
-          .getByRole("button", { name: "E-poçtla daxil ol →", exact: true })
-          .click();
-        await page.getByLabel("Şifrə", { exact: true }).waitFor();
-        await context.close();
-      },
-    );
-    await check(
-      "settings failure is recoverable and does not falsely enable SMS",
-      async () => {
-        const { page, context, calls } = await setup({ settingsError: true });
-        await page
-          .getByRole("button", { name: "Yenidən yoxla", exact: true })
-          .waitFor();
-        assert.equal(
-          await page
-            .getByRole("button", { name: "SMS kodu al", exact: true })
-            .isDisabled(),
-          true,
-        );
-        assert.equal(calls.filter((x) => x.path.endsWith("/otp")).length, 0);
-        await context.close();
+        for (const options of [{ enabled: false }, { settingsError: true }]) {
+          const { page, context, calls } = await setup(options);
+          await page.getByLabel("E-poçt", { exact: true }).waitFor();
+          assert.equal(
+            await page
+              .getByRole("button", { name: "Telefonla", exact: true })
+              .count(),
+            0,
+          );
+          assert.equal(calls.filter((x) => x.path.endsWith("/otp")).length, 0);
+          await context.close();
+        }
       },
     );
     await check(
@@ -394,12 +379,7 @@ vm.runInNewContext(
         ]) {
           await page.setViewportSize({ width, height });
           await page.goto(`${base}/login`);
-          await page
-            .getByRole("button", { name: "Telefonla", exact: true })
-            .click();
-          await page
-            .getByText("SMS ilə giriş hələ aktiv deyil", { exact: true })
-            .waitFor();
+          await page.getByLabel("E-poçt", { exact: true }).waitFor();
           const card = await page.locator(".loginPage section").boundingBox();
           assert(card.width <= 401);
           assert.equal(
@@ -409,7 +389,7 @@ vm.runInNewContext(
             true,
           );
           const input = await page
-            .getByLabel("Mobil nömrə", { exact: true })
+            .getByLabel("E-poçt", { exact: true })
             .boundingBox();
           assert(input.height >= 40 && input.height <= 48);
           if (width >= 1000) assert(card.y + card.height < height);

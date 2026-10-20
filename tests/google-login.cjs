@@ -76,20 +76,15 @@ const { chromium } = require("playwright");
   }
   try {
     await check(
-      "disabled Google provider is visible and cannot start a fake login",
+      "disabled Google provider is hidden and cannot start a fake login",
       async () => {
         const { ctx, page, calls } = await setup(false);
-        await page
-          .getByText(
-            "Google ilə giriş hələ aktiv deyil. E-poçtla davam edə bilərsən.",
-            { exact: true },
-          )
-          .waitFor();
+        await page.getByLabel("E-poçt", { exact: true }).waitFor();
         assert.equal(
           await page
             .getByRole("button", { name: "Google ilə davam et", exact: true })
-            .isDisabled(),
-          true,
+            .count(),
+          0,
         );
         assert.equal(
           calls.some((x) => x.path.endsWith("/authorize")),

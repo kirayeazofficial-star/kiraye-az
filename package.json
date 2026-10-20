@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/start-server.mjs",
     "lint": "tsc --noEmit --incremental false",
-    "test:ui": "node tests/marketplace.cjs"
+    "test:ui": "node tests/marketplace.cjs",
+    "postbuild": "node scripts/prepare-standalone.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

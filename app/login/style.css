@@ -383,3 +383,51 @@
 .authConsent a {
   text-decoration: underline;
 }
+.googleLogin {
+  margin-top: 20px;
+}
+.loginPage .googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #d9dfe9;
+  border-radius: 5px;
+  background: white;
+  color: #344258;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.loginPage .googleButton:hover:enabled {
+  background: #f7f9fc;
+  border-color: #b8c4d6;
+}
+.loginPage .googleButton:disabled {
+  color: #7d8799;
+  background: #f7f8fa;
+  cursor: default;
+}
+.providerHelp {
+  color: #7a8596;
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 9px 0;
+}
+.authDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #8a95a5;
+  font-size: 11px;
+  margin: 20px 0 0;
+}
+.authDivider::before,
+.authDivider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: #e5e8ee;
+}

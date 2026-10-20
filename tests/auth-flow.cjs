@@ -8,12 +8,24 @@ const source = ts.transpileModule(fs.readFileSync("lib/auth-flow.ts", "utf8"), {
     target: ts.ScriptTarget.ES2020,
   },
 }).outputText;
+const messages = {};
+vm.runInNewContext(
+  ts.transpileModule(fs.readFileSync("lib/auth-messages.ts", "utf8"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS },
+  }).outputText,
+  { exports: messages },
+);
 const exported = {};
+const testEnv = {};
 vm.runInNewContext(source, {
   exports: exported,
+  require: (path) => {
+    if (path === "./auth-messages") return messages;
+    throw new Error(path);
+  },
   URL,
   URLSearchParams,
-  process: { env: {} },
+  process: { env: testEnv },
 });
 const { authCallbackUrl, completeEmailAuth } = exported;
 (async () => {
@@ -167,6 +179,57 @@ const { authCallbackUrl, completeEmailAuth } = exported;
       ),
       /növü düzgün deyil/,
     ),
+  );
+  await check("OAuth callback retains a safe listing destination", async () => {
+    assert.equal(
+      authCallbackUrl("https://kiraye.az", false, "/new"),
+      "https://kiraye.az/auth/callback?next=%2Fnew",
+    );
+    assert.equal(
+      await completeEmailAuth(
+        {
+          auth: {
+            getSession: async () => ({ data: { session: {} }, error: null }),
+          },
+        },
+        "https://kiraye.az/auth/callback?next=/new",
+      ),
+      "/new",
+    );
+  });
+  await check(
+    "OAuth callback rejects external return destinations",
+    async () => {
+      assert.equal(
+        await completeEmailAuth(
+          {
+            auth: {
+              getSession: async () => ({ data: { session: {} }, error: null }),
+            },
+          },
+          "https://kiraye.az/auth/callback?next=https://example.com",
+        ),
+        "/profile",
+      );
+    },
+  );
+  await check(
+    "configured own-domain origin replaces Vercel for OAuth and recovery",
+    async () => {
+      testEnv.NEXT_PUBLIC_SITE_URL = "https://kiraye.az";
+      try {
+        assert.equal(
+          authCallbackUrl("https://kiraye-az.vercel.app", false, "/new"),
+          "https://kiraye.az/auth/callback?next=%2Fnew",
+        );
+        assert.equal(
+          authCallbackUrl("http://localhost:3000", true),
+          "https://kiraye.az/auth/callback?flow=recovery",
+        );
+      } finally {
+        delete testEnv.NEXT_PUBLIC_SITE_URL;
+      }
+    },
   );
   console.log(`${count} authentication regression checks passed`);
 })().catch((e) => {

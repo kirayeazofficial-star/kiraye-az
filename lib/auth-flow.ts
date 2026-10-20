@@ -1,6 +1,11 @@
+import { safeLoginDestination } from "./auth-messages";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-export function authCallbackUrl(origin: string, recovery = false) {
+export function authCallbackUrl(
+  origin: string,
+  recovery = false,
+  next?: string,
+) {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
   let base = new URL(origin);
   if (configured) {
@@ -16,7 +21,11 @@ export function authCallbackUrl(origin: string, recovery = false) {
     (!configured && base.hostname.endsWith(".vercel.app"))
   )
     base = new URL("https://kiraye-az.vercel.app");
-  return `${base.origin}/auth/callback${recovery ? "?flow=recovery" : ""}`;
+  const callback = new URL("/auth/callback", base.origin);
+  if (recovery) callback.searchParams.set("flow", "recovery");
+  if (next && safeLoginDestination(next) !== "/profile")
+    callback.searchParams.set("next", safeLoginDestination(next));
+  return callback.toString();
 }
 
 // Handles both Supabase's standard email links and token_hash email templates.
@@ -62,5 +71,5 @@ export async function completeEmailAuth(client: SupabaseClient, href: string) {
     );
   return type === "recovery" || url.searchParams.get("flow") === "recovery"
     ? "/reset-password"
-    : "/profile";
+    : safeLoginDestination(url.searchParams.get("next"));
 }

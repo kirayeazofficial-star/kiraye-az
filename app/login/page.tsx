@@ -8,6 +8,7 @@ import {
 import { authCallbackUrl } from "../../lib/auth-flow";
 import { supabase } from "../../lib/supabase";
 import { rateLimitSeconds } from "../../lib/auth-throttle";
+import GoogleLogin from "../components/GoogleLogin";
 import PhoneLogin from "../components/PhoneLogin";
 import "./style.css";
 type Verification = "signup" | "recovery";
@@ -289,6 +290,7 @@ export default function Login() {
                     ? "Şifrəni yenilə"
                     : "Hesaba giriş"}
           </h1>
+          {!verification && method === "email" && <GoogleLogin />}
           <div className="authMethods" aria-label="Giriş üsulu">
             <button
               type="button"

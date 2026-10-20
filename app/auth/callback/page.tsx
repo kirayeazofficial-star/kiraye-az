@@ -31,10 +31,9 @@ export default function AuthCallback() {
       </Link>
       <section>
         <div className="authEmblem">{error ? "!" : "✓"}</div>
-        <h1>{error ? "Linki yeniləmək lazımdır" : "Hesabın təsdiqlənir"}</h1>
+        <h1>{error ? "Linki yeniləmək lazımdır" : "Giriş tamamlanır"}</h1>
         <p className={error ? "error" : "notice"} role="status">
-          {error ||
-            "Bir neçə saniyə gözlə. Təsdiqdən sonra kabinetinə keçəcəksən."}
+          {error || "Bir neçə saniyə gözlə. Girişdən sonra sayta qayıdacaqsan."}
         </p>
         {error && (
           <Link className="add wide" href="/login">

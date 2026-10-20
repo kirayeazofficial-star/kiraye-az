@@ -73,7 +73,9 @@ const { chromium } = require("playwright");
     });
     let body = {},
       total;
-    if (path.endsWith("/auth/v1/token"))
+    if (path.endsWith("/auth/v1/settings"))
+      body = { external: { google: false, email: true, phone: false } };
+    else if (path.endsWith("/auth/v1/token"))
       body = {
         access_token: jwt,
         refresh_token: "mock-refresh",

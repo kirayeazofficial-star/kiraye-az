@@ -272,7 +272,7 @@ export default function Home() {
           <div>
             <p>Azərbaycan üzrə kirayə elanları</p>
             <h1>Kirayə elanları</h1>
-            <span>Ev, avtomobil, avadanlıq və digər kirayə təklifləri.</span>
+            <span>Ev, avtomobil və avadanlıq — günlük və aylıq kirayə təklifləri.</span>
           </div>
           <Link className="introAction" href="/new">
             Elan yerləşdir →

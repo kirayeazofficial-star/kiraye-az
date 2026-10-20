@@ -182,6 +182,44 @@ const { chromium } = require("playwright");
             "base64",
           ),
         });
+        const extraPhoto = {
+          name: "second-room.png",
+          mimeType: "image/png",
+          buffer: Buffer.from(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=",
+            "base64",
+          ),
+        };
+        await page
+          .getByLabel("Elan şəkilləri", { exact: true })
+          .setInputFiles(extraPhoto);
+        assert.equal(await page.locator(".uploadPreviews img").count(), 2);
+        await page
+          .getByRole("button", { name: "Üz qabığı et", exact: true })
+          .click();
+        await page
+          .getByLabel("Elan şəkilləri", { exact: true })
+          .setInputFiles(
+            Array.from({ length: 5 }, (_, i) => ({
+              ...extraPhoto,
+              name: `extra-${i}.png`,
+            })),
+          );
+        await page.getByRole("alert").filter({ hasText: "1–6 ədəd" }).waitFor();
+        assert.equal(await page.locator(".uploadPreviews img").count(), 2);
+        await page
+          .getByRole("button", { name: "Elana önbaxış", exact: true })
+          .click();
+        await page
+          .getByRole("region", { name: "Elanın önbaxışı" })
+          .getByRole("heading", {
+            name: "Sahil metrosu yanında rahat iki otaqlı mənzil",
+          })
+          .waitFor();
+        assert.equal(inserted, undefined);
+        await page
+          .getByRole("button", { name: "Önbaxışı bağla", exact: true })
+          .click();
         await page.locator("input[type=checkbox][required]").check();
         await page
           .getByRole("button", {
@@ -194,7 +232,7 @@ const { chromium } = require("playwright");
           .waitFor();
         assert.equal(inserted.status, "pending");
         assert.equal(inserted.owner_id, id);
-        assert.equal(inserted.images.length, 1);
+        assert.equal(inserted.images.length, 2);
         assert.equal(inserted.contact, "+994501234567");
       },
     );

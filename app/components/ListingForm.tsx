@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -10,9 +10,35 @@ import {
   normalizePhone,
   validateRentalDetails,
 } from "../../lib/rental-details";
-import { categories, cities, type Listing } from "../../lib/marketplace";
+import {
+  categories,
+  cities,
+  money,
+  periodName,
+  type Listing,
+} from "../../lib/marketplace";
 
 export default function ListingForm({ listingId }: { listingId?: string }) {
+  const submitLock = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [preview, setPreview] = useState<{
+    title: string;
+    city: string;
+    price: number;
+    period: string;
+    description: string;
+  } | null>(null);
+  function updatePreview() {
+    if (!formRef.current) return;
+    const form = new FormData(formRef.current);
+    setPreview({
+      title: String(form.get("title") || "Elanın başlığı"),
+      city: String(form.get("city") || ""),
+      price: Number(form.get("price")),
+      period: String(form.get("rental_period") || "daily"),
+      description: String(form.get("description") || ""),
+    });
+  }
   const [user, setUser] = useState(""),
     [loginPhone, setLoginPhone] = useState(""),
     [loading, setLoading] = useState(true),
@@ -64,7 +90,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
   }, [files]);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!supabase || !user || busy) return;
+    if (!supabase || !user || busy || submitLock.current) return;
     setError("");
     const form = new FormData(e.currentTarget),
       title = String(form.get("title") ?? "").trim(),
@@ -103,6 +129,12 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       setError("Ən azı bir şəkil əlavə edin.");
       return;
     }
+    const price = Number(form.get("price"));
+    if (!Number.isFinite(price) || price <= 0 || price > 1000000) {
+      setError("Qiymət 0 ilə 1 000 000 ₼ arasında olmalıdır.");
+      return;
+    }
+    submitLock.current = true;
     setBusy(true);
     const paths: string[] = [];
     let saved = false;
@@ -132,9 +164,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             .publicUrl,
         );
       }
-      const price = Number(form.get("price"));
-      if (!Number.isFinite(price) || price <= 0 || price > 1000000)
-        throw new Error("Qiymət 0 ilə 1 000 000 ₼ arasında olmalıdır.");
       const payload = {
         owner_id: user,
         category,
@@ -183,10 +212,16 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       saved = true;
       setSuccess(true);
     } catch (err) {
-      if (paths.length && !saved)
-        await supabase.storage.from("listing-images").remove(paths);
+      if (paths.length && !saved) {
+        try {
+          await supabase.storage.from("listing-images").remove(paths);
+        } catch {
+          /* Preserve the original submission error. */
+        }
+      }
       setError(err instanceof Error ? err.message : "Xəta baş verdi.");
     } finally {
+      submitLock.current = false;
       setBusy(false);
     }
   }
@@ -200,7 +235,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         </p>
         <div className="sectionTitle">
           <div>
-            <p className="eyebrow">ƏŞYALARINA YENİ BİR FÜRSƏT VER</p>
+            <p className="eyebrow">KİRAYƏ ELANI</p>
             <h1>{listingId ? "Elanı redaktə et" : "Elan yerləşdir"}</h1>
             <p className="muted">
               {listingId
@@ -241,9 +276,21 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           </section>
         ) : (
           <div className="formLayout">
-            <form className="listingForm" onSubmit={submit}>
+            <form
+              ref={formRef}
+              className="listingForm"
+              onSubmit={submit}
+              onInput={() => {
+                if (preview) updatePreview();
+              }}
+            >
               <fieldset disabled={busy}>
-                <h2>
+                <nav className="publishSteps" aria-label="Elan bölmələri">
+                  <a href="#listing-info">1. Məlumatlar</a>
+                  <a href="#listing-photos">2. Şəkillər</a>
+                  <a href="#listing-contact">3. Əlaqə</a>
+                </nav>
+                <h2 id="listing-info">
                   01 <span>Elanın məlumatları</span>
                 </h2>
                 <label>
@@ -461,7 +508,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     placeholder="Vəziyyəti, imkanları, kirayə şərtlərini və digər vacib məlumatları yazın."
                   />
                 </label>
-                <h2>
+                <h2 id="listing-photos">
                   02 <span>Şəkillər</span>
                 </h2>
                 <p className="muted">
@@ -477,7 +524,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     onChange={(e) => {
                       const selected = Array.from(e.target.files ?? []);
                       if (
-                        selected.length > 6 ||
+                        selected.length + files.length + existingImages.length >
+                          6 ||
                         selected.some(
                           (f) =>
                             f.size > 5 * 1024 * 1024 ||
@@ -492,11 +540,16 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         e.target.value = "";
                         return;
                       }
-                      setFiles(selected);
+                      setFiles((current) => [...current, ...selected]);
+                      e.target.value = "";
                       setError("");
                     }}
                   />
                 </label>
+                <p className="photoCount" aria-live="polite">
+                  {files.length + existingImages.length} / 6 şəkil · İlk şəkil
+                  elanın üz qabığıdır.
+                </p>
                 <div className="uploadPreviews">
                   {existingImages.map((src, i) => (
                     <div key={src}>
@@ -512,6 +565,20 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       >
                         ×
                       </button>
+                      {i > 0 && (
+                        <button
+                          type="button"
+                          className="coverButton"
+                          onClick={() =>
+                            setExistingImages([
+                              src,
+                              ...existingImages.filter((_, n) => n !== i),
+                            ])
+                          }
+                        >
+                          Üz qabığı et
+                        </button>
+                      )}
                     </div>
                   ))}
                   {previews.map((src, i) => (
@@ -526,10 +593,24 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       >
                         ×
                       </button>
+                      {i > 0 && !existingImages.length && (
+                        <button
+                          type="button"
+                          className="coverButton"
+                          onClick={() =>
+                            setFiles([
+                              files[i],
+                              ...files.filter((_, n) => n !== i),
+                            ])
+                          }
+                        >
+                          Üz qabığı et
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
-                <h2>
+                <h2 id="listing-contact">
                   03 <span>Əlaqə</span>
                 </h2>
                 <label>
@@ -558,6 +639,43 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     {error}
                   </p>
                 )}
+                <button
+                  type="button"
+                  className="secondary wide previewToggle"
+                  aria-expanded={!!preview}
+                  disabled={busy}
+                  onClick={() => (preview ? setPreview(null) : updatePreview())}
+                >
+                  {preview ? "Önbaxışı bağla" : "Elana önbaxış"}
+                </button>
+                {preview && (
+                  <section
+                    className="postingPreview"
+                    aria-label="Elanın önbaxışı"
+                  >
+                    <p className="muted">
+                      Yalnız önbaxışdır. Elan hələ göndərilməyib.
+                    </p>
+                    <div>
+                      <img
+                        src={
+                          existingImages[0] || previews[0] || "/placeholder.svg"
+                        }
+                        alt="Elanın üz qabığı"
+                      />
+                      <div>
+                        <strong>
+                          {preview.price > 0 && Number.isFinite(preview.price)
+                            ? `${money(preview.price)} ₼ / ${periodName(preview.period)}`
+                            : "Qiymət yazılmayıb"}
+                        </strong>
+                        <h3>{preview.title}</h3>
+                        <p>{preview.city}</p>
+                      </div>
+                    </div>
+                    <p className="description">{preview.description}</p>
+                  </section>
+                )}
                 <button className="add wide" disabled={busy}>
                   {busy
                     ? "Göndərilir, gözləyin..."
@@ -566,7 +684,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
               </fieldset>
             </form>
             <aside className="tips">
-              <span>✧</span>
               <h3>Yaxşı elan daha tez seçilir</h3>
               <p>Öz çəkdiyin, aydın və işıqlı şəkillərdən istifadə et.</p>
               <p>

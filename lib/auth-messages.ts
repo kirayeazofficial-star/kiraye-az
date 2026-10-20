@@ -22,6 +22,8 @@ export function authErrorMessage(error: unknown) {
     return "Bu ünvana məktub göndərilə bilmədi. Xidmətin e-poçt göndəriş ayarları yoxlanmalıdır.";
   if (code === "email_address_invalid")
     return "E-poçt ünvanını yoxla və yenidən yaz.";
+  if (code === "over_email_send_rate_limit")
+    return "E-poçt göndəriş limiti dolub. Hesabın artıq varsa, yenidən qeydiyyat yaratmadan daxil ol. Məktub üçün bir müddət gözlə.";
   if (e?.status === 429 || code.includes("rate_limit"))
     return "Çox sayda cəhd edildi. Bir qədər gözləyib yenidən yoxla.";
   if (
@@ -51,7 +53,7 @@ export function authErrorMessage(error: unknown) {
 export function safeLoginDestination(next: string | null) {
   if (
     next &&
-    (["/new", "/profile", "/account"].includes(next) ||
+    (["/new", "/profile", "/account", "/admin"].includes(next) ||
       /^\/edit\/[0-9a-f-]{36}$/i.test(next))
   )
     return next;

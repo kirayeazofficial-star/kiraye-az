@@ -30,6 +30,7 @@ vm.runInNewContext(
     repeated = false,
     senderError = false,
     settingsError = false,
+    rateLimited = false,
   } = {}) {
     const context = await browser.newContext({
       viewport: { width: 1366, height: 768 },
@@ -90,7 +91,13 @@ vm.runInNewContext(
         };
       else if (path.includes("/rest/v1/listings")) body = [];
       else if (path.endsWith("/signup")) {
-        if (senderError) {
+        if (rateLimited) {
+          status = 429;
+          body = {
+            code: "over_email_send_rate_limit",
+            message: "Please try again after 95 seconds",
+          };
+        } else if (senderError) {
           status = 500;
           body = {
             code: "unexpected_failure",
@@ -115,6 +122,7 @@ vm.runInNewContext(
       });
     });
     await page.goto(`${base}/login`);
+    await page.getByRole("button", { name: "Telefonla", exact: true }).click();
     return { page, context, calls };
   }
   async function signup(page) {
@@ -239,8 +247,16 @@ vm.runInNewContext(
           0,
         );
         await page.setViewportSize({ width: 390, height: 844 });
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-        await page.screenshot({ path: "/tmp/kiraye-cabinet-390.png", fullPage: true });
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth,
+          ),
+          true,
+        );
+        await page.screenshot({
+          path: "/tmp/kiraye-cabinet-390.png",
+          fullPage: true,
+        });
         await page.goto(`${base}/new`);
         assert.equal(
           await page.getByLabel(/Telefon nömrəsi/).inputValue(),
@@ -285,6 +301,48 @@ vm.runInNewContext(
           .click();
         await page.getByLabel("Təsdiq kodu", { exact: true }).waitFor();
         assert.equal(calls.filter((x) => x.path.endsWith("/resend")).length, 0);
+        await context.close();
+      },
+    );
+    await check(
+      "email sending rate limit survives reload and does not block password login",
+      async () => {
+        const { page, context, calls } = await setup({ rateLimited: true });
+        await signup(page);
+        await page
+          .getByRole("status")
+          .filter({ hasText: "Təkrar cəhd üçün" })
+          .waitFor();
+        assert.equal(
+          await page
+            .getByRole("button", { name: "Hesab yarat", exact: true })
+            .isDisabled(),
+          true,
+        );
+        await page.reload();
+        // Email is the default while no SMS provider has been configured.
+        await page
+          .getByRole("button", {
+            name: "Hesabın yoxdur? Qeydiyyatdan keç",
+            exact: true,
+          })
+          .click();
+        assert.equal(
+          await page
+            .getByRole("button", { name: "Hesab yarat", exact: true })
+            .isDisabled(),
+          true,
+        );
+        assert.equal(calls.filter((x) => x.path.endsWith("/signup")).length, 1);
+        await page
+          .getByRole("button", { name: "Hesabın var? Daxil ol", exact: true })
+          .click();
+        assert.equal(
+          await page
+            .getByRole("button", { name: "Daxil ol →", exact: true })
+            .isEnabled(),
+          true,
+        );
         await context.close();
       },
     );
@@ -336,6 +394,9 @@ vm.runInNewContext(
         ]) {
           await page.setViewportSize({ width, height });
           await page.goto(`${base}/login`);
+          await page
+            .getByRole("button", { name: "Telefonla", exact: true })
+            .click();
           await page
             .getByText("SMS ilə giriş hələ aktiv deyil", { exact: true })
             .waitFor();

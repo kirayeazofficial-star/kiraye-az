@@ -31,12 +31,24 @@ const { PGlite } = require(
     `insert into public.profiles(id,role) values('${owner}','user'),('${other}','user'),('${admin}','admin') on conflict(id) do update set role=excluded.role`,
   );
   await db.exec(sql);
-  assert.equal((await db.query(`select role from public.profiles where id='${admin}'`)).rows[0].role,'admin');
-  checks++;console.log('PASS schema upgrades preserve administrator role');
-  const newUser='44444444-4444-4444-8444-444444444444';
-  await db.exec(`insert into auth.users(id,email) values('${newUser}','new@example.com')`);
-  assert.equal((await db.query(`select role from public.profiles where id='${newUser}'`)).rows[0].role,'user');
-  checks++;console.log('PASS new accounts receive a profile automatically');
+  assert.equal(
+    (await db.query(`select role from public.profiles where id='${admin}'`))
+      .rows[0].role,
+    "admin",
+  );
+  checks++;
+  console.log("PASS schema upgrades preserve administrator role");
+  const newUser = "44444444-4444-4444-8444-444444444444";
+  await db.exec(
+    `insert into auth.users(id,email) values('${newUser}','new@example.com')`,
+  );
+  assert.equal(
+    (await db.query(`select role from public.profiles where id='${newUser}'`))
+      .rows[0].role,
+    "user",
+  );
+  checks++;
+  console.log("PASS new accounts receive a profile automatically");
   async function as(id) {
     await db.exec("reset role");
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
@@ -277,6 +289,47 @@ const { PGlite } = require(
   );
   checks++;
   console.log("PASS archived listings hidden publicly");
+  await db.exec("reset role");
+  await db.query("select set_config('request.jwt.claim.sub','',false)");
+  await db.exec(
+    "alter table auth.users add column email_confirmed_at timestamptz",
+  );
+  const grantSQL = fs.readFileSync("supabase/assign-owner-admin.sql", "utf8");
+  await assert.rejects(db.exec(grantSQL), /hesab tapılmadı/);
+  await db.exec("rollback");
+  checks++;
+  console.log("PASS owner admin setup refuses a missing account");
+  const actualOwner = "55555555-5555-4555-8555-555555555555";
+  await db.exec(
+    `insert into auth.users(id,email) values('${actualOwner}','kiraye.azofficial@gmail.com')`,
+  );
+  await db.exec(grantSQL);
+  await db.exec(grantSQL);
+  assert.equal(
+    (
+      await db.query(
+        `select role from public.profiles where id='${actualOwner}'`,
+      )
+    ).rows[0].role,
+    "admin",
+  );
+  assert.equal(
+    (await db.query(`select role from public.profiles where id='${other}'`))
+      .rows[0].role,
+    "user",
+  );
+  assert.equal(
+    (
+      await db.query(
+        `select email_confirmed_at from auth.users where id='${actualOwner}'`,
+      )
+    ).rows[0].email_confirmed_at,
+    null,
+  );
+  checks++;
+  console.log(
+    "PASS owner admin assignment is repeatable, targeted, and preserves email verification",
+  );
   await db.close();
   console.log(`${checks} database checks passed`);
 })().catch((e) => {

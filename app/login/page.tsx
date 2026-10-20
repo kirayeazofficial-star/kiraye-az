@@ -7,12 +7,13 @@ import {
 } from "../../lib/auth-messages";
 import { authCallbackUrl } from "../../lib/auth-flow";
 import { supabase } from "../../lib/supabase";
+import { rateLimitSeconds } from "../../lib/auth-throttle";
 import PhoneLogin from "../components/PhoneLogin";
 import "./style.css";
 type Verification = "signup" | "recovery";
 const pendingKey = "kiraye:pending-confirmation";
 export default function Login() {
-  const [method, setMethod] = useState<"phone" | "email">("phone");
+  const [method, setMethod] = useState<"phone" | "email">("email");
   const [mode, setMode] = useState<"login" | "signup" | "reset">("login"),
     [notice, setNotice] = useState(""),
     [busy, setBusy] = useState(false),
@@ -21,7 +22,28 @@ export default function Login() {
     [unconfirmed, setUnconfirmed] = useState(false),
     [showPassword, setShowPassword] = useState(false),
     [useCode, setUseCode] = useState(false),
-    [cooldown, setCooldown] = useState(0);
+    [cooldown, setCooldown] = useState(0),
+    [requestCooldown, setRequestCooldown] = useState(0),
+    [requestScope, setRequestScope] = useState("mail");
+  const mailBlocked = requestCooldown > 0 && requestScope === "mail";
+  const verifyBlocked = requestCooldown > 0 && requestScope === "verify";
+  const submitBlocked =
+    requestCooldown > 0 &&
+    requestScope === (mode === "login" ? "login" : "mail");
+  function handleAuthError(error: unknown, scope: "mail" | "login" | "verify") {
+    setNotice(authErrorMessage(error));
+    const seconds = rateLimitSeconds(error);
+    if (seconds) {
+      setRequestScope(scope);
+      setRequestCooldown(seconds);
+      try {
+        sessionStorage.setItem(
+          "kiraye:auth-retry-at",
+          JSON.stringify({ retryAt: Date.now() + seconds * 1000, scope }),
+        );
+      } catch {}
+    }
+  }
   function clearPending() {
     try {
       sessionStorage.removeItem(pendingKey);
@@ -52,6 +74,18 @@ export default function Login() {
   }
   useEffect(() => {
     try {
+      const stored = JSON.parse(
+        sessionStorage.getItem("kiraye:auth-retry-at") || "null",
+      );
+      const retryAt = stored?.retryAt;
+      if (
+        ["mail", "login", "verify"].includes(stored?.scope) &&
+        retryAt > Date.now() &&
+        retryAt < Date.now() + 3600001
+      ) {
+        setRequestScope(stored.scope);
+        setRequestCooldown(Math.ceil((retryAt - Date.now()) / 1000));
+      }
       const saved = JSON.parse(sessionStorage.getItem(pendingKey) || "null");
       if (
         saved &&
@@ -96,9 +130,17 @@ export default function Login() {
     );
     return () => clearTimeout(timer);
   }, [cooldown]);
+  useEffect(() => {
+    if (requestCooldown <= 0) return;
+    const timer = setTimeout(
+      () => setRequestCooldown((value) => Math.max(0, value - 1)),
+      1000,
+    );
+    return () => clearTimeout(timer);
+  }, [requestCooldown]);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (busy) return;
+    if (busy || submitBlocked) return;
     if (!supabase) {
       setNotice(
         "Giriş xidməti hələ aktivləşdirilməyib. Bir az sonra yenidən yoxlayın.",
@@ -154,14 +196,14 @@ export default function Login() {
         goToAccount();
       }
     } catch (error) {
-      setNotice(authErrorMessage(error));
+      handleAuthError(error, mode === "login" ? "login" : "mail");
     } finally {
       setBusy(false);
     }
   }
   async function verifyCode(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!supabase || !verification || busy) return;
+    if (!supabase || !verification || busy || verifyBlocked) return;
     const token = String(
       new FormData(e.currentTarget).get("code") || "",
     ).trim();
@@ -182,13 +224,14 @@ export default function Login() {
       if (verification === "recovery") window.location.href = "/reset-password";
       else goToAccount();
     } catch (error) {
-      setNotice(authErrorMessage(error));
+      handleAuthError(error, "verify");
     } finally {
       setBusy(false);
     }
   }
   async function resend() {
-    if (!supabase || !emailAddress || busy || cooldown > 0) return;
+    if (!supabase || !emailAddress || busy || cooldown > 0 || mailBlocked)
+      return;
     setBusy(true);
     setNotice("");
     try {
@@ -211,7 +254,7 @@ export default function Login() {
       );
       setUnconfirmed(false);
     } catch (error) {
-      setNotice(authErrorMessage(error));
+      handleAuthError(error, "mail");
       if ((error as { status?: number })?.status === 429) setCooldown(60);
     } finally {
       setBusy(false);
@@ -331,7 +374,10 @@ export default function Login() {
                         </div>
                       </label>
                     )}
-                    <button className="authSubmit" disabled={busy}>
+                    <button
+                      className="authSubmit"
+                      disabled={busy || submitBlocked}
+                    >
                       {busy
                         ? "Gözləyin..."
                         : mode === "signup"
@@ -368,7 +414,7 @@ export default function Login() {
                     <button
                       className="authSubmit"
                       type="button"
-                      disabled={busy || cooldown > 0}
+                      disabled={busy || cooldown > 0 || mailBlocked}
                       onClick={resend}
                     >
                       {busy
@@ -419,7 +465,10 @@ export default function Login() {
                           placeholder="000000"
                         />
                       </label>
-                      <button className="authSubmit" disabled={busy}>
+                      <button
+                        className="authSubmit"
+                        disabled={busy || verifyBlocked}
+                      >
                         {busy ? "Yoxlanılır..." : "Kodu təsdiqlə"}
                       </button>
                     </form>
@@ -429,11 +478,19 @@ export default function Login() {
               {unconfirmed && (
                 <button
                   className="link"
-                  disabled={busy || cooldown > 0}
+                  disabled={busy || cooldown > 0 || mailBlocked}
                   onClick={resend}
                 >
                   E-poçtu təsdiqlə / Yeni məktub göndər
                 </button>
+              )}
+              {(submitBlocked ||
+                (verification && (mailBlocked || verifyBlocked)) ||
+                (unconfirmed && mailBlocked)) && (
+                <p className="notice" role="status">
+                  Təkrar cəhd üçün {requestCooldown} saniyə gözlə. Bu müddətdə
+                  yeni sorğu göndərilmir.
+                </p>
               )}
               {notice && (
                 <div className="notice" role="status">

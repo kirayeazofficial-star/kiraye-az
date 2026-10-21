@@ -15,12 +15,87 @@ export const cities = [
   "Sumqayıt",
   "Gəncə",
   "Xırdalan",
-  "Qəbələ",
-  "Quba",
-  "Şəki",
+  "Abşeron",
+  "Ağcabədi",
+  "Ağdam",
+  "Ağdaş",
+  "Ağdərə",
+  "Ağstafa",
+  "Ağsu",
+  "Astara",
+  "Babək",
+  "Balakən",
+  "Beyləqan",
+  "Bərdə",
+  "Biləsuvar",
+  "Cəbrayıl",
+  "Cəlilabad",
+  "Culfa",
+  "Daşkəsən",
+  "Dəliməmmədli",
+  "Füzuli",
+  "Gədəbəy",
+  "Goranboy",
+  "Göyçay",
+  "Göygöl",
+  "Göytəpə",
+  "Hacıqabul",
+  "Horadiz",
+  "Xaçmaz",
+  "Xankəndi",
+  "Xızı",
+  "Xocalı",
+  "Xocavənd",
+  "Xudat",
+  "İmişli",
+  "İsmayıllı",
+  "Kəlbəcər",
+  "Kəngərli",
+  "Kürdəmir",
+  "Laçın",
+  "Lerik",
   "Lənkəran",
+  "Liman",
+  "Masallı",
+  "Mingəçevir",
+  "Naftalan",
+  "Naxçıvan",
+  "Neftçala",
+  "Oğuz",
+  "Ordubad",
+  "Qax",
+  "Qazax",
+  "Qəbələ",
+  "Qobustan",
+  "Qovlar",
+  "Quba",
+  "Qubadlı",
+  "Qusar",
+  "Saatlı",
+  "Sabirabad",
+  "Salyan",
+  "Samux",
+  "Sədərək",
+  "Siyəzən",
+  "Şabran",
+  "Şahbuz",
+  "Şamaxı",
+  "Şəki",
+  "Şəmkir",
+  "Şərur",
+  "Şirvan",
+  "Şuşa",
+  "Tərtər",
+  "Tovuz",
+  "Ucar",
+  "Yardımlı",
+  "Yevlax",
+  "Zaqatala",
+  "Zəngilan",
+  "Zərdab",
   "Digər",
 ];
+
 export type Listing = {
   id: string;
   owner_id?: string;
@@ -44,6 +119,14 @@ export type Listing = {
   available_until?: string | null;
   rejection_reason?: string | null;
   attributes?: {
+    color?: string;
+    fuel?: string;
+    engine_cc?: string;
+    condition?: string;
+    kind?: string;
+    frame_size?: string;
+    wheel_size?: string;
+    capacity?: string;
     brand?: string;
     model?: string;
     year?: number;

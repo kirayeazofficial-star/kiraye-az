@@ -243,6 +243,7 @@ vm.runInNewContext(
           fullPage: true,
         });
         await page.goto(`${base}/new`);
+        await page.getByLabel("Kateqoriya", { exact: true }).selectOption("property");
         assert.equal(
           await page.getByLabel(/Telefon nömrəsi/).inputValue(),
           "994501234567",

@@ -7,7 +7,11 @@ const { chromium } = require("playwright");
     headless: true,
     args: ["--no-sandbox"],
   });
-  const page = await browser.newPage({ viewport: process.env.TEST_MOBILE ? { width: 390, height: 844 } : { width: 1280, height: 900 } });
+  const page = await browser.newPage({
+    viewport: process.env.TEST_MOBILE
+      ? { width: 390, height: 844 }
+      : { width: 1280, height: 900 },
+  });
   const base = process.env.TEST_BASE_URL || "http://127.0.0.1:3013";
   const id = "11111111-1111-4111-8111-111111111111",
     listingId = "22222222-2222-4222-8222-222222222222";
@@ -183,9 +187,123 @@ const { chromium } = require("playwright");
       assert.equal(await page.locator(".accountListings article").count(), 1);
     });
     await check(
+      "category selection shows only relevant fields and clears incompatible vehicle details",
+      async () => {
+        await page.goto(`${base}/new`);
+        const category = page.getByLabel("Kateqoriya", { exact: true });
+        await category.waitFor();
+        assert.equal(
+          await page.getByLabel("Elanın başlığı", { exact: true }).count(),
+          0,
+        );
+        for (const value of [
+          "property",
+          "villa",
+          "commercial",
+          "car",
+          "motorcycle",
+          "equipment",
+          "bicycle",
+          "event",
+        ]) {
+          await category.selectOption(value);
+          assert.equal(
+            await page.getByLabel("Marka", { exact: true }).count(),
+            ["car", "motorcycle", "bicycle", "equipment"].includes(value)
+              ? 1
+              : 0,
+          );
+          assert.equal(
+            await page.getByLabel("Otaq sayı", { exact: true }).count(),
+            ["property", "villa"].includes(value) ? 1 : 0,
+          );
+          assert.equal(
+            await page.getByLabel("Sahə (m²)", { exact: true }).count(),
+            ["property", "villa", "commercial"].includes(value) ? 1 : 0,
+          );
+          assert.equal(
+            await page.getByLabel("Rayon / qəsəbə", { exact: true }).count(),
+            0,
+          );
+          assert.equal(
+            await page.getByLabel("Depozit (₼)", { exact: true }).isVisible(),
+            false,
+          );
+        }
+        assert(
+          (await page
+            .getByLabel("Şəhər", { exact: true })
+            .locator("option")
+            .count()) > 70,
+        );
+        await category.selectOption("car");
+        const brand = page.getByLabel("Marka", { exact: true });
+        const model = page.getByLabel("Model", { exact: true });
+        assert.equal(await model.isDisabled(), true);
+        await brand.fill("Hyundai");
+        await model.fill("Elantra");
+        assert(
+          (await page.locator("#vehicle-models").innerHTML()).includes(
+            "Elantra",
+          ),
+        );
+        await brand.fill("Toyota");
+        assert.equal(await model.inputValue(), "");
+        assert(
+          !(await page.locator("#vehicle-models").innerHTML()).includes(
+            "Elantra",
+          ),
+        );
+        await category.selectOption("motorcycle");
+        assert.equal(await brand.inputValue(), "");
+        await brand.fill("Yamaha");
+        assert(
+          (await page.locator("#vehicle-models").innerHTML()).includes("NMAX"),
+        );
+        await category.selectOption("bicycle");
+        assert(
+          (await page.locator("#vehicle-brands").innerHTML()).includes("Trek"),
+        );
+        assert(
+          !(await page.locator("#vehicle-brands").innerHTML()).includes(
+            "Hyundai",
+          ),
+        );
+        await brand.fill("Trek");
+        await model.fill("Marlin");
+        await page
+          .getByLabel("Velosiped növü", { exact: true })
+          .selectOption("Dağ");
+        assert.equal(
+          await page.getByLabel("Sürətlər qutusu", { exact: true }).count(),
+          0,
+        );
+        await category.selectOption("equipment");
+        await category.selectOption("car");
+        assert.equal(await brand.inputValue(), "");
+        await page.setViewportSize({ width: 390, height: 844 });
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+        );
+        await page.screenshot({
+          path: "/tmp/kirayeal-car-form.png",
+          fullPage: true,
+        });
+      },
+    );
+    await check(
       "authenticated owner submits a photo listing for moderation",
       async () => {
         await page.goto(`${base}/new`);
+        await page
+          .getByLabel("Kateqoriya", { exact: true })
+          .selectOption("property");
+        await page
+          .getByLabel("Şəhər", { exact: true })
+          .selectOption("Mingəçevir");
         await page
           .getByLabel("Elanın başlığı", { exact: true })
           .fill("Sahil metrosu yanında rahat iki otaqlı mənzil");
@@ -254,6 +372,148 @@ const { chromium } = require("playwright");
         assert.equal(inserted.owner_id, id);
         assert.equal(inserted.images.length, 2);
         assert.equal(inserted.contact, "+994501234567");
+        assert.equal(inserted.city, "Mingəçevir");
+        assert.deepEqual(inserted.attributes, { amenities: [] });
+        assert.equal(inserted.district, "");
+      },
+    );
+    await check(
+      "car and bicycle submissions store their own specifications without mixing fields",
+      async () => {
+        for (const category of ["car", "bicycle"]) {
+          await page.goto(`${base}/new`);
+          await page
+            .getByLabel("Kateqoriya", { exact: true })
+            .selectOption("car");
+          await page.getByLabel("Marka", { exact: true }).fill("Toyota");
+          await page.getByLabel("Model", { exact: true }).fill("Corolla");
+          await page
+            .getByLabel("Yanacaq növü", { exact: true })
+            .selectOption("Benzin");
+          await page
+            .getByLabel("Sürətlər qutusu", { exact: true })
+            .selectOption("Avtomat");
+          if (category === "bicycle") {
+            await page
+              .getByLabel("Kateqoriya", { exact: true })
+              .selectOption("bicycle");
+            await page.getByLabel("Marka", { exact: true }).fill("Trek");
+            await page.getByLabel("Model", { exact: true }).fill("Marlin");
+            await page
+              .getByLabel("Velosiped növü", { exact: true })
+              .selectOption("Dağ");
+            await page
+              .getByLabel("Təkər ölçüsü", { exact: true })
+              .selectOption("29 düym");
+          }
+          await page
+            .getByLabel("Rəng", { exact: true })
+            .selectOption("Qırmızı");
+          await page
+            .getByLabel("Elanın başlığı", { exact: true })
+            .fill("Test üçün gündəlik kirayə nəqliyyat vasitəsi");
+          await page.getByLabel("Şəhər", { exact: true }).selectOption("Qusar");
+          await page.getByLabel("Qiymət (₼)", { exact: true }).fill("25");
+          await page
+            .getByLabel("Ətraflı təsvir", { exact: true })
+            .fill(
+              "Yaxşı vəziyyətdə nəqliyyat vasitəsi gündəlik kirayə üçün təklif olunur.",
+            );
+          await page.getByLabel(/Telefon nömrəsi/).fill("0501234567");
+          await page
+            .getByLabel("Elan şəkilləri", { exact: true })
+            .setInputFiles({
+              name: "vehicle.png",
+              mimeType: "image/png",
+              buffer: Buffer.from(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=",
+                "base64",
+              ),
+            });
+          await page.locator("input[type=checkbox][required]").check();
+          await page
+            .getByRole("button", {
+              name: "Elanı yoxlamaya göndər →",
+              exact: true,
+            })
+            .click();
+          await page
+            .getByRole("heading", { name: "Elanın yoxlamaya göndərildi" })
+            .waitFor();
+          assert.equal(inserted.category, category);
+          assert.equal(inserted.rooms, null);
+          assert.equal(inserted.area_m2, null);
+          assert.equal(inserted.attributes.color, "Qırmızı");
+          assert.equal(inserted.city, "Qusar");
+          if (category === "car") {
+            assert.equal(inserted.attributes.brand, "Toyota");
+            assert.equal(inserted.attributes.model, "Corolla");
+            assert.equal(inserted.attributes.fuel, "Benzin");
+            assert.equal(inserted.attributes.gearbox, "Avtomat");
+            assert.equal(inserted.attributes.wheel_size, undefined);
+          } else {
+            assert.equal(inserted.attributes.brand, "Trek");
+            assert.equal(inserted.attributes.model, "Marlin");
+            assert.equal(inserted.attributes.kind, "Dağ");
+            assert.equal(inserted.attributes.wheel_size, "29 düym");
+            assert.equal(inserted.attributes.fuel, undefined);
+            assert.equal(inserted.attributes.gearbox, undefined);
+          }
+        }
+      },
+    );
+    await check(
+      "bicycle specifications survive editing and appear in listing details",
+      async () => {
+        const original = item;
+        item = { ...item, ...inserted, id: listingId, status: "published" };
+        await page.goto(`${base}/edit/${listingId}`);
+        assert.equal(
+          await page.getByLabel("Marka", { exact: true }).inputValue(),
+          "Trek",
+        );
+        assert.equal(
+          await page.getByLabel("Model", { exact: true }).inputValue(),
+          "Marlin",
+        );
+        assert.equal(
+          await page.getByLabel("Rəng", { exact: true }).inputValue(),
+          "Qırmızı",
+        );
+        assert.equal(
+          await page.getByLabel("Təkər ölçüsü", { exact: true }).inputValue(),
+          "29 düym",
+        );
+        await page
+          .getByLabel("Təkər ölçüsü", { exact: true })
+          .selectOption("26 düym");
+        await page.locator("input[type=checkbox][required]").check();
+        await page
+          .getByRole("button", {
+            name: "Elanı yoxlamaya göndər →",
+            exact: true,
+          })
+          .click();
+        await page
+          .getByRole("heading", { name: "Elanın yoxlamaya göndərildi" })
+          .waitFor();
+        assert.equal(updated.attributes.brand, "Trek");
+        assert.equal(updated.attributes.wheel_size, "26 düym");
+        assert.equal(updated.attributes.fuel, undefined);
+        item.status = "published";
+        await page.goto(base);
+        await page.locator(".quickView").first().click();
+        const specs = page.getByRole("dialog").locator(".detailSpecs");
+        await specs.getByText("Qırmızı", { exact: true }).waitFor();
+        await specs.getByText("26 düym", { exact: true }).waitFor();
+        await specs.getByText("Dağ", { exact: true }).waitFor();
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+        );
+        item = original;
       },
     );
     await check(

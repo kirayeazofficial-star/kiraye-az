@@ -3,6 +3,13 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import {
+  carModels,
+  motorcycleModels,
+  bicycleModels,
+  colors,
+  listingExamples,
+} from "../../lib/listing-form-options";
 import { supabase } from "../../lib/supabase";
 import {
   amenities,
@@ -47,7 +54,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [success, setSuccess] = useState(false),
     [files, setFiles] = useState<File[]>([]),
     [previews, setPreviews] = useState<string[]>([]),
-    [category, setCategory] = useState("property"),
+    [category, setCategory] = useState(""),
     [initial, setInitial] = useState<Listing | null>(null),
     [existingImages, setExistingImages] = useState<string[]>([]),
     [loadError, setLoadError] = useState(false);
@@ -96,6 +103,10 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       title = String(form.get("title") ?? "").trim(),
       description = String(form.get("description") ?? "").trim(),
       contact = String(form.get("contact") ?? "").trim();
+    if (!categories.some((item) => item.id === category)) {
+      setError("Kateqoriya seçin.");
+      return;
+    }
     if (title.length < 10 || description.length < 30) {
       setError("Başlıq ən azı 10, təsvir ən azı 30 simvol olmalıdır.");
       return;
@@ -171,30 +182,45 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         description,
         contact: normalizePhone(contact)!,
         city: form.get("city"),
-        district: String(form.get("district") ?? "").trim(),
+        district:
+          initial?.city === form.get("city") ? initial.district || "" : "",
         price,
         rental_period: form.get("rental_period"),
         images,
         status: "pending",
         ...rental,
         rooms:
-          isProperty(category) && form.get("rooms")
+          ["property", "villa"].includes(category) && form.get("rooms")
             ? Number(form.get("rooms"))
             : null,
         area_m2:
           isProperty(category) && form.get("area_m2")
             ? Number(form.get("area_m2"))
             : null,
-        attributes: ["car", "motorcycle"].includes(category)
-          ? {
-              brand: String(form.get("brand") || "").trim(),
-              model: String(form.get("model") || "").trim(),
-              year: form.get("year") ? Number(form.get("year")) : undefined,
-              gearbox: String(form.get("gearbox") || ""),
-            }
-          : isProperty(category)
-            ? { amenities: form.getAll("amenities").map(String) }
-            : {},
+        attributes: isProperty(category)
+          ? { amenities: form.getAll("amenities").map(String) }
+          : {
+              ...Object.fromEntries(
+                [
+                  "brand",
+                  "model",
+                  "color",
+                  "fuel",
+                  "engine_cc",
+                  "condition",
+                  "kind",
+                  "frame_size",
+                  "wheel_size",
+                  "capacity",
+                  "gearbox",
+                ]
+                  .filter(
+                    (key) => form.has(key) && String(form.get(key)).trim(),
+                  )
+                  .map((key) => [key, String(form.get(key)).trim()]),
+              ),
+              ...(form.get("year") ? { year: Number(form.get("year")) } : {}),
+            },
       };
       const result = listingId
         ? await supabase
@@ -296,9 +322,14 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                 <label>
                   Kateqoriya
                   <select
+                    aria-label="Kateqoriya"
+                    required
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                   >
+                    <option value="" disabled>
+                      Kateqoriya seçin
+                    </option>
                     {categories.map((c) => (
                       <option value={c.id} key={c.id}>
                         {c.name}
@@ -306,381 +337,406 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     ))}
                   </select>
                 </label>
-                <label>
-                  Elanın başlığı
-                  <input
-                    name="title"
-                    defaultValue={initial?.title}
-                    required
-                    minLength={10}
-                    maxLength={120}
-                    placeholder="Məsələn: Nizami metrosu yaxınlığında 2 otaqlı mənzil"
-                  />
-                </label>
-                <div className="formGrid">
-                  <label>
-                    Şəhər
-                    <select name="city" defaultValue={initial?.city}>
-                      {cities.map((c) => (
-                        <option key={c}>{c}</option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    Rayon / qəsəbə
-                    <input
-                      name="district"
-                      defaultValue={initial?.district}
-                      maxLength={80}
-                      placeholder="Məsələn: Nəsimi"
-                    />
-                  </label>
-                </div>
-                <div className="formGrid">
-                  <label>
-                    Qiymət (₼)
-                    <input
-                      name="price"
-                      defaultValue={initial?.price}
-                      required
-                      type="number"
-                      min="0.01"
-                      max="1000000"
-                      step="0.01"
-                      placeholder="45"
-                    />
-                  </label>
-                  <label>
-                    Kirayə müddəti
-                    <select
-                      name="rental_period"
-                      defaultValue={initial?.rental_period}
-                    >
-                      <option value="daily">Günlük</option>
-                      <option value="monthly">Aylıq</option>
-                    </select>
-                  </label>
-                </div>
-                {["property", "villa", "commercial"].includes(category) && (
-                  <div className="formGrid">
-                    <label>
-                      Otaq sayı
-                      <input
-                        name="rooms"
-                        defaultValue={initial?.rooms ?? undefined}
-                        type="number"
-                        min="1"
-                        max="100"
-                      />
-                    </label>
-                    <label>
-                      Sahə (m²)
-                      <input
-                        name="area_m2"
-                        defaultValue={initial?.area_m2 ?? undefined}
-                        type="number"
-                        min="1"
-                        max="1000000"
-                      />
-                    </label>
-                  </div>
+                {!category && (
+                  <p className="muted">
+                    Əvvəl kateqoriyanı seç — uyğun xanalar açılacaq.
+                  </p>
                 )}
-                {["car", "motorcycle"].includes(category) && (
+                {category && (
                   <>
+                    <label>
+                      Elanın başlığı
+                      <input
+                        name="title"
+                        defaultValue={initial?.title}
+                        required
+                        minLength={10}
+                        maxLength={120}
+                        placeholder={listingExamples[category]?.title}
+                      />
+                    </label>
+                    <label>
+                      Şəhər
+                      <select
+                        aria-label="Şəhər"
+                        name="city"
+                        required
+                        defaultValue={initial?.city || ""}
+                      >
+                        <option value="" disabled>
+                          Şəhər seçin
+                        </option>
+                        {initial?.city && !cities.includes(initial.city) && (
+                          <option>{initial.city}</option>
+                        )}
+                        {cities.map((city) => (
+                          <option key={city}>{city}</option>
+                        ))}
+                      </select>
+                    </label>
                     <div className="formGrid">
                       <label>
-                        Marka
+                        Qiymət (₼)
                         <input
-                          name="brand"
-                          maxLength={40}
-                          defaultValue={initial?.attributes?.brand}
-                          placeholder="Məsələn: Hyundai"
-                        />
-                      </label>
-                      <label>
-                        Model
-                        <input
-                          name="model"
-                          maxLength={60}
-                          defaultValue={initial?.attributes?.model}
-                          placeholder="Elantra"
-                        />
-                      </label>
-                    </div>
-                    <div className="formGrid">
-                      <label>
-                        Buraxılış ili
-                        <input
-                          name="year"
+                          name="price"
+                          defaultValue={initial?.price}
+                          required
                           type="number"
-                          min="1950"
-                          max={new Date().getFullYear() + 1}
-                          defaultValue={initial?.attributes?.year}
+                          min="0.01"
+                          max="1000000"
+                          step="0.01"
+                          placeholder="45"
                         />
                       </label>
                       <label>
-                        Sürətlər qutusu
+                        Kirayə müddəti
                         <select
-                          name="gearbox"
-                          defaultValue={initial?.attributes?.gearbox}
+                          name="rental_period"
+                          defaultValue={initial?.rental_period}
                         >
-                          <option value="">Seçilməyib</option>
-                          <option>Avtomat</option>
-                          <option>Mexaniki</option>
+                          <option value="daily">Günlük</option>
+                          <option value="monthly">Aylıq</option>
                         </select>
                       </label>
                     </div>
+                    {isProperty(category) && (
+                      <div className="formGrid" key={`property-${category}`}>
+                        {category !== "commercial" && (
+                          <label>
+                            Otaq sayı
+                            <input
+                              name="rooms"
+                              defaultValue={
+                                initial?.category === category
+                                  ? initial.rooms
+                                  : undefined
+                              }
+                              type="number"
+                              min="1"
+                              max="100"
+                            />
+                          </label>
+                        )}
+                        <label>
+                          Sahə (m²)
+                          <input
+                            name="area_m2"
+                            defaultValue={
+                              initial?.category === category
+                                ? initial.area_m2
+                                : undefined
+                            }
+                            type="number"
+                            min="1"
+                            max="1000000"
+                          />
+                        </label>
+                      </div>
+                    )}
+                    {["car", "motorcycle", "bicycle"].includes(category) && (
+                      <VehicleFields
+                        key={category}
+                        category={category}
+                        attributes={
+                          initial?.category === category
+                            ? initial.attributes
+                            : undefined
+                        }
+                      />
+                    )}
+                    {["equipment", "event"].includes(category) && (
+                      <ItemFields
+                        key={category}
+                        category={category}
+                        attributes={
+                          initial?.category === category
+                            ? initial.attributes
+                            : undefined
+                        }
+                      />
+                    )}
+                    {isProperty(category) && (
+                      <div
+                        className="amenitiesField"
+                        key={`amenities-${category}`}
+                      >
+                        <p>İmkanlar</p>
+                        {(category === "commercial"
+                          ? amenities.filter((item) => item !== "Hovuz")
+                          : amenities
+                        ).map((a) => (
+                          <label className="checkLabel" key={a}>
+                            <input
+                              type="checkbox"
+                              name="amenities"
+                              value={a}
+                              defaultChecked={initial?.attributes?.amenities?.includes(
+                                a,
+                              )}
+                            />
+                            <span>{a}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                    <details
+                      className="optionalRentalTerms"
+                      open={
+                        initial &&
+                        (initial.deposit ||
+                          (initial.min_days && initial.min_days > 1) ||
+                          initial.available_from ||
+                          initial.available_until)
+                          ? true
+                          : undefined
+                      }
+                    >
+                      <summary>
+                        Əlavə kirayə şərtləri <span>(istəyə bağlı)</span>
+                      </summary>
+                      <div className="formGrid">
+                        <label>
+                          Depozit (₼)
+                          <input
+                            name="deposit"
+                            type="number"
+                            min="0"
+                            max="1000000"
+                            step="0.01"
+                            defaultValue={initial?.deposit ?? 0}
+                          />
+                        </label>
+                        <label>
+                          Minimum kirayə (gün)
+                          <input
+                            name="min_days"
+                            type="number"
+                            min="1"
+                            max="365"
+                            required
+                            defaultValue={initial?.min_days ?? 1}
+                          />
+                        </label>
+                      </div>
+                      <div className="formGrid">
+                        <label>
+                          Bu tarixdən mövcuddur
+                          <input
+                            name="available_from"
+                            type="date"
+                            defaultValue={initial?.available_from ?? ""}
+                          />
+                        </label>
+                        <label>
+                          Bu tarixədək mövcuddur
+                          <input
+                            name="available_until"
+                            type="date"
+                            defaultValue={initial?.available_until ?? ""}
+                          />
+                        </label>
+                      </div>
+                      <p className="muted">
+                        Tarixlər rezervasiya yaratmır. Kirayə şərtləri tərəflər
+                        arasında dəqiqləşdirilir.
+                      </p>
+                    </details>
+                    <label>
+                      Ətraflı təsvir
+                      <textarea
+                        name="description"
+                        defaultValue={initial?.description}
+                        required
+                        minLength={30}
+                        maxLength={5000}
+                        rows={5}
+                        placeholder={listingExamples[category]?.description}
+                      />
+                    </label>
+                    <h2 id="listing-photos">
+                      02 <span>Şəkillər</span>
+                    </h2>
+                    <p className="muted">
+                      1–6 şəkil · JPG, PNG və ya WebP · hər biri maksimum 5 MB
+                    </p>
+                    <label className="uploadZone">
+                      ↑ Şəkilləri seç
+                      <input
+                        aria-label="Elan şəkilləri"
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        multiple
+                        onChange={(e) => {
+                          const selected = Array.from(e.target.files ?? []);
+                          if (
+                            selected.length +
+                              files.length +
+                              existingImages.length >
+                              6 ||
+                            selected.some(
+                              (f) =>
+                                f.size > 5 * 1024 * 1024 ||
+                                ![
+                                  "image/jpeg",
+                                  "image/png",
+                                  "image/webp",
+                                ].includes(f.type),
+                            )
+                          ) {
+                            setError(
+                              "1–6 ədəd JPG, PNG və ya WebP şəkli seçin. Hər şəkil maksimum 5 MB ola bilər.",
+                            );
+                            e.target.value = "";
+                            return;
+                          }
+                          setFiles((current) => [...current, ...selected]);
+                          e.target.value = "";
+                          setError("");
+                        }}
+                      />
+                    </label>
+                    <p className="photoCount" aria-live="polite">
+                      {files.length + existingImages.length} / 6 şəkil · İlk
+                      şəkil elanın üz qabığıdır.
+                    </p>
+                    <div className="uploadPreviews">
+                      {existingImages.map((src, i) => (
+                        <div key={src}>
+                          <img src={src} alt={`${i + 1}-ci mövcud şəkil`} />
+                          <button
+                            type="button"
+                            aria-label={`${i + 1}-ci mövcud şəkli sil`}
+                            onClick={() =>
+                              setExistingImages(
+                                existingImages.filter((x) => x !== src),
+                              )
+                            }
+                          >
+                            ×
+                          </button>
+                          {i > 0 && (
+                            <button
+                              type="button"
+                              className="coverButton"
+                              onClick={() =>
+                                setExistingImages([
+                                  src,
+                                  ...existingImages.filter((_, n) => n !== i),
+                                ])
+                              }
+                            >
+                              Üz qabığı et
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      {previews.map((src, i) => (
+                        <div key={src}>
+                          <img src={src} alt={`${i + 1}-ci seçilən şəkil`} />
+                          <button
+                            type="button"
+                            aria-label={`${i + 1}-ci şəkli sil`}
+                            onClick={() =>
+                              setFiles(files.filter((_, n) => n !== i))
+                            }
+                          >
+                            ×
+                          </button>
+                          {i > 0 && !existingImages.length && (
+                            <button
+                              type="button"
+                              className="coverButton"
+                              onClick={() =>
+                                setFiles([
+                                  files[i],
+                                  ...files.filter((_, n) => n !== i),
+                                ])
+                              }
+                            >
+                              Üz qabığı et
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <h2 id="listing-contact">
+                      03 <span>Əlaqə</span>
+                    </h2>
+                    <label>
+                      Telefon nömrəsi
+                      <input
+                        name="contact"
+                        defaultValue={initial?.contact || loginPhone}
+                        type="tel"
+                        required
+                        maxLength={25}
+                        placeholder="050 123 45 67"
+                      />
+                      <small>Bu nömrə elanla birlikdə açıq göstəriləcək.</small>
+                    </label>
+                    <label className="checkLabel">
+                      <input type="checkbox" required />{" "}
+                      <span>
+                        <Link href="/rules" target="_blank">
+                          Elan qaydalarını
+                        </Link>{" "}
+                        qəbul edirəm və məlumatların düzgünlüyünü təsdiq edirəm.
+                      </span>
+                    </label>
+                    {error && (
+                      <p className="error" role="alert">
+                        {error}
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      className="secondary wide previewToggle"
+                      aria-expanded={!!preview}
+                      disabled={busy}
+                      onClick={() =>
+                        preview ? setPreview(null) : updatePreview()
+                      }
+                    >
+                      {preview ? "Önbaxışı bağla" : "Elana önbaxış"}
+                    </button>
+                    {preview && (
+                      <section
+                        className="postingPreview"
+                        aria-label="Elanın önbaxışı"
+                      >
+                        <p className="muted">
+                          Yalnız önbaxışdır. Elan hələ göndərilməyib.
+                        </p>
+                        <div>
+                          <img
+                            src={
+                              existingImages[0] ||
+                              previews[0] ||
+                              "/placeholder.svg"
+                            }
+                            alt="Elanın üz qabığı"
+                          />
+                          <div>
+                            <strong>
+                              {preview.price > 0 &&
+                              Number.isFinite(preview.price)
+                                ? `${money(preview.price)} ₼ / ${periodName(preview.period)}`
+                                : "Qiymət yazılmayıb"}
+                            </strong>
+                            <h3>{preview.title}</h3>
+                            <p>{preview.city}</p>
+                          </div>
+                        </div>
+                        <p className="description">{preview.description}</p>
+                      </section>
+                    )}
+                    <button className="add wide" disabled={busy}>
+                      {busy
+                        ? "Göndərilir, gözləyin..."
+                        : "Elanı yoxlamaya göndər →"}
+                    </button>
                   </>
                 )}
-                {isProperty(category) && (
-                  <div className="amenitiesField">
-                    <p>İmkanlar</p>
-                    {amenities.map((a) => (
-                      <label className="checkLabel" key={a}>
-                        <input
-                          type="checkbox"
-                          name="amenities"
-                          value={a}
-                          defaultChecked={initial?.attributes?.amenities?.includes(
-                            a,
-                          )}
-                        />
-                        <span>{a}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-                <div className="formGrid">
-                  <label>
-                    Depozit (₼)
-                    <input
-                      name="deposit"
-                      type="number"
-                      min="0"
-                      max="1000000"
-                      step="0.01"
-                      defaultValue={initial?.deposit ?? 0}
-                    />
-                  </label>
-                  <label>
-                    Minimum kirayə (gün)
-                    <input
-                      name="min_days"
-                      type="number"
-                      min="1"
-                      max="365"
-                      required
-                      defaultValue={initial?.min_days ?? 1}
-                    />
-                  </label>
-                </div>
-                <div className="formGrid">
-                  <label>
-                    Bu tarixdən mövcuddur
-                    <input
-                      name="available_from"
-                      type="date"
-                      defaultValue={initial?.available_from ?? ""}
-                    />
-                  </label>
-                  <label>
-                    Bu tarixədək mövcuddur
-                    <input
-                      name="available_until"
-                      type="date"
-                      defaultValue={initial?.available_until ?? ""}
-                    />
-                  </label>
-                </div>
-                <p className="muted">
-                  Tarixlər rezervasiya yaratmır. Kirayə şərtləri tərəflər
-                  arasında dəqiqləşdirilir.
-                </p>
-                <label>
-                  Ətraflı təsvir
-                  <textarea
-                    name="description"
-                    defaultValue={initial?.description}
-                    required
-                    minLength={30}
-                    maxLength={5000}
-                    rows={5}
-                    placeholder="Vəziyyəti, imkanları, kirayə şərtlərini və digər vacib məlumatları yazın."
-                  />
-                </label>
-                <h2 id="listing-photos">
-                  02 <span>Şəkillər</span>
-                </h2>
-                <p className="muted">
-                  1–6 şəkil · JPG, PNG və ya WebP · hər biri maksimum 5 MB
-                </p>
-                <label className="uploadZone">
-                  ↑ Şəkilləri seç
-                  <input
-                    aria-label="Elan şəkilləri"
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    multiple
-                    onChange={(e) => {
-                      const selected = Array.from(e.target.files ?? []);
-                      if (
-                        selected.length + files.length + existingImages.length >
-                          6 ||
-                        selected.some(
-                          (f) =>
-                            f.size > 5 * 1024 * 1024 ||
-                            !["image/jpeg", "image/png", "image/webp"].includes(
-                              f.type,
-                            ),
-                        )
-                      ) {
-                        setError(
-                          "1–6 ədəd JPG, PNG və ya WebP şəkli seçin. Hər şəkil maksimum 5 MB ola bilər.",
-                        );
-                        e.target.value = "";
-                        return;
-                      }
-                      setFiles((current) => [...current, ...selected]);
-                      e.target.value = "";
-                      setError("");
-                    }}
-                  />
-                </label>
-                <p className="photoCount" aria-live="polite">
-                  {files.length + existingImages.length} / 6 şəkil · İlk şəkil
-                  elanın üz qabığıdır.
-                </p>
-                <div className="uploadPreviews">
-                  {existingImages.map((src, i) => (
-                    <div key={src}>
-                      <img src={src} alt={`${i + 1}-ci mövcud şəkil`} />
-                      <button
-                        type="button"
-                        aria-label={`${i + 1}-ci mövcud şəkli sil`}
-                        onClick={() =>
-                          setExistingImages(
-                            existingImages.filter((x) => x !== src),
-                          )
-                        }
-                      >
-                        ×
-                      </button>
-                      {i > 0 && (
-                        <button
-                          type="button"
-                          className="coverButton"
-                          onClick={() =>
-                            setExistingImages([
-                              src,
-                              ...existingImages.filter((_, n) => n !== i),
-                            ])
-                          }
-                        >
-                          Üz qabığı et
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  {previews.map((src, i) => (
-                    <div key={src}>
-                      <img src={src} alt={`${i + 1}-ci seçilən şəkil`} />
-                      <button
-                        type="button"
-                        aria-label={`${i + 1}-ci şəkli sil`}
-                        onClick={() =>
-                          setFiles(files.filter((_, n) => n !== i))
-                        }
-                      >
-                        ×
-                      </button>
-                      {i > 0 && !existingImages.length && (
-                        <button
-                          type="button"
-                          className="coverButton"
-                          onClick={() =>
-                            setFiles([
-                              files[i],
-                              ...files.filter((_, n) => n !== i),
-                            ])
-                          }
-                        >
-                          Üz qabığı et
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <h2 id="listing-contact">
-                  03 <span>Əlaqə</span>
-                </h2>
-                <label>
-                  Telefon nömrəsi
-                  <input
-                    name="contact"
-                    defaultValue={initial?.contact || loginPhone}
-                    type="tel"
-                    required
-                    maxLength={25}
-                    placeholder="050 123 45 67"
-                  />
-                  <small>Bu nömrə elanla birlikdə açıq göstəriləcək.</small>
-                </label>
-                <label className="checkLabel">
-                  <input type="checkbox" required />{" "}
-                  <span>
-                    <Link href="/rules" target="_blank">
-                      Elan qaydalarını
-                    </Link>{" "}
-                    qəbul edirəm və məlumatların düzgünlüyünü təsdiq edirəm.
-                  </span>
-                </label>
-                {error && (
-                  <p className="error" role="alert">
-                    {error}
-                  </p>
-                )}
-                <button
-                  type="button"
-                  className="secondary wide previewToggle"
-                  aria-expanded={!!preview}
-                  disabled={busy}
-                  onClick={() => (preview ? setPreview(null) : updatePreview())}
-                >
-                  {preview ? "Önbaxışı bağla" : "Elana önbaxış"}
-                </button>
-                {preview && (
-                  <section
-                    className="postingPreview"
-                    aria-label="Elanın önbaxışı"
-                  >
-                    <p className="muted">
-                      Yalnız önbaxışdır. Elan hələ göndərilməyib.
-                    </p>
-                    <div>
-                      <img
-                        src={
-                          existingImages[0] || previews[0] || "/placeholder.svg"
-                        }
-                        alt="Elanın üz qabığı"
-                      />
-                      <div>
-                        <strong>
-                          {preview.price > 0 && Number.isFinite(preview.price)
-                            ? `${money(preview.price)} ₼ / ${periodName(preview.period)}`
-                            : "Qiymət yazılmayıb"}
-                        </strong>
-                        <h3>{preview.title}</h3>
-                        <p>{preview.city}</p>
-                      </div>
-                    </div>
-                    <p className="description">{preview.description}</p>
-                  </section>
-                )}
-                <button className="add wide" disabled={busy}>
-                  {busy
-                    ? "Göndərilir, gözləyin..."
-                    : "Elanı yoxlamaya göndər →"}
-                </button>
               </fieldset>
             </form>
             <aside className="tips">
@@ -699,5 +755,302 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       </main>
       <Footer />
     </>
+  );
+}
+
+function VehicleFields({
+  category,
+  attributes,
+}: {
+  category: string;
+  attributes?: Listing["attributes"];
+}) {
+  const [brand, setBrand] = useState(attributes?.brand || "");
+  const [model, setModel] = useState(attributes?.model || "");
+  const models =
+    category === "car"
+      ? carModels
+      : category === "bicycle"
+        ? bicycleModels
+        : motorcycleModels;
+  const matchedBrand = Object.keys(models).find(
+    (item) => item.toLocaleLowerCase() === brand.trim().toLocaleLowerCase(),
+  );
+  return (
+    <div className="vehicleFields">
+      <div className="formGrid">
+        <label>
+          Marka
+          <input
+            aria-label="Marka"
+            name="brand"
+            list="vehicle-brands"
+            autoComplete="off"
+            maxLength={40}
+            value={brand}
+            onChange={(event) => {
+              setBrand(event.target.value);
+              setModel("");
+            }}
+            placeholder="Seç və ya markanı yaz"
+          />
+          <datalist id="vehicle-brands">
+            {Object.keys(models).map((item) => (
+              <option key={item} value={item} />
+            ))}
+          </datalist>
+        </label>
+        <label>
+          Model
+          <input
+            aria-label="Model"
+            name="model"
+            list="vehicle-models"
+            autoComplete="off"
+            maxLength={60}
+            value={model}
+            onChange={(event) => setModel(event.target.value)}
+            placeholder={brand ? "Seç və ya modeli yaz" : "Əvvəl markanı yaz"}
+            disabled={!brand.trim()}
+          />
+          <datalist id="vehicle-models">
+            {(matchedBrand ? models[matchedBrand] : []).map((item) => (
+              <option key={item} value={item} />
+            ))}
+          </datalist>
+        </label>
+      </div>
+      {category !== "bicycle" && (
+        <div className="formGrid">
+          <label>
+            Buraxılış ili
+            <input
+              name="year"
+              type="number"
+              min="1950"
+              max={new Date().getFullYear() + 1}
+              defaultValue={attributes?.year}
+            />
+          </label>
+          <OptionField
+            name="gearbox"
+            label="Sürətlər qutusu"
+            options={["Avtomat", "Mexaniki"]}
+            value={attributes?.gearbox}
+          />
+        </div>
+      )}
+      <div className="formGrid">
+        <OptionField
+          name="color"
+          label="Rəng"
+          options={colors}
+          value={attributes?.color}
+        />
+        <OptionField
+          name="condition"
+          label="Vəziyyət"
+          options={["Əla", "Yaxşı", "Qənaətbəxş"]}
+          value={attributes?.condition}
+        />
+      </div>
+      {category === "car" && (
+        <div className="formGrid">
+          <OptionField
+            name="fuel"
+            label="Yanacaq növü"
+            options={[
+              "Benzin",
+              "Dizel",
+              "Hibrid",
+              "Plug-in hibrid",
+              "Elektrik",
+              "Qaz",
+            ]}
+            value={attributes?.fuel}
+          />
+          <label>
+            Mühərrik həcmi (sm³)
+            <input
+              name="engine_cc"
+              type="number"
+              min="1"
+              max="20000"
+              defaultValue={attributes?.engine_cc}
+              placeholder="Məsələn: 1600"
+            />
+          </label>
+        </div>
+      )}
+      {category === "motorcycle" && (
+        <label>
+          Mühərrik həcmi (sm³)
+          <input
+            name="engine_cc"
+            type="number"
+            min="1"
+            max="10000"
+            defaultValue={attributes?.engine_cc}
+            placeholder="Məsələn: 150"
+          />
+        </label>
+      )}
+      {category === "bicycle" && (
+        <>
+          <OptionField
+            name="kind"
+            label="Velosiped növü"
+            options={[
+              "Dağ",
+              "Şəhər",
+              "Şosse",
+              "BMX",
+              "Elektrikli",
+              "Qatlanan",
+              "Uşaq",
+              "Digər",
+            ]}
+            value={attributes?.kind}
+          />
+          <div className="formGrid">
+            <OptionField
+              name="frame_size"
+              label="Çərçivə ölçüsü"
+              options={["XS", "S", "M", "L", "XL", "XXL", "Uşaq", "Digər"]}
+              value={attributes?.frame_size}
+            />
+            <OptionField
+              name="wheel_size"
+              label="Təkər ölçüsü"
+              options={[
+                "12 düym",
+                "14 düym",
+                "16 düym",
+                "18 düym",
+                "20 düym",
+                "24 düym",
+                "26 düym",
+                "27.5 düym",
+                "28 düym",
+                "29 düym",
+                "Digər",
+              ]}
+              value={attributes?.wheel_size}
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function OptionField({
+  name,
+  label,
+  options,
+  value,
+}: {
+  name: string;
+  label: string;
+  options: string[];
+  value?: string;
+}) {
+  return (
+    <label>
+      {label}
+      <select aria-label={label} name={name} defaultValue={value || ""}>
+        <option value="">Seçin</option>
+        {value && !options.includes(value) && <option>{value}</option>}
+        {options.map((option) => (
+          <option key={option}>{option}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function ItemFields({
+  category,
+  attributes,
+}: {
+  category: string;
+  attributes?: Listing["attributes"];
+}) {
+  return (
+    <div>
+      <OptionField
+        name="kind"
+        label={
+          category === "equipment"
+            ? "Avadanlığın növü"
+            : "Tədbir üçün nə təklif edirsən?"
+        }
+        options={
+          category === "equipment"
+            ? [
+                "Tikinti alətləri",
+                "Foto və video",
+                "Səs və işıq",
+                "Təmizlik avadanlığı",
+                "Bağ avadanlığı",
+                "Kompüter və elektronika",
+                "Digər",
+              ]
+            : [
+                "Səs və işıq",
+                "Masa və stul",
+                "Çadır",
+                "Dekorasiya",
+                "Qab-qacaq",
+                "Tədbir avadanlığı",
+                "Digər",
+              ]
+        }
+        value={attributes?.kind}
+      />
+      {category === "equipment" && (
+        <div className="formGrid">
+          <label>
+            Marka
+            <input
+              aria-label="Marka"
+              name="brand"
+              maxLength={40}
+              defaultValue={attributes?.brand}
+              placeholder="Məsələn: Bosch, Canon"
+            />
+          </label>
+          <label>
+            Model
+            <input
+              aria-label="Model"
+              name="model"
+              maxLength={60}
+              defaultValue={attributes?.model}
+              placeholder="Modeli yaz"
+            />
+          </label>
+        </div>
+      )}
+      <OptionField
+        name="condition"
+        label="Vəziyyət"
+        options={["Əla", "Yaxşı", "Qənaətbəxş"]}
+        value={attributes?.condition}
+      />
+      {category === "event" && (
+        <label>
+          Nəfər sayı
+          <input
+            name="capacity"
+            type="number"
+            min="1"
+            max="100000"
+            defaultValue={attributes?.capacity}
+            placeholder="Uyğundursa, neçə nəfər üçün"
+          />
+        </label>
+      )}
+    </div>
   );
 }

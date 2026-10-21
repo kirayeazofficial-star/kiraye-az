@@ -1,4 +1,5 @@
 "use client";
+import { extraAttributeLabels } from "../../lib/listing-form-options";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -204,6 +205,16 @@ export default function ListingDetails({
               <dd>{item.attributes.gearbox}</dd>
             </div>
           )}
+          {Object.entries(extraAttributeLabels).map(([key, label]) => {
+            const value =
+              item.attributes?.[key as keyof typeof extraAttributeLabels];
+            return value ? (
+              <div key={key}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ) : null;
+          })}
         </dl>
         {(item.available_from || item.available_until) && (
           <p className="notice">

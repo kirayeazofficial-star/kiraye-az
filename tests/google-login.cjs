@@ -102,7 +102,7 @@ const { chromium } = require("playwright");
           .getByRole("button", { name: "Google ilə davam et", exact: true })
           .click();
         await page.waitForURL("**/new");
-        await page.getByLabel("Elanın başlığı", { exact: true }).waitFor();
+        await page.getByLabel("Kateqoriya", { exact: true }).waitFor();
         assert.equal(
           calls
             .find((x) => x.path.endsWith("/authorize"))

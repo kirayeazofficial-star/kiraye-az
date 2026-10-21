@@ -3138,3 +3138,26 @@ footer {
     height: 155px;
   }
 }
+
+.optionalRentalTerms {
+  margin: 4px 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+.optionalRentalTerms summary {
+  cursor: pointer;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.optionalRentalTerms summary span {
+  color: #707c90;
+  font-weight: 400;
+}
+.optionalRentalTerms[open] summary { margin-bottom: 20px; }
+@media (max-width: 720px) {
+  .listingForm input, .listingForm select, .listingForm textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+}

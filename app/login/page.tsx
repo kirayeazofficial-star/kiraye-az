@@ -71,7 +71,7 @@ export default function Login() {
   }
   function pending(type: Verification, email: string) {
     setVerification(type);
-    setUseCode(false);
+    setUseCode(type === "recovery");
     setCooldown(60);
     setNotice("");
     try {
@@ -120,6 +120,7 @@ export default function Login() {
         setMethod("email");
         setEmailAddress(saved.email);
         setVerification(saved.type);
+        setUseCode(saved.type === "recovery");
         setCooldown(
           Math.max(0, Math.ceil((saved.retryAt - Date.now()) / 1000)),
         );
@@ -130,14 +131,12 @@ export default function Login() {
     supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (active && data.session) {
+        if (active && data.session && !recoveryPending) {
           clearPending();
           window.location.replace(
-            recoveryPending
-              ? "/reset-password"
-              : safeLoginDestination(
-                  new URLSearchParams(window.location.search).get("next"),
-                ),
+            safeLoginDestination(
+              new URLSearchParams(window.location.search).get("next"),
+            ),
           );
         }
       })
@@ -231,19 +230,24 @@ export default function Login() {
     const token = String(
       new FormData(e.currentTarget).get("code") || "",
     ).trim();
-    if (!/^\d{6,10}$/.test(token)) {
-      setNotice("Məktubdakı 6–10 rəqəmli kodu yaz.");
+    if (!(verification === "recovery" ? /^\d{6}$/ : /^\d{6,10}$/).test(token)) {
+      setNotice(
+        verification === "recovery"
+          ? "E-poçtuna gələn 6 rəqəmli kodu yaz."
+          : "Məktubdakı 6–10 rəqəmli kodu yaz.",
+      );
       return;
     }
     setBusy(true);
     setNotice("");
     try {
-      const { error } = await supabase.auth.verifyOtp({
+      const { data, error } = await supabase.auth.verifyOtp({
         email: emailAddress,
         token,
         type: verification,
       });
       if (error) throw error;
+      if (!data.session) throw new Error("Kod təsdiqlənmədi. Yenidən cəhd et.");
       clearPending();
       if (verification === "recovery") window.location.href = "/reset-password";
       else goToAccount();
@@ -293,6 +297,28 @@ export default function Login() {
     setNotice("");
     setUnconfirmed(false);
   }
+  function codeForm() {
+    return (
+      <form className="verificationForm" onSubmit={verifyCode}>
+        <label>
+          {verification === "recovery" ? "6 rəqəmli kod" : "Təsdiq kodu"}
+          <input
+            name="code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern={verification === "recovery" ? "[0-9]{6}" : "[0-9]{6,10}"}
+            minLength={6}
+            maxLength={verification === "recovery" ? 6 : 10}
+            required
+            placeholder="000000"
+          />
+        </label>
+        <button className="authSubmit" disabled={busy || verifyBlocked}>
+          {busy ? "Yoxlanılır..." : "Kodu təsdiqlə"}
+        </button>
+      </form>
+    );
+  }
   return (
     <main className="loginPage">
       <div className="authHeader">
@@ -307,15 +333,19 @@ export default function Login() {
             {method === "phone"
               ? "Hesaba giriş"
               : verification
-                ? "E-poçtunu yoxla"
+                ? verification === "recovery"
+                  ? "Kodu daxil et"
+                  : "E-poçtunu yoxla"
                 : mode === "signup"
                   ? "Hesab yarat"
                   : mode === "reset"
                     ? "Şifrəni yenilə"
                     : "Hesaba giriş"}
           </h1>
-          {!verification && method === "email" && <GoogleLogin />}
-          {phoneEnabled && (
+          {!verification && mode === "login" && method === "email" && (
+            <GoogleLogin />
+          )}
+          {phoneEnabled && !verification && mode === "login" && (
             <div className="authMethods" aria-label="Giriş üsulu">
               <button
                 type="button"
@@ -360,6 +390,8 @@ export default function Login() {
                       <input
                         name="email"
                         type="email"
+                        autoCapitalize="none"
+                        spellCheck={false}
                         autoComplete="email"
                         value={emailAddress}
                         onChange={(e) => setEmailAddress(e.target.value)}
@@ -420,7 +452,7 @@ export default function Login() {
                         : mode === "signup"
                           ? "Hesab yarat"
                           : mode === "reset"
-                            ? "Yeniləmə linki göndər"
+                            ? "6 rəqəmli kod göndər"
                             : "Daxil ol →"}
                     </button>
                   </fieldset>
@@ -429,29 +461,21 @@ export default function Login() {
                 <div className="confirmationPanel">
                   <p className="authLead">
                     {verification === "recovery"
-                      ? "Bu ünvanla hesab varsa, şifrəni yeniləmə məktubu üçün sorğu qəbul edildi."
+                      ? "Bu ünvanla hesab varsa, şifrə bərpa kodu üçün sorğu qəbul edildi."
                       : "Təsdiq məktubu üçün sorğu qəbul edildi."}
                   </p>
                   <div className="confirmationEmail">{emailAddress}</div>
                   <p className="confirmationInstruction">
-                    Məktubdakı{" "}
-                    <strong>
-                      {verification === "recovery"
-                        ? "şifrəni yenilə"
-                        : "hesabı təsdiqlə"}
-                    </strong>{" "}
-                    linkini aç. Standart təsdiq məktubunda rəqəmli kod olmaya
-                    bilər.
+                    {verification === "recovery"
+                      ? "E-poçtuna gələn 6 rəqəmli kodu yaz. Sonra yeni şifrə təyin edəcəksən."
+                      : "Məktubdakı hesabı təsdiqlə linkini aç."}
                   </p>
                   <p className="mailHelp">
-                    Məktub görünmür? Spam və Promosyonlar qovluqlarını yoxla.
-                    Çatdırılma bir neçə dəqiqə çəkə bilər.
+                    Məktub gəlməyib? Spam qovluğunu da yoxla.
+                    {verification === "recovery" &&
+                      " Məktubda kod əvəzinə bərpa linki varsa, həmin linki aç — yeni şifrə səhifəsinə keçəcəksən."}
                   </p>
-                  {verification === "recovery" && (
-                    <Link className="recoveryAction" href="/reset-password">
-                      Linki açmışam — yeni şifrə təyin et
-                    </Link>
-                  )}
+                  {verification === "recovery" && codeForm()}
                   <div className="confirmationActions">
                     <button
                       className="authSubmit"
@@ -478,7 +502,7 @@ export default function Login() {
                       E-poçtu dəyiş
                     </button>
                   </div>
-                  <button
+                  {verification !== "recovery" && <button
                     className="codeDisclosure"
                     type="button"
                     disabled={busy}
@@ -491,30 +515,8 @@ export default function Login() {
                     {useCode
                       ? "Kod girişini bağla"
                       : "Məktubda rəqəmli kod var"}
-                  </button>
-                  {useCode && (
-                    <form className="verificationForm" onSubmit={verifyCode}>
-                      <label>
-                        Təsdiq kodu
-                        <input
-                          name="code"
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          pattern="[0-9]{6,10}"
-                          minLength={6}
-                          maxLength={10}
-                          required
-                          placeholder="000000"
-                        />
-                      </label>
-                      <button
-                        className="authSubmit"
-                        disabled={busy || verifyBlocked}
-                      >
-                        {busy ? "Yoxlanılır..." : "Kodu təsdiqlə"}
-                      </button>
-                    </form>
-                  )}
+                  </button>}
+                  {verification !== "recovery" && useCode && codeForm()}
                 </div>
               )}
               {unconfirmed && (

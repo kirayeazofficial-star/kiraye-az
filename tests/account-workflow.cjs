@@ -7,7 +7,7 @@ const { chromium } = require("playwright");
     headless: true,
     args: ["--no-sandbox"],
   });
-  const page = await browser.newPage();
+  const page = await browser.newPage({ viewport: process.env.TEST_MOBILE ? { width: 390, height: 844 } : { width: 1280, height: 900 } });
   const base = process.env.TEST_BASE_URL || "http://127.0.0.1:3013";
   const id = "11111111-1111-4111-8111-111111111111",
     listingId = "22222222-2222-4222-8222-222222222222";

@@ -454,3 +454,34 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Keep controls usable with a touch keyboard and at narrow phone widths. */
+.loginPage input {
+  scroll-margin-block: 24px;
+}
+.loginPage button:focus-visible,
+.loginPage a:focus-visible {
+  outline: 2px solid #50658a;
+  outline-offset: 3px;
+}
+@media (max-width: 720px) {
+  .loginPage input,
+  .loginPage .authSubmit,
+  .loginPage .passwordToggle {
+    min-height: 48px;
+  }
+  .loginPage .link,
+  .loginPage .forgotPassword,
+  .loginPage .authBack {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .loginPage .confirmationActions {
+    gap: 4px;
+  }
+  .loginPage .confirmationPanel > .verificationForm {
+    margin-bottom: 20px;
+  }
+}

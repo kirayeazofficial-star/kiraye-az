@@ -2,6 +2,10 @@
 
 Azərbaycan üçün kirayə elanları platforması. Next.js 16, React 19, TypeScript, Supabase Auth/Postgres/Storage.
 
+## Password recovery
+
+The login screen now uses email → six-digit recovery code → new password. Apply the Supabase email template and OTP settings in [EMAIL-RECOVERY.md](docs/EMAIL-RECOVERY.md) before deploying this flow. Existing recovery links remain supported. Browser tests simulate Auth responses and do not prove real email delivery.
+
 ## Local development
 
 Node.js 22/24 recommended.

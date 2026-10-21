@@ -209,7 +209,9 @@ export default function ListingDetails({
             <dd>
               {Number(item.deposit) > 0
                 ? `${money(item.deposit!)} ₼`
-                : "Tələb olunmur"}
+                : item.deposit === 0
+                  ? "Tələb olunmur"
+                  : "Sahibindən dəqiqləşdir"}
             </dd>
           </div>
           <div>
@@ -239,7 +241,9 @@ export default function ListingDetails({
           {Object.entries(extraAttributeLabels).map(([key, label]) => {
             const value =
               item.attributes?.[key as keyof typeof extraAttributeLabels];
-            return value ? (
+            return value &&
+              key !== "included_items" &&
+              key !== "contact_name" ? (
               <div key={key}>
                 <dt>{label}</dt>
                 <dd>{value}</dd>

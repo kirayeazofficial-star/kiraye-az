@@ -330,8 +330,14 @@ const { chromium } = require(
           .getByLabel("Götürmə tarixi", { exact: true })
           .fill("2050-10-22");
         await estimator
-          .getByLabel("Qaytarma tarixi", { exact: true })
-          .fill("2050-10-25");
+          .getByRole("button", { name: "3 gün", exact: true })
+          .click();
+        assert.equal(
+          await estimator
+            .getByLabel("Qaytarma tarixi", { exact: true })
+            .inputValue(),
+          "2050-10-25",
+        );
         assert.equal(
           await estimator.locator(".estimateTotal dd").innerText(),
           "135 ₼",
@@ -352,7 +358,16 @@ const { chromium } = require(
         await estimator
           .getByLabel("Götürmə tarixi", { exact: true })
           .fill("2050-01-31");
-        await estimator.getByLabel("Ay sayı", { exact: true }).fill("1");
+        await estimator
+          .getByRole("button", { name: "2 ay", exact: true })
+          .click();
+        assert.equal(
+          await estimator.getByLabel("Ay sayı", { exact: true }).inputValue(),
+          "2",
+        );
+        await estimator
+          .getByRole("button", { name: "1 ay", exact: true })
+          .click();
         await estimator
           .getByText("Qaytarma: 28.02.2050", { exact: true })
           .waitFor();

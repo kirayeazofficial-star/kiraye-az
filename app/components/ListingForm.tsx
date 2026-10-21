@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { listingExamples } from "../../lib/listing-form-options";
 import ListingCategoryFields from "./ListingCategoryFields";
-import RentalTermsFields from "./RentalTermsFields";
+
 import {
   readListingAttributes,
   validateListingAttributes,
@@ -25,6 +25,8 @@ import {
 } from "../../lib/marketplace";
 
 export default function ListingForm({ listingId }: { listingId?: string }) {
+  const [step, setStep] = useState(1);
+  const [rentalPeriod, setRentalPeriod] = useState("daily");
   const submitLock = useRef(false);
   const manualTitle = useRef(false);
   const [title, setTitle] = useState("");
@@ -37,6 +39,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     if (!manualTitle.current) setTitle(value.slice(0, 120));
   }
   function resetForm() {
+    setStep(1);
+    setRentalPeriod(initial?.rental_period || "daily");
     setFormVersion((value) => value + 1);
     setCategory(initial?.category || "");
     setTitle(initial?.title || "");
@@ -123,6 +127,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             return;
           }
           setInitial(result.data as Listing);
+          setRentalPeriod(result.data.rental_period);
           setTitle(result.data.title);
           setDescriptionText(result.data.description || "");
           manualTitle.current = true;
@@ -138,9 +143,77 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     setPreviews(urls);
     return () => urls.forEach(URL.revokeObjectURL);
   }, [files]);
+  function goToStep(next: number) {
+    setStep(next);
+    setError("");
+    requestAnimationFrame(() => {
+      document
+        .getElementById("posting-progress")
+        ?.scrollIntoView({ behavior: "instant", block: "start" });
+      formRef.current
+        ?.querySelector<HTMLElement>(`[data-post-step="${next}"] h2`)
+        ?.focus({ preventScroll: true });
+    });
+  }
+  function validateStep(current: number) {
+    const section = formRef.current?.querySelector(
+      `[data-post-step="${current}"]`,
+    );
+    const fields = section?.querySelectorAll<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >("input,select,textarea");
+    for (const field of fields || []) {
+      if (!field.checkValidity()) {
+        const details = field.closest("details");
+        if (details) details.open = true;
+        setStep(current);
+        requestAnimationFrame(() => {
+          field.reportValidity();
+          field.focus();
+        });
+        return false;
+      }
+    }
+    if (current === 2 && formRef.current) {
+      const form = new FormData(formRef.current);
+      const message =
+        validateListingAttributes(
+          category,
+          readListingAttributes(category, form),
+        ) ||
+        validateRentalDetails({
+          deposit: Number(form.get("deposit") || 0),
+          min_days: Number(form.get("min_days") || 1),
+          available_from: String(form.get("available_from") || "") || null,
+          available_until: String(form.get("available_until") || "") || null,
+        });
+      if (message) {
+        setError(message);
+        return false;
+      }
+    }
+    if (current === 3 && !files.length && !existingImages.length) {
+      setError("Ən azı bir şəkil əlavə et.");
+      return false;
+    }
+    return true;
+  }
+  function nextStep() {
+    if (validateStep(step)) goToStep(Math.min(4, step + 1));
+  }
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!supabase || !user || busy || submitLock.current) return;
+    if (step < 4) {
+      nextStep();
+      return;
+    }
+    for (let current = 1; current <= 4; current++) {
+      if (!validateStep(current)) {
+        setStep(current);
+        return;
+      }
+    }
     setError("");
     const form = new FormData(e.currentTarget),
       title = String(form.get("title") ?? "").trim(),
@@ -334,6 +407,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <form
               ref={formRef}
               className="listingForm"
+              noValidate
               onSubmit={submit}
               onInput={() => {
                 if (preview) updatePreview();
@@ -349,413 +423,504 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     Sıfırla
                   </button>
                 </div>
-                <nav className="publishSteps" aria-label="Elan bölmələri">
-                  <a href="#listing-info">1. Məlumatlar</a>
-                  <a href="#listing-photos">2. Şəkillər</a>
-                  <a href="#listing-contact">3. Əlaqə</a>
+                <nav
+                  className="publishSteps"
+                  id="posting-progress"
+                  aria-label="Elan bölmələri"
+                >
+                  {["Kateqoriya", "Məlumat və qiymət", "Şəkillər", "Əlaqə"].map(
+                    (label, index) => (
+                      <button
+                        key={label}
+                        type="button"
+                        aria-current={step === index + 1 ? "step" : undefined}
+                        disabled={index + 1 > step}
+                        onClick={() => goToStep(index + 1)}
+                      >
+                        <span>{index + 1}</span>
+                        {label}
+                      </button>
+                    ),
+                  )}
                 </nav>
-                <h2 id="listing-info">
-                  01 <span>Elanın məlumatları</span>
-                </h2>
-                <label>
-                  Kateqoriya <span className="requiredMark">*</span>
-                  <select
-                    aria-label="Kateqoriya"
-                    required
-                    value={category}
-                    onChange={(e) => {
-                      setCategory(e.target.value);
-                      if (!manualTitle.current) setTitle("");
-                    }}
-                  >
-                    <option value="" disabled>
-                      Kateqoriya seçin
-                    </option>
-                    {categories.map((c) => (
-                      <option value={c.id} key={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {!category && (
+                <section data-post-step="1" hidden={step !== 1}>
+                  <h2 tabIndex={-1}>Nəyi kirayəyə verirsən?</h2>
                   <p className="muted">
-                    Əvvəl kateqoriyanı seç — uyğun xanalar açılacaq.
+                    Kateqoriyanı seç. Yalnız elanına uyğun suallar göstəriləcək.
                   </p>
-                )}
+                  <label>
+                    Kateqoriya <span className="requiredMark">*</span>
+                    <select
+                      aria-label="Kateqoriya"
+                      required
+                      value={category}
+                      onChange={(e) => {
+                        setCategory(e.target.value);
+                        setRentalPeriod(
+                          isProperty(e.target.value) ? "monthly" : "daily",
+                        );
+                        if (!manualTitle.current) setTitle("");
+                      }}
+                    >
+                      <option value="" disabled>
+                        Kateqoriya seçin
+                      </option>
+                      {categories.map((c) => (
+                        <option value={c.id} key={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {!category && (
+                    <p className="muted">
+                      Əvvəl kateqoriyanı seç — uyğun xanalar açılacaq.
+                    </p>
+                  )}
+                </section>
                 {category && (
                   <>
-                    <ListingCategoryFields
-                      key={category}
-                      category={category}
-                      initial={initial}
-                      suggest={suggestTitle}
-                    />
-                    <h3 className="formSubheading">Şəhər və qiymət</h3>
-                    <label>
-                      Şəhər <span className="requiredMark">*</span>
-                      <select
-                        aria-label="Şəhər"
-                        name="city"
-                        required
-                        defaultValue={initial?.city || savedCity || ""}
-                      >
-                        <option value="" disabled>
-                          Şəhər seçin
-                        </option>
-                        {initial?.city && !cities.includes(initial.city) && (
-                          <option>{initial.city}</option>
-                        )}
-                        {cities.map((city) => (
-                          <option key={city}>{city}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <div className="formGrid">
-                      <label>
-                        Qiymət (₼) <span className="requiredMark">*</span>
-                        <input
-                          aria-label="Qiymət (₼)"
-                          name="price"
-                          defaultValue={initial?.price}
-                          required
-                          type="number"
-                          min="0.01"
-                          max="1000000"
-                          step="0.01"
-                          placeholder="45"
-                        />
-                      </label>
-                      <label>
-                        Kirayə müddəti
-                        <select
-                          name="rental_period"
-                          defaultValue={initial?.rental_period}
-                        >
-                          <option value="daily">Günlük</option>
-                          <option value="monthly">Aylıq</option>
-                        </select>
-                      </label>
-                    </div>
-                    <h3 className="formSubheading">Məzmun</h3>
-                    <label>
-                      Elanın başlığı <span className="requiredMark">*</span>
-                      <input
-                        aria-label="Elanın başlığı"
-                        name="title"
-                        value={title}
-                        onChange={(event) => {
-                          setTitle(event.target.value);
-                          manualTitle.current = !!event.target.value;
-                        }}
-                        required
-                        minLength={10}
-                        maxLength={120}
-                        placeholder={listingExamples[category]?.title}
-                      />
-                    </label>
-                    <label>
-                      Ətraflı təsvir <span className="requiredMark">*</span>
-                      <textarea
-                        aria-label="Ətraflı təsvir"
-                        name="description"
-                        value={descriptionText}
-                        onChange={(event) =>
-                          setDescriptionText(event.target.value)
-                        }
-                        required
-                        minLength={30}
-                        maxLength={5000}
-                        rows={5}
-                        placeholder={listingExamples[category]?.description}
-                      />
-                      <small className="descriptionCounter">
-                        {5000 - descriptionText.length} simvol qalıb · ən azı 30
-                        simvol
-                      </small>
-                    </label>
-                    <details
-                      className="optionalRentalTerms"
-                      open={
-                        initial &&
-                        (initial.deposit ||
-                          (initial.min_days && initial.min_days > 1) ||
-                          initial.available_from ||
-                          initial.available_until)
-                          ? true
-                          : undefined
-                      }
-                    >
-                      <summary>
-                        Əlavə kirayə şərtləri <span>(istəyə bağlı)</span>
-                      </summary>
-                      <div className="formGrid">
-                        <label>
-                          Depozit (₼)
-                          <input
-                            name="deposit"
-                            type="number"
-                            min="0"
-                            max="1000000"
-                            step="0.01"
-                            defaultValue={initial?.deposit ?? 0}
-                          />
-                        </label>
-                        <label>
-                          Minimum kirayə (gün)
-                          <input
-                            name="min_days"
-                            type="number"
-                            min="1"
-                            max="365"
-                            required
-                            defaultValue={initial?.min_days ?? 1}
-                          />
-                        </label>
-                      </div>
-                      <div className="formGrid">
-                        <label>
-                          Bu tarixdən mövcuddur
-                          <input
-                            name="available_from"
-                            type="date"
-                            defaultValue={initial?.available_from ?? ""}
-                          />
-                        </label>
-                        <label>
-                          Bu tarixədək mövcuddur
-                          <input
-                            name="available_until"
-                            type="date"
-                            defaultValue={initial?.available_until ?? ""}
-                          />
-                        </label>
-                      </div>
-                      <RentalTermsFields
+                    <section data-post-step="2" hidden={step !== 2}>
+                      <h2 id="listing-info" tabIndex={-1}>
+                        Elan məlumatları
+                      </h2>
+                      <p className="muted">
+                        Əsas xüsusiyyətləri seç, şəhəri və kirayə qiymətini yaz.
+                      </p>
+                      <ListingCategoryFields
                         key={category}
                         category={category}
-                        attributes={
-                          initial?.category === category
-                            ? initial.attributes
-                            : undefined
-                        }
+                        initial={initial}
+                        suggest={suggestTitle}
                       />
-                      <p className="muted">
-                        Tarixlər rezervasiya yaratmır. Kirayə şərtləri tərəflər
-                        arasında dəqiqləşdirilir.
-                      </p>
-                    </details>
-                    <h2 id="listing-photos">
-                      02 <span>Şəkillər</span>
-                    </h2>
-                    <p className="muted">
-                      1–6 şəkil · JPG, PNG və ya WebP · hər biri maksimum 5 MB
-                    </p>
-                    <label className="uploadZone">
-                      ↑ Şəkilləri seç
-                      <input
-                        aria-label="Elan şəkilləri"
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        multiple
-                        onChange={(e) => {
-                          const selected = Array.from(e.target.files ?? []);
-                          if (
-                            selected.length +
-                              files.length +
-                              existingImages.length >
-                              6 ||
-                            selected.some(
-                              (f) =>
-                                f.size > 5 * 1024 * 1024 ||
-                                ![
-                                  "image/jpeg",
-                                  "image/png",
-                                  "image/webp",
-                                ].includes(f.type),
-                            )
-                          ) {
-                            setError(
-                              "1–6 ədəd JPG, PNG və ya WebP şəkli seçin. Hər şəkil maksimum 5 MB ola bilər.",
-                            );
-                            e.target.value = "";
-                            return;
-                          }
-                          setFiles((current) => [...current, ...selected]);
-                          e.target.value = "";
-                          setError("");
-                        }}
-                      />
-                    </label>
-                    <p className="photoCount" aria-live="polite">
-                      {files.length + existingImages.length} / 6 şəkil · İlk
-                      şəkil elanın üz qabığıdır.
-                    </p>
-                    <div className="uploadPreviews">
-                      {existingImages.map((src, i) => (
-                        <div key={src}>
-                          <img src={src} alt={`${i + 1}-ci mövcud şəkil`} />
-                          <button
-                            type="button"
-                            aria-label={`${i + 1}-ci mövcud şəkli sil`}
-                            onClick={() =>
-                              setExistingImages(
-                                existingImages.filter((x) => x !== src),
-                              )
-                            }
-                          >
-                            ×
-                          </button>
-                          {i > 0 && (
-                            <button
-                              type="button"
-                              className="coverButton"
-                              onClick={() =>
-                                setExistingImages([
-                                  src,
-                                  ...existingImages.filter((_, n) => n !== i),
-                                ])
-                              }
-                            >
-                              Üz qabığı et
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                      {previews.map((src, i) => (
-                        <div key={src}>
-                          <img src={src} alt={`${i + 1}-ci seçilən şəkil`} />
-                          <button
-                            type="button"
-                            aria-label={`${i + 1}-ci şəkli sil`}
-                            onClick={() =>
-                              setFiles(files.filter((_, n) => n !== i))
-                            }
-                          >
-                            ×
-                          </button>
-                          {i > 0 && !existingImages.length && (
-                            <button
-                              type="button"
-                              className="coverButton"
-                              onClick={() =>
-                                setFiles([
-                                  files[i],
-                                  ...files.filter((_, n) => n !== i),
-                                ])
-                              }
-                            >
-                              Üz qabığı et
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                    <h2 id="listing-contact">
-                      03 <span>Əlaqə</span>
-                    </h2>
-                    <label>
-                      Adınız
-                      <input
-                        name="contact_name"
-                        maxLength={80}
-                        autoComplete="name"
-                        defaultValue={
-                          initial?.attributes?.contact_name || contactName
-                        }
-                      />
-                    </label>
-                    {accountEmail && (
+                      <h3 className="formSubheading">Şəhər və qiymət</h3>
                       <label>
-                        E-poçt
-                        <input
-                          type="email"
-                          aria-label="E-poçt"
-                          value={accountEmail}
-                          readOnly
-                          autoComplete="email"
-                        />
+                        Şəhər <span className="requiredMark">*</span>
+                        <select
+                          aria-label="Şəhər"
+                          name="city"
+                          required
+                          defaultValue={initial?.city || savedCity || ""}
+                        >
+                          <option value="" disabled>
+                            Şəhər seçin
+                          </option>
+                          {initial?.city && !cities.includes(initial.city) && (
+                            <option>{initial.city}</option>
+                          )}
+                          {cities.map((city) => (
+                            <option key={city}>{city}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <div className="rentalPriceBlock">
+                        <p className="fieldLabel">
+                          Qiyməti hansı müddət üçün göstərirsən?
+                        </p>
+                        <div className="rentalPeriodChoice">
+                          {[
+                            {
+                              value: "daily",
+                              label: "Günlük",
+                              hint: "1 gün üçün",
+                            },
+                            {
+                              value: "monthly",
+                              label: "Aylıq",
+                              hint: "1 ay üçün",
+                            },
+                          ].map((option) => (
+                            <label
+                              key={option.value}
+                              className={
+                                rentalPeriod === option.value ? "selected" : ""
+                              }
+                            >
+                              <input
+                                type="radio"
+                                name="rental_period"
+                                value={option.value}
+                                checked={rentalPeriod === option.value}
+                                onChange={() => setRentalPeriod(option.value)}
+                              />
+                              <span>
+                                {option.label}
+                                <small>{option.hint}</small>
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                        <label>
+                          {rentalPeriod === "monthly"
+                            ? "1 aylıq kirayə qiyməti"
+                            : "1 günlük kirayə qiyməti"}{" "}
+                          <span className="requiredMark">*</span>
+                          <div className="priceInputWrap">
+                            <input
+                              aria-label="Qiymət (₼)"
+                              name="price"
+                              defaultValue={initial?.price}
+                              required
+                              type="number"
+                              inputMode="decimal"
+                              min="0.01"
+                              max="1000000"
+                              step="0.01"
+                              placeholder={
+                                rentalPeriod === "monthly"
+                                  ? "Məsələn, 600"
+                                  : "Məsələn, 40"
+                              }
+                            />
+                            <span>
+                              ₼ / {rentalPeriod === "monthly" ? "ay" : "gün"}
+                            </span>
+                          </div>
+                        </label>
                         <small>
-                          Hesabına bağlı ünvan. E-poçtun elanda açıq
-                          göstərilmir.
+                          Elan bu qiymətlə göstəriləcək. Depozit varsa, aşağıda
+                          ayrıca qeyd et.
+                        </small>
+                      </div>
+                      <h3 className="formSubheading">Məzmun</h3>
+                      <label>
+                        Elanın başlığı <span className="requiredMark">*</span>
+                        <input
+                          aria-label="Elanın başlığı"
+                          name="title"
+                          value={title}
+                          onChange={(event) => {
+                            setTitle(event.target.value);
+                            manualTitle.current = !!event.target.value;
+                          }}
+                          required
+                          minLength={10}
+                          maxLength={120}
+                          placeholder={listingExamples[category]?.title}
+                        />
+                      </label>
+                      <label>
+                        Ətraflı təsvir <span className="requiredMark">*</span>
+                        <textarea
+                          aria-label="Ətraflı təsvir"
+                          name="description"
+                          value={descriptionText}
+                          onChange={(event) =>
+                            setDescriptionText(event.target.value)
+                          }
+                          required
+                          minLength={30}
+                          maxLength={5000}
+                          rows={5}
+                          placeholder={listingExamples[category]?.description}
+                        />
+                        <small className="descriptionCounter">
+                          {5000 - descriptionText.length} simvol qalıb · ən azı
+                          30 simvol
                         </small>
                       </label>
-                    )}
-                    <label>
-                      Telefon nömrəsi <span className="requiredMark">*</span>
-                      <input
-                        name="contact"
-                        defaultValue={initial?.contact || loginPhone}
-                        type="tel"
-                        required
-                        maxLength={25}
-                        placeholder="050 123 45 67"
-                      />
-                      <small>Bu nömrə elanla birlikdə açıq göstəriləcək.</small>
-                    </label>
-                    <label className="checkLabel">
-                      <input type="checkbox" required />{" "}
-                      <span>
-                        <Link href="/rules" target="_blank">
-                          Elan qaydalarını
-                        </Link>{" "}
-                        qəbul edirəm və məlumatların düzgünlüyünü təsdiq edirəm.
-                      </span>
-                    </label>
-                    {error && (
-                      <p className="error" role="alert">
-                        {error}
-                      </p>
-                    )}
-                    <button
-                      type="button"
-                      className="secondary wide previewToggle"
-                      aria-expanded={!!preview}
-                      disabled={busy}
-                      onClick={() =>
-                        preview ? setPreview(null) : updatePreview()
-                      }
-                    >
-                      {preview ? "Önbaxışı bağla" : "Elana önbaxış"}
-                    </button>
-                    {preview && (
-                      <section
-                        className="postingPreview"
-                        aria-label="Elanın önbaxışı"
+                      <details
+                        className="optionalRentalTerms"
+                        open={
+                          initial &&
+                          (initial.deposit ||
+                            (initial.min_days && initial.min_days > 1) ||
+                            initial.available_from ||
+                            initial.available_until)
+                            ? true
+                            : undefined
+                        }
                       >
-                        <p className="muted">
-                          Yalnız önbaxışdır. Elan hələ göndərilməyib.
-                        </p>
-                        <div>
-                          <img
-                            src={
-                              existingImages[0] ||
-                              previews[0] ||
-                              "/placeholder.svg"
-                            }
-                            alt="Elanın üz qabığı"
-                          />
-                          <div>
-                            <strong>
-                              {preview.price > 0 &&
-                              Number.isFinite(preview.price)
-                                ? `${money(preview.price)} ₼ / ${periodName(preview.period)}`
-                                : "Qiymət yazılmayıb"}
-                            </strong>
-                            <h3>{preview.title}</h3>
-                            <p>{preview.city}</p>
-                          </div>
+                        <summary>
+                          Əlavə kirayə şərtləri <span>(istəyə bağlı)</span>
+                        </summary>
+                        <div className="formGrid">
+                          <label>
+                            Depozit (₼)
+                            <input
+                              name="deposit"
+                              type="number"
+                              min="0"
+                              max="1000000"
+                              step="0.01"
+                              defaultValue={initial?.deposit ?? 0}
+                            />
+                          </label>
+                          <label>
+                            Minimum kirayə (gün)
+                            <input
+                              name="min_days"
+                              type="number"
+                              min="1"
+                              max="365"
+                              required
+                              defaultValue={initial?.min_days ?? 1}
+                            />
+                          </label>
                         </div>
-                        <p className="description">{preview.description}</p>
-                      </section>
-                    )}
-                    <button className="add wide" disabled={busy}>
-                      {busy
-                        ? "Göndərilir, gözləyin..."
-                        : "Elanı yoxlamaya göndər →"}
-                    </button>
+                        <div className="formGrid">
+                          <label>
+                            Bu tarixdən mövcuddur
+                            <input
+                              name="available_from"
+                              type="date"
+                              defaultValue={initial?.available_from ?? ""}
+                            />
+                          </label>
+                          <label>
+                            Bu tarixədək mövcuddur
+                            <input
+                              name="available_until"
+                              type="date"
+                              defaultValue={initial?.available_until ?? ""}
+                            />
+                          </label>
+                        </div>
+                        <p className="muted">
+                          Tarixlər rezervasiya yaratmır. Kirayə şərtləri
+                          tərəflər arasında dəqiqləşdirilir.
+                        </p>
+                      </details>
+                    </section>
+                    <section data-post-step="3" hidden={step !== 3}>
+                      <h2 id="listing-photos" tabIndex={-1}>
+                        Şəkillər
+                      </h2>
+                      <p className="muted">
+                        1–6 şəkil · JPG, PNG və ya WebP · hər biri maksimum 5 MB
+                      </p>
+                      <label className="uploadZone">
+                        ↑ Şəkilləri seç
+                        <input
+                          aria-label="Elan şəkilləri"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          multiple
+                          onChange={(e) => {
+                            const selected = Array.from(e.target.files ?? []);
+                            if (
+                              selected.length +
+                                files.length +
+                                existingImages.length >
+                                6 ||
+                              selected.some(
+                                (f) =>
+                                  f.size > 5 * 1024 * 1024 ||
+                                  ![
+                                    "image/jpeg",
+                                    "image/png",
+                                    "image/webp",
+                                  ].includes(f.type),
+                              )
+                            ) {
+                              setError(
+                                "1–6 ədəd JPG, PNG və ya WebP şəkli seçin. Hər şəkil maksimum 5 MB ola bilər.",
+                              );
+                              e.target.value = "";
+                              return;
+                            }
+                            setFiles((current) => [...current, ...selected]);
+                            e.target.value = "";
+                            setError("");
+                          }}
+                        />
+                      </label>
+                      <p className="photoCount" aria-live="polite">
+                        {files.length + existingImages.length} / 6 şəkil · İlk
+                        şəkil elanın üz qabığıdır.
+                      </p>
+                      <div className="uploadPreviews">
+                        {existingImages.map((src, i) => (
+                          <div key={src}>
+                            <img src={src} alt={`${i + 1}-ci mövcud şəkil`} />
+                            <button
+                              type="button"
+                              aria-label={`${i + 1}-ci mövcud şəkli sil`}
+                              onClick={() =>
+                                setExistingImages(
+                                  existingImages.filter((x) => x !== src),
+                                )
+                              }
+                            >
+                              ×
+                            </button>
+                            {i > 0 && (
+                              <button
+                                type="button"
+                                className="coverButton"
+                                onClick={() =>
+                                  setExistingImages([
+                                    src,
+                                    ...existingImages.filter((_, n) => n !== i),
+                                  ])
+                                }
+                              >
+                                Üz qabığı et
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                        {previews.map((src, i) => (
+                          <div key={src}>
+                            <img src={src} alt={`${i + 1}-ci seçilən şəkil`} />
+                            <button
+                              type="button"
+                              aria-label={`${i + 1}-ci şəkli sil`}
+                              onClick={() =>
+                                setFiles(files.filter((_, n) => n !== i))
+                              }
+                            >
+                              ×
+                            </button>
+                            {i > 0 && !existingImages.length && (
+                              <button
+                                type="button"
+                                className="coverButton"
+                                onClick={() =>
+                                  setFiles([
+                                    files[i],
+                                    ...files.filter((_, n) => n !== i),
+                                  ])
+                                }
+                              >
+                                Üz qabığı et
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                    <section data-post-step="4" hidden={step !== 4}>
+                      <h2 id="listing-contact" tabIndex={-1}>
+                        Əlaqə və göndəriş
+                      </h2>
+                      <p className="muted">
+                        Kirayə götürmək istəyənlər bu nömrə ilə səninlə əlaqə
+                        saxlayacaq.
+                      </p>
+                      <label>
+                        Adınız
+                        <input
+                          name="contact_name"
+                          maxLength={80}
+                          autoComplete="name"
+                          defaultValue={
+                            initial?.attributes?.contact_name || contactName
+                          }
+                        />
+                      </label>
+                      {accountEmail && (
+                        <label>
+                          E-poçt
+                          <input
+                            type="email"
+                            aria-label="E-poçt"
+                            value={accountEmail}
+                            readOnly
+                            autoComplete="email"
+                          />
+                          <small>
+                            Hesabına bağlı ünvan. E-poçtun elanda açıq
+                            göstərilmir.
+                          </small>
+                        </label>
+                      )}
+                      <label>
+                        Telefon nömrəsi <span className="requiredMark">*</span>
+                        <input
+                          name="contact"
+                          defaultValue={initial?.contact || loginPhone}
+                          type="tel"
+                          required
+                          maxLength={25}
+                          placeholder="050 123 45 67"
+                        />
+                        <small>
+                          Bu nömrə elanla birlikdə açıq göstəriləcək.
+                        </small>
+                      </label>
+                      <label className="checkLabel">
+                        <input type="checkbox" required />{" "}
+                        <span>
+                          <Link href="/rules" target="_blank">
+                            Elan qaydalarını
+                          </Link>{" "}
+                          qəbul edirəm və məlumatların düzgünlüyünü təsdiq
+                          edirəm.
+                        </span>
+                      </label>
+                      <button
+                        type="button"
+                        className="secondary wide previewToggle"
+                        aria-expanded={!!preview}
+                        disabled={busy}
+                        onClick={() =>
+                          preview ? setPreview(null) : updatePreview()
+                        }
+                      >
+                        {preview ? "Önbaxışı bağla" : "Elana önbaxış"}
+                      </button>
+                      {preview && (
+                        <section
+                          className="postingPreview"
+                          aria-label="Elanın önbaxışı"
+                        >
+                          <p className="muted">
+                            Yalnız önbaxışdır. Elan hələ göndərilməyib.
+                          </p>
+                          <div>
+                            <img
+                              src={
+                                existingImages[0] ||
+                                previews[0] ||
+                                "/placeholder.svg"
+                              }
+                              alt="Elanın üz qabığı"
+                            />
+                            <div>
+                              <strong>
+                                {preview.price > 0 &&
+                                Number.isFinite(preview.price)
+                                  ? `${money(preview.price)} ₼ / ${periodName(preview.period)}`
+                                  : "Qiymət yazılmayıb"}
+                              </strong>
+                              <h3>{preview.title}</h3>
+                              <p>{preview.city}</p>
+                            </div>
+                          </div>
+                          <p className="description">{preview.description}</p>
+                        </section>
+                      )}
+                      <button className="add wide" disabled={busy}>
+                        {busy
+                          ? "Göndərilir, gözləyin..."
+                          : "Elanı yoxlamaya göndər →"}
+                      </button>
+                    </section>
                   </>
                 )}
+                {error && (
+                  <p className="error" role="alert">
+                    {error}
+                  </p>
+                )}
+                <div className="wizardActions">
+                  {step > 1 && (
+                    <button
+                      type="button"
+                      className="secondary"
+                      onClick={() => goToStep(step - 1)}
+                    >
+                      ← Geri
+                    </button>
+                  )}
+                  <span>{step} / 4 addım</span>
+                  {step < 4 && (
+                    <button type="button" className="add" onClick={nextStep}>
+                      Davam et →
+                    </button>
+                  )}
+                </div>
               </fieldset>
             </form>
             <aside className="tips">

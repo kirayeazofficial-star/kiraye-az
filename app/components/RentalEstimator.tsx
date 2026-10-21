@@ -39,6 +39,33 @@ export default function RentalEstimator({ item }: { item: Listing }) {
   return (
     <section className="rentalEstimator" aria-label="Kirayə xərcini hesabla">
       <h3>Kirayə xərcini hesabla</h3>
+      <p className="estimateIntro">
+        Neçə {item.rental_period === "monthly" ? "ay" : "gün"} lazımdır? Müddəti
+        seç, məbləği gör.
+      </p>
+      <div className="durationPresets" aria-label="Kirayə müddətini seç">
+        {(item.rental_period === "monthly"
+          ? [1, 2, 3, 4, 6, 12]
+          : [1, 2, 3, 4, 7, 14, 30]
+        ).map((count) => (
+          <button
+            key={count}
+            type="button"
+            aria-pressed={
+              item.rental_period === "monthly"
+                ? Number(months) === count
+                : quote.error === null && quote.units === count
+            }
+            onClick={() =>
+              item.rental_period === "monthly"
+                ? setMonths(String(count))
+                : setEnd(addRentalDays(start, count))
+            }
+          >
+            {count} {item.rental_period === "monthly" ? "ay" : "gün"}
+          </button>
+        ))}
+      </div>
       <div className="estimateFields">
         <label>
           Götürmə tarixi

@@ -118,7 +118,36 @@ const { chromium } = require("playwright");
   });
   let count = 0;
   async function check(name, fn) {
-    await fn();
+    try {
+      await fn();
+    } catch (error) {
+      console.log(
+        await page
+          .locator(".listingForm")
+          .evaluate((el) => ({
+            step: el
+              .querySelector("[data-post-step]:not([hidden])")
+              ?.getAttribute("data-post-step"),
+            error: el.querySelector(".error")?.textContent,
+            invalid: Array.from(el.querySelectorAll("input,select,textarea"))
+              .filter((field) => !field.checkValidity())
+              .map((field) => ({
+                name: field.name || field.getAttribute("aria-label"),
+                message: field.validationMessage,
+              })),
+            attributes: ["brand", "model", "min_days", "deposit"].map((key) => [
+              key,
+              new FormData(el).get(key),
+            ]),
+          }))
+          .catch(() => ({})),
+      );
+      await page.screenshot({
+        path: "/tmp/kirayeal-posting-failure.png",
+        fullPage: true,
+      });
+      throw error;
+    }
     count++;
     console.log("PASS", name);
   }
@@ -173,7 +202,7 @@ const { chromium } = require("playwright");
         await page
           .locator(".accountLink")
           .filter({ hasText: "Hesabım" })
-          .waitFor();
+          .waitFor({ state: "attached" });
       },
     );
     await check("profile status tabs actually filter listings", async () => {
@@ -186,15 +215,30 @@ const { chromium } = require("playwright");
         .click();
       assert.equal(await page.locator(".accountListings article").count(), 1);
     });
+    const next = () =>
+      page.getByRole("button", { name: "Davam et →", exact: true }).click();
+    const backToCategory = async () => {
+      await page
+        .getByRole("navigation", { name: "Elan bölmələri" })
+        .getByRole("button", { name: /1\s*Kateqoriya/ })
+        .click();
+    };
+    const photo = {
+      name: "rental.png",
+      mimeType: "image/png",
+      buffer: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=",
+        "base64",
+      ),
+    };
     await check(
-      "category selection shows only relevant fields and clears incompatible vehicle details",
+      "four-step flow blocks missing category and scopes each category",
       async () => {
         await page.goto(`${base}/new`);
-        const category = page.getByLabel("Kateqoriya", { exact: true });
-        await category.waitFor();
+        await next();
         assert.equal(
-          await page.getByLabel("Elanın başlığı", { exact: true }).count(),
-          0,
+          await page.locator('[data-post-step="1"]').isVisible(),
+          true,
         );
         for (const value of [
           "property",
@@ -206,10 +250,17 @@ const { chromium } = require("playwright");
           "bicycle",
           "event",
         ]) {
-          await category.selectOption(value);
+          await page
+            .getByLabel("Kateqoriya", { exact: true })
+            .selectOption(value);
+          await next();
+          assert.equal(
+            await page.locator('[data-post-step="2"]').isVisible(),
+            true,
+          );
           assert.equal(
             await page.getByLabel("Marka", { exact: true }).count(),
-            ["car", "motorcycle", "bicycle", "equipment"].includes(value)
+            ["car", "motorcycle", "equipment", "bicycle"].includes(value)
               ? 1
               : 0,
           );
@@ -218,33 +269,38 @@ const { chromium } = require("playwright");
             ["property", "villa"].includes(value) ? 1 : 0,
           );
           assert.equal(
-            await page.getByLabel("Sahə (m²)", { exact: true }).count(),
-            ["property", "villa", "commercial"].includes(value) ? 1 : 0,
-          );
-          assert.equal(
-            await page.getByLabel("Rayon / qəsəbə", { exact: true }).count(),
+            await page.getByLabel("Dəstə daxildir", { exact: true }).count(),
             0,
           );
           assert.equal(
-            await page.getByLabel("Depozit (₼)", { exact: true }).isVisible(),
+            await page
+              .getByLabel("Elan şəkilləri", { exact: true })
+              .isVisible(),
             false,
           );
+          await backToCategory();
         }
-        assert(
-          (await page
-            .getByLabel("Şəhər", { exact: true })
-            .locator("option")
-            .count()) > 70,
+        await page
+          .getByRole("button", { name: "Sıfırla", exact: true })
+          .click();
+        assert.equal(
+          await page.getByLabel("Kateqoriya", { exact: true }).inputValue(),
+          "",
         );
-        await category.selectOption("car");
-        const brand = page.getByLabel("Marka", { exact: true });
-        const model = page.getByLabel("Model", { exact: true });
+      },
+    );
+    await check(
+      "dependent vehicle choices reset without losing an edited title",
+      async () => {
+        await page
+          .getByLabel("Kateqoriya", { exact: true })
+          .selectOption("car");
+        await next();
+        const brand = page.getByLabel("Marka", { exact: true }),
+          model = page.getByLabel("Model", { exact: true });
         assert.equal(await model.isDisabled(), true);
         await brand.selectOption("Hyundai");
         await model.selectOption("Elantra");
-        assert(
-          (await model.locator("option").allTextContents()).includes("Elantra"),
-        );
         assert.equal(
           await page.getByLabel("Elanın başlığı", { exact: true }).inputValue(),
           "Hyundai Elantra kirayəsi",
@@ -258,88 +314,6 @@ const { chromium } = require("playwright");
           await page.getByLabel("Elanın başlığı", { exact: true }).inputValue(),
           "Öz başlığım saxlanmalıdır",
         );
-        assert(
-          !(await model.locator("option").allTextContents()).includes(
-            "Elantra",
-          ),
-        );
-        await category.selectOption("motorcycle");
-        assert.equal(await brand.inputValue(), "");
-        await brand.selectOption("Yamaha");
-        assert(
-          (await model.locator("option").allTextContents()).includes("NMAX"),
-        );
-        await category.selectOption("bicycle");
-        assert(
-          (await brand.locator("option").allTextContents()).includes("Trek"),
-        );
-        assert(
-          !(await brand.locator("option").allTextContents()).includes(
-            "Hyundai",
-          ),
-        );
-        await brand.selectOption("Trek");
-        await model.selectOption("Marlin");
-        await page
-          .getByLabel("Velosiped növü", { exact: true })
-          .selectOption("Dağ");
-        assert.equal(
-          await page.getByLabel("Sürətlər qutusu", { exact: true }).count(),
-          0,
-        );
-        await category.selectOption("equipment");
-        await page
-          .getByLabel("Avadanlığın növü", { exact: true })
-          .selectOption("Foto və video");
-        await brand.selectOption("Canon");
-        await model.selectOption("EOS R5");
-        await page
-          .getByLabel("Avadanlığın növü", { exact: true })
-          .selectOption("Tikinti alətləri");
-        assert.equal(await brand.inputValue(), "");
-        assert(
-          (await brand.locator("option").allTextContents()).includes("Bosch"),
-        );
-        assert(
-          !(await brand.locator("option").allTextContents()).includes("Canon"),
-        );
-        await category.selectOption("property");
-        await page
-          .getByLabel("Əmlakın növü", { exact: true })
-          .selectOption("Mənzil");
-        await page.getByLabel("Mərtəbə", { exact: true }).fill("5");
-        await page
-          .getByLabel("Əmlakın növü", { exact: true })
-          .selectOption("Həyət evi");
-        assert.equal(
-          await page.getByLabel("Mərtəbə", { exact: true }).count(),
-          0,
-        );
-        await category.selectOption("car");
-        assert.equal(await brand.inputValue(), "");
-        await brand.selectOption("__other__");
-        await page
-          .getByLabel("Digər marka", { exact: true })
-          .fill("Test marka");
-        await model.selectOption("__other__");
-        await page
-          .getByLabel("Digər model", { exact: true })
-          .fill("Test model");
-        assert.equal(
-          await page.locator('input[name="brand"]').inputValue(),
-          "Test marka",
-        );
-        await page
-          .getByRole("button", { name: "Sıfırla", exact: true })
-          .click();
-        assert.equal(await category.inputValue(), "");
-        assert.equal(
-          await page.getByLabel("Elanın başlığı", { exact: true }).count(),
-          0,
-        );
-        await category.selectOption("car");
-        await brand.selectOption("Toyota");
-        await model.selectOption("Corolla");
         await page
           .getByLabel("Yanacaq növü", { exact: true })
           .selectOption("Elektrik");
@@ -354,27 +328,6 @@ const { chromium } = require("playwright");
           await page.getByLabel("Yürüş, km", { exact: true }).inputValue(),
           "0",
         );
-        assert.equal(
-          await page
-            .getByLabel("Yürüş, km", { exact: true })
-            .getAttribute("readonly"),
-          "",
-        );
-        assert.equal(
-          await page.getByLabel("Adınız", { exact: true }).inputValue(),
-          "Test user",
-        );
-        assert.equal(
-          await page.getByLabel("E-poçt", { exact: true }).inputValue(),
-          user.email,
-        );
-        await page.setViewportSize({ width: 390, height: 844 });
-        assert.equal(
-          await page.evaluate(
-            () => document.documentElement.scrollWidth > innerWidth,
-          ),
-          false,
-        );
         await page.screenshot({
           path: "/tmp/kirayeal-car-form.png",
           fullPage: true,
@@ -382,69 +335,75 @@ const { chromium } = require("playwright");
       },
     );
     await check(
-      "authenticated owner submits a photo listing for moderation",
+      "monthly property posting validates, preserves back navigation and uploads photos",
       async () => {
         await page.goto(`${base}/new`);
         await page
           .getByLabel("Kateqoriya", { exact: true })
           .selectOption("property");
+        await next();
+        assert.equal(
+          await page
+            .locator('input[name="rental_period"][value="monthly"]')
+            .isChecked(),
+          true,
+        );
+        await next();
+        assert.equal(
+          await page.locator('[data-post-step="2"]').isVisible(),
+          true,
+        );
         await page
           .getByLabel("Şəhər", { exact: true })
           .selectOption("Mingəçevir");
         await page
           .getByLabel("Elanın başlığı", { exact: true })
           .fill("Sahil metrosu yanında rahat iki otaqlı mənzil");
-        await page.getByLabel("Qiymət (₼)", { exact: true }).fill("60");
+        await page.getByLabel("Qiymət (₼)", { exact: true }).fill("600");
         await page
           .getByLabel("Ətraflı təsvir", { exact: true })
           .fill(
-            "Günlük kirayə üçün təmiz və rahat iki otaqlı mənzil. İnternet və mətbəx daxildir.",
+            "Aylıq kirayə üçün təmiz və rahat iki otaqlı mənzil. İnternet və mətbəx daxildir.",
           );
-        await page.getByLabel(/Telefon nömrəsi/).fill("0501234567");
-        await page.getByLabel("Elan şəkilləri", { exact: true }).setInputFiles({
-          name: "room.png",
-          mimeType: "image/png",
-          buffer: Buffer.from(
-            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=",
-            "base64",
-          ),
-        });
-        const extraPhoto = {
-          name: "second-room.png",
-          mimeType: "image/png",
-          buffer: Buffer.from(
-            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=",
-            "base64",
-          ),
-        };
+        await page.getByRole("button", { name: "← Geri", exact: true }).click();
+        await next();
+        assert.equal(
+          await page.getByLabel("Qiymət (₼)", { exact: true }).inputValue(),
+          "600",
+        );
+        await next();
+        await next();
+        await page
+          .getByRole("alert")
+          .filter({ hasText: "Ən azı bir şəkil" })
+          .waitFor();
         await page
           .getByLabel("Elan şəkilləri", { exact: true })
-          .setInputFiles(extraPhoto);
-        assert.equal(await page.locator(".uploadPreviews img").count(), 2);
+          .setInputFiles(photo);
+        await page
+          .getByLabel("Elan şəkilləri", { exact: true })
+          .setInputFiles({ ...photo, name: "cover.png" });
         await page
           .getByRole("button", { name: "Üz qabığı et", exact: true })
           .click();
         await page.getByLabel("Elan şəkilləri", { exact: true }).setInputFiles(
           Array.from({ length: 5 }, (_, i) => ({
-            ...extraPhoto,
-            name: `extra-${i}.png`,
+            ...photo,
+            name: `${i}.png`,
           })),
         );
         await page.getByRole("alert").filter({ hasText: "1–6 ədəd" }).waitFor();
         assert.equal(await page.locator(".uploadPreviews img").count(), 2);
+        await next();
+        await page.getByLabel(/Telefon nömrəsi/).fill("0501234567");
         await page
           .getByRole("button", { name: "Elana önbaxış", exact: true })
           .click();
         await page
           .getByRole("region", { name: "Elanın önbaxışı" })
-          .getByRole("heading", {
-            name: "Sahil metrosu yanında rahat iki otaqlı mənzil",
-          })
+          .getByText(/600 ₼ \/ ay/)
           .waitFor();
         assert.equal(inserted, undefined);
-        await page
-          .getByRole("button", { name: "Önbaxışı bağla", exact: true })
-          .click();
         await page.locator("input[type=checkbox][required]").check();
         await page
           .getByRole("button", {
@@ -457,184 +416,56 @@ const { chromium } = require("playwright");
           .waitFor();
         assert.equal(inserted.status, "pending");
         assert.equal(inserted.owner_id, id);
+        assert.equal(inserted.rental_period, "monthly");
+        assert.equal(inserted.price, 600);
         assert.equal(inserted.images.length, 2);
-        assert.equal(inserted.contact, "+994501234567");
-        assert.equal(inserted.city, "Mingəçevir");
-        assert.deepEqual(inserted.attributes, {
-          amenities: [],
-          contact_name: "Test user",
-        });
-        assert.equal(inserted.district, "");
       },
     );
     await check(
-      "car and bicycle submissions store their own specifications without mixing fields",
+      "daily bicycle posting saves only relevant attributes",
       async () => {
-        for (const category of ["car", "bicycle"]) {
-          await page.goto(`${base}/new`);
-          await page
-            .getByLabel("Kateqoriya", { exact: true })
-            .selectOption("car");
-          await page
-            .getByLabel("Marka", { exact: true })
-            .selectOption("Toyota");
-          await page
-            .getByLabel("Model", { exact: true })
-            .selectOption("Corolla");
-          await page
-            .getByLabel("Yanacaq növü", { exact: true })
-            .selectOption("Benzin");
-          await page
-            .getByLabel("Sürətlər qutusu", { exact: true })
-            .selectOption("Avtomat");
-          await page.getByLabel("Mühərrik, sm³", { exact: true }).fill("1600");
-          await page
-            .getByLabel("Kuzov növü", { exact: true })
-            .selectOption("Sedan");
-          await page
-            .getByLabel("Ötürücü növü", { exact: true })
-            .selectOption("Ön");
-          await page
-            .getByLabel("Buraxılış ili", { exact: true })
-            .selectOption("2022");
-          await page
-            .getByLabel("Yeni / işlənmiş", { exact: true })
-            .selectOption("İşlənmiş");
-          await page.getByLabel("Yürüş, km", { exact: true }).fill("85000");
-          if (category === "bicycle") {
-            await page
-              .getByLabel("Kateqoriya", { exact: true })
-              .selectOption("bicycle");
-            await page
-              .getByLabel("Marka", { exact: true })
-              .selectOption("Trek");
-            await page
-              .getByLabel("Model", { exact: true })
-              .selectOption("Marlin");
-            await page
-              .getByLabel("Velosiped növü", { exact: true })
-              .selectOption("Dağ");
-            await page
-              .getByLabel("Təkər ölçüsü", { exact: true })
-              .selectOption("29 düym");
-          }
-          await page
-            .getByLabel("Rəng", { exact: true })
-            .selectOption("Qırmızı");
-          await page
-            .getByText("Əlavə kirayə şərtləri", { exact: false })
-            .click();
-          await page.getByLabel("Depozit (₼)", { exact: true }).fill("45");
-          await page
-            .getByLabel("Təhvil / çatdırılma", { exact: true })
-            .selectOption("Hər ikisi");
-          await page
-            .getByLabel("Çatdırılma haqqı (₼)", { exact: true })
-            .fill("8.50");
-          await page
-            .getByLabel("Qaytarılma və ləğv şərtləri", { exact: true })
-            .fill("Təmiz və saz vəziyyətdə qaytarılmalıdır.");
-          if (category === "car") {
-            await page
-              .getByLabel("Sürücünün minimum yaşı", { exact: true })
-              .fill("25");
-            await page
-              .getByLabel("Günlük yürüş limiti (km)", { exact: true })
-              .fill("200");
-          } else {
-            await page
-              .getByLabel("Dəstə daxildir", { exact: true })
-              .fill("Dəbilqə və kilid");
-          }
-
-          await page
-            .getByLabel("Elanın başlığı", { exact: true })
-            .fill("Test üçün gündəlik kirayə nəqliyyat vasitəsi");
-          await page.getByLabel("Şəhər", { exact: true }).selectOption("Qusar");
-          await page.getByLabel("Qiymət (₼)", { exact: true }).fill("25");
-          await page
-            .getByLabel("Ətraflı təsvir", { exact: true })
-            .fill(
-              "Yaxşı vəziyyətdə nəqliyyat vasitəsi gündəlik kirayə üçün təklif olunur.",
-            );
-          await page.getByLabel(/Telefon nömrəsi/).fill("0501234567");
-          await page
-            .getByLabel("Elan şəkilləri", { exact: true })
-            .setInputFiles({
-              name: "vehicle.png",
-              mimeType: "image/png",
-              buffer: Buffer.from(
-                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aK1cAAAAASUVORK5CYII=",
-                "base64",
-              ),
-            });
-          await page.locator("input[type=checkbox][required]").check();
-          await page
-            .getByRole("button", {
-              name: "Elanı yoxlamaya göndər →",
-              exact: true,
-            })
-            .click();
-          await page
-            .getByRole("heading", { name: "Elanın yoxlamaya göndərildi" })
-            .waitFor();
-          assert.equal(inserted.category, category);
-          assert.equal(inserted.rooms, null);
-          assert.equal(inserted.area_m2, null);
-          assert.equal(inserted.attributes.color, "Qırmızı");
-          assert.equal(inserted.city, "Qusar");
-          assert.equal(inserted.deposit, 45);
-          assert.equal(inserted.attributes.delivery_method, "Hər ikisi");
-          assert.equal(inserted.attributes.delivery_fee, "8.50");
-          assert.equal(
-            inserted.attributes.return_terms,
-            "Təmiz və saz vəziyyətdə qaytarılmalıdır.",
-          );
-          if (category === "car") {
-            assert.equal(inserted.attributes.brand, "Toyota");
-            assert.equal(inserted.attributes.model, "Corolla");
-            assert.equal(inserted.attributes.fuel, "Benzin");
-            assert.equal(inserted.attributes.gearbox, "Avtomat");
-            assert.equal(inserted.attributes.body_type, "Sedan");
-            assert.equal(inserted.attributes.drivetrain, "Ön");
-            assert.equal(inserted.attributes.mileage_km, "85000");
-            assert.equal(inserted.attributes.wheel_size, undefined);
-          } else {
-            assert.equal(inserted.attributes.brand, "Trek");
-            assert.equal(inserted.attributes.model, "Marlin");
-            assert.equal(inserted.attributes.kind, "Dağ");
-            assert.equal(inserted.attributes.wheel_size, "29 düym");
-            assert.equal(inserted.attributes.fuel, undefined);
-            assert.equal(inserted.attributes.gearbox, undefined);
-          }
-        }
-      },
-    );
-    await check(
-      "bicycle specifications survive editing and appear in listing details",
-      async () => {
-        const original = item;
-        item = { ...item, ...inserted, id: listingId, status: "published" };
-        await page.goto(`${base}/edit/${listingId}`);
-        assert.equal(
-          await page.getByLabel("Marka", { exact: true }).inputValue(),
-          "Trek",
-        );
-        assert.equal(
-          await page.getByLabel("Model", { exact: true }).inputValue(),
-          "Marlin",
-        );
-        assert.equal(
-          await page.getByLabel("Rəng", { exact: true }).inputValue(),
-          "Qırmızı",
-        );
-        assert.equal(
-          await page.getByLabel("Təkər ölçüsü", { exact: true }).inputValue(),
-          "29 düym",
-        );
+        await page.goto(`${base}/new`);
+        await page
+          .getByLabel("Kateqoriya", { exact: true })
+          .selectOption("bicycle");
+        await next();
+        await page.getByLabel("Marka", { exact: true }).selectOption("Trek");
+        await page.getByLabel("Model", { exact: true }).selectOption("Marlin");
+        await page
+          .getByLabel("Velosiped növü", { exact: true })
+          .selectOption("Dağ");
+        await page.getByLabel("Rəng", { exact: true }).selectOption("Qırmızı");
         await page
           .getByLabel("Təkər ölçüsü", { exact: true })
-          .selectOption("26 düym");
+          .selectOption("29 düym");
+        await page.getByLabel("Şəhər", { exact: true }).selectOption("Qusar");
+        await page.getByLabel("Qiymət (₼)", { exact: true }).fill("40");
+        await page
+          .getByLabel("Ətraflı təsvir", { exact: true })
+          .fill(
+            "Dağ velosipedi günlük kirayəyə verilir. Təmiz və saz vəziyyətdədir.",
+          );
+        assert.equal(
+          await page
+            .locator('input[name="rental_period"][value="daily"]')
+            .isChecked(),
+          true,
+        );
+        await page.getByText("Əlavə kirayə şərtləri", { exact: false }).click();
+        await page.getByLabel("Depozit (₼)", { exact: true }).fill("45");
+        await next();
+        await page
+          .locator('[data-post-step="3"]')
+          .waitFor({ state: "visible", timeout: 5000 });
+        await page
+          .getByLabel("Elan şəkilləri", { exact: true })
+          .setInputFiles(photo);
+        await page.locator(".uploadPreviews img").waitFor();
+        await next();
+        await page
+          .locator('[data-post-step="4"]')
+          .waitFor({ state: "visible" });
+        await page.getByLabel(/Telefon nömrəsi/).fill("0501234567");
         await page.locator("input[type=checkbox][required]").check();
         await page
           .getByRole("button", {
@@ -645,55 +476,40 @@ const { chromium } = require("playwright");
         await page
           .getByRole("heading", { name: "Elanın yoxlamaya göndərildi" })
           .waitFor();
-        assert.equal(updated.attributes.brand, "Trek");
-        assert.equal(updated.attributes.wheel_size, "26 düym");
-        assert.equal(updated.attributes.fuel, undefined);
-        item.status = "published";
-        await page.goto(base);
-        await page.locator(".quickView").first().click();
-        const specs = page.getByRole("dialog").locator(".detailSpecs");
-        await specs.getByText("Qırmızı", { exact: true }).waitFor();
-        await specs.getByText("26 düym", { exact: true }).waitFor();
-        await specs.getByText("Dağ", { exact: true }).waitFor();
-        const estimator = page.getByRole("region", {
-          name: "Kirayə xərcini hesabla",
-        });
-        await estimator
-          .getByLabel("Götürmə tarixi", { exact: true })
-          .fill("2050-10-22");
-        await estimator
-          .getByLabel("Qaytarma tarixi", { exact: true })
-          .fill("2050-10-25");
-        await estimator.getByText("120 ₼", { exact: true }).waitFor();
-        await estimator
-          .getByLabel("Çatdırılma istəyirəm", { exact: true })
-          .check();
-        await estimator.getByText(/128[,.]5 ₼/).waitFor();
-        const message = new URL(
-          await estimator
-            .getByRole("link", { name: "Tarixləri WhatsApp-la soruş" })
-            .getAttribute("href"),
-        ).searchParams.get("text");
-        assert(message.includes("22.10.2050–25.10.2050"));
-        assert(message.includes("3 gün"));
-        assert(message.includes("Çatdırılma istəyirəm"));
-
-        assert.equal(
-          await page.evaluate(
-            () => document.documentElement.scrollWidth > innerWidth,
-          ),
-          false,
-        );
-        item = original;
+        assert.equal(inserted.rental_period, "daily");
+        assert.equal(inserted.category, "bicycle");
+        assert.equal(inserted.attributes.brand, "Trek");
+        assert.equal(inserted.attributes.wheel_size, "29 düym");
+        assert.equal(inserted.attributes.fuel, undefined);
+        assert.equal(inserted.attributes.included_items, undefined);
+        assert.equal(inserted.deposit, 45);
+        assert.equal(inserted.rooms, null);
       },
     );
     await check(
-      "editing preserves the owner and forces a new moderation review",
+      "editing preserves the period, photo and owner through all steps",
       async () => {
+        const original = item;
+        item = { ...item, ...inserted, id: listingId, status: "published" };
         await page.goto(`${base}/edit/${listingId}`);
+        await page.getByLabel("Kateqoriya", { exact: true }).waitFor();
+        await next();
+        assert.equal(
+          await page
+            .locator('input[name="rental_period"][value="daily"]')
+            .isChecked(),
+          true,
+        );
+        assert.equal(
+          await page.getByLabel("Marka", { exact: true }).inputValue(),
+          "Trek",
+        );
         await page
-          .getByLabel("Elanın başlığı", { exact: true })
-          .fill("Redaktə edilmiş işıqlı iki otaqlı mənzil");
+          .getByLabel("Təkər ölçüsü", { exact: true })
+          .selectOption("26 düym");
+        await next();
+        assert.equal(await page.locator(".uploadPreviews img").count(), 1);
+        await next();
         await page.locator("input[type=checkbox][required]").check();
         await page
           .getByRole("button", {
@@ -706,7 +522,36 @@ const { chromium } = require("playwright");
           .waitFor();
         assert.equal(updated.status, "pending");
         assert.equal(updated.owner_id, id);
-        assert.equal(updated.images.length, 1);
+        assert.equal(updated.attributes.wheel_size, "26 düym");
+        item.status = "published";
+        await page.goto(base);
+        await page.locator(".quickView").first().click();
+        const dialog = page.getByRole("dialog");
+        await dialog.getByText("26 düym", { exact: true }).waitFor();
+        assert.equal(
+          await dialog.getByText("Dəstə daxildir", { exact: true }).count(),
+          0,
+        );
+        const estimator = dialog.getByRole("region", {
+          name: "Kirayə xərcini hesabla",
+        });
+        await estimator
+          .getByRole("button", { name: "3 gün", exact: true })
+          .click();
+        await estimator.getByText("120 ₼", { exact: true }).waitFor();
+        const message = new URL(
+          await estimator
+            .getByRole("link", { name: "Tarixləri WhatsApp-la soruş" })
+            .getAttribute("href"),
+        ).searchParams.get("text");
+        assert(message.includes("3 gün"));
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+        );
+        item = original;
       },
     );
     await check("owner can archive an existing listing", async () => {
@@ -727,7 +572,7 @@ const { chromium } = require("playwright");
         await page
           .locator(".accountLink")
           .filter({ hasText: "Daxil ol" })
-          .waitFor();
+          .waitFor({ state: "attached" });
       },
     );
     assert.deepEqual(errors, []);

@@ -49,8 +49,7 @@ export default function Home() {
     [from, setFrom] = useState(""),
     [until, setUntil] = useState(""),
     [total, setTotal] = useState(0),
-    [retry, setRetry] = useState(0),
-    [layout, setLayout] = useState("grid");
+    [retry, setRetry] = useState(0);
   useEffect(() => {
     setFavorites(readFavorites());
     setOnlyFavorites(
@@ -327,18 +326,31 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main>
+      <main className="rentalHome">
         <section className="catalogIntro">
           <div>
-            <p>Azərbaycan üzrə kirayə elanları</p>
-            <h1>Kirayə elanları</h1>
+            <p className="heroKicker">
+              <span aria-hidden="true">↗</span> Günlük və aylıq kirayə
+            </p>
+            <h1>
+              Almağa tələsmə.
+              <br />
+              <em>Kirayələ.</em>
+            </h1>
             <span>
-              Ev, avtomobil və avadanlıq — günlük və aylıq kirayə təklifləri.
+              Ev, nəqliyyat, avadanlıq — ehtiyacına uyğun olanı tap, sahibi ilə
+              birbaşa danış.
             </span>
           </div>
-          <Link className="introAction" href="/new">
-            Elan yerləşdir →
-          </Link>
+          <div className="heroNote">
+            <span aria-hidden="true">⌂</span>
+            <strong>Bir ünvan. Çox seçim.</strong>
+            <p>
+              Şəhəri seç, qiymətləri müqayisə et,
+              <br />
+              kirayəni birbaşa razılaşdır.
+            </p>
+          </div>
         </section>
         <section className="wrap categorySection">
           <div className="sectionTitle">
@@ -447,23 +459,7 @@ export default function Home() {
               <option value="high">Əvvəlcə bahalı</option>
             </select>
           </div>
-          <div className="viewControls">
-            <button
-              className="secondary"
-              aria-pressed={layout === "grid"}
-              onClick={() => setLayout("grid")}
-            >
-              ▦ Kartlar
-            </button>
-            <button
-              className="secondary"
-              aria-pressed={layout === "list"}
-              onClick={() => setLayout("list")}
-            >
-              ☰ Siyahı
-            </button>
-          </div>
-          <div className="filterRow">
+          <div className="filterRow" aria-label="Qiymət və əlavə filtrlər">
             <label>
               Minimum qiymət
               <input
@@ -663,7 +659,7 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className={layout === "list" ? "grid catalogList" : "grid"}>
+            <div className="grid">
               {filtered.map((x) => (
                 <ListingCard
                   key={x.id}
@@ -727,37 +723,6 @@ export default function Home() {
           <Link href="/new" className="add">
             İlk elanını yerləşdir →
           </Link>
-        </section>
-        <section className="wrap how">
-          <div>
-            <p className="eyebrow">BİR NEÇƏ SADƏ ADDIM</p>
-            <h2>Kirayə vermək asandır.</h2>
-          </div>
-          <div className="steps">
-            {[
-              [
-                "01",
-                "Elanını yarat",
-                "Şəkilləri, qiyməti və əlaqə məlumatlarını əlavə et.",
-              ],
-              [
-                "02",
-                "Təsdiqi gözlə",
-                "Elanın yoxlanıldıqdan sonra saytda yayımlanır.",
-              ],
-              [
-                "03",
-                "Birbaşa əlaqə qur",
-                "Maraqlananlarla danış, şərtləri birlikdə razılaşdır.",
-              ],
-            ].map((s) => (
-              <div key={s[0]}>
-                <b>{s[0]}</b>
-                <h3>{s[1]}</h3>
-                <p>{s[2]}</p>
-              </div>
-            ))}
-          </div>
         </section>
       </main>
       <Footer />

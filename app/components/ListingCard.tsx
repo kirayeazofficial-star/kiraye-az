@@ -61,6 +61,18 @@ export default function ListingCard({
           ⌖ {item.city}
           {item.district ? `, ${item.district}` : ""}
         </p>
+        <div className="cardRentalFacts">
+          <span>
+            {item.deposit === 0
+              ? "Depozitsiz"
+              : item.deposit != null
+                ? `Depozit: ${money(item.deposit)} ₼`
+                : "Depoziti dəqiqləşdir"}
+          </span>
+          {(item.min_days ?? 1) > 1 && <span>Ən azı {item.min_days} gün</span>}
+          {!!item.rooms && <span>{item.rooms} otaq</span>}
+          {!!item.area_m2 && <span>{item.area_m2} m²</span>}
+        </div>
         <div className="cardMeta">
           <span>{categoryName(item.category)}</span>
           <span>

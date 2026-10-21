@@ -437,6 +437,43 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         </select>
                       </label>
                     </div>
+                    <h3 className="formSubheading">Məzmun</h3>
+                    <label>
+                      Elanın başlığı <span className="requiredMark">*</span>
+                      <input
+                        aria-label="Elanın başlığı"
+                        name="title"
+                        value={title}
+                        onChange={(event) => {
+                          setTitle(event.target.value);
+                          manualTitle.current = !!event.target.value;
+                        }}
+                        required
+                        minLength={10}
+                        maxLength={120}
+                        placeholder={listingExamples[category]?.title}
+                      />
+                    </label>
+                    <label>
+                      Ətraflı təsvir <span className="requiredMark">*</span>
+                      <textarea
+                        aria-label="Ətraflı təsvir"
+                        name="description"
+                        value={descriptionText}
+                        onChange={(event) =>
+                          setDescriptionText(event.target.value)
+                        }
+                        required
+                        minLength={30}
+                        maxLength={5000}
+                        rows={5}
+                        placeholder={listingExamples[category]?.description}
+                      />
+                      <small className="descriptionCounter">
+                        {5000 - descriptionText.length} simvol qalıb · ən azı 30
+                        simvol
+                      </small>
+                    </label>
                     <details
                       className="optionalRentalTerms"
                       open={
@@ -508,43 +545,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         arasında dəqiqləşdirilir.
                       </p>
                     </details>
-                    <h3 className="formSubheading">Məzmun</h3>
-                    <label>
-                      Elanın başlığı <span className="requiredMark">*</span>
-                      <input
-                        aria-label="Elanın başlığı"
-                        name="title"
-                        value={title}
-                        onChange={(event) => {
-                          setTitle(event.target.value);
-                          manualTitle.current = !!event.target.value;
-                        }}
-                        required
-                        minLength={10}
-                        maxLength={120}
-                        placeholder={listingExamples[category]?.title}
-                      />
-                    </label>
-                    <label>
-                      Ətraflı təsvir <span className="requiredMark">*</span>
-                      <textarea
-                        aria-label="Ətraflı təsvir"
-                        name="description"
-                        value={descriptionText}
-                        onChange={(event) =>
-                          setDescriptionText(event.target.value)
-                        }
-                        required
-                        minLength={30}
-                        maxLength={5000}
-                        rows={5}
-                        placeholder={listingExamples[category]?.description}
-                      />
-                      <small className="descriptionCounter">
-                        {5000 - descriptionText.length} simvol qalıb · ən azı 30
-                        simvol
-                      </small>
-                    </label>
                     <h2 id="listing-photos">
                       02 <span>Şəkillər</span>
                     </h2>

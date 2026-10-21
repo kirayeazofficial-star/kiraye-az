@@ -3298,3 +3298,68 @@ footer {
     padding: 12px;
   }
 }
+
+/* Rental discovery: category, location and period before optional details. */
+#kiraye-axtaris {
+  scroll-margin-top: 24px;
+}
+.rentalSearchHint {
+  color: #596a85;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+.activeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+.filterChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #dce1ee;
+  background: white;
+  color: #243955;
+  border-radius: 24px;
+  padding: 8px 12px;
+  font-size: 12px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.filterChip span {
+  font-size: 18px;
+}
+.filterChip:hover {
+  border-color: #ff784d;
+  background: #fff4ee;
+}
+.cardRentalFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+.cardRentalFacts span {
+  font-size: 11px;
+  line-height: 1.5;
+  background: #f2f5fa;
+  color: #425470;
+  padding: 3px 7px;
+  border-radius: 5px;
+}
+.listingInfo > .contactActions {
+  margin: 18px 0;
+}
+@media (max-width: 600px) {
+  .listingInfo > .contactActions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .filterChip {
+    min-height: 40px;
+  }
+}

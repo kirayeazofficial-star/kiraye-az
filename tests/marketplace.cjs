@@ -45,6 +45,46 @@ const { chromium } = require(
       assert.equal(await page.locator(".listingCard").count(), 2);
       await page.getByRole("button", { name: "Filtrləri təmizlə" }).click();
     });
+    await check(
+      "individual filter removal preserves the remaining search",
+      async () => {
+        await page
+          .getByLabel("Şəhər", { exact: true })
+          .selectOption("Sumqayıt");
+        await page
+          .getByLabel("Kirayə müddəti", { exact: true })
+          .selectOption("daily");
+        await page
+          .getByRole("button", {
+            name: "Günlük kirayə filtrini sil",
+            exact: true,
+          })
+          .click();
+        assert.equal(
+          await page.getByLabel("Şəhər", { exact: true }).inputValue(),
+          "Sumqayıt",
+        );
+        assert.equal(
+          await page.getByLabel("Kirayə müddəti", { exact: true }).inputValue(),
+          "",
+        );
+        await page
+          .getByRole("button", { name: "Ev və mənzil elanlarına bax" })
+          .click();
+        await page
+          .getByRole("button", { name: "Bütün kateqoriyalar →", exact: true })
+          .click();
+        assert.equal(
+          await page.getByLabel("Şəhər", { exact: true }).inputValue(),
+          "Sumqayıt",
+        );
+        await page
+          .getByRole("button", { name: "Sumqayıt filtrini sil", exact: true })
+          .click();
+        assert.equal(await page.locator(".listingCard").count(), 6);
+        assert.equal(await page.locator(".activeFilters").count(), 0);
+      },
+    );
     await check("text search and reset", async () => {
       await page.getByLabel("Elan axtar", { exact: true }).fill("Hyundai");
       assert.equal(await page.locator(".listingCard").count(), 1);

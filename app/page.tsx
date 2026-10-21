@@ -297,6 +297,33 @@ export default function Home() {
     setFrom("");
     setUntil("");
   }
+  const activeFilters = [
+    category && {
+      label: categoryName(category),
+      clear: () => changeCategory(""),
+    },
+    query && { label: `Axtarış: ${query}`, clear: () => setQuery("") },
+    city && { label: city, clear: () => setCity("") },
+    period && {
+      label: period === "daily" ? "Günlük kirayə" : "Aylıq kirayə",
+      clear: () => setPeriod(""),
+    },
+    min && { label: `Ən azı ${min} ₼`, clear: () => setMin("") },
+    max && { label: `Ən çox ${max} ₼`, clear: () => setMax("") },
+    rooms && { label: `${rooms} otaq`, clear: () => setRooms("") },
+    area && { label: `Ən azı ${area} m²`, clear: () => setArea("") },
+    brand && { label: brand, clear: () => setBrand("") },
+    gearbox && { label: gearbox, clear: () => setGearbox("") },
+    noDeposit && { label: "Depozitsiz", clear: () => setNoDeposit(false) },
+    from && { label: `Başlanğıc: ${from}`, clear: () => setFrom("") },
+    until && { label: `Son tarix: ${until}`, clear: () => setUntil("") },
+    onlyFavorites && {
+      label: "Yalnız seçilmişlər",
+      clear: () => setOnlyFavorites(false),
+    },
+  ].filter(
+    (filter): filter is { label: string; clear: () => void } => !!filter,
+  );
   return (
     <>
       <Header />
@@ -313,7 +340,40 @@ export default function Home() {
             Elan yerləşdir →
           </Link>
         </section>
-        <div className="searchWrap">
+        <section className="wrap categorySection">
+          <div className="sectionTitle">
+            <div>
+              <p className="eyebrow">HƏR EHTİYACA BİR SEÇİM</p>
+              <h2>Nə kirayələmək istəyirsən?</h2>
+            </div>
+            <button className="textButton" onClick={() => changeCategory("")}>
+              Bütün kateqoriyalar →
+            </button>
+          </div>
+          <div className="categories">
+            {categories.map((c) => (
+              <button
+                key={c.id}
+                aria-label={`${c.name} elanlarına bax`}
+                className={category === c.id ? "active" : ""}
+                aria-pressed={category === c.id}
+                onClick={() => {
+                  changeCategory(c.id === category ? "" : c.id);
+                  document
+                    .getElementById("kiraye-axtaris")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                <span className="categoryIcon">
+                  <CategoryIcon id={c.id} />
+                </span>
+                <strong>{c.name}</strong>
+                <small>Elanlara bax →</small>
+              </button>
+            ))}
+          </div>
+        </section>
+        <div className="searchWrap" id="kiraye-axtaris">
           <form
             className="searchPanel"
             onSubmit={(e) => {
@@ -360,38 +420,6 @@ export default function Home() {
             <button className="add">Elanları axtar →</button>
           </form>
         </div>
-        <section className="wrap categorySection">
-          <div className="sectionTitle">
-            <div>
-              <p className="eyebrow">HƏR EHTİYACA BİR SEÇİM</p>
-              <h2>Nə kirayələmək istəyirsən?</h2>
-            </div>
-            <button className="textButton" onClick={reset}>
-              Bütün kateqoriyalar →
-            </button>
-          </div>
-          <div className="categories">
-            {categories.map((c) => (
-              <button
-                key={c.id}
-                aria-label={`${c.name} elanlarına bax`}
-                className={category === c.id ? "active" : ""}
-                onClick={() => {
-                  changeCategory(c.id === category ? "" : c.id);
-                  document
-                    .getElementById("elanlar")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                <span className="categoryIcon">
-                  <CategoryIcon id={c.id} />
-                </span>
-                <strong>{c.name}</strong>
-                <small>Elanlara bax →</small>
-              </button>
-            ))}
-          </div>
-        </section>
         <section className="wrap listingSection" id="elanlar">
           <div className="sectionTitle">
             <div>
@@ -403,7 +431,7 @@ export default function Home() {
                     ? categoryName(category)
                     : "Kirayə elanları"}
               </h2>
-              <p className="muted">
+              <p className="muted" role="status" aria-live="polite">
                 {loading
                   ? "Elanlar yüklənir..."
                   : `${demo ? filtered.length : total} ${demo ? "nümunə " : ""}elan tapıldı`}
@@ -476,6 +504,28 @@ export default function Home() {
               Filtrləri təmizlə
             </button>
           </div>
+          <p className="rentalSearchHint">
+            {period === "daily"
+              ? "Qiymətlər bir günlük kirayə üçündür."
+              : period === "monthly"
+                ? "Qiymətlər bir aylıq kirayə üçündür."
+                : "Günlük və aylıq qiymətləri ayrıca müqayisə etmək üçün kirayə müddətini seç."}
+          </p>
+          {activeFilters.length > 0 && (
+            <div className="activeFilters" aria-label="Seçilmiş filtrlər">
+              {activeFilters.map((filter) => (
+                <button
+                  key={filter.label}
+                  className="filterChip"
+                  onClick={filter.clear}
+                  aria-label={`${filter.label} filtrini sil`}
+                >
+                  {filter.label}
+                  <span aria-hidden="true">×</span>
+                </button>
+              ))}
+            </div>
+          )}
           {advanced && (
             <div className="advancedFilters">
               <label>

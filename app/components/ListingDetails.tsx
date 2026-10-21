@@ -144,6 +144,27 @@ export default function ListingDetails({
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
+        {phone && !item.demo ? (
+          <div className="contactActions">
+            <a className="add" href={`tel:${phone}`}>
+              Zəng et · {item.contact}
+            </a>
+            <a
+              className="secondary"
+              href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, kirayeal.az saytındakı “${item.title}” elanınızla maraqlanıram.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp
+            </a>
+          </div>
+        ) : (
+          <p className="notice">
+            {item.demo
+              ? "Nümunə elandır, real kirayə təklifi deyil."
+              : "Əlaqə nömrəsi düzgün göstərilməyib."}
+          </p>
+        )}
         <div className="detailTools">
           <button
             className="secondary"
@@ -161,6 +182,15 @@ export default function ListingDetails({
             </Link>
           )}
         </div>
+        <h3>Elan haqqında</h3>
+        <p className="description">{item.description}</p>
+        {!!item.attributes?.amenities?.length && (
+          <div className="amenityTags">
+            {item.attributes.amenities.map((a) => (
+              <span key={a}>✓ {a}</span>
+            ))}
+          </div>
+        )}
         <dl className="detailSpecs">
           {item.rooms && (
             <div>
@@ -231,36 +261,6 @@ export default function ListingDetails({
           </p>
         )}
         <RentalEstimator key={item.id} item={item} />
-        <h3>Elan haqqında</h3>
-        <p className="description">{item.description}</p>
-        {!!item.attributes?.amenities?.length && (
-          <div className="amenityTags">
-            {item.attributes.amenities.map((a) => (
-              <span key={a}>✓ {a}</span>
-            ))}
-          </div>
-        )}
-        {phone && !item.demo ? (
-          <div className="contactActions">
-            <a className="add" href={`tel:${phone}`}>
-              Zəng et · {item.contact}
-            </a>
-            <a
-              className="secondary"
-              href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, kirayeal.az saytındakı “${item.title}” elanınızla maraqlanıram.`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              WhatsApp
-            </a>
-          </div>
-        ) : (
-          <p className="notice">
-            {item.demo
-              ? "Nümunə elandır, real kirayə təklifi deyil."
-              : "Əlaqə nömrəsi düzgün göstərilməyib."}
-          </p>
-        )}
         <p className="safetyNote">
           Əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini
           yazılı razılaşdır. Platforma hazırda ödəniş qəbul etmir.

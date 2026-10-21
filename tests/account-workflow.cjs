@@ -522,6 +522,32 @@ const { chromium } = require("playwright");
             .getByLabel("Rəng", { exact: true })
             .selectOption("Qırmızı");
           await page
+            .getByText("Əlavə kirayə şərtləri", { exact: false })
+            .click();
+          await page.getByLabel("Depozit (₼)", { exact: true }).fill("45");
+          await page
+            .getByLabel("Təhvil / çatdırılma", { exact: true })
+            .selectOption("Hər ikisi");
+          await page
+            .getByLabel("Çatdırılma haqqı (₼)", { exact: true })
+            .fill("8.50");
+          await page
+            .getByLabel("Qaytarılma və ləğv şərtləri", { exact: true })
+            .fill("Təmiz və saz vəziyyətdə qaytarılmalıdır.");
+          if (category === "car") {
+            await page
+              .getByLabel("Sürücünün minimum yaşı", { exact: true })
+              .fill("25");
+            await page
+              .getByLabel("Günlük yürüş limiti (km)", { exact: true })
+              .fill("200");
+          } else {
+            await page
+              .getByLabel("Dəstə daxildir", { exact: true })
+              .fill("Dəbilqə və kilid");
+          }
+
+          await page
             .getByLabel("Elanın başlığı", { exact: true })
             .fill("Test üçün gündəlik kirayə nəqliyyat vasitəsi");
           await page.getByLabel("Şəhər", { exact: true }).selectOption("Qusar");
@@ -557,6 +583,13 @@ const { chromium } = require("playwright");
           assert.equal(inserted.area_m2, null);
           assert.equal(inserted.attributes.color, "Qırmızı");
           assert.equal(inserted.city, "Qusar");
+          assert.equal(inserted.deposit, 45);
+          assert.equal(inserted.attributes.delivery_method, "Hər ikisi");
+          assert.equal(inserted.attributes.delivery_fee, "8.50");
+          assert.equal(
+            inserted.attributes.return_terms,
+            "Təmiz və saz vəziyyətdə qaytarılmalıdır.",
+          );
           if (category === "car") {
             assert.equal(inserted.attributes.brand, "Toyota");
             assert.equal(inserted.attributes.model, "Corolla");
@@ -622,6 +655,29 @@ const { chromium } = require("playwright");
         await specs.getByText("Qırmızı", { exact: true }).waitFor();
         await specs.getByText("26 düym", { exact: true }).waitFor();
         await specs.getByText("Dağ", { exact: true }).waitFor();
+        const estimator = page.getByRole("region", {
+          name: "Kirayə xərcini hesabla",
+        });
+        await estimator
+          .getByLabel("Götürmə tarixi", { exact: true })
+          .fill("2050-10-22");
+        await estimator
+          .getByLabel("Qaytarma tarixi", { exact: true })
+          .fill("2050-10-25");
+        await estimator.getByText("120 ₼", { exact: true }).waitFor();
+        await estimator
+          .getByLabel("Çatdırılma istəyirəm", { exact: true })
+          .check();
+        await estimator.getByText(/128[,.]5 ₼/).waitFor();
+        const message = new URL(
+          await estimator
+            .getByRole("link", { name: "Tarixləri WhatsApp-la soruş" })
+            .getAttribute("href"),
+        ).searchParams.get("text");
+        assert(message.includes("22.10.2050–25.10.2050"));
+        assert(message.includes("3 gün"));
+        assert(message.includes("Çatdırılma istəyirəm"));
+
         assert.equal(
           await page.evaluate(
             () => document.documentElement.scrollWidth > innerWidth,

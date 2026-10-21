@@ -600,7 +600,7 @@ export default function Home() {
           <div>
             <p className="eyebrow">İSTİFADƏ ETMƏDİYİN ƏŞYA GƏLİRİN OLSUN</p>
             <h2>Səndə var, başqasına lazımdır.</h2>
-            <p>Elanını yerləşdir, kirayə vermək istəyənlərlə əlaqə qur.</p>
+            <p>Elanını yerləşdir, kirayə götürmək istəyənlərlə əlaqə qur.</p>
           </div>
           <Link href="/new" className="add">
             İlk elanını yerləşdir →

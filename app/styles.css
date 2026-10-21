@@ -3213,3 +3213,88 @@ footer {
   outline: 2px solid #50658a;
   outline-offset: 3px;
 }
+
+.rentalEstimator {
+  border: 1px solid #dde3ed;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 24px 0;
+  background: #f8faff;
+}
+.rentalEstimator h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+.estimateFields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+.estimateFields label {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 0;
+}
+.estimateFields input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  margin-top: 8px;
+  font-size: 16px;
+}
+.estimateDelivery {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.estimateResult dl {
+  margin: 18px 0;
+}
+.estimateResult dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 10px 0;
+}
+.estimateResult dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+.estimateTotal {
+  padding-top: 12px;
+  border-top: 1px solid #dde3ed;
+  font-size: 17px;
+}
+.estimateNote {
+  color: #657086;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 14px 0 0;
+}
+.detailSpecs dd {
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.rentalTermsFields {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+@media (max-width: 480px) {
+  .rentalEstimator {
+    padding: 16px;
+  }
+  .estimateFields {
+    grid-template-columns: 1fr;
+  }
+  .estimateResult .add {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    padding: 12px;
+  }
+}

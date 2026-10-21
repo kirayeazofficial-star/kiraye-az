@@ -119,6 +119,14 @@ export type Listing = {
   available_until?: string | null;
   rejection_reason?: string | null;
   attributes?: {
+    delivery_method?: string;
+    delivery_fee?: string;
+    included_items?: string;
+    return_terms?: string;
+    utilities?: string;
+    min_driver_age?: string;
+    license_years?: string;
+    included_km_day?: string;
     body_type?: string;
     drivetrain?: string;
     mileage_km?: string;
@@ -154,8 +162,15 @@ export const statusName = (id: string) =>
     archived: "Arxivdə",
     draft: "Qaralama",
   })[id] ?? id;
-export const money = (price: number) =>
-  new Intl.NumberFormat("az-AZ", { maximumFractionDigits: 2 }).format(price);
+// Keep SSR and browser output identical even when a browser lacks az-AZ ICU data.
+export const money = (price: number) => {
+  const value = Number(price);
+  if (!Number.isFinite(value)) return "—";
+  const [whole, decimal] = Math.abs(value).toFixed(2).split(".");
+  const fraction = decimal?.replace(/0+$/, "");
+  return `${value < 0 ? "−" : ""}${whole.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0")}${fraction ? `,${fraction}` : ""}`;
+};
+
 export const photo = (id: string) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1000&q=80`;
 export const examples: Listing[] = [

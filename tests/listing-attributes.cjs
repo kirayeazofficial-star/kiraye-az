@@ -101,4 +101,53 @@ check("public attributes never include email or account secrets", () => {
   assert.equal(data.password, undefined);
   assert.equal(data.contact_name, "Owner");
 });
-console.log("9 listing specification checks passed");
+check(
+  "delivery fee follows delivery selection and rejects negative charges",
+  () => {
+    assert.equal(
+      read(
+        "equipment",
+        form({ delivery_method: "Özün götür", delivery_fee: "20" }),
+      ).delivery_fee,
+      undefined,
+    );
+    assert(
+      validate(
+        "equipment",
+        read(
+          "equipment",
+          form({ delivery_method: "Çatdırılma", delivery_fee: "-1" }),
+        ),
+      ),
+    );
+  },
+);
+check("rental requirements stay in the relevant category", () => {
+  const car = read(
+    "car",
+    form({
+      ...base,
+      min_driver_age: "25",
+      license_years: "2",
+      included_km_day: "200",
+      return_terms: "Written terms",
+    }),
+  );
+  assert.equal(car.min_driver_age, "25");
+  assert.equal(validate("car", car), null);
+  const bicycle = read(
+    "bicycle",
+    form({
+      brand: "Trek",
+      model: "Marlin",
+      min_driver_age: "25",
+      utilities: "Qiymətə daxildir",
+      included_items: "Helmet",
+      return_terms: "Return clean",
+    }),
+  );
+  assert.equal(bicycle.min_driver_age, undefined);
+  assert.equal(bicycle.utilities, undefined);
+  assert.equal(bicycle.included_items, "Helmet");
+});
+console.log("11 listing specification checks passed");

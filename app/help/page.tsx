@@ -23,6 +23,14 @@ export default function Help() {
               "Elan səhifəsində zəng və ya WhatsApp düyməsi ilə sahibinə müraciət et. Tarix, depozit, qaytarılma və zərərə görə məsuliyyəti yazılı dəqiqləşdir.",
             ],
             [
+              "Kirayə xərcini necə hesablayım?",
+              "Elan səhifəsində götürmə və qaytarma tarixlərini seç. Günlük qiymət gün sayına, aylıq qiymət təqvim aylarının sayına vurulur. Depozit ayrıca göstərilir. Çatdırılma təklif edilirsə, seçə bilərsən. Haqqı yazılmayıbsa, sahibindən dəqiqləşdir. Kommunal və digər əlavə xərcləri də ayrıca razılaşdır.",
+            ],
+            [
+              "Tarix seçmək rezervasiya yaradır?",
+              "Xeyr. Hesablama və WhatsApp müraciəti tarixləri tutmur. Mövcudluğu və son qiyməti elan sahibi təsdiqləməlidir. Depozitin qaytarılması, gecikmə, zərər və ləğv şərtlərini əvvəlcədən yazılı razılaşdır.",
+            ],
+            [
               "Saytda ödəniş edə bilərəm?",
               "Hazırda platforma ödəniş və rezervasiya qəbul etmir. Elan sahibi ilə birbaşa razılaşırsan. Əmlakı görmədən beh göndərmə.",
             ],

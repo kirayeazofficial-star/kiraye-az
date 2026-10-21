@@ -133,6 +133,14 @@ export const colors = [
   "Digər",
 ];
 export const extraAttributeLabels = {
+  delivery_method: "Təhvil / çatdırılma",
+  delivery_fee: "Çatdırılma haqqı (₼)",
+  included_items: "Dəstə daxildir",
+  return_terms: "Qaytarılma və ləğv şərtləri",
+  utilities: "Kommunal xərclər",
+  min_driver_age: "Sürücünün minimum yaşı",
+  license_years: "Tələb olunan sürücülük stajı (il)",
+  included_km_day: "Günlük yürüş limiti (km)",
   body_type: "Kuzov növü",
   drivetrain: "Ötürücü növü",
   mileage_km: "Yürüş (km)",

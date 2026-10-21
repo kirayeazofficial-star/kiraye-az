@@ -101,7 +101,13 @@ const { chromium } = require(
         ),
         true,
       );
-      await page.getByRole("link", { name: "Ayrıca səhifədə aç →" }).focus();
+      await page
+        .getByRole("dialog")
+        .locator(
+          "button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])",
+        )
+        .last()
+        .focus();
       await page.keyboard.press("Tab");
       assert.equal(
         await page.evaluate(() =>
@@ -200,7 +206,10 @@ const { chromium } = require(
           })
           .waitFor();
         assert.match(await page.title(), /Hyundai/);
-        await page.getByText("100 ₼", { exact: true }).waitFor();
+        await page
+          .locator(".detailSpecs")
+          .getByText("100 ₼", { exact: true })
+          .waitFor();
         await page.getByRole("button", { name: "Keçidi paylaş" }).click();
         await page.getByRole("status").waitFor();
       },
@@ -244,6 +253,59 @@ const { chromium } = require(
       .getByText("Hazırda nümunə elanlara baxırsınız.", { exact: false })
       .waitFor();
     await page.screenshot({ path: "/tmp/kiraye-desktop.png", fullPage: true });
+    await check(
+      "daily and monthly rental estimates work on mobile without creating a booking",
+      async () => {
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.goto(`${base}/listings/example-0`);
+        let estimator = page.getByRole("region", {
+          name: "Kirayə xərcini hesabla",
+        });
+        await estimator
+          .getByLabel("Götürmə tarixi", { exact: true })
+          .fill("2050-10-22");
+        await estimator
+          .getByLabel("Qaytarma tarixi", { exact: true })
+          .fill("2050-10-25");
+        assert.equal(
+          await estimator.locator(".estimateTotal dd").innerText(),
+          "135 ₼",
+        );
+        assert.equal(
+          await estimator
+            .getByRole("link", { name: "Tarixləri WhatsApp-la soruş" })
+            .count(),
+          0,
+        );
+        await estimator.screenshot({
+          path: "/tmp/kirayeal-rental-estimate.png",
+        });
+        await page.goto(`${base}/listings/example-3`);
+        estimator = page.getByRole("region", {
+          name: "Kirayə xərcini hesabla",
+        });
+        await estimator
+          .getByLabel("Götürmə tarixi", { exact: true })
+          .fill("2050-01-31");
+        await estimator.getByLabel("Ay sayı", { exact: true }).fill("1");
+        await estimator
+          .getByText("Qaytarma: 28.02.2050", { exact: true })
+          .waitFor();
+        assert.equal(
+          (await estimator.locator(".estimateTotal dd").innerText()).replace(
+            /\D/g,
+            "",
+          ),
+          "1200",
+        );
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+        );
+      },
+    );
     await check("no uncaught browser errors", async () =>
       assert.deepEqual(errors, []),
     );

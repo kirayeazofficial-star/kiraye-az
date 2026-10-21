@@ -14,8 +14,18 @@ export function readListingAttributes(
       "drivetrain",
       "is_new",
       "mileage_km",
+      "min_driver_age",
+      "license_years",
+      "included_km_day",
     ],
-    motorcycle: [...vehicle, "engine_cc", "gearbox"],
+    motorcycle: [
+      ...vehicle,
+      "engine_cc",
+      "gearbox",
+      "min_driver_age",
+      "license_years",
+      "included_km_day",
+    ],
     bicycle: [...vehicle, "kind", "frame_size", "wheel_size"],
     equipment: ["kind", "brand", "model", "condition"],
     event: ["kind", "condition", "capacity"],
@@ -24,10 +34,19 @@ export function readListingAttributes(
     commercial: ["kind"],
   };
   const attributes: NonNullable<Listing["attributes"]> = Object.fromEntries(
-    [...(keys[category] || []), "contact_name"]
+    [
+      ...(keys[category] || []),
+      "contact_name",
+      "return_terms",
+      ...(["property", "villa", "commercial"].includes(category)
+        ? ["utilities"]
+        : ["delivery_method", "delivery_fee", "included_items"]),
+    ]
       .filter((key) => form.has(key) && String(form.get(key)).trim())
       .map((key) => [key, String(form.get(key)).trim()]),
   );
+  if (!["Çatdırılma", "Hər ikisi"].includes(attributes.delivery_method || ""))
+    delete attributes.delivery_fee;
   if (category === "car" && attributes.fuel === "Elektrik")
     delete attributes.engine_cc;
   if (category === "property" && attributes.kind !== "Mənzil") {
@@ -78,7 +97,17 @@ export function validateListingAttributes(
       attributes.year > new Date().getFullYear() + 1)
   )
     return "Buraxılış ilini düzgün seçin.";
+  if (
+    attributes.delivery_fee !== undefined &&
+    (!Number.isFinite(Number(attributes.delivery_fee)) ||
+      Number(attributes.delivery_fee) < 0 ||
+      Number(attributes.delivery_fee) > 1000000)
+  )
+    return "Çatdırılma haqqını düzgün yazın.";
   for (const [key, min, max] of [
+    ["min_driver_age", 18, 100],
+    ["license_years", 0, 80],
+    ["included_km_day", 1, 5000],
     ["engine_cc", 1, 20000],
     ["mileage_km", 0, 10000000],
     ["capacity", 1, 100000],
@@ -92,7 +121,7 @@ export function validateListingAttributes(
         Number(value) < min ||
         Number(value) > max)
     )
-      return "Mühərrik, yürüş, tutum və mərtəbə məlumatlarını düzgün yazın.";
+      return "Mühərrik, yürüş, yaş, staj, tutum və mərtəbə məlumatlarını düzgün yazın.";
   }
   if (
     attributes.floor &&

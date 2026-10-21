@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { listingExamples } from "../../lib/listing-form-options";
 import ListingCategoryFields from "./ListingCategoryFields";
+import RentalTermsFields from "./RentalTermsFields";
 import {
   readListingAttributes,
   validateListingAttributes,
@@ -493,6 +494,15 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           />
                         </label>
                       </div>
+                      <RentalTermsFields
+                        key={category}
+                        category={category}
+                        attributes={
+                          initial?.category === category
+                            ? initial.attributes
+                            : undefined
+                        }
+                      />
                       <p className="muted">
                         Tarixlər rezervasiya yaratmır. Kirayə şərtləri tərəflər
                         arasında dəqiqləşdirilir.

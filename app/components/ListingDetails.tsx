@@ -2,6 +2,7 @@
 import { extraAttributeLabels } from "../../lib/listing-form-options";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import RentalEstimator from "./RentalEstimator";
 import {
   Listing,
   categoryName,
@@ -229,6 +230,7 @@ export default function ListingDetails({
             . Tarixi əlaqə saxlayaraq dəqiqləşdir.
           </p>
         )}
+        <RentalEstimator key={item.id} item={item} />
         <h3>Elan haqqında</h3>
         <p className="description">{item.description}</p>
         {!!item.attributes?.amenities?.length && (

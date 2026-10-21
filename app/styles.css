@@ -3154,10 +3154,62 @@ footer {
   color: #707c90;
   font-weight: 400;
 }
-.optionalRentalTerms[open] summary { margin-bottom: 20px; }
+.optionalRentalTerms[open] summary {
+  margin-bottom: 20px;
+}
 @media (max-width: 720px) {
-  .listingForm input, .listingForm select, .listingForm textarea {
+  .listingForm input,
+  .listingForm select,
+  .listingForm textarea {
     font-size: 16px;
     min-height: 44px;
   }
+}
+
+.listingForm .formReset {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.listingForm .requiredMark {
+  color: #c44e29;
+}
+.listingForm .formSubheading {
+  margin: 28px 0 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: 18px;
+}
+.listingForm .categoryFields {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: 100%;
+}
+.listingForm input[readonly] {
+  background: #f4f6fa;
+}
+@media (max-width: 480px) {
+  .listingForm .categoryFields .formGrid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+.listingForm .uploadZone {
+  position: relative;
+  cursor: pointer;
+}
+.listingForm .uploadZone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  cursor: pointer;
+}
+.listingForm .uploadZone:focus-within {
+  outline: 2px solid #50658a;
+  outline-offset: 3px;
 }

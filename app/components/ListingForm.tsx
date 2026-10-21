@@ -3,16 +3,14 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { listingExamples } from "../../lib/listing-form-options";
+import ListingCategoryFields from "./ListingCategoryFields";
 import {
-  carModels,
-  motorcycleModels,
-  bicycleModels,
-  colors,
-  listingExamples,
-} from "../../lib/listing-form-options";
+  readListingAttributes,
+  validateListingAttributes,
+} from "../../lib/listing-attributes";
 import { supabase } from "../../lib/supabase";
 import {
-  amenities,
   isProperty,
   normalizePhone,
   validateRentalDetails,
@@ -27,6 +25,27 @@ import {
 
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const submitLock = useRef(false);
+  const manualTitle = useRef(false);
+  const [title, setTitle] = useState("");
+  const [descriptionText, setDescriptionText] = useState("");
+  const [formVersion, setFormVersion] = useState(0);
+  const [contactName, setContactName] = useState("");
+  const [accountEmail, setAccountEmail] = useState("");
+  const [savedCity, setSavedCity] = useState("");
+  function suggestTitle(value: string) {
+    if (!manualTitle.current) setTitle(value.slice(0, 120));
+  }
+  function resetForm() {
+    setFormVersion((value) => value + 1);
+    setCategory(initial?.category || "");
+    setTitle(initial?.title || "");
+    setDescriptionText(initial?.description || "");
+    manualTitle.current = !!initial;
+    setFiles([]);
+    setExistingImages(initial?.images || []);
+    setPreview(null);
+    setError("");
+  }
   const formRef = useRef<HTMLFormElement>(null);
   const [preview, setPreview] = useState<{
     title: string;
@@ -68,6 +87,26 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       .then(async ({ data }) => {
         setUser(data.user?.id ?? "");
         setLoginPhone(data.user?.phone ?? "");
+        setAccountEmail(data.user?.email || "");
+        try {
+          const lastCity = localStorage.getItem("kiraye:last-city");
+          if (lastCity && cities.includes(lastCity)) setSavedCity(lastCity);
+        } catch {}
+        if (data.user && supabase) {
+          setContactName(data.user.user_metadata?.full_name || "");
+          try {
+            const profile = await supabase
+              .from("profiles")
+              .select("display_name,phone")
+              .eq("id", data.user.id)
+              .maybeSingle();
+            if (profile.data?.display_name)
+              setContactName(profile.data.display_name);
+            setLoginPhone(data.user.phone || profile.data?.phone || "");
+          } catch {
+            /* Optional contact defaults must not block loading an existing listing. */
+          }
+        }
         if (listingId && data.user && supabase) {
           const result = await supabase
             .from("listings")
@@ -83,6 +122,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             return;
           }
           setInitial(result.data as Listing);
+          setTitle(result.data.title);
+          setDescriptionText(result.data.description || "");
+          manualTitle.current = true;
           setCategory(result.data.category);
           setExistingImages(result.data.images ?? []);
         }
@@ -130,6 +172,12 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     const rentalError = validateRentalDetails(rental);
     if (rentalError) {
       setError(rentalError);
+      return;
+    }
+    const attributes = readListingAttributes(category, form);
+    const attributeError = validateListingAttributes(category, attributes);
+    if (attributeError) {
+      setError(attributeError);
       return;
     }
     if (files.length + existingImages.length > 6) {
@@ -197,30 +245,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           isProperty(category) && form.get("area_m2")
             ? Number(form.get("area_m2"))
             : null,
-        attributes: isProperty(category)
-          ? { amenities: form.getAll("amenities").map(String) }
-          : {
-              ...Object.fromEntries(
-                [
-                  "brand",
-                  "model",
-                  "color",
-                  "fuel",
-                  "engine_cc",
-                  "condition",
-                  "kind",
-                  "frame_size",
-                  "wheel_size",
-                  "capacity",
-                  "gearbox",
-                ]
-                  .filter(
-                    (key) => form.has(key) && String(form.get(key)).trim(),
-                  )
-                  .map((key) => [key, String(form.get(key)).trim()]),
-              ),
-              ...(form.get("year") ? { year: Number(form.get("year")) } : {}),
-            },
+        attributes,
       };
       const result = listingId
         ? await supabase
@@ -235,6 +260,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         throw new Error(
           "Elan göndərilmədi. Məlumatları yoxlayıb yenidən cəhd edin.",
         );
+      try {
+        localStorage.setItem("kiraye:last-city", String(form.get("city")));
+      } catch {}
       saved = true;
       setSuccess(true);
     } catch (err) {
@@ -310,7 +338,16 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                 if (preview) updatePreview();
               }}
             >
-              <fieldset disabled={busy}>
+              <fieldset disabled={busy} key={formVersion}>
+                <div className="formReset">
+                  <button
+                    type="button"
+                    className="textButton"
+                    onClick={resetForm}
+                  >
+                    Sıfırla
+                  </button>
+                </div>
                 <nav className="publishSteps" aria-label="Elan bölmələri">
                   <a href="#listing-info">1. Məlumatlar</a>
                   <a href="#listing-photos">2. Şəkillər</a>
@@ -320,12 +357,15 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                   01 <span>Elanın məlumatları</span>
                 </h2>
                 <label>
-                  Kateqoriya
+                  Kateqoriya <span className="requiredMark">*</span>
                   <select
                     aria-label="Kateqoriya"
                     required
                     value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+                    onChange={(e) => {
+                      setCategory(e.target.value);
+                      if (!manualTitle.current) setTitle("");
+                    }}
                   >
                     <option value="" disabled>
                       Kateqoriya seçin
@@ -344,24 +384,20 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                 )}
                 {category && (
                   <>
+                    <ListingCategoryFields
+                      key={category}
+                      category={category}
+                      initial={initial}
+                      suggest={suggestTitle}
+                    />
+                    <h3 className="formSubheading">Şəhər və qiymət</h3>
                     <label>
-                      Elanın başlığı
-                      <input
-                        name="title"
-                        defaultValue={initial?.title}
-                        required
-                        minLength={10}
-                        maxLength={120}
-                        placeholder={listingExamples[category]?.title}
-                      />
-                    </label>
-                    <label>
-                      Şəhər
+                      Şəhər <span className="requiredMark">*</span>
                       <select
                         aria-label="Şəhər"
                         name="city"
                         required
-                        defaultValue={initial?.city || ""}
+                        defaultValue={initial?.city || savedCity || ""}
                       >
                         <option value="" disabled>
                           Şəhər seçin
@@ -376,8 +412,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     </label>
                     <div className="formGrid">
                       <label>
-                        Qiymət (₼)
+                        Qiymət (₼) <span className="requiredMark">*</span>
                         <input
+                          aria-label="Qiymət (₼)"
                           name="price"
                           defaultValue={initial?.price}
                           required
@@ -399,86 +436,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         </select>
                       </label>
                     </div>
-                    {isProperty(category) && (
-                      <div className="formGrid" key={`property-${category}`}>
-                        {category !== "commercial" && (
-                          <label>
-                            Otaq sayı
-                            <input
-                              name="rooms"
-                              defaultValue={
-                                initial?.category === category
-                                  ? initial.rooms
-                                  : undefined
-                              }
-                              type="number"
-                              min="1"
-                              max="100"
-                            />
-                          </label>
-                        )}
-                        <label>
-                          Sahə (m²)
-                          <input
-                            name="area_m2"
-                            defaultValue={
-                              initial?.category === category
-                                ? initial.area_m2
-                                : undefined
-                            }
-                            type="number"
-                            min="1"
-                            max="1000000"
-                          />
-                        </label>
-                      </div>
-                    )}
-                    {["car", "motorcycle", "bicycle"].includes(category) && (
-                      <VehicleFields
-                        key={category}
-                        category={category}
-                        attributes={
-                          initial?.category === category
-                            ? initial.attributes
-                            : undefined
-                        }
-                      />
-                    )}
-                    {["equipment", "event"].includes(category) && (
-                      <ItemFields
-                        key={category}
-                        category={category}
-                        attributes={
-                          initial?.category === category
-                            ? initial.attributes
-                            : undefined
-                        }
-                      />
-                    )}
-                    {isProperty(category) && (
-                      <div
-                        className="amenitiesField"
-                        key={`amenities-${category}`}
-                      >
-                        <p>İmkanlar</p>
-                        {(category === "commercial"
-                          ? amenities.filter((item) => item !== "Hovuz")
-                          : amenities
-                        ).map((a) => (
-                          <label className="checkLabel" key={a}>
-                            <input
-                              type="checkbox"
-                              name="amenities"
-                              value={a}
-                              defaultChecked={initial?.attributes?.amenities?.includes(
-                                a,
-                              )}
-                            />
-                            <span>{a}</span>
-                          </label>
-                        ))}
-                      </div>
-                    )}
                     <details
                       className="optionalRentalTerms"
                       open={
@@ -541,17 +498,42 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         arasında dəqiqləşdirilir.
                       </p>
                     </details>
+                    <h3 className="formSubheading">Məzmun</h3>
                     <label>
-                      Ətraflı təsvir
+                      Elanın başlığı <span className="requiredMark">*</span>
+                      <input
+                        aria-label="Elanın başlığı"
+                        name="title"
+                        value={title}
+                        onChange={(event) => {
+                          setTitle(event.target.value);
+                          manualTitle.current = !!event.target.value;
+                        }}
+                        required
+                        minLength={10}
+                        maxLength={120}
+                        placeholder={listingExamples[category]?.title}
+                      />
+                    </label>
+                    <label>
+                      Ətraflı təsvir <span className="requiredMark">*</span>
                       <textarea
+                        aria-label="Ətraflı təsvir"
                         name="description"
-                        defaultValue={initial?.description}
+                        value={descriptionText}
+                        onChange={(event) =>
+                          setDescriptionText(event.target.value)
+                        }
                         required
                         minLength={30}
                         maxLength={5000}
                         rows={5}
                         placeholder={listingExamples[category]?.description}
                       />
+                      <small className="descriptionCounter">
+                        {5000 - descriptionText.length} simvol qalıb · ən azı 30
+                        simvol
+                      </small>
                     </label>
                     <h2 id="listing-photos">
                       02 <span>Şəkillər</span>
@@ -663,7 +645,34 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       03 <span>Əlaqə</span>
                     </h2>
                     <label>
-                      Telefon nömrəsi
+                      Adınız
+                      <input
+                        name="contact_name"
+                        maxLength={80}
+                        autoComplete="name"
+                        defaultValue={
+                          initial?.attributes?.contact_name || contactName
+                        }
+                      />
+                    </label>
+                    {accountEmail && (
+                      <label>
+                        E-poçt
+                        <input
+                          type="email"
+                          aria-label="E-poçt"
+                          value={accountEmail}
+                          readOnly
+                          autoComplete="email"
+                        />
+                        <small>
+                          Hesabına bağlı ünvan. E-poçtun elanda açıq
+                          göstərilmir.
+                        </small>
+                      </label>
+                    )}
+                    <label>
+                      Telefon nömrəsi <span className="requiredMark">*</span>
                       <input
                         name="contact"
                         defaultValue={initial?.contact || loginPhone}
@@ -755,302 +764,5 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       </main>
       <Footer />
     </>
-  );
-}
-
-function VehicleFields({
-  category,
-  attributes,
-}: {
-  category: string;
-  attributes?: Listing["attributes"];
-}) {
-  const [brand, setBrand] = useState(attributes?.brand || "");
-  const [model, setModel] = useState(attributes?.model || "");
-  const models =
-    category === "car"
-      ? carModels
-      : category === "bicycle"
-        ? bicycleModels
-        : motorcycleModels;
-  const matchedBrand = Object.keys(models).find(
-    (item) => item.toLocaleLowerCase() === brand.trim().toLocaleLowerCase(),
-  );
-  return (
-    <div className="vehicleFields">
-      <div className="formGrid">
-        <label>
-          Marka
-          <input
-            aria-label="Marka"
-            name="brand"
-            list="vehicle-brands"
-            autoComplete="off"
-            maxLength={40}
-            value={brand}
-            onChange={(event) => {
-              setBrand(event.target.value);
-              setModel("");
-            }}
-            placeholder="Seç və ya markanı yaz"
-          />
-          <datalist id="vehicle-brands">
-            {Object.keys(models).map((item) => (
-              <option key={item} value={item} />
-            ))}
-          </datalist>
-        </label>
-        <label>
-          Model
-          <input
-            aria-label="Model"
-            name="model"
-            list="vehicle-models"
-            autoComplete="off"
-            maxLength={60}
-            value={model}
-            onChange={(event) => setModel(event.target.value)}
-            placeholder={brand ? "Seç və ya modeli yaz" : "Əvvəl markanı yaz"}
-            disabled={!brand.trim()}
-          />
-          <datalist id="vehicle-models">
-            {(matchedBrand ? models[matchedBrand] : []).map((item) => (
-              <option key={item} value={item} />
-            ))}
-          </datalist>
-        </label>
-      </div>
-      {category !== "bicycle" && (
-        <div className="formGrid">
-          <label>
-            Buraxılış ili
-            <input
-              name="year"
-              type="number"
-              min="1950"
-              max={new Date().getFullYear() + 1}
-              defaultValue={attributes?.year}
-            />
-          </label>
-          <OptionField
-            name="gearbox"
-            label="Sürətlər qutusu"
-            options={["Avtomat", "Mexaniki"]}
-            value={attributes?.gearbox}
-          />
-        </div>
-      )}
-      <div className="formGrid">
-        <OptionField
-          name="color"
-          label="Rəng"
-          options={colors}
-          value={attributes?.color}
-        />
-        <OptionField
-          name="condition"
-          label="Vəziyyət"
-          options={["Əla", "Yaxşı", "Qənaətbəxş"]}
-          value={attributes?.condition}
-        />
-      </div>
-      {category === "car" && (
-        <div className="formGrid">
-          <OptionField
-            name="fuel"
-            label="Yanacaq növü"
-            options={[
-              "Benzin",
-              "Dizel",
-              "Hibrid",
-              "Plug-in hibrid",
-              "Elektrik",
-              "Qaz",
-            ]}
-            value={attributes?.fuel}
-          />
-          <label>
-            Mühərrik həcmi (sm³)
-            <input
-              name="engine_cc"
-              type="number"
-              min="1"
-              max="20000"
-              defaultValue={attributes?.engine_cc}
-              placeholder="Məsələn: 1600"
-            />
-          </label>
-        </div>
-      )}
-      {category === "motorcycle" && (
-        <label>
-          Mühərrik həcmi (sm³)
-          <input
-            name="engine_cc"
-            type="number"
-            min="1"
-            max="10000"
-            defaultValue={attributes?.engine_cc}
-            placeholder="Məsələn: 150"
-          />
-        </label>
-      )}
-      {category === "bicycle" && (
-        <>
-          <OptionField
-            name="kind"
-            label="Velosiped növü"
-            options={[
-              "Dağ",
-              "Şəhər",
-              "Şosse",
-              "BMX",
-              "Elektrikli",
-              "Qatlanan",
-              "Uşaq",
-              "Digər",
-            ]}
-            value={attributes?.kind}
-          />
-          <div className="formGrid">
-            <OptionField
-              name="frame_size"
-              label="Çərçivə ölçüsü"
-              options={["XS", "S", "M", "L", "XL", "XXL", "Uşaq", "Digər"]}
-              value={attributes?.frame_size}
-            />
-            <OptionField
-              name="wheel_size"
-              label="Təkər ölçüsü"
-              options={[
-                "12 düym",
-                "14 düym",
-                "16 düym",
-                "18 düym",
-                "20 düym",
-                "24 düym",
-                "26 düym",
-                "27.5 düym",
-                "28 düym",
-                "29 düym",
-                "Digər",
-              ]}
-              value={attributes?.wheel_size}
-            />
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function OptionField({
-  name,
-  label,
-  options,
-  value,
-}: {
-  name: string;
-  label: string;
-  options: string[];
-  value?: string;
-}) {
-  return (
-    <label>
-      {label}
-      <select aria-label={label} name={name} defaultValue={value || ""}>
-        <option value="">Seçin</option>
-        {value && !options.includes(value) && <option>{value}</option>}
-        {options.map((option) => (
-          <option key={option}>{option}</option>
-        ))}
-      </select>
-    </label>
-  );
-}
-
-function ItemFields({
-  category,
-  attributes,
-}: {
-  category: string;
-  attributes?: Listing["attributes"];
-}) {
-  return (
-    <div>
-      <OptionField
-        name="kind"
-        label={
-          category === "equipment"
-            ? "Avadanlığın növü"
-            : "Tədbir üçün nə təklif edirsən?"
-        }
-        options={
-          category === "equipment"
-            ? [
-                "Tikinti alətləri",
-                "Foto və video",
-                "Səs və işıq",
-                "Təmizlik avadanlığı",
-                "Bağ avadanlığı",
-                "Kompüter və elektronika",
-                "Digər",
-              ]
-            : [
-                "Səs və işıq",
-                "Masa və stul",
-                "Çadır",
-                "Dekorasiya",
-                "Qab-qacaq",
-                "Tədbir avadanlığı",
-                "Digər",
-              ]
-        }
-        value={attributes?.kind}
-      />
-      {category === "equipment" && (
-        <div className="formGrid">
-          <label>
-            Marka
-            <input
-              aria-label="Marka"
-              name="brand"
-              maxLength={40}
-              defaultValue={attributes?.brand}
-              placeholder="Məsələn: Bosch, Canon"
-            />
-          </label>
-          <label>
-            Model
-            <input
-              aria-label="Model"
-              name="model"
-              maxLength={60}
-              defaultValue={attributes?.model}
-              placeholder="Modeli yaz"
-            />
-          </label>
-        </div>
-      )}
-      <OptionField
-        name="condition"
-        label="Vəziyyət"
-        options={["Əla", "Yaxşı", "Qənaətbəxş"]}
-        value={attributes?.condition}
-      />
-      {category === "event" && (
-        <label>
-          Nəfər sayı
-          <input
-            name="capacity"
-            type="number"
-            min="1"
-            max="100000"
-            defaultValue={attributes?.capacity}
-            placeholder="Uyğundursa, neçə nəfər üçün"
-          />
-        </label>
-      )}
-    </div>
   );
 }

@@ -240,37 +240,46 @@ const { chromium } = require("playwright");
         const brand = page.getByLabel("Marka", { exact: true });
         const model = page.getByLabel("Model", { exact: true });
         assert.equal(await model.isDisabled(), true);
-        await brand.fill("Hyundai");
-        await model.fill("Elantra");
+        await brand.selectOption("Hyundai");
+        await model.selectOption("Elantra");
         assert(
-          (await page.locator("#vehicle-models").innerHTML()).includes(
-            "Elantra",
-          ),
+          (await model.locator("option").allTextContents()).includes("Elantra"),
         );
-        await brand.fill("Toyota");
+        assert.equal(
+          await page.getByLabel("Elanın başlığı", { exact: true }).inputValue(),
+          "Hyundai Elantra kirayəsi",
+        );
+        await page
+          .getByLabel("Elanın başlığı", { exact: true })
+          .fill("Öz başlığım saxlanmalıdır");
+        await brand.selectOption("Toyota");
         assert.equal(await model.inputValue(), "");
+        assert.equal(
+          await page.getByLabel("Elanın başlığı", { exact: true }).inputValue(),
+          "Öz başlığım saxlanmalıdır",
+        );
         assert(
-          !(await page.locator("#vehicle-models").innerHTML()).includes(
+          !(await model.locator("option").allTextContents()).includes(
             "Elantra",
           ),
         );
         await category.selectOption("motorcycle");
         assert.equal(await brand.inputValue(), "");
-        await brand.fill("Yamaha");
+        await brand.selectOption("Yamaha");
         assert(
-          (await page.locator("#vehicle-models").innerHTML()).includes("NMAX"),
+          (await model.locator("option").allTextContents()).includes("NMAX"),
         );
         await category.selectOption("bicycle");
         assert(
-          (await page.locator("#vehicle-brands").innerHTML()).includes("Trek"),
+          (await brand.locator("option").allTextContents()).includes("Trek"),
         );
         assert(
-          !(await page.locator("#vehicle-brands").innerHTML()).includes(
+          !(await brand.locator("option").allTextContents()).includes(
             "Hyundai",
           ),
         );
-        await brand.fill("Trek");
-        await model.fill("Marlin");
+        await brand.selectOption("Trek");
+        await model.selectOption("Marlin");
         await page
           .getByLabel("Velosiped növü", { exact: true })
           .selectOption("Dağ");
@@ -279,8 +288,86 @@ const { chromium } = require("playwright");
           0,
         );
         await category.selectOption("equipment");
+        await page
+          .getByLabel("Avadanlığın növü", { exact: true })
+          .selectOption("Foto və video");
+        await brand.selectOption("Canon");
+        await model.selectOption("EOS R5");
+        await page
+          .getByLabel("Avadanlığın növü", { exact: true })
+          .selectOption("Tikinti alətləri");
+        assert.equal(await brand.inputValue(), "");
+        assert(
+          (await brand.locator("option").allTextContents()).includes("Bosch"),
+        );
+        assert(
+          !(await brand.locator("option").allTextContents()).includes("Canon"),
+        );
+        await category.selectOption("property");
+        await page
+          .getByLabel("Əmlakın növü", { exact: true })
+          .selectOption("Mənzil");
+        await page.getByLabel("Mərtəbə", { exact: true }).fill("5");
+        await page
+          .getByLabel("Əmlakın növü", { exact: true })
+          .selectOption("Həyət evi");
+        assert.equal(
+          await page.getByLabel("Mərtəbə", { exact: true }).count(),
+          0,
+        );
         await category.selectOption("car");
         assert.equal(await brand.inputValue(), "");
+        await brand.selectOption("__other__");
+        await page
+          .getByLabel("Digər marka", { exact: true })
+          .fill("Test marka");
+        await model.selectOption("__other__");
+        await page
+          .getByLabel("Digər model", { exact: true })
+          .fill("Test model");
+        assert.equal(
+          await page.locator('input[name="brand"]').inputValue(),
+          "Test marka",
+        );
+        await page
+          .getByRole("button", { name: "Sıfırla", exact: true })
+          .click();
+        assert.equal(await category.inputValue(), "");
+        assert.equal(
+          await page.getByLabel("Elanın başlığı", { exact: true }).count(),
+          0,
+        );
+        await category.selectOption("car");
+        await brand.selectOption("Toyota");
+        await model.selectOption("Corolla");
+        await page
+          .getByLabel("Yanacaq növü", { exact: true })
+          .selectOption("Elektrik");
+        assert.equal(
+          await page.getByLabel("Mühərrik, sm³", { exact: true }).count(),
+          0,
+        );
+        await page
+          .getByLabel("Yeni / işlənmiş", { exact: true })
+          .selectOption("Yeni");
+        assert.equal(
+          await page.getByLabel("Yürüş, km", { exact: true }).inputValue(),
+          "0",
+        );
+        assert.equal(
+          await page
+            .getByLabel("Yürüş, km", { exact: true })
+            .getAttribute("readonly"),
+          "",
+        );
+        assert.equal(
+          await page.getByLabel("Adınız", { exact: true }).inputValue(),
+          "Test user",
+        );
+        assert.equal(
+          await page.getByLabel("E-poçt", { exact: true }).inputValue(),
+          user.email,
+        );
         await page.setViewportSize({ width: 390, height: 844 });
         assert.equal(
           await page.evaluate(
@@ -373,7 +460,10 @@ const { chromium } = require("playwright");
         assert.equal(inserted.images.length, 2);
         assert.equal(inserted.contact, "+994501234567");
         assert.equal(inserted.city, "Mingəçevir");
-        assert.deepEqual(inserted.attributes, { amenities: [] });
+        assert.deepEqual(inserted.attributes, {
+          amenities: [],
+          contact_name: "Test user",
+        });
         assert.equal(inserted.district, "");
       },
     );
@@ -385,20 +475,42 @@ const { chromium } = require("playwright");
           await page
             .getByLabel("Kateqoriya", { exact: true })
             .selectOption("car");
-          await page.getByLabel("Marka", { exact: true }).fill("Toyota");
-          await page.getByLabel("Model", { exact: true }).fill("Corolla");
+          await page
+            .getByLabel("Marka", { exact: true })
+            .selectOption("Toyota");
+          await page
+            .getByLabel("Model", { exact: true })
+            .selectOption("Corolla");
           await page
             .getByLabel("Yanacaq növü", { exact: true })
             .selectOption("Benzin");
           await page
             .getByLabel("Sürətlər qutusu", { exact: true })
             .selectOption("Avtomat");
+          await page.getByLabel("Mühərrik, sm³", { exact: true }).fill("1600");
+          await page
+            .getByLabel("Kuzov növü", { exact: true })
+            .selectOption("Sedan");
+          await page
+            .getByLabel("Ötürücü növü", { exact: true })
+            .selectOption("Ön");
+          await page
+            .getByLabel("Buraxılış ili", { exact: true })
+            .selectOption("2022");
+          await page
+            .getByLabel("Yeni / işlənmiş", { exact: true })
+            .selectOption("İşlənmiş");
+          await page.getByLabel("Yürüş, km", { exact: true }).fill("85000");
           if (category === "bicycle") {
             await page
               .getByLabel("Kateqoriya", { exact: true })
               .selectOption("bicycle");
-            await page.getByLabel("Marka", { exact: true }).fill("Trek");
-            await page.getByLabel("Model", { exact: true }).fill("Marlin");
+            await page
+              .getByLabel("Marka", { exact: true })
+              .selectOption("Trek");
+            await page
+              .getByLabel("Model", { exact: true })
+              .selectOption("Marlin");
             await page
               .getByLabel("Velosiped növü", { exact: true })
               .selectOption("Dağ");
@@ -450,6 +562,9 @@ const { chromium } = require("playwright");
             assert.equal(inserted.attributes.model, "Corolla");
             assert.equal(inserted.attributes.fuel, "Benzin");
             assert.equal(inserted.attributes.gearbox, "Avtomat");
+            assert.equal(inserted.attributes.body_type, "Sedan");
+            assert.equal(inserted.attributes.drivetrain, "Ön");
+            assert.equal(inserted.attributes.mileage_km, "85000");
             assert.equal(inserted.attributes.wheel_size, undefined);
           } else {
             assert.equal(inserted.attributes.brand, "Trek");

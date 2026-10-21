@@ -119,6 +119,15 @@ export type Listing = {
   available_until?: string | null;
   rejection_reason?: string | null;
   attributes?: {
+    body_type?: string;
+    drivetrain?: string;
+    mileage_km?: string;
+    is_new?: string;
+    building_type?: string;
+    repair?: string;
+    floor?: string;
+    total_floors?: string;
+    contact_name?: string;
     color?: string;
     fuel?: string;
     engine_cc?: string;

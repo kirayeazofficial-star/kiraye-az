@@ -17,6 +17,7 @@ function load(path, modules = {}) {
 }
 const { applyCatalogFilters, PAGE_SIZE } = load("lib/catalog.ts", {
   "./supabase": { supabase: null },
+  "./rental-details": load("lib/rental-details.ts"),
 });
 const { authErrorMessage, safeLoginDestination } = load("lib/auth-messages.ts");
 let checks = 0;
@@ -92,6 +93,50 @@ test("favorites scope sent to the database", () => {
   const r = calls({ favorites: ["test-id"] }).find((c) => c[0] === "in");
   assert.equal(r[1], "id");
   assert.equal(r[2][0], "test-id");
+});
+test("car search ignores stale property filters", () => {
+  const log = calls({
+    category: "car",
+    rooms: "2",
+    area: "80",
+    brand: "Hyundai",
+    gearbox: "Avtomat",
+  });
+  assert.ok(!log.some((c) => ["rooms", "area_m2"].includes(c[1])));
+  assert.ok(log.some((c) => c[1] === "attributes->>brand"));
+  assert.ok(log.some((c) => c[1] === "attributes->>gearbox"));
+});
+test("property search ignores stale vehicle filters", () => {
+  const log = calls({
+    category: "property",
+    rooms: "2",
+    area: "80",
+    brand: "Hyundai",
+    gearbox: "Avtomat",
+  });
+  assert.ok(log.some((c) => c[1] === "rooms"));
+  assert.ok(log.some((c) => c[1] === "area_m2"));
+  assert.ok(!log.some((c) => String(c[1]).startsWith("attributes->>")));
+});
+test("all categories ignores category-specific filters", () => {
+  const log = calls({
+    rooms: "2",
+    area: "80",
+    brand: "Hyundai",
+    gearbox: "Avtomat",
+    noDeposit: true,
+  });
+  assert.ok(
+    !log.some((c) =>
+      [
+        "rooms",
+        "area_m2",
+        "attributes->>brand",
+        "attributes->>gearbox",
+      ].includes(c[1]),
+    ),
+  );
+  assert.ok(log.some((c) => c[1] === "deposit"));
 });
 test("email confirmation errors offer a recovery action", () =>
   assert.match(authErrorMessage({ code: "email_not_confirmed" }), /təsdiq/));

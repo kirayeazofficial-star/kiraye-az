@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 import type { Listing } from "./marketplace";
-import type { RentalFilters } from "./rental-details";
+import { scopeRentalFilters, type RentalFilters } from "./rental-details";
 export const PAGE_SIZE = 18;
 export type CatalogQuery = RentalFilters & {
   category: string;
@@ -24,6 +24,7 @@ const date = (value: string) =>
     ? value
     : null;
 export function applyCatalogFilters<T>(builder: T, input: CatalogQuery): T {
+  input = { ...input, ...scopeRentalFilters(input.category, input) };
   // Fixed field names and stripped PostgREST punctuation prevent query expression injection.
   let q = builder as any;
   q = q.eq("status", "published");

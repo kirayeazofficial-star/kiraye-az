@@ -3,7 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { searchCatalog, PAGE_SIZE } from "../lib/catalog";
 import { supabase } from "../lib/supabase";
-import { matchesRentalFilters } from "../lib/rental-details";
+import { matchesRentalFilters, isProperty } from "../lib/rental-details";
+import {
+  carModels,
+  motorcycleModels,
+  bicycleModels,
+  equipmentModels,
+} from "../lib/listing-form-options";
 import ListingDetails from "./components/ListingDetails";
 import CategoryIcon from "./components/CategoryIcon";
 import Header from "./components/Header";
@@ -248,6 +254,33 @@ export default function Home() {
       setNotice("Seçilmişləri bu brauzerdə saxlamaq mümkün olmadı.");
     }
   }
+  const brandOptions = Object.keys(
+    category === "car"
+      ? carModels
+      : category === "motorcycle"
+        ? motorcycleModels
+        : category === "bicycle"
+          ? bicycleModels
+          : {},
+  );
+  if (category === "equipment") {
+    brandOptions.push(
+      ...Array.from(
+        new Set(
+          Object.values(equipmentModels).flatMap((brands) =>
+            Object.keys(brands),
+          ),
+        ),
+      ),
+    );
+  }
+  function changeCategory(value: string) {
+    setCategory(value);
+    setRooms("");
+    setArea("");
+    setBrand("");
+    setGearbox("");
+  }
   function reset() {
     setCategory("");
     setCity("");
@@ -272,7 +305,9 @@ export default function Home() {
           <div>
             <p>Azərbaycan üzrə kirayə elanları</p>
             <h1>Kirayə elanları</h1>
-            <span>Ev, avtomobil və avadanlıq — günlük və aylıq kirayə təklifləri.</span>
+            <span>
+              Ev, avtomobil və avadanlıq — günlük və aylıq kirayə təklifləri.
+            </span>
           </div>
           <Link className="introAction" href="/new">
             Elan yerləşdir →
@@ -342,7 +377,7 @@ export default function Home() {
                 aria-label={`${c.name} elanlarına bax`}
                 className={category === c.id ? "active" : ""}
                 onClick={() => {
-                  setCategory(c.id === category ? "" : c.id);
+                  changeCategory(c.id === category ? "" : c.id);
                   document
                     .getElementById("elanlar")
                     ?.scrollIntoView({ behavior: "smooth" });
@@ -444,50 +479,87 @@ export default function Home() {
           {advanced && (
             <div className="advancedFilters">
               <label>
-                Otaq sayı
+                Kateqoriya
                 <select
-                  aria-label="Otaq sayı"
-                  value={rooms}
-                  onChange={(e) => setRooms(e.target.value)}
+                  aria-label="Filtr kateqoriyası"
+                  value={category}
+                  onChange={(e) => changeCategory(e.target.value)}
                 >
-                  <option value="">İstənilən</option>
-                  <option value="1">1 otaq</option>
-                  <option value="2">2 otaq</option>
-                  <option value="3">3 otaq</option>
-                  <option value="4+">4 və daha çox</option>
+                  <option value="">Bütün kateqoriyalar</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
               </label>
-              <label>
-                Minimum sahə (m²)
-                <input
-                  aria-label="Minimum sahə"
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                  type="number"
-                  min="0"
-                />
-              </label>
-              <label>
-                Avtomobil markası
-                <input
-                  aria-label="Avtomobil markası"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  placeholder="Hyundai"
-                />
-              </label>
-              <label>
-                Sürətlər qutusu
-                <select
-                  aria-label="Sürətlər qutusu"
-                  value={gearbox}
-                  onChange={(e) => setGearbox(e.target.value)}
-                >
-                  <option value="">İstənilən</option>
-                  <option>Avtomat</option>
-                  <option>Mexaniki</option>
-                </select>
-              </label>
+              {["property", "villa"].includes(category) && (
+                <label>
+                  Otaq sayı
+                  <select
+                    aria-label="Otaq sayı"
+                    value={rooms}
+                    onChange={(e) => setRooms(e.target.value)}
+                  >
+                    <option value="">İstənilən</option>
+                    <option value="1">1 otaq</option>
+                    <option value="2">2 otaq</option>
+                    <option value="3">3 otaq</option>
+                    <option value="4+">4 və daha çox</option>
+                  </select>
+                </label>
+              )}
+              {isProperty(category) && (
+                <label>
+                  Minimum sahə (m²)
+                  <input
+                    aria-label="Minimum sahə"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    type="number"
+                    min="0"
+                  />
+                </label>
+              )}
+              {brandOptions.length > 0 && (
+                <label>
+                  {category === "car"
+                    ? "Avtomobil markası"
+                    : category === "bicycle"
+                      ? "Velosiped markası"
+                      : category === "motorcycle"
+                        ? "Motosiklet markası"
+                        : "Avadanlıq markası"}
+                  <select
+                    aria-label={
+                      category === "car" ? "Avtomobil markası" : "Marka"
+                    }
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                  >
+                    <option value="">İstənilən</option>
+                    {brandOptions.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              {["car", "motorcycle"].includes(category) && (
+                <label>
+                  Sürətlər qutusu
+                  <select
+                    aria-label="Sürətlər qutusu"
+                    value={gearbox}
+                    onChange={(e) => setGearbox(e.target.value)}
+                  >
+                    <option value="">İstənilən</option>
+                    <option>Avtomat</option>
+                    <option>Mexaniki</option>
+                  </select>
+                </label>
+              )}
               <label>
                 Başlanğıc tarixi
                 <input

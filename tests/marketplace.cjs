@@ -62,18 +62,43 @@ const { chromium } = require(
       );
     });
     await check(
-      "detailed filters select property size and vehicle brand",
+      "category filters stay relevant and reset on category changes",
       async () => {
         await page
           .getByRole("button", { name: "Ətraflı filtrlər", exact: true })
           .click();
+        assert.equal(
+          await page.getByLabel("Otaq sayı", { exact: true }).count(),
+          0,
+        );
+        assert.equal(
+          await page.getByLabel("Avtomobil markası", { exact: true }).count(),
+          0,
+        );
+        await page.getByLabel("Filtr kateqoriyası").selectOption("property");
         await page.getByLabel("Otaq sayı", { exact: true }).selectOption("2");
         assert.equal(await page.locator(".listingCard").count(), 1);
-        await page.getByRole("button", { name: "Filtrləri təmizlə" }).click();
+        await page.getByLabel("Filtr kateqoriyası").selectOption("car");
+        assert.equal(
+          await page.getByLabel("Otaq sayı", { exact: true }).count(),
+          0,
+        );
+        assert.equal(await page.getByLabel("Minimum sahə").count(), 0);
         await page
           .getByLabel("Avtomobil markası", { exact: true })
-          .fill("HYUNDAI");
+          .selectOption("Hyundai");
         assert.equal(await page.locator(".listingCard").count(), 1);
+        await page.getByLabel("Filtr kateqoriyası").selectOption("bicycle");
+        assert.equal(
+          await page.getByLabel("Marka", { exact: true }).inputValue(),
+          "",
+        );
+        assert.equal(await page.getByLabel("Sürətlər qutusu").count(), 0);
+        await page.getByLabel("Filtr kateqoriyası").selectOption("property");
+        assert.equal(
+          await page.getByLabel("Otaq sayı", { exact: true }).inputValue(),
+          "",
+        );
         await page.getByRole("button", { name: "Filtrləri təmizlə" }).click();
       },
     );

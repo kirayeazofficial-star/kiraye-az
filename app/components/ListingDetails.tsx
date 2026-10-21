@@ -234,7 +234,7 @@ export default function ListingDetails({
             </a>
             <a
               className="secondary"
-              href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, kiraye.az saytındakı “${item.title}” elanınızla maraqlanıram.`)}`}
+              href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, kirayeal.az saytındakı “${item.title}” elanınızla maraqlanıram.`)}`}
               target="_blank"
               rel="noopener noreferrer"
             >

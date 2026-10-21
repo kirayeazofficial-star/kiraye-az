@@ -4,7 +4,7 @@ export default function Footer() {
     <footer>
       <div>
         <Link href="/" className="logo">
-          kiraye<span>.az</span>
+          kirayeal<span>.az</span>
         </Link>
         <p>Ehtiyacın olanı almalı deyilsən.</p>
       </div>
@@ -14,7 +14,7 @@ export default function Footer() {
         <Link href="/rules">Qaydalar və təhlükəsizlik</Link>
         <Link href="/help">Kömək</Link>
         <Link href="/privacy">Məxfilik</Link>
-        <small>© {new Date().getFullYear()} kiraye.az</small>
+        <small>© {new Date().getFullYear()} kirayeal.az</small>
       </div>
     </footer>
   );

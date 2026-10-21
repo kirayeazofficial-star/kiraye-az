@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./styles.css";
 
 export const metadata: Metadata = {
-  title: "kiraye.az — Kirayə elanları",
+  title: "kirayeal.az — Kirayə elanları",
   description: "Ev, avtomobil və motosiklet kirayəsi üçün elan platforması.",
 };
 

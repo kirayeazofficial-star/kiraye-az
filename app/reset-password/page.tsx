@@ -80,7 +80,7 @@ export default function ResetPassword() {
     <main className="loginPage">
       <div className="authHeader">
         <Link className="logo" href="/">
-          kiraye<span>.az</span>
+          kirayeal<span>.az</span>
         </Link>
         <Link href="/help">Kömək</Link>
       </div>

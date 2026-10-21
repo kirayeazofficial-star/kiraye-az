@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { item } = await getPublicListing(id);
   return item
     ? {
-        title: `${item.title} — ${money(item.price)} ₼/${periodName(item.rental_period)} | kiraye.az`,
+        title: `${item.title} — ${money(item.price)} ₼/${periodName(item.rental_period)} | kirayeal.az`,
         description: `${item.city}. ${item.description.slice(0, 150)}`,
         alternates: { canonical: `${publicSiteUrl()}/listings/${item.id}` },
         robots: item.demo ? { index: false, follow: false } : undefined,
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             : [],
         },
       }
-    : { title: "Elan | kiraye.az", robots: { index: false } };
+    : { title: "Elan | kirayeal.az", robots: { index: false } };
 }
 export default async function ListingPage({ params }: Props) {
   const { id } = await params;

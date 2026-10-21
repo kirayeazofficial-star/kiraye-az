@@ -35,7 +35,7 @@ export default function AuthCallback() {
   return (
     <main className="loginPage">
       <Link className="logo" href="/">
-        kiraye<span>.az</span>
+        kirayeal<span>.az</span>
       </Link>
       <section>
         <div className="authEmblem">{error ? "!" : "✓"}</div>

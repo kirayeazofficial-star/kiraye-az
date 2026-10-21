@@ -30,7 +30,7 @@ export default function Header() {
       </div>
       <header className="header">
         <Link className="logo" href="/">
-          kiraye<span>.az</span>
+          kirayeal<span>.az</span>
           <small>KİRAYƏ ÜÇÜN BİR ÜNVAN</small>
         </Link>
         <nav aria-label="Əsas menyu">

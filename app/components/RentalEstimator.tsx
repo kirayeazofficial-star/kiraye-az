@@ -1,17 +1,37 @@
 "use client";
 import { useEffect, useState } from "react";
 import { type Listing, money } from "../../lib/marketplace";
+import DurationField from "./DurationField";
+import { minimumRentalLabel } from "../../lib/rental-details";
 import { normalizePhone } from "../../lib/rental-details";
 import {
   addRentalDays,
   calculateRental,
   minimumRentalEnd,
+  rentalMonthEnd,
+  validRentalDate,
 } from "../../lib/rental-estimate";
 export default function RentalEstimator({ item }: { item: Listing }) {
   const [today, setToday] = useState("");
   const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
-  const [months, setMonths] = useState("1");
+  const initialUnit =
+    item.attributes?.min_rental_unit === "month" ||
+    item.attributes?.min_rental_unit === "year" ||
+    item.rental_period === "monthly"
+      ? "month"
+      : "day";
+  const [durationUnit, setDurationUnit] = useState(initialUnit);
+  const [duration, setDuration] = useState(
+    String(
+      item.attributes?.min_rental_unit === "year"
+        ? Number(item.attributes.min_rental_value || 1) * 12
+        : item.attributes?.min_rental_unit === "month"
+          ? item.attributes.min_rental_value || 1
+          : initialUnit === "day"
+            ? item.min_days || 1
+            : 1,
+    ),
+  );
   const [delivery, setDelivery] = useState(false);
   useEffect(() => {
     const now = new Date();
@@ -22,7 +42,18 @@ export default function RentalEstimator({ item }: { item: Listing }) {
         : value;
     setToday(value);
     setStart(first);
-    setEnd(minimumRentalEnd(item, first));
+    if (
+      initialUnit === "month" &&
+      !["month", "year"].includes(item.attributes?.min_rental_unit || "")
+    ) {
+      let minimumMonths = 1;
+      while (
+        minimumMonths < 120 &&
+        rentalMonthEnd(first, minimumMonths) < minimumRentalEnd(item, first)
+      )
+        minimumMonths++;
+      setDuration(String(minimumMonths));
+    }
   }, [item.id, item.available_from, item.min_days]);
   const phone = normalizePhone(item.contact || "");
   const canDeliver = ["Çatdırılma", "Hər ikisi"].includes(
@@ -30,47 +61,56 @@ export default function RentalEstimator({ item }: { item: Listing }) {
   );
   const deliveryRequired = item.attributes?.delivery_method === "Çatdırılma";
   const includeDelivery = canDeliver && (deliveryRequired || delivery);
-  const quote = calculateRental(
-    item,
-    { start, end, months: Number(months), delivery: includeDelivery },
-    today,
-  );
+  const count = Number(duration);
+  const end =
+    validRentalDate(start) &&
+    Number.isInteger(count) &&
+    count > 0 &&
+    count <= (durationUnit === "month" ? 120 : 3650)
+      ? durationUnit === "month"
+        ? rentalMonthEnd(start, count)
+        : addRentalDays(start, count)
+      : "";
+  const quote =
+    !Number.isInteger(count) ||
+    count < 1 ||
+    count > (durationUnit === "month" ? 120 : 3650)
+      ? { error: "Müddəti yalnız rəqəmlə yaz: ən çox 3650 gün və ya 120 ay." }
+      : item.rental_period === "monthly" && durationUnit === "day"
+        ? {
+            error:
+              "Bu elanda yalnız aylıq qiymət göstərilib. Günlük kirayə qiymətini elan sahibi ilə dəqiqləşdir və ya ay seç.",
+          }
+        : calculateRental(
+            item,
+            { start, end, months: count, delivery: includeDelivery },
+            today,
+          );
   const dateLabel = (value: string) => value.split("-").reverse().join(".");
   const message =
     quote.error === null
-      ? `Salam, “${item.title}” elanını ${dateLabel(quote.start)}–${dateLabel(quote.end)} tarixləri üçün kirayələmək istəyirəm. ${quote.units} ${quote.monthly ? "ay" : "gün"}: ${money(quote.rental)} AZN, depozit: ${money(quote.deposit)} AZN.${includeDelivery ? ` Çatdırılma istəyirəm (${quote.delivery === null ? "qiyməti razılaşdıraq" : `${money(quote.delivery)} AZN`}).` : ""} Bu tarixlər uyğundur? Son qiymət və qaytarılma şərtlərini dəqiqləşdirək.`
+      ? `Salam, “${item.title}” elanını ${dateLabel(quote.start)}–${dateLabel(quote.end)} tarixləri üçün kirayələmək istəyirəm. ${duration} ${durationUnit === "month" ? "ay" : "gün"}${durationUnit === "month" && !quote.monthly ? ` (${quote.days} gün hesabı)` : ""}: ${money(quote.rental)} AZN, depozit: ${money(quote.deposit)} AZN.${includeDelivery ? ` Çatdırılma istəyirəm (${quote.delivery === null ? "qiyməti razılaşdıraq" : `${money(quote.delivery)} AZN`}).` : ""} Bu tarixlər uyğundur? Son qiymət və qaytarılma şərtlərini dəqiqləşdirək.`
       : "";
   return (
     <section className="rentalEstimator" aria-label="Kirayə xərcini hesabla">
       <h3>Kirayə xərcini hesabla</h3>
       <p className="estimateIntro">
-        Neçə {item.rental_period === "monthly" ? "ay" : "gün"} lazımdır? Müddəti
-        seç, məbləği gör.
+        Nə qədər müddətə lazımdır? Rəqəmi yaz, gün və ya ay seç.
       </p>
-      <div className="durationPresets" aria-label="Kirayə müddətini seç">
-        {(item.rental_period === "monthly"
-          ? [1, 2, 3, 4, 6, 12]
-          : [1, 2, 3, 4, 7, 14, 30]
-        ).map((count) => (
-          <button
-            key={count}
-            type="button"
-            aria-pressed={
-              item.rental_period === "monthly"
-                ? Number(months) === count
-                : quote.error === null && quote.units === count
-            }
-            onClick={() =>
-              item.rental_period === "monthly"
-                ? setMonths(String(count))
-                : setEnd(addRentalDays(start, count))
-            }
-          >
-            {count} {item.rental_period === "monthly" ? "ay" : "gün"}
-          </button>
-        ))}
-      </div>
+      <p className="minimumDurationNote">
+        Elan sahibinin minimum müddəti:{" "}
+        <strong>{minimumRentalLabel(item)}</strong>. Daha qısa müddəti sahibi
+        ilə razılaşdırmalısan.
+      </p>
       <div className="estimateFields">
+        <DurationField
+          label="Kirayə müddəti"
+          name="estimate_duration"
+          value={duration}
+          onValueChange={setDuration}
+          unit={durationUnit}
+          onUnitChange={setDurationUnit}
+        />
         <label>
           Götürmə tarixi
           <input
@@ -83,39 +123,18 @@ export default function RentalEstimator({ item }: { item: Listing }) {
                 : today || undefined
             }
             max={item.available_until || undefined}
-            onChange={(event) => {
-              setStart(event.target.value);
-              setEnd(minimumRentalEnd(item, event.target.value));
-            }}
+            onChange={(event) => setStart(event.target.value)}
           />
         </label>
-        {item.rental_period === "monthly" ? (
-          <label>
-            Ay sayı
-            <input
-              aria-label="Ay sayı"
-              type="number"
-              min="1"
-              max="120"
-              step="1"
-              value={months}
-              onChange={(event) => setMonths(event.target.value)}
-            />
-          </label>
-        ) : (
-          <label>
-            Qaytarma tarixi
-            <input
-              aria-label="Qaytarma tarixi"
-              type="date"
-              value={end}
-              min={minimumRentalEnd(item, start) || undefined}
-              max={item.available_until || undefined}
-              onChange={(event) => setEnd(event.target.value)}
-            />
-          </label>
-        )}
       </div>
+      {end && <p>Qaytarma: {dateLabel(end)}</p>}
+      {item.rental_period === "daily" && durationUnit === "month" && (
+        <p className="estimateNote">
+          Aylıq tarif göstərilməyib. Hesab seçilən ayların faktiki gün sayı ×{" "}
+          {money(item.price)} ₼ günlük qiymət əsasında aparılır; ayrıca aylıq
+          endirim daxil deyil.
+        </p>
+      )}
       {canDeliver && (
         <label className="estimateDelivery">
           <input
@@ -131,14 +150,33 @@ export default function RentalEstimator({ item }: { item: Listing }) {
       )}
       <div aria-live="polite" className="estimateResult">
         {quote.error !== null ? (
-          <p className="notice">{quote.error}</p>
+          <div>
+            <p className="notice">
+              {quote.error}{" "}
+              {end && end < minimumRentalEnd(item, start)
+                ? "Seçdiyin müddət bu elanın minimumundan qısadır."
+                : ""}
+            </p>
+            {phone && !item.demo && end && (
+              <a
+                className="secondary"
+                target="_blank"
+                rel="noopener noreferrer"
+                href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, “${item.title}” elanını ${duration} ${durationUnit === "month" ? "ay" : "gün"} müddətinə kirayə götürmək istəyirəm. Bu müddət mümkündürmü? Qiyməti və şərtləri dəqiqləşdirək.`)}`}
+              >
+                Seçilən müddəti sahibi ilə dəqiqləşdir
+              </a>
+            )}
+          </div>
         ) : (
           <>
-            {quote.monthly && <p>Qaytarma: {dateLabel(quote.end)}</p>}
             <dl>
               <div>
                 <dt>
-                  Kirayə · {quote.units} {quote.monthly ? "ay" : "gün"}
+                  Kirayə · {duration} {durationUnit === "month" ? "ay" : "gün"}
+                  {durationUnit === "month" && !quote.monthly
+                    ? ` (${quote.days} gün hesabı)`
+                    : ""}
                 </dt>
                 <dd>{money(quote.rental)} ₼</dd>
               </div>

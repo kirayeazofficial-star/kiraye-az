@@ -95,6 +95,9 @@ const { chromium } = require("playwright");
         await t.page
           .getByRole("link", { name: "Şifrəni unutmusunuz?", exact: true })
           .click();
+        await t.page
+          .getByRole("heading", { name: "Şifrəni yenilə", exact: true })
+          .waitFor();
         await t.page.getByLabel("E-poçt", { exact: true }).fill(user.email);
         await t.page
           .getByRole("button", { name: "6 rəqəmli kod göndər", exact: true })

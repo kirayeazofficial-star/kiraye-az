@@ -43,6 +43,15 @@ const { chromium } = require("playwright");
       };
       if (req.method() === "OPTIONS")
         return route.fulfill({ status: 204, headers });
+      if (req.method() === "HEAD" && path.includes("/rest/v1/listings"))
+        return route.fulfill({
+          status: 200,
+          headers: {
+            ...headers,
+            "content-range": "*/0",
+            "access-control-expose-headers": "content-range",
+          },
+        });
       calls.push({ path, params: Object.fromEntries(url.searchParams) });
       let body = {};
       if (path.endsWith("/settings"))
@@ -81,7 +90,7 @@ const { chromium } = require("playwright");
         const { ctx, page, calls } = await setup(false);
         await page.getByLabel("E-poçt", { exact: true }).waitFor();
         await page
-          .getByText("Bu xidmət hələ aktiv deyil.", { exact: true })
+          .getByText("Hazırda bu xidmət aktiv deyil.", { exact: true })
           .waitFor();
         assert.equal(
           await page

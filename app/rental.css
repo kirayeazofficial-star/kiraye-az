@@ -816,3 +816,66 @@ input[type="number"]::-webkit-outer-spin-button {
   width: 100%;
   max-width: 290px;
 }
+
+.currencyControl {
+  position: relative;
+}
+.currencyControl input {
+  padding-right: 45px;
+}
+.currencyControl > span {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #245547;
+  pointer-events: none;
+}
+.durationField {
+  min-width: 0;
+}
+.durationField > label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.durationControl {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dce6e0;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  min-width: 0;
+}
+.durationControl:focus-within {
+  outline: 2px solid #278561;
+  outline-offset: 2px;
+}
+.listingForm .durationControl input,
+.rentalEstimator .durationControl input {
+  flex: 1;
+  width: 0;
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  outline: none;
+  box-shadow: none;
+}
+.listingForm .durationControl select,
+.rentalEstimator .durationControl select {
+  width: 95px;
+  min-width: 80px;
+  border: 0;
+  border-left: 1px solid #dce6e0;
+  border-radius: 0;
+  margin: 0;
+  background: #f3f8f5;
+}
+.minimumDurationNote {
+  color: #426452;
+  font-size: 13px;
+  line-height: 1.6;
+}

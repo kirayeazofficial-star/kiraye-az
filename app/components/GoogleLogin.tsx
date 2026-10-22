@@ -8,7 +8,7 @@ import {
 } from "../../lib/auth-messages";
 export default function GoogleLogin() {
   const statusId = useId();
-  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   async function check() {
@@ -77,9 +77,7 @@ export default function GoogleLogin() {
       </button>
       {enabled !== true && (
         <p id={statusId} className="mailHelp" role="status">
-          {enabled === null
-            ? "Google girişinin vəziyyəti yoxlanılır..."
-            : "Bu xidmət hələ aktiv deyil."}
+          Hazırda bu xidmət aktiv deyil.
         </p>
       )}
       {notice && (

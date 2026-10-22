@@ -8,6 +8,7 @@ import {
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { listingExamples } from "../../lib/listing-form-options";
+import DurationField from "./DurationField";
 import ListingCategoryFields from "./ListingCategoryFields";
 
 import {
@@ -201,8 +202,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           min_days:
             Number(form.get("min_days") || 1) *
             ({ day: 1, month: 30, year: 365 }[minimumUnit] || 1),
-          available_from: String(form.get("available_from") || "") || null,
-          available_until: String(form.get("available_until") || "") || null,
+          available_from: initial?.available_from ?? null,
+          available_until: initial?.available_until ?? null,
         });
       if (message) {
         setError(message);
@@ -259,8 +260,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       min_days:
         Number(form.get("min_days") || 1) *
         ({ day: 1, month: 30, year: 365 }[minimumUnit] || 1),
-      available_from: String(form.get("available_from") || "") || null,
-      available_until: String(form.get("available_until") || "") || null,
+      available_from: initial?.available_from ?? null,
+      available_until: initial?.available_until ?? null,
     };
     const rentalError = validateRentalDetails(rental);
     if (rentalError) {
@@ -683,70 +684,35 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         <div className="formGrid">
                           <label>
                             Depozit (₼)
-                            <input
-                              name="deposit"
-                              type="number"
-                              min="0"
-                              max="1000000"
-                              step="0.01"
-                              defaultValue={initial?.deposit ?? 0}
-                            />
+                            <div className="currencyControl">
+                              <input
+                                aria-label="Depozit (₼)"
+                                name="deposit"
+                                type="number"
+                                min="0"
+                                max="1000000"
+                                step="0.01"
+                                defaultValue={initial?.deposit ?? 0}
+                              />
+                              <span aria-hidden="true">₼</span>
+                            </div>
                           </label>
-                          <label>
-                            Minimum kirayə müddəti
-                            <input
-                              name="min_days"
-                              type="text"
-                              inputMode="numeric"
-                              pattern="[0-9]+"
-                              maxLength={3}
-                              defaultValue={
-                                initial?.attributes?.min_rental_value ||
+                          <DurationField
+                            label="Minimum kirayə müddəti"
+                            name="min_days"
+                            initialValue={String(
+                              initial?.attributes?.min_rental_value ||
                                 initial?.min_days ||
-                                1
-                              }
-                            />
-                          </label>
-                          <label>
-                            Müddət vahidi
-                            <select
-                              name="min_rental_unit"
-                              value={minimumUnit}
-                              onChange={(event) =>
-                                setMinimumUnit(event.target.value)
-                              }
-                            >
-                              <option value="day">Gün</option>
-                              <option value="month">Ay</option>
-                              <option value="year">İl</option>
-                            </select>
-                            <small>
-                              Ən çox 365 gün / 12 ay / 1 il. Boş müddət 1
-                              sayılır.
-                            </small>
-                          </label>
-                        </div>
-                        <div className="formGrid">
-                          <label>
-                            Bu tarixdən mövcuddur (istəyə bağlı)
-                            <input
-                              name="available_from"
-                              type="date"
-                              defaultValue={initial?.available_from ?? ""}
-                            />
-                          </label>
-                          <label>
-                            Bu tarixədək mövcuddur (istəyə bağlı)
-                            <input
-                              name="available_until"
-                              type="date"
-                              defaultValue={initial?.available_until ?? ""}
-                            />
-                          </label>
+                                1,
+                            )}
+                            unit={minimumUnit}
+                            onUnitChange={setMinimumUnit}
+                            includeYear
+                          />
                         </div>
                         <p className="muted">
-                          Tarixlər rezervasiya yaratmır. Kirayə şərtləri
-                          tərəflər arasında dəqiqləşdirilir.
+                          Məsələn: 20 gün və ya 1 ay. Rəqəmi yaz, yanından
+                          vahidi seç. Ən çox 365 gün / 12 ay / 1 il.
                         </p>
                       </details>
                     </section>

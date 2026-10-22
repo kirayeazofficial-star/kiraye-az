@@ -160,6 +160,22 @@ const { chromium } = require("playwright");
           }))
           .catch(() => ({})),
       );
+      console.log(
+        "Auth form state",
+        await page
+          .locator(".authShell")
+          .evaluate((el) => ({
+            heading: el.querySelector("h1")?.textContent,
+            notice: el.querySelector(".notice")?.textContent,
+            invalid: Array.from(el.querySelectorAll("input"))
+              .filter((field) => !field.checkValidity())
+              .map((field) => field.name),
+            emailFilled: !!el.querySelector('[name="email"]')?.value,
+            passwordLength:
+              el.querySelector('[name="password"]')?.value?.length,
+          }))
+          .catch(() => null),
+      );
       await page.screenshot({
         path: "/tmp/kirayeal-posting-failure.png",
         fullPage: true,
@@ -362,6 +378,8 @@ const { chromium } = require("playwright");
         assert.equal(await page.locator('[name="city"]').inputValue(), "");
         await page.locator(".optionalRentalTerms summary").click();
         const minimum = page.locator('[name="min_days"]');
+        await minimum.fill("1 il");
+        assert.equal(await minimum.inputValue(), "1");
         await minimum.fill("30");
         await minimum.hover();
         await page.mouse.wheel(0, 100);
@@ -372,12 +390,7 @@ const { chromium } = require("playwright");
           await page.locator('[name="min_rental_unit"]').inputValue(),
           "month",
         );
-        assert.equal(
-          await page
-            .locator('[name="available_from"]')
-            .getAttribute("required"),
-          null,
-        );
+        assert.equal(await page.locator('[name="available_from"]').count(), 0);
         await page.screenshot({
           path: "/tmp/kirayeal-car-form.png",
           fullPage: true,
@@ -599,8 +612,11 @@ const { chromium } = require("playwright");
           .getByLabel("Götürmə tarixi", { exact: true })
           .fill("2030-04-01");
         await estimator
-          .getByRole("button", { name: "30 gün", exact: true })
-          .click();
+          .getByLabel("Hesablama müddətinin vahidi", { exact: true })
+          .selectOption("day");
+        await estimator
+          .getByLabel("Kirayə müddəti", { exact: true })
+          .fill("30");
         assert.equal(
           (await estimator.locator(".estimateTotal dd").innerText()).replace(
             /\D/g,

@@ -59,6 +59,15 @@ vm.runInNewContext(
       };
       if (req.method() === "OPTIONS")
         return route.fulfill({ status: 204, headers });
+      if (req.method() === "HEAD" && path.includes("/rest/v1/listings"))
+        return route.fulfill({
+          status: 200,
+          headers: {
+            ...headers,
+            "content-range": "*/0",
+            "access-control-expose-headers": "content-range",
+          },
+        });
       calls.push({ path, data: req.postData() ? req.postDataJSON() : null });
       let body = {},
         status = 200;
@@ -308,13 +317,10 @@ vm.runInNewContext(
           true,
         );
         await page.reload();
-        // Email is the default while no SMS provider has been configured.
+        // The signup URL now restores signup directly, including its cooldown.
         await page
-          .getByRole("link", {
-            name: "Hesabın yoxdur? Qeydiyyatdan keç",
-            exact: true,
-          })
-          .click();
+          .getByRole("heading", { name: "Hesab yarat", exact: true })
+          .waitFor();
         assert.equal(
           await page
             .getByRole("button", { name: "Hesab yarat", exact: true })
@@ -325,6 +331,10 @@ vm.runInNewContext(
         await page
           .getByRole("link", { name: "Hesabın var? Daxil ol", exact: true })
           .click();
+        await page.waitForFunction(() => {
+          const fields = document.querySelector(".authFields");
+          return fields && !fields.disabled;
+        });
         assert.equal(
           await page
             .getByRole("button", { name: "Daxil ol →", exact: true })

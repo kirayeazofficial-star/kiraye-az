@@ -4,8 +4,10 @@ const packages = [
   { title: "Premium", icon: "👑", kind: "premium", description: "VIP üstünlükləri, hər gün irəli çəkmə və xidmət müddətində əsas səhifənin Premium bölməsində göstərilmə.", plans: ["1 gün — 5 AZN", "5 gün — 15 AZN", "15 gün — 30 AZN", "30 gün — 50 AZN"] },
 ];
 export default function PromotionOptions({ eligible = true }: { eligible?: boolean }) {
-  return <section className="promotionOptions" aria-label="Elanın irəlilədilməsi">
-    <h3><span aria-hidden="true">📣</span> Elanı reklam et</h3>
+  return <details className="promotionOptions" aria-label="Elanın irəlilədilməsi">
+    <summary className="promotionTrigger"><span aria-hidden="true">📣</span> Elanı reklam et</summary>
+    <div className="promotionPanel">
+    <h3>Reklam paketləri</h3>
     <p>Hazırda bu xidmətlər aktiv deyil. Ödəniş qəbul edilmir. Aşağıdakılar planlaşdırılan paketlərdir.</p>
     {packages.map(pack => <details key={pack.title} className="promotionPackage">
       <summary>
@@ -18,5 +20,6 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
     </details>)}
     <small>VIP və Premium nişanları xidmət aktivləşdiriləndən sonra elanda görünəcək.</small>
     {!eligible && <p>İrəlilətmə yalnız yayımlanmış elanlar üçün mümkün olacaq.</p>}
-  </section>;
+    </div>
+  </details>;
 }

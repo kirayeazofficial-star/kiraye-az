@@ -287,6 +287,10 @@ const { chromium } = require("playwright");
           "equipment",
           "bicycle",
           "event",
+          "clothing",
+          "electric",
+          "photo",
+          "camping",
         ]) {
           await page
             .getByLabel("Kateqoriya", { exact: true })
@@ -298,7 +302,7 @@ const { chromium } = require("playwright");
           );
           assert.equal(
             await page.getByLabel("Marka", { exact: true }).count(),
-            ["car", "motorcycle", "equipment", "bicycle"].includes(value)
+            ["car", "motorcycle", "bicycle"].includes(value)
               ? 1
               : 0,
           );

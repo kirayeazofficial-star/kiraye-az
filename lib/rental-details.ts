@@ -68,7 +68,7 @@ export function scopeRentalFilters(
     ...filters,
     rooms: ["property", "villa"].includes(category) ? filters.rooms : "",
     area: isProperty(category) ? filters.area : "",
-    brand: ["car", "motorcycle", "bicycle", "equipment"].includes(category)
+    brand: ["car", "motorcycle", "bicycle", "equipment", "clothing", "electric", "photo", "camping"].includes(category)
       ? filters.brand
       : "",
     gearbox: ["car", "motorcycle"].includes(category) ? filters.gearbox : "",

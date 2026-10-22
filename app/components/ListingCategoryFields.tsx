@@ -1,4 +1,5 @@
 "use client";
+import { rentalCategorySpecs, rentalSpecs } from "../../lib/rental-category-specs";
 import { useState } from "react";
 import type { Listing } from "../../lib/marketplace";
 import { amenities, isProperty } from "../../lib/rental-details";
@@ -521,62 +522,40 @@ function ItemFields({
   suggest: (value: string) => void;
 }) {
   const [kind, setKind] = useState(attributes?.kind || "");
+  const [powerSource, setPowerSource] = useState(String(attributes?.power_source || ""));
+  const definition = rentalCategorySpecs[category];
+  const spec = rentalSpecs(category, kind);
+  const models = spec?.models || (category === "equipment" ? equipmentModels[kind] : undefined) || {};
+  const initial = attributes?.kind === kind ? attributes : undefined;
   return (
     <section className="categoryFields" aria-label="Kateqoriya məlumatları">
-      <SelectField
-        name="kind"
-        label={
-          category === "equipment"
-            ? "Avadanlığın növü"
-            : "Tədbir üçün nə təklif edirsən?"
-        }
-        options={
-          category === "equipment"
-            ? Object.keys(equipmentModels)
-            : [
-                "Səs və işıq",
-                "Masa və stul",
-                "Çadır",
-                "Dekorasiya",
-                "Qab-qacaq",
-                "Tədbir avadanlığı",
-                "Digər",
-              ]
-        }
-        value={kind}
-        onChange={setKind}
-      />
-      {category === "equipment" && (
-        <BrandModelPicker
-          key={kind}
-          models={equipmentModels[kind] || {}}
-          attributes={
-            attributes?.kind === kind || (!attributes?.kind && !kind)
-              ? attributes
-              : undefined
-          }
-          suggest={suggest}
-        />
-      )}
-      <SelectField
-        name="condition"
-        label="Vəziyyət"
-        options={["Əla", "Yaxşı", "Qənaətbəxş"]}
-        value={attributes?.condition}
-      />
-      {category === "event" && (
-        <label>
-          Nəfər sayı
-          <input
-            name="capacity"
-            type="number"
-            min="1"
-            max="100000"
-            defaultValue={attributes?.capacity}
-            placeholder="Neçə nəfər üçün uyğundur"
-          />
-        </label>
-      )}
+      <SelectField name="kind" label={definition?.label || "Məhsulun növü"}
+        options={Array.from(new Set([...Object.keys(definition?.kinds || {}), ...(category === "equipment" ? Object.keys(equipmentModels) : []), "Digər"]))}
+        value={kind} required onChange={(value) => { setKind(value); setPowerSource(value === attributes?.kind ? String(attributes?.power_source || "") : ""); }} />
+      {!kind && <p className="muted">Əvvəl növü seç. Sonra yalnız həmin məhsula uyğun suallar açılacaq.</p>}
+      {kind && <div key={kind}>
+        {Object.keys(models).length ? <BrandModelPicker models={models} attributes={initial} suggest={suggest} /> : (
+          <div className="formGrid">
+            <label>Marka (istəyə bağlı)<input name="brand" maxLength={40} defaultValue={initial?.brand} placeholder="Markasızdırsa, boş saxla" /></label>
+            <label>Model / kolleksiya (istəyə bağlı)<input name="model" maxLength={60} defaultValue={initial?.model} /></label>
+          </div>
+        )}
+        <SelectField name="condition" label="Vəziyyət" options={["Əla", "Yaxşı", "Qənaətbəxş"]} value={initial?.condition} />
+        {category === "clothing" && <SelectField name="color" label="Rəng" options={colors} value={initial?.color} />}
+        <p className="muted">Əlavə xüsusiyyətlər istəyə bağlıdır. Dəqiq bilmədiyini boş saxla.</p>
+        <div className="formGrid">
+          {(spec?.fields || []).filter(field => field.key !== "battery_voltage" || powerSource === "Akkumulyator").map(field => field.options ? (
+            <SelectField key={field.key} name={field.key} label={field.label} options={field.options} value={String(initial?.[field.key] || "")} onChange={field.key === "power_source" ? setPowerSource : undefined} />
+          ) : <label key={field.key}>{field.label}
+            <input name={field.key} aria-label={field.label}
+              type={field.min === undefined ? "text" : "number"}
+              min={field.min} max={field.max} step={field.step}
+              maxLength={field.min === undefined ? 100 : undefined}
+              defaultValue={initial?.[field.key] as string | undefined}
+              placeholder={field.placeholder} />
+          </label>)}
+        </div>
+      </div>}
     </section>
   );
 }

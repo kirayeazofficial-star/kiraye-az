@@ -3,6 +3,10 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 const ts = require("typescript");
 const exported = {};
+const specExports = {};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/rental-category-specs.ts", "utf8"), {
+  compilerOptions: { module: ts.ModuleKind.CommonJS },
+}).outputText, { exports: specExports });
 vm.runInNewContext(
   ts.transpileModule(fs.readFileSync("lib/listing-attributes.ts", "utf8"), {
     compilerOptions: {
@@ -10,7 +14,7 @@ vm.runInNewContext(
       target: ts.ScriptTarget.ES2022,
     },
   }).outputText,
-  { exports: exported, FormData },
+  { exports: exported, FormData, require: () => specExports },
 );
 const { readListingAttributes: read, validateListingAttributes: validate } =
   exported;
@@ -151,3 +155,31 @@ check("rental requirements stay in the relevant category", () => {
   assert.equal(bicycle.included_items, "Helmet");
 });
 console.log("11 listing specification checks passed");
+
+check("electric vehicles keep charging specs without car or clothing fields", () => {
+  const data=read("electric",form({kind:"Elektrik skuter",brand:"Xiaomi",model:"Electric Scooter 4",range_km:"35",charge_hours:"4.5",engine_cc:"1600",clothing_size:"M"}));
+  assert.equal(data.range_km,"35"); assert.equal(data.charge_hours,"4.5");
+  assert.equal(data.engine_cc,undefined);assert.equal(data.clothing_size,undefined);
+  assert.equal(validate("electric",data),null);
+  assert(validate("electric",{...data,range_km:"-1"}));
+});
+check("tool specifications follow the selected kind and energy source", () => {
+  const drill=read("equipment",form({kind:"Drel / şurupburğan",brand:"Makita",power_source:"Şəbəkə / kabel",battery_voltage:"18",welding_current_a:"200"}));
+  assert.equal(drill.battery_voltage,undefined);assert.equal(drill.welding_current_a,undefined);
+  const welder=read("equipment",form({kind:"Qaynaq aparatı",welding_current_a:"200",power_w:"900"}));
+  assert.equal(welder.welding_current_a,"200");assert.equal(welder.power_w,undefined);
+  assert(validate("equipment",{...welder,welding_current_a:"200.5"}));
+});
+check("clothing sizes and cleaning survive save without invented technical data", () => {
+ const data=read("clothing",form({kind:"Kostyum",clothing_size:"50",cleaning_terms:"Qiymətə daxildir",battery_wh:"500",size_note:"Boy 175 sm"}));
+ assert.equal(data.clothing_size,"50");assert.equal(data.size_note,"Boy 175 sm");assert.equal(data.battery_wh,undefined);assert.equal(validate("clothing",data),null);
+ assert(validate("clothing",{...data,clothing_size:"999"}));
+});
+check("camera, lens and camping fields are scoped to the kind", () => {
+ const lens=read("photo",form({kind:"Obyektiv",lens_mount:"Sony E",focal_length:"24–70 mm",resolution_mp:"24"}));
+ assert.equal(lens.lens_mount,"Sony E");assert.equal(lens.resolution_mp,undefined);
+ const tent=read("camping",form({kind:"Çadır",capacity:"3",season:"3 mövsüm",comfort_temp_c:"-10"}));
+ assert.equal(tent.capacity,"3");assert.equal(tent.comfort_temp_c,undefined);assert.equal(validate("camping",tent),null);
+ assert(validate("camping",{...tent,capacity:"2.5"}));
+ assert(validate("electric",{kind:"Kostyum"}));
+});

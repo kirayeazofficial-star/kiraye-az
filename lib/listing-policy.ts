@@ -22,6 +22,8 @@ export function listingPolicyError(error: { code?: string; message?: string }) {
     error.message?.includes("MONTHLY_LISTING_LIMIT")
   )
     return monthlyListingLimitMessage;
+  if (error.code === "23514" && error.message?.includes("listings_category_check"))
+    return "Bu kateqoriya serverdə hələ aktivləşdirilməyib. Saytın baza yeniləməsi tamamlanmalıdır.";
   if (error.code === "PDU01" || error.message?.includes("DUPLICATE_LISTING"))
     return duplicateListingMessage;
   return "Elan göndərilmədi. Məlumatları yoxlayıb yenidən cəhd edin.";

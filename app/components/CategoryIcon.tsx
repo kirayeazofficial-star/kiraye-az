@@ -10,6 +10,10 @@ const paths: Record<string, string> = {
     "m14 5 5 5M5 20l-2-2L16 5l3-2 2 2-2 3ZM7 4l3 3M3 8l3 3m8 5 5 5 2-2-5-5",
   bicycle:
     "M5 21a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14 0a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5 17l4-9 5 9H5Zm9 0 4-12h3M7 5h4m-2 3h9",
+  clothing: "m8 3 4 3 4-3 5 4-3 4-2-2v12H8V9l-2 2-3-4 5-4Z",
+  electric: "M5 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm14 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM5 18h9l5-13h-4M11 3 8 8h4l-2 5",
+  photo: "M3 7h5l2-3h4l2 3h5v14H3V7Zm9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z",
+  camping: "M2 21 12 3l10 18H2Zm6 0 4-9 4 9M10 3l4 1",
   event: "m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3ZM20 2v4m-2-2h4",
 };
 export default function CategoryIcon({ id }: { id: string }) {

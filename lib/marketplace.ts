@@ -6,7 +6,11 @@ export const categories = [
   { id: "motorcycle", name: "Motosiklet", icon: "◉" },
   { id: "villa", name: "Villa və bağ", icon: "♧" },
   { id: "commercial", name: "Kommersiya", icon: "▦" },
-  { id: "equipment", name: "Avadanlıq", icon: "⚒" },
+  { id: "equipment", name: "Alətlər və texnika", icon: "⚒" },
+  { id: "clothing", name: "Geyim və aksesuar", icon: "👗" },
+  { id: "electric", name: "Elektrik skuter və velosiped", icon: "🛴" },
+  { id: "photo", name: "Foto və video", icon: "📷" },
+  { id: "camping", name: "Turizm və düşərgə", icon: "⛺" },
   { id: "bicycle", name: "Velosiped", icon: "◎" },
   { id: "event", name: "Tədbir üçün", icon: "✧" },
 ];
@@ -119,6 +123,7 @@ export type Listing = {
   available_until?: string | null;
   rejection_reason?: string | null;
   attributes?: {
+    [key: string]: string | number | string[] | undefined;
     delivery_method?: string;
     delivery_fee?: string;
     included_items?: string;

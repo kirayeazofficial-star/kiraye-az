@@ -1,3 +1,4 @@
+import { rentalSpecLabels } from "./rental-category-specs";
 // Common brands/models plus an explicit custom entry in the form.
 export const carModels: Record<string, string[]> = {
   Audi: ["A3", "A4", "A6", "Q3", "Q5", "Q7"],
@@ -81,8 +82,12 @@ export const listingExamples: Record<
     description:
       "Motosikletin vəziyyətini, təchizatını və kirayə şərtlərini yaz.",
   },
+  clothing: { title: "Toy üçün kişi kostyumu kirayəsi", description: "Geyimin ölçüsünü, rəngini, təmizləmə və təhvil şərtlərini yaz." },
+  electric: { title: "Xiaomi elektrik skuter kirayəsi", description: "Bir şarjla məsafəni, şarj müddətini və dəstə daxil olanları yaz. Bilmədiyin göstəricini boş saxlaya bilərsən." },
+  photo: { title: "Çəkiliş üçün Sony kamera kirayəsi", description: "Marka/modeli, uyğun obyektivi və komplektə daxil olanları yaz." },
+  camping: { title: "3 nəfərlik düşərgə çadırı kirayəsi", description: "Tutumu, mövsümü, vəziyyəti və komplektə daxil olanları yaz." },
   equipment: {
-    title: "Çəkiliş üçün Canon kamera kirayəsi",
+    title: "Təmir üçün Bosch drel kirayəsi",
     description:
       "Avadanlığın növünü, marka/modelini, komplektini və vəziyyətini yaz.",
   },
@@ -133,6 +138,7 @@ export const colors = [
   "Digər",
 ];
 export const extraAttributeLabels = {
+  ...rentalSpecLabels,
   delivery_method: "Təhvil / çatdırılma",
   delivery_fee: "Çatdırılma haqqı (₼)",
   included_items: "Dəstə daxildir",

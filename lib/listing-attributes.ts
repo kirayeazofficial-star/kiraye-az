@@ -1,3 +1,4 @@
+import { rentalCategorySpecs, rentalSpecs } from "./rental-category-specs";
 import type { Listing } from "./marketplace";
 export function readListingAttributes(
   category: string,
@@ -33,6 +34,12 @@ export function readListingAttributes(
     villa: ["kind"],
     commercial: ["kind"],
   };
+  if (rentalCategorySpecs[category]) {
+    keys[category] = ["kind", "brand", "model", "condition",
+      ...(category === "clothing" ? ["color"] : []),
+      ...(rentalSpecs(category, String(form.get("kind") || ""))?.fields.map(field => field.key) || []),
+    ];
+  }
   const attributes: NonNullable<Listing["attributes"]> = Object.fromEntries(
     [
       ...(keys[category] || []),
@@ -45,6 +52,7 @@ export function readListingAttributes(
       .filter((key) => form.has(key) && String(form.get(key)).trim())
       .map((key) => [key, String(form.get(key)).trim()]),
   );
+  if (attributes.power_source !== "Akkumulyator") delete attributes.battery_voltage;
   if (!["Çatdırılma", "Hər ikisi"].includes(attributes.delivery_method || ""))
     delete attributes.delivery_fee;
   if (category === "car" && attributes.fuel === "Elektrik")
@@ -75,6 +83,27 @@ export function validateListingAttributes(
   category: string,
   attributes: NonNullable<Listing["attributes"]>,
 ) {
+  if (rentalCategorySpecs[category]) {
+    if (!attributes.kind) return "Məhsulun növünü seçin.";
+    const spec = rentalSpecs(category, attributes.kind);
+    if (!spec && attributes.kind !== "Digər" &&
+      !(category === "equipment" && ["Tikinti alətləri", "Foto və video", "Səs və işıq", "Kompüter və elektronika"].includes(attributes.kind)))
+      return "Bu kateqoriyaya uyğun məhsul növünü seçin.";
+    if ((attributes.brand?.length || 0) > 40 || (attributes.model?.length || 0) > 60)
+      return "Marka maksimum 40, model maksimum 60 simvol ola bilər.";
+    for (const field of spec?.fields || []) {
+      const value = attributes[field.key];
+      if (value === undefined || value === "") continue;
+      if (field.options && !field.options.includes(String(value)))
+        return `${field.label}: siyahıdan seçim edin.`;
+      if (field.min !== undefined &&
+        (!Number.isFinite(Number(value)) || Number(value) < field.min || Number(value) > field.max! ||
+          (field.step === "1" && !Number.isInteger(Number(value)))))
+        return `${field.label}: ${field.min}–${field.max} aralığında düzgün rəqəm yazın.`;
+      if (typeof value === "string" && value.length > 100)
+        return `${field.label}: maksimum 100 simvol yazın.`;
+    }
+  }
   if (
     ["car", "motorcycle", "bicycle"].includes(category) &&
     (!attributes.brand || !attributes.model)

@@ -908,3 +908,22 @@ input[type="number"]::-webkit-outer-spin-button {
 .galleryStage .next { right:12px; }
 .galleryCounter { position:absolute; right:12px; bottom:12px; padding:5px 10px; border-radius:20px; background:#12251fba; color:#fff; font-size:12px; pointer-events:none; }
 .listingGallery:focus-visible, .galleryArrow:focus-visible, .promotionPackage summary:focus-visible { outline:3px solid #f2784b; outline-offset:3px; }
+
+.accountItemActions .promotionOptions { width:auto; max-width:none; }
+.promotionOptions { position:relative; padding:0; background:white; }
+.promotionTrigger { display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:10px 12px; cursor:pointer; list-style:none; font-size:12px; font-weight:600; color:#28584c; }
+.promotionTrigger::-webkit-details-marker { display:none; }
+.promotionPanel { position:absolute; top:calc(100% + 8px); right:0; width:min(340px,calc(100vw - 64px)); max-height:65vh; overflow:auto; z-index:40; padding:16px; border:1px solid #dce6e0; border-radius:12px; background:#f7faf8; box-shadow:0 12px 32px #183e3626; }
+.accountListings article { align-items:center; }
+.accountListings article > a { flex:0 0 180px; width:180px; }
+.accountListings article > a img { display:block; height:128px; max-height:none; }
+@media(max-width:720px) {
+  .promotionPanel { width:min(320px,calc(100vw - 64px)); }
+  .accountListings article > a { flex-basis:104px; width:104px; }
+  .accountListings article > a img { height:88px; }
+}
+@media(max-width:720px) {
+  .accountListings .accountItemActions { flex:0 0 100%; width:100%; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .accountItemActions .promotionOptions { grid-column:1 / -1; }
+  .accountListings .accountItemActions > .secondary { margin:0; justify-content:center; text-align:center; }
+}

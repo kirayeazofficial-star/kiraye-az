@@ -1,4 +1,5 @@
 "use client";
+import { rentalCategorySpecs } from "../lib/rental-category-specs";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { searchCatalog, PAGE_SIZE } from "../lib/catalog";
@@ -273,6 +274,10 @@ export default function Home() {
         ),
       ),
     );
+  }
+  if (rentalCategorySpecs[category]) {
+    const extraBrands = Object.values(rentalCategorySpecs[category].kinds).flatMap(kind => Object.keys(kind.models));
+    brandOptions.push(...extraBrands.filter((name, index) => !brandOptions.includes(name) && extraBrands.indexOf(name) === index));
   }
   function changeCategory(value: string) {
     setCategory(value);
@@ -642,7 +647,7 @@ export default function Home() {
                       ? "Velosiped markası"
                       : category === "motorcycle"
                         ? "Motosiklet markası"
-                        : "Avadanlıq markası"}
+                        : "Marka"}
                   <select
                     aria-label={
                       category === "car" ? "Avtomobil markası" : "Marka"

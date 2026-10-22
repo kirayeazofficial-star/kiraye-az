@@ -139,5 +139,13 @@ const { PGlite } = require(
     await db.exec(rules);
     assert.equal((await db.query("select count(*)::int as n from public.listing_approval_usage")).rows[0].n,before);
   });
+  await check("new category migration is repeatable and accepts category submissions",async()=>{
+    await as(null);
+    const migration=fs.readFileSync("supabase/rental-categories.sql","utf8");
+    await db.exec(migration); await db.exec(migration);
+    await as(other);
+    for(const category of ["clothing","electric","photo","camping"])
+      await db.query(`insert into public.listings(owner_id,category,title,description,city,price,rental_period,contact,images) values($1,$2,'Yeni kateqoriya üçün kirayə elanı','Məhsulun kifayət qədər ətraflı kirayə məlumatları burada yazılır.','Bakı',30,'daily','+994501234567',$3)`,[other,category,[`https://test.supabase.co/storage/v1/object/public/listing-images/${other}/${category}.jpg`]]);
+  });
   await db.close(); console.log(`${checks} submission policy checks passed`);
 })().catch(error=>{ console.error(error); process.exitCode=1; });

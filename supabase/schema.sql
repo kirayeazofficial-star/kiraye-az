@@ -22,7 +22,7 @@ create table if not exists public.listings (
 alter table public.listings add column if not exists contact text not null default '';
 alter table public.listings add column if not exists images text[] not null default '{}';
 alter table public.listings drop constraint if exists listings_category_check;
-alter table public.listings add constraint listings_category_check check(category in ('property','car','motorcycle','villa','commercial','equipment','bicycle','event'));
+alter table public.listings add constraint listings_category_check check(category in ('property','car','motorcycle','villa','commercial','equipment','bicycle','event','clothing','electric','photo','camping'));
 alter table public.listings add column if not exists deposit numeric(12,2) not null default 0;
 alter table public.listings add column if not exists min_days integer not null default 1;
 alter table public.listings add column if not exists available_from date;

@@ -90,14 +90,24 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [existingImages, setExistingImages] = useState<string[]>([]),
     [loadError, setLoadError] = useState(false);
   useEffect(() => {
+    let active = true;
+    const timer = setTimeout(() => {
+      if (!active) return;
+      active = false;
+      setLoading(false);
+      setLoadError(true);
+      setError("Hesab yoxlaması gecikir. Bağlantını yoxlayıb yenidən cəhd et.");
+    }, 15000);
     setQuotaError("");
     if (!supabase) {
       setLoading(false);
+      clearTimeout(timer);
       return;
     }
     supabase.auth
       .getUser()
       .then(async ({ data }) => {
+        if (!active) return;
         setUser(data.user?.id ?? "");
         setLoginPhone(data.user?.phone ?? "");
         setAccountEmail(data.user?.email || "");
@@ -109,6 +119,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
               .select("display_name,phone")
               .eq("id", data.user.id)
               .maybeSingle();
+            if (!active) return;
             if (profile.data?.display_name)
               setContactName(profile.data.display_name);
             setLoginPhone(data.user.phone || profile.data?.phone || "");
@@ -120,6 +131,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           try {
             await checkMonthlyListingLimit(data.user.id);
           } catch (error) {
+            if (!active) return;
             setQuotaError(
               error instanceof Error
                 ? error.message
@@ -127,6 +139,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             );
           }
         }
+        if (!active) return;
         if (listingId && data.user && supabase) {
           const result = await supabase
             .from("listings")
@@ -134,6 +147,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             .eq("id", listingId)
             .eq("owner_id", data.user.id)
             .maybeSingle();
+          if (!active) return;
           if (result.error || !result.data) {
             setLoadError(true);
             setError(
@@ -151,8 +165,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           setExistingImages(result.data.images ?? []);
         }
       })
-      .catch(() => setError("Hesabı yoxlamaq mümkün olmadı."))
-      .finally(() => setLoading(false));
+      .catch(() => { if (active) { setLoadError(true); setError("Hesabı yoxlamaq mümkün olmadı."); } })
+      .finally(() => { if (active) { clearTimeout(timer); setLoading(false); } });
+    return () => { active = false; clearTimeout(timer); };
   }, [listingId]);
   useEffect(() => {
     const urls = files.map((f) => URL.createObjectURL(f));
@@ -396,7 +411,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           </p>
         )}
         {loading ? (
-          <p role="status">Hesab yoxlanılır...</p>
+          <section><p role="status">Hesab yoxlanılır...</p>
+            <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
         ) : success ? (
           <section className="successPanel" role="status">
             <span>✓</span>
@@ -426,7 +442,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           </section>
         ) : loadError ? (
           <div className="error" role="alert">
-            {error} <Link href="/profile">Kabinetə qayıt</Link>
+            {error} <button type="button" className="secondary" onClick={() => window.location.reload()}>Yenidən yoxla</button> <Link href="/profile">Kabinetə qayıt</Link> <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a>
           </div>
         ) : !supabase ? (
           <div className="notice">
@@ -437,8 +453,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <h2>Əvvəl hesabına daxil ol</h2>
             <p>Elanlarını idarə etmək üçün şəxsi hesabın olmalıdır.</p>
             <Link className="add" href="/login?next=/new">
-              Daxil ol / Qeydiyyatdan keç
-            </Link>
+              Daxil ol
+            </Link> <a className="secondary" href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a>
           </section>
         ) : (
           <div className="formLayout">

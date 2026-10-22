@@ -879,3 +879,9 @@ input[type="number"]::-webkit-outer-spin-button {
   font-size: 13px;
   line-height: 1.6;
 }
+
+.promotionPackage { padding:12px 0; border-top:1px solid #dde1e7; }
+.promotionPackage summary { cursor:pointer; min-height:44px; display:list-item; padding:10px 0; font-weight:600; }
+.promotionPackage li { margin:8px 0; }
+.signupLink { font-size:13px; color:#344258; text-decoration:underline; }
+@media(max-width:720px) { .headerActions { flex-wrap:wrap; justify-content:flex-end; gap:6px; } .signupLink { font-size:11px; } }

@@ -1,6 +1,6 @@
 # Kirayə elanlarının irəlilədilməsi — sonrakı mərhələ
 
-İstifadəçinin göndərdiyi mətn başqa elan saytının ödənişli “İrəli çək”, VIP və Premium xidmətlərinin təsviridir. Oradakı qiymətlər, tarixlər, şirkət məlumatları və zəmanətlər kirayeal.az-a aid deyil və saytda yayımlanmayıb.
+İstifadəçinin göndərdiyi mətn başqa elan saytının ödənişli “İrəli çək”, VIP və Premium xidmətlərinin təsviridir. Şirkət məlumatları və zəmanətlər köçürülmür. İstifadəçinin son istəyi əsasında göndərdiyi məbləğlər yalnız planlaşdırılan paketlərin passiv önbaxışında göstərilir; aktiv satış qiymətləri deyil.
 
 Kirayə platforması üçün gələcəkdə uyğun variantlar:
 
@@ -10,7 +10,7 @@ Kirayə platforması üçün gələcəkdə uyğun variantlar:
 
 Bu xidmətlər hazırda aktiv deyil. Aktivləşdirmə üçün sahibin qiymət qərarı, ödəniş provayderi, təhlükəsiz webhook təsdiqi, sifarişlərin və aktivlik müddətinin bazada saxlanması, təkrar ödənişlərin qarşısının alınması, imtina/qaytarılma qaydaları və işlək dəstək kanalı lazımdır. Brauzerdən göndərilən “ödəndi” dəyəri ilə status dəyişməməlidir. Elanın sahibi moderator təsdiqini və ya başqa istifadəçinin elanını satınalma ilə dəyişə bilməməlidir.
 
-22 oktyabr 2026: istifadəçinin açıq istəyi ilə kabinetdə və şəxsi önbaxışda deaktiv “VIP et” və “İrəli çək” düymələri, altında aktiv olmadığı barədə qeyd əlavə edildi. Qiymət təyin edilməyib; 15 ₼ istifadəçinin nümunəsi idi. Heç bir ödəniş xidməti alınmayıb, sifariş və ya saxta VIP statusu yaradılmır.
+22 oktyabr 2026: istifadəçinin açıq istəyi ilə kabinetdə və şəxsi önbaxışda deaktiv “VIP et” və “İrəli çək” düymələri, altında aktiv olmadığı barədə qeyd əlavə edildi. Son yeniləmədə “Elanı reklam et” daxilində İrəli çək, VIP və Premium paketlərinin müddət və qiymət önbaxışı əlavə edildi. Qiymətlər və şərtlər ödəniş açılmadan əvvəl təsdiqlənməlidir. Heç bir ödəniş xidməti alınmayıb, sifariş və ya saxta VIP statusu yaradılmır.
 
 Pulsuz limit: istifadəçi başına Bakı vaxtı ilə təqvim ayında 1 yeni elan; bütün göndərilən statuslar sayılır, redaktə sayılmır, arxivləşdirmə limiti geri qaytarmır. `supabase/listing-submission-rules.sql` ayrıca tətbiq edilməlidir. Müştəri tərəfi əvvəlcədən xəbər verir; yarışa və birbaşa API çağırışına qarşı əsas qoruma bazadakı trigger və qapalı istifadə cədvəlidir. Canlı bazaya tətbiq edilməyən SQL kodunun commit edilməsi bu qorumanı aktiv etmir.
 

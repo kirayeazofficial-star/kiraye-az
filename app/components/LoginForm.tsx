@@ -5,6 +5,7 @@ import {
   authErrorMessage,
   safeLoginDestination,
 } from "../../lib/auth-messages";
+import { finishWithin } from "../../lib/auth-return";
 import { authCallbackUrl } from "../../lib/auth-flow";
 import { getAuthCapabilities, supabase } from "../../lib/supabase";
 import { rateLimitSeconds } from "../../lib/auth-throttle";
@@ -204,17 +205,17 @@ export default function Login({
     setUnconfirmed(false);
     try {
       if (mode === "reset") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        const { error } = await finishWithin(supabase.auth.resetPasswordForEmail(email, {
           redirectTo: authCallbackUrl(window.location.origin, true),
-        });
+        }));
         if (error) throw error;
         pending("recovery", email);
       } else if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await finishWithin(supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: authCallbackUrl(window.location.origin) },
-        });
+        }));
         if (error) throw error;
         if (data.session) {
           goToAccount();
@@ -229,10 +230,10 @@ export default function Login({
         }
         pending("signup", email);
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error } = await finishWithin(supabase.auth.signInWithPassword({
           email,
           password,
-        });
+        }));
         if (error) {
           if (
             error.code === "email_not_confirmed" ||
@@ -364,6 +365,10 @@ export default function Login({
               Qeydiyyat və giriş üçün brauzerdə JavaScript-i aktiv et.
             </p>
           </noscript>
+          <nav className="authModeLinks" aria-label="Hesab seçimi">
+            <a href={`/login?next=${encodeURIComponent(next)}`} aria-current={mode === "login" ? "page" : undefined}>Daxil ol</a>
+            <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyatdan keç</a>
+          </nav>
           <h1 id="auth-title">
             {method === "phone"
               ? "Hesaba giriş"
@@ -436,6 +441,16 @@ export default function Login({
                         placeholder="E-poçt ünvanını yaz"
                       />
                     </label>
+                    {emailAddress.includes("@") && !emailAddress.split("@")[1]?.includes(".") && (
+                      <div className="emailSuggestions" aria-label="E-poçt ünvanını tamamla">
+                        {["gmail.com", "mail.ru", "outlook.com", "icloud.com"].filter(domain => domain.startsWith(emailAddress.split("@")[1] || "")).map(domain => (
+                          <button type="button" key={domain} onClick={() => {
+                            setEmailAddress(`${emailAddress.split("@")[0]}@${domain}`);
+                            emailInput.current?.focus();
+                          }}>@{domain}</button>
+                        ))}
+                      </div>
+                    )}
                     {mode !== "reset" && (
                       <label>
                         Şifrə
@@ -463,7 +478,7 @@ export default function Login({
                               showPassword ? "Şifrəni gizlət" : "Şifrəni göstər"
                             }
                             aria-pressed={showPassword}
-                            onClick={() => setShowPassword(!showPassword)}
+                            onClick={() => setShowPassword(value => !value)}
                           >
                             {showPassword ? "Gizlət" : "Göstər"}
                           </button>

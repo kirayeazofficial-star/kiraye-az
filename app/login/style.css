@@ -485,3 +485,9 @@
     margin-bottom: 20px;
   }
 }
+
+.authModeLinks { display:flex; gap:12px; margin:16px 0; flex-wrap:wrap; }
+.authModeLinks a { padding:12px; border:1px solid #ccd4df; border-radius:6px; }
+.authModeLinks a[aria-current="page"] { background:#f0f3fa; font-weight:700; }
+.emailSuggestions { display:flex; flex-wrap:wrap; gap:6px; margin:-8px 0 16px; }
+.emailSuggestions button { min-height:44px; padding:8px; border:1px solid #ccd4df; border-radius:6px; background:white; color:#344258; }

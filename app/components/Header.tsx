@@ -42,6 +42,7 @@ export default function Header() {
           <Link className="accountLink" href={signedIn ? "/profile" : "/login"}>
             {signedIn ? "Hesabım" : "Daxil ol"}
           </Link>
+          {!signedIn && <a className="signupLink" href="/login?mode=signup">Qeydiyyatdan keç</a>}
           <Link className="add" href="/new">
             + Elan yerləşdir
           </Link>
@@ -58,7 +59,7 @@ export default function Header() {
           +<span>Elan yerləşdir</span>
         </Link>
         <Link href={signedIn ? "/profile" : "/login"}>
-          ◎<span>{signedIn ? "Hesabım" : "Daxil ol"}</span>
+          ◎<span>{signedIn ? "Hesabım" : "Hesab"}</span>
         </Link>
       </nav>
     </>

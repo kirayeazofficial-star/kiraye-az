@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   authErrorMessage,
@@ -22,6 +22,7 @@ export default function Login({
 }) {
   const [phoneEnabled, setPhoneEnabled] = useState(false);
   const [ready, setReady] = useState(false);
+  const emailInput = useRef<HTMLInputElement>(null);
   const [loginFailed, setLoginFailed] = useState(false);
   useEffect(() => {
     let active = true;
@@ -102,7 +103,12 @@ export default function Login({
   useEffect(() => {
     let recoveryPending = false;
     try {
-      setEmailAddress(sessionStorage.getItem("kiraye:login-email") || "");
+      // Preserve text/autofill entered before the client scripts finished loading.
+      setEmailAddress(
+        emailInput.current?.value ||
+          sessionStorage.getItem("kiraye:login-email") ||
+          "",
+      );
     } catch {}
     try {
       const stored = JSON.parse(
@@ -413,10 +419,11 @@ export default function Login({
               )}
               {!verification ? (
                 <form onSubmit={submit} method="post" action="/login">
-                  <fieldset className="authFields" disabled={busy || !ready}>
+                  <fieldset className="authFields" disabled={busy}>
                     <label>
                       E-poçt
                       <input
+                        ref={emailInput}
                         name="email"
                         type="email"
                         autoCapitalize="none"
@@ -486,7 +493,7 @@ export default function Login({
                     )}
                     <button
                       className="authSubmit"
-                      disabled={busy || submitBlocked}
+                      disabled={!ready || busy || submitBlocked}
                     >
                       {busy
                         ? "Gözləyin..."

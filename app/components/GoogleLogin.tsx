@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { getAuthCapabilities, supabase } from "../../lib/supabase";
 import { authCallbackUrl } from "../../lib/auth-flow";
 import {
@@ -7,6 +7,7 @@ import {
   safeLoginDestination,
 } from "../../lib/auth-messages";
 export default function GoogleLogin() {
+  const statusId = useId();
   const [enabled, setEnabled] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
@@ -45,7 +46,6 @@ export default function GoogleLogin() {
       setBusy(false);
     }
   }
-  if (enabled !== true) return null;
   return (
     <div className="googleLogin">
       <button
@@ -53,6 +53,7 @@ export default function GoogleLogin() {
         className="googleButton"
         disabled={enabled !== true || busy}
         onClick={login}
+        aria-describedby={enabled !== true ? statusId : undefined}
       >
         <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
           <path
@@ -74,6 +75,13 @@ export default function GoogleLogin() {
         </svg>
         {busy ? "Google-a yönləndirilir..." : "Google ilə davam et"}
       </button>
+      {enabled !== true && (
+        <p id={statusId} className="mailHelp" role="status">
+          {enabled === null
+            ? "Google girişinin vəziyyəti yoxlanılır..."
+            : "Bu xidmət hələ aktiv deyil."}
+        </p>
+      )}
       {notice && (
         <p className="notice" role="status">
           {notice}

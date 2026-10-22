@@ -784,3 +784,35 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.promotionOptions {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #dce6e0;
+  border-radius: 10px;
+  background: #f7faf8;
+}
+.promotionOptions h3 {
+  font-size: 14px;
+  margin: 0 0 10px;
+}
+.promotionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.promotionButtons button {
+  min-height: 44px;
+  cursor: not-allowed;
+}
+.promotionOptions p,
+.promotionOptions small {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 10px 0 0;
+  color: #52665d;
+}
+.accountItemActions .promotionOptions {
+  width: 100%;
+  max-width: 290px;
+}

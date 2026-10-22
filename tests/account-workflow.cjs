@@ -51,7 +51,7 @@ const { chromium } = require("playwright");
     "access-control-allow-origin": "*",
     "access-control-allow-headers":
       "authorization,apikey,content-type,x-client-info,prefer",
-    "access-control-allow-methods": "GET,POST,PATCH,DELETE,OPTIONS",
+    "access-control-allow-methods": "GET,HEAD,POST,PATCH,DELETE,OPTIONS",
   };
   await page.route("https://*.supabase.co/**", async (route) => {
     const req = route.request(),
@@ -60,6 +60,19 @@ const { chromium } = require("playwright");
       method = req.method();
     let body = {},
       status = 200;
+    // Each posting scenario has a fresh allowance; submission-policy.cjs tests
+    // the real database limits independently of these upload/edit fixtures.
+    if (method === "HEAD" && path.includes("/rest/v1/listings")) {
+      await route.fulfill({
+        status: 200,
+        headers: {
+          ...cors,
+          "content-range": "*/0",
+          "access-control-expose-headers": "content-range",
+        },
+      });
+      return;
+    }
     if (method === "OPTIONS") {
       await route.fulfill({ status: 204, headers: cors });
       return;
@@ -239,7 +252,9 @@ const { chromium } = require("playwright");
     await check(
       "four-step flow blocks missing category and scopes each category",
       async () => {
-        await page.evaluate(() => localStorage.setItem("kiraye:last-city", "Xırdalan"));
+        await page.evaluate(() =>
+          localStorage.setItem("kiraye:last-city", "Xırdalan"),
+        );
         await page.goto(`${base}/new`);
         await next();
         assert.equal(

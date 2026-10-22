@@ -10,6 +10,8 @@
 - Google ilə giriş üçün Google Cloud OAuth client, gizli açar, razılıq ekranı və doğru callback ünvanları tələb olunur. Təkcə düymə göstərməklə inteqrasiya işləmir. Vercel → kirayeal.az callback keçidini də yoxla. Apple/iCloud Google hesabı deyil; ayrıca istənilərsə Apple developer konfiqurasiyası lazımdır.
 - Girişsiz telefonda yayımlanmış elanların siyahısını və detallarını, pending elanın yalnız sahibinə görünməsini, şikayət göndərişini və admin arxivini faktiki bazada yoxla.
 
+- `supabase/listing-submission-rules.sql` mövcud bazada tətbiq et və ya yeni hostinq bazasının autentifikasiya sxeminə uyğunlaşdır: hər istifadəçiyə ayda 1 yeni elan, normallaşdırılmış təkrar elan yoxlaması və arxivləşdirmə/silmə ilə sıfırlanmayan istifadə qeydi. Mövcud elanları və admin səlahiyyətlərini qoru. E-point qoşulana qədər VIP/irəli çək deaktiv qalsın.
+
 ## Hazırkı məhdudiyyətlər
 
 Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH və provayder konfiqurasiyası olmadan hostinq və xarici OAuth dəyişiklikləri tətbiq edilməyib. `supabase/public-access-repair.sql` mövcud bazada yalnız SQL icazəli bağlantı ilə tətbiq edilə bilər. Mənbə koduna commit SQL-in avtomatik bazada icrası demək deyil.

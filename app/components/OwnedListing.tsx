@@ -4,6 +4,7 @@ import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 import { finishWithin } from "../../lib/auth-return";
 import type { Listing } from "../../lib/marketplace";
+import PromotionOptions from "./PromotionOptions";
 import ListingDetails from "./ListingDetails";
 export default function OwnedListing({ id }: { id: string }) {
   const [item, setItem] = useState<Listing | null>(null);
@@ -47,6 +48,7 @@ export default function OwnedListing({ id }: { id: string }) {
         yayımlanmış elanlar hamıya göstərilir.
       </p>
       <ListingDetails item={item} />
+      <PromotionOptions eligible={item.status === "published"} />
     </>
   ) : (
     <section className="empty">

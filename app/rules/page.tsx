@@ -13,6 +13,27 @@ export default function Rules() {
           şəkil, düzgün qiymət və işlək əlaqə nömrəsi göstər. Qanunsuz, saxta və
           təkrar elanlar qəbul edilmir.
         </p>
+        <h2>Pulsuz elan limiti və təkrar elanlar</h2>
+        <p>
+          Hər istifadəçi Bakı vaxtı ilə hər təqvim ayında 1 pulsuz yeni elan
+          göndərə bilər. Yoxlamada, rədd edilmiş və arxivlənmiş elanlar da həmin
+          ayın limitinə daxildir. Limit növbəti ayın ilk günü yenilənir. Elanı
+          redaktə etmək yeni elan sayılmır; arxivə keçirmək limiti geri
+          qaytarmır.
+        </p>
+        <p>
+          Eyni əmlak və ya əşya üçün təkrar aktiv elan yaratma. Məlumatları
+          dəyişmək üçün mövcud elanı redaktə et. Avtomatik yoxlama eyni
+          məlumatları və təkrar istifadə olunan şəkilləri yoxlayır; qalan hallar
+          moderasiya zamanı qiymətləndirilir.
+        </p>
+        <h2>VIP və irəli çəkmə</h2>
+        <p>
+          VIP və “İrəli çək” xidmətləri hələ aktiv deyil. Hazırda bu seçimlərə
+          görə ödəniş alınmır, elan VIP olmur və sıralaması dəyişmir. Qiymətlər
+          və xidmət müddətləri aktivləşdirmədən əvvəl elan ediləcək. Bu
+          xidmətlər moderasiya qaydalarını və elan limitini aradan qaldırmır.
+        </p>
         <h2>Elanların yoxlanılması</h2>
         <p>
           Yeni elanlar yoxlamaya göndərilir. Qaydalara uyğun elanlar yayımlanır.

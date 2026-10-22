@@ -10,4 +10,10 @@ Kirayə platforması üçün gələcəkdə uyğun variantlar:
 
 Bu xidmətlər hazırda aktiv deyil. Aktivləşdirmə üçün sahibin qiymət qərarı, ödəniş provayderi, təhlükəsiz webhook təsdiqi, sifarişlərin və aktivlik müddətinin bazada saxlanması, təkrar ödənişlərin qarşısının alınması, imtina/qaytarılma qaydaları və işlək dəstək kanalı lazımdır. Brauzerdən göndərilən “ödəndi” dəyəri ilə status dəyişməməlidir. Elanın sahibi moderator təsdiqini və ya başqa istifadəçinin elanını satınalma ilə dəyişə bilməməlidir.
 
-Heç bir ödəniş xidməti alınmayıb, bank məlumatı istənilməyib və mövcud sistemə işləməyən alış düyməsi əlavə olunmayıb.
+22 oktyabr 2026: istifadəçinin açıq istəyi ilə kabinetdə və şəxsi önbaxışda deaktiv “VIP et” və “İrəli çək” düymələri, altında aktiv olmadığı barədə qeyd əlavə edildi. Qiymət təyin edilməyib; 15 ₼ istifadəçinin nümunəsi idi. Heç bir ödəniş xidməti alınmayıb, sifariş və ya saxta VIP statusu yaradılmır.
+
+Pulsuz limit: istifadəçi başına Bakı vaxtı ilə təqvim ayında 1 yeni elan; bütün göndərilən statuslar sayılır, redaktə sayılmır, arxivləşdirmə limiti geri qaytarmır. `supabase/listing-submission-rules.sql` ayrıca tətbiq edilməlidir. Müştəri tərəfi əvvəlcədən xəbər verir; yarışa və birbaşa API çağırışına qarşı əsas qoruma bazadakı trigger və qapalı istifadə cədvəlidir. Canlı bazaya tətbiq edilməyən SQL kodunun commit edilməsi bu qorumanı aktiv etmir.
+
+Təkrar elan yoxlaması eyni sahib, kateqoriya və şəhər üzrə normallaşdırılmış eyni başlıq + təsvir və ya eyni şəkil URL-lərini müəyyən edir. Başlığı/şəkilləri dəyişərək yenidən qoyulan eyni fiziki evi ünvan və ya unikal əmlak nömrəsi olmadan tam avtomatik müəyyən etdiyini iddia etmir; moderasiya tələb olunur. Başqa saytın cari qaydaları yoxlanmadan ona aid dəqiq limit və qiymət iddiası edilmir.
+
+E-point sonradan qoşulanda qiymətlər, xidmət müddətləri və geri qaytarılma şərtləri təsdiqlənməli, server ödəniş təsdiqini yoxlamalıdır. Təkcə düyməni aktiv etmək kifayət deyil.

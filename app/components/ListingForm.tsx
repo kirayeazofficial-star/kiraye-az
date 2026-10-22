@@ -1,6 +1,10 @@
 "use client";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import {
+  checkMonthlyListingLimit,
+  listingPolicyError,
+} from "../../lib/listing-policy";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { listingExamples } from "../../lib/listing-form-options";
@@ -26,6 +30,7 @@ import {
 
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const [step, setStep] = useState(1);
+  const [quotaError, setQuotaError] = useState("");
   const [rentalPeriod, setRentalPeriod] = useState("daily");
   const submitLock = useRef(false);
   const manualTitle = useRef(false);
@@ -84,6 +89,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [existingImages, setExistingImages] = useState<string[]>([]),
     [loadError, setLoadError] = useState(false);
   useEffect(() => {
+    setQuotaError("");
     if (!supabase) {
       setLoading(false);
       return;
@@ -107,6 +113,17 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             setLoginPhone(data.user.phone || profile.data?.phone || "");
           } catch {
             /* Optional contact defaults must not block loading an existing listing. */
+          }
+        }
+        if (!listingId && data.user) {
+          try {
+            await checkMonthlyListingLimit(data.user.id);
+          } catch (error) {
+            setQuotaError(
+              error instanceof Error
+                ? error.message
+                : "Elan limitini yoxlamaq mümkün olmadı.",
+            );
           }
         }
         if (listingId && data.user && supabase) {
@@ -274,6 +291,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     const paths: string[] = [];
     let saved = false;
     try {
+      if (!listingId) await checkMonthlyListingLimit(user);
       const profile = await supabase
         .from("profiles")
         .upsert({ id: user }, { onConflict: "id", ignoreDuplicates: true });
@@ -332,10 +350,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             .select("id")
             .single()
         : await supabase.from("listings").insert(payload).select("id").single();
-      if (result.error)
-        throw new Error(
-          "Elan göndərilmədi. Məlumatları yoxlayıb yenidən cəhd edin.",
-        );
+      if (result.error) throw new Error(listingPolicyError(result.error));
       saved = true;
       setSuccess(true);
     } catch (err) {
@@ -371,6 +386,14 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </p>
           </div>
         </div>
+        {!listingId && (
+          <p className="notice">
+            Hər istifadəçi Bakı vaxtı ilə təqvim ayı ərzində 1 pulsuz yeni elan
+            yerləşdirə bilər. Göndərilən elan yoxlamada, rədd edilmiş və ya
+            arxivdə olsa da aylıq saya daxildir. Mövcud elanın redaktəsi yeni
+            elan sayılmır.
+          </p>
+        )}
         {loading ? (
           <p role="status">Hesab yoxlanılır...</p>
         ) : success ? (
@@ -384,6 +407,21 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <Link className="add" href="/profile">
               Elanlarıma keç
             </Link>
+          </section>
+        ) : quotaError ? (
+          <section className="empty">
+            <h2>Yeni elan limiti</h2>
+            <p role="alert">{quotaError}</p>
+            <Link className="add" href="/profile">
+              Mövcud elanlarıma bax
+            </Link>
+            <button
+              type="button"
+              className="secondary"
+              onClick={() => window.location.reload()}
+            >
+              Yenidən yoxla
+            </button>
           </section>
         ) : loadError ? (
           <div className="error" role="alert">

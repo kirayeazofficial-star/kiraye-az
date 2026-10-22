@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import PromotionOptions from "../components/PromotionOptions";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { supabase } from "../../lib/supabase";
@@ -220,6 +221,7 @@ export default function Profile() {
                         </small>
                       </div>
                       <div className="accountItemActions">
+                        <PromotionOptions eligible={x.status === "published"} />
                         <Link className="secondary" href={`/edit/${x.id}`}>
                           {x.status === "archived"
                             ? "Yenilə və göndər"

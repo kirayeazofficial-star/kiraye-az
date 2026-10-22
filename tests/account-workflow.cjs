@@ -95,6 +95,7 @@ const { chromium } = require("playwright");
           user,
         };
     } else if (path.endsWith("/auth/v1/user")) body = user;
+    else if (path.endsWith("/rest/v1/rpc/has_category_listing_allowance")) body = true;
     else if (path.includes("/rest/v1/profiles"))
       body =
         method === "GET"

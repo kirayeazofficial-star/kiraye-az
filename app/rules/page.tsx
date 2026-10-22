@@ -15,11 +15,12 @@ export default function Rules() {
         </p>
         <h2>Pulsuz elan limiti və təkrar elanlar</h2>
         <p>
-          Hər istifadəçi Bakı vaxtı ilə hər təqvim ayında 1 pulsuz yeni elan
-          göndərə bilər. Yoxlamada, rədd edilmiş və arxivlənmiş elanlar da həmin
-          ayın limitinə daxildir. Limit növbəti ayın ilk günü yenilənir. Elanı
-          redaktə etmək yeni elan sayılmır; arxivə keçirmək limiti geri
-          qaytarmır.
+          Hər kateqoriyada ayda 1 pulsuz təsdiqlənmiş elan yerləşdirə bilərsən.
+          Yoxlamada və rədd edilmiş elanlar limiti doldurmur. Rədd edilmiş elanı
+          düzəldib yenidən göndərmək və mövcud elanı redaktə etmək pulsuzdur.
+          Limit növbəti ay yenilənir. Təsdiqlənmiş elanı arxivləşdirmək həmin ayın
+          istifadə edilmiş limitini geri qaytarmır. Admin panelinə giriş hüququ
+          olan hesablar üçün elan sayı məhdud deyil.
         </p>
         <p>
           Eyni əmlak və ya əşya üçün təkrar aktiv elan yaratma. Məlumatları

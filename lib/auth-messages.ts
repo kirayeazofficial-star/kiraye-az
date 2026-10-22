@@ -14,7 +14,7 @@ export function authErrorMessage(error: unknown) {
   )
     return "E-poçt və ya şifrə düzgün deyil. Mövcud hesabının şifrəsini yaz və ya şifrəni yenilə.";
   if (code === "user_already_exists")
-    return "Bu e-poçtla hesab artıq var. Daxil ol və ya şifrəni yenilə.";
+    return "Bu e-poçtla artıq qeydiyyatdan keçmisən. Daxil ol və ya şifrəni yenilə.";
   if (
     code === "email_address_not_authorized" ||
     /email.*not authorized/i.test(message)

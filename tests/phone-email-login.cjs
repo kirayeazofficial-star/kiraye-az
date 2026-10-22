@@ -332,8 +332,8 @@ vm.runInNewContext(
           .getByRole("link", { name: "Hesabın var? Daxil ol", exact: true })
           .click();
         await page.waitForFunction(() => {
-          const fields = document.querySelector(".authFields");
-          return fields && !fields.disabled;
+          const submit = document.querySelector(".authSubmit");
+          return submit && !submit.disabled;
         });
         assert.equal(
           await page
@@ -351,7 +351,7 @@ vm.runInNewContext(
         await signup(page);
         await page
           .getByRole("status")
-          .filter({ hasText: "Qeydiyyatı təkrar etmək lazım deyil" })
+          .filter({ hasText: "Bu e-poçtla artıq qeydiyyatdan keçmisən" })
           .waitFor();
         assert.equal(
           await page
@@ -393,6 +393,7 @@ vm.runInNewContext(
           await page.setViewportSize({ width, height });
           await page.goto(`${base}/login`);
           await page.getByLabel("E-poçt", { exact: true }).waitFor();
+          await page.waitForFunction(() => !document.querySelector(".authSubmit")?.disabled);
           const card = await page.locator(".loginPage section").boundingBox();
           assert(card.width <= 401);
           assert.equal(

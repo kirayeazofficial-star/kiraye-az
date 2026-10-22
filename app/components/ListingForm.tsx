@@ -31,7 +31,7 @@ import {
 
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const [step, setStep] = useState(1);
-  const [quotaError, setQuotaError] = useState("");
+  const [canModerate, setCanModerate] = useState(false);
   const [rentalPeriod, setRentalPeriod] = useState("daily");
   const submitLock = useRef(false);
   const manualTitle = useRef(false);
@@ -98,7 +98,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       setLoadError(true);
       setError("Hesab yoxlaması gecikir. Bağlantını yoxlayıb yenidən cəhd et.");
     }, 15000);
-    setQuotaError("");
     if (!supabase) {
       setLoading(false);
       clearTimeout(timer);
@@ -116,27 +115,16 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           try {
             const profile = await supabase
               .from("profiles")
-              .select("display_name,phone")
+              .select("display_name,phone,role")
               .eq("id", data.user.id)
               .maybeSingle();
             if (!active) return;
+            setCanModerate(profile.data?.role === "admin");
             if (profile.data?.display_name)
               setContactName(profile.data.display_name);
             setLoginPhone(data.user.phone || profile.data?.phone || "");
           } catch {
             /* Optional contact defaults must not block loading an existing listing. */
-          }
-        }
-        if (!listingId && data.user) {
-          try {
-            await checkMonthlyListingLimit(data.user.id);
-          } catch (error) {
-            if (!active) return;
-            setQuotaError(
-              error instanceof Error
-                ? error.message
-                : "Elan limitini yoxlamaq mümkün olmadı.",
-            );
           }
         }
         if (!active) return;
@@ -307,7 +295,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     const paths: string[] = [];
     let saved = false;
     try {
-      if (!listingId) await checkMonthlyListingLimit(user);
+      if (!listingId) await checkMonthlyListingLimit(user, category);
       const profile = await supabase
         .from("profiles")
         .upsert({ id: user }, { onConflict: "id", ignoreDuplicates: true });
@@ -404,10 +392,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         </div>
         {!listingId && (
           <p className="notice">
-            Hər istifadəçi Bakı vaxtı ilə təqvim ayı ərzində 1 pulsuz yeni elan
-            yerləşdirə bilər. Göndərilən elan yoxlamada, rədd edilmiş və ya
-            arxivdə olsa da aylıq saya daxildir. Mövcud elanın redaktəsi yeni
-            elan sayılmır.
+            {canModerate ? "Admin hesabında elan sayı məhdud deyil." :
+              "Hər kateqoriyada ayda 1 pulsuz təsdiqlənmiş elan. Yoxlamada və rədd edilmiş elanlar limiti doldurmur; elanı düzəldib yenidən göndərə bilərsən."}
           </p>
         )}
         {loading ? (
@@ -424,21 +410,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <Link className="add" href="/profile">
               Elanlarıma keç
             </Link>
-          </section>
-        ) : quotaError ? (
-          <section className="empty">
-            <h2>Yeni elan limiti</h2>
-            <p role="alert">{quotaError}</p>
-            <Link className="add" href="/profile">
-              Mövcud elanlarıma bax
-            </Link>
-            <button
-              type="button"
-              className="secondary"
-              onClick={() => window.location.reload()}
-            >
-              Yenidən yoxla
-            </button>
           </section>
         ) : loadError ? (
           <div className="error" role="alert">

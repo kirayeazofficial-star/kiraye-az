@@ -15,3 +15,10 @@
 ## Hazırkı məhdudiyyətlər
 
 Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH və provayder konfiqurasiyası olmadan hostinq və xarici OAuth dəyişiklikləri tətbiq edilməyib. `supabase/public-access-repair.sql` mövcud bazada yalnız SQL icazəli bağlantı ilə tətbiq edilə bilər. Mənbə koduna commit SQL-in avtomatik bazada icrası demək deyil.
+
+## Son limit və mobil giriş tələbləri
+
+- `supabase/listing-submission-rules.sql` yenilənmiş variantını tətbiq et: admin panelinə daxil olan hesablar limitsiz, adi istifadəçi üçün hər kateqoriyada ayda bir ilk təsdiqlənmiş elan. Pending/rejected sayılmır, eyni elanın redaktəsi və təkrar təsdiqi əlavə yer tutmur. Köhnə hesab üzrə ümumi limitə qayıtma.
+- İki adi hesab və bir admin hesabı ilə canlı yoxla: kateqoriyalar müstəqildir, rədd edilmiş elan düzəldilə bilir, admin başqa istifadəçinin ikinci təsdiqində həmin istifadəçinin limitini keçə bilmir.
+- Real iPhone Safari-də `@` tamamlaması, ayrıca Göstər/Gizlət düyməsi, yeni qeydiyyat, mövcud hesab mesajı və şifrə bərpasını yoxla. Hazırkı mühitdə Safari/WebKit yükləməsi bloklandığı üçün Chromium touch sınağı real Safari sınağı kimi sayılmır.
+- Mövcud olmayan e-poçtun bərpa sorğusunda xidmətin ümumi cavabını məktubun göndərilməsi kimi təqdim etmə; bərpa sorğusu yeni istifadəçi yaratmamalıdır. Hostinqə keçəndə bunu göndəriş qeydləri ilə də yoxla.

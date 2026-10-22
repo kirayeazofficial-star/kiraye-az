@@ -224,7 +224,7 @@ export default function Login({
         if (data.user?.identities && data.user.identities.length === 0) {
           setMode("login");
           setNotice(
-            "Bu ünvanla artıq hesabın varsa, daxil ol və ya şifrəni yenilə. Qeydiyyatı təkrar etmək lazım deyil.",
+            "Bu e-poçtla artıq qeydiyyatdan keçmisən. Daxil ol və ya şifrəni yenilə.",
           );
           return;
         }
@@ -369,6 +369,14 @@ export default function Login({
             <a href={`/login?next=${encodeURIComponent(next)}`} aria-current={mode === "login" ? "page" : undefined}>Daxil ol</a>
             <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyatdan keç</a>
           </nav>
+          {!ready && (
+            <p className="notice" role="status">
+              Forma hazırlanır. Düymələr açılmırsa, {" "}
+              <a href={`/login?mode=${initialMode}&next=${encodeURIComponent(next)}&reload=1`}>
+                səhifəni yenidən aç
+              </a>.
+            </p>
+          )}
           <h1 id="auth-title">
             {method === "phone"
               ? "Hesaba giriş"
@@ -423,7 +431,21 @@ export default function Login({
                 </p>
               )}
               {!verification ? (
-                <form onSubmit={submit} method="post" action="/login">
+                <form
+                  onSubmit={submit}
+                  method="post"
+                  action="/login"
+                  onInvalid={(event) => {
+                    const field = event.target as HTMLInputElement;
+                    setNotice(
+                      field.name === "email"
+                        ? "Düzgün e-poçt ünvanı yaz."
+                        : mode === "signup"
+                          ? "Ən azı 8 simvoldan ibarət şifrə yaz."
+                          : "Şifrəni yaz.",
+                    );
+                  }}
+                >
                   <fieldset className="authFields" disabled={busy}>
                     <label>
                       E-poçt
@@ -435,6 +457,7 @@ export default function Login({
                         spellCheck={false}
                         autoComplete="email"
                         value={emailAddress}
+                        onInput={(e) => setEmailAddress(e.currentTarget.value)}
                         onChange={(e) => setEmailAddress(e.target.value)}
                         required
                         maxLength={254}
@@ -452,10 +475,12 @@ export default function Login({
                       </div>
                     )}
                     {mode !== "reset" && (
-                      <label>
-                        Şifrə
+                      <div className="authPasswordGroup">
+                        <label htmlFor="auth-password">Şifrə</label>
                         <div className="passwordField">
                           <input
+                            id="auth-password"
+                            aria-describedby={mode === "signup" ? "password-hint" : undefined}
                             aria-label="Şifrə"
                             name="password"
                             type={showPassword ? "text" : "password"}
@@ -483,7 +508,12 @@ export default function Login({
                             {showPassword ? "Gizlət" : "Göstər"}
                           </button>
                         </div>
-                      </label>
+                        {mode === "signup" && (
+                          <small className="passwordHint" id="password-hint">
+                            Ən azı 8 simvoldan ibarət şifrə yaz.
+                          </small>
+                        )}
+                      </div>
                     )}
                     {mode === "login" && (
                       <a
@@ -524,13 +554,13 @@ export default function Login({
                 <div className="confirmationPanel">
                   <p className="authLead">
                     {verification === "recovery"
-                      ? "Bu ünvanla hesab varsa, şifrə bərpa kodu üçün sorğu qəbul edildi."
+                      ? "Sorğu qəbul edildi. Bərpa məktubu yalnız qeydiyyatdan keçmiş hesabın e-poçtuna göndərilir."
                       : "Təsdiq məktubu üçün sorğu qəbul edildi."}
                   </p>
                   <div className="confirmationEmail">{emailAddress}</div>
                   <p className="confirmationInstruction">
                     {verification === "recovery"
-                      ? "E-poçtuna gələn 6 rəqəmli kodu yaz. Sonra yeni şifrə təyin edəcəksən."
+                      ? "Bu e-poçtla hesabın varsa, gələn 6 rəqəmli kodu yaz. Bu sorğu yeni hesab yaratmır."
                       : "Məktubdakı hesabı təsdiqlə linkini aç."}
                   </p>
                   <p className="mailHelp">

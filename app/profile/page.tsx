@@ -180,15 +180,34 @@ export default function Profile() {
                   .filter((x) => !statusFilter || x.status === statusFilter)
                   .map((x) => (
                     <article key={x.id}>
-                      <img
-                        src={x.images?.[0] || "/placeholder.svg"}
-                        alt={x.title}
-                      />
+                      <Link
+                        href={
+                          x.status === "published"
+                            ? `/listings/${x.id}`
+                            : `/profile/listings/${x.id}`
+                        }
+                        aria-label={`${x.title} — elana bax`}
+                      >
+                        <img
+                          src={x.images?.[0] || "/placeholder.svg"}
+                          alt={x.title}
+                        />
+                      </Link>
                       <div>
                         <span className={`status ${x.status}`}>
                           {statusName(x.status)}
                         </span>
-                        <h3>{x.title}</h3>
+                        <h3>
+                          <Link
+                            href={
+                              x.status === "published"
+                                ? `/listings/${x.id}`
+                                : `/profile/listings/${x.id}`
+                            }
+                          >
+                            {x.title}
+                          </Link>
+                        </h3>
                         <p>
                           {money(x.price)} ₼ / {periodName(x.rental_period)} ·{" "}
                           {x.city}
@@ -206,14 +225,16 @@ export default function Profile() {
                             ? "Yenilə və göndər"
                             : "Redaktə et"}
                         </Link>
-                        {x.status === "published" && (
-                          <Link
-                            className="secondary"
-                            href={`/listings/${x.id}`}
-                          >
-                            Elana bax
-                          </Link>
-                        )}
+                        <Link
+                          className="secondary"
+                          href={
+                            x.status === "published"
+                              ? `/listings/${x.id}`
+                              : `/profile/listings/${x.id}`
+                          }
+                        >
+                          Elana bax
+                        </Link>
                         {x.status !== "archived" && (
                           <button
                             className="secondary"

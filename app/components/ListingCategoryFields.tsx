@@ -345,10 +345,10 @@ function VehicleFields({
               <input
                 aria-label="Yürüş, km"
                 name="mileage_km"
-                type="number"
-                min="0"
-                max="10000000"
-                step="1"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]+"
+                maxLength={8}
                 required
                 value={mileage}
                 readOnly={isNew === "Yeni"}

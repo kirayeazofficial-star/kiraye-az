@@ -1,3 +1,4 @@
+import { minimumRentalLabel } from "../../lib/rental-details";
 import Link from "next/link";
 import {
   Listing,
@@ -69,7 +70,9 @@ export default function ListingCard({
                 ? `Depozit: ${money(item.deposit)} ₼`
                 : "Depoziti dəqiqləşdir"}
           </span>
-          {(item.min_days ?? 1) > 1 && <span>Ən azı {item.min_days} gün</span>}
+          {(item.min_days ?? 1) > 1 && (
+            <span>Ən azı {minimumRentalLabel(item)}</span>
+          )}
           {!!item.rooms && <span>{item.rooms} otaq</span>}
           {!!item.area_m2 && <span>{item.area_m2} m²</span>}
         </div>

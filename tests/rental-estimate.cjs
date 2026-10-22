@@ -146,4 +146,42 @@ check("invalid month counts and corrupted prices are rejected", () => {
     assert(quote({ ...item, price }, request).error);
   assert(quote({ ...item, deposit: -1 }, request).error);
 });
+
+check(
+  "month minimum respects February rather than treating every month as thirty days",
+  () => {
+    const monthly = {
+      ...item,
+      rental_period: "monthly",
+      min_days: 30,
+      attributes: { min_rental_value: "1", min_rental_unit: "month" },
+    };
+    const result = quote(monthly, {
+      ...request,
+      start: "2027-01-31",
+      months: 1,
+    });
+    assert.equal(result.error, null);
+    assert.equal(result.end, "2027-02-28");
+    assert.equal(
+      quote(
+        { ...monthly, rental_period: "daily" },
+        { ...request, start: "2027-01-31", end: "2027-02-27" },
+      ).error !== null,
+      true,
+    );
+  },
+);
+check("year minimum preserves leap-year calendar boundaries", () => {
+  const yearly = {
+    ...item,
+    min_days: 365,
+    attributes: { min_rental_value: "1", min_rental_unit: "year" },
+  };
+  assert.equal(
+    quote(yearly, { ...request, start: "2028-02-29", end: "2029-02-28" }).error,
+    null,
+  );
+});
+
 console.log(`${count} rental estimate checks passed`);

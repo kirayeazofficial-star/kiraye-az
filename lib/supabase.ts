@@ -13,13 +13,6 @@ export const supabase =
     ? createClient(url, key, {
         global: {
           fetch: async (input, init) => {
-            const requestUrl =
-              typeof input === "string"
-                ? input
-                : input instanceof URL
-                  ? input.href
-                  : input.url;
-            if (!requestUrl.includes("/auth/v1/")) return fetch(input, init);
             const controller = new AbortController();
             const abort = () => controller.abort();
             const signal = init?.signal;
@@ -53,3 +46,24 @@ export async function getAuthCapabilities() {
     email: settings.external?.email === true,
   };
 }
+
+// Public browsing must never wait for a stored login session or token refresh.
+// A separate non-persisted client also keeps server requests anonymous.
+export const publicSupabase =
+  url && key && supabase
+    ? createClient(url, key, {
+        auth: {
+          storageKey: "kiraye-public-catalog",
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+        global: {
+          fetch: (input, init) =>
+            fetch(input, {
+              ...init,
+              signal: init?.signal ?? AbortSignal.timeout(15000),
+            }),
+        },
+      })
+    : null;

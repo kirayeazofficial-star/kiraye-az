@@ -48,8 +48,23 @@ const { chromium } = require("playwright");
         const request = req.postDataJSON();
         assert.equal(request.type, "recovery");
         assert.equal(request.email, user.email);
-        if (request.token !== "123456") return route.fulfill({ status: 403, headers, contentType: "application/json", body: JSON.stringify({ code: "otp_expired", message: "Token has expired or is invalid" }) });
-        body = { access_token: jwt, refresh_token: "mock-refresh", expires_in: 3600, token_type: "bearer", user };
+        if (request.token !== "123456")
+          return route.fulfill({
+            status: 403,
+            headers,
+            contentType: "application/json",
+            body: JSON.stringify({
+              code: "otp_expired",
+              message: "Token has expired or is invalid",
+            }),
+          });
+        body = {
+          access_token: jwt,
+          refresh_token: "mock-refresh",
+          expires_in: 3600,
+          token_type: "bearer",
+          user,
+        };
       } else if (path.endsWith("/user")) {
         if (req.method() === "PUT") updates.push(req.postDataJSON());
         body = user;
@@ -78,7 +93,7 @@ const { chromium } = require("playwright");
         const t = await setup();
         await t.page.goto(`${base}/login`);
         await t.page
-          .getByRole("button", { name: "Şifrəni unutmusunuz?", exact: true })
+          .getByRole("link", { name: "Şifrəni unutmusunuz?", exact: true })
           .click();
         await t.page.getByLabel("E-poçt", { exact: true }).fill(user.email);
         await t.page
@@ -92,24 +107,47 @@ const { chromium } = require("playwright");
             .get("redirect_to")
             .endsWith("/reset-password"),
         );
-        assert.equal(await t.page.getByLabel("Yeni şifrə", { exact: true }).count(), 0);
-        assert.equal(await t.page.getByRole("link", { name: /Linki açmışam/ }).count(), 0);
+        assert.equal(
+          await t.page.getByLabel("Yeni şifrə", { exact: true }).count(),
+          0,
+        );
+        assert.equal(
+          await t.page.getByRole("link", { name: /Linki açmışam/ }).count(),
+          0,
+        );
         const code = t.page.getByLabel("6 rəqəmli kod", { exact: true });
         await code.fill("000000");
-        await t.page.getByRole("button", { name: "Kodu təsdiqlə", exact: true }).click();
+        await t.page
+          .getByRole("button", { name: "Kodu təsdiqlə", exact: true })
+          .click();
         await t.page.getByRole("status").waitFor();
         assert.equal(t.updates.length, 0);
         assert(new URL(t.page.url()).pathname === "/login");
         await code.fill("123456");
-        await t.page.getByRole("button", { name: "Kodu təsdiqlə", exact: true }).click();
+        await t.page
+          .getByRole("button", { name: "Kodu təsdiqlə", exact: true })
+          .click();
         await t.page.waitForURL("**/reset-password");
-        await t.page.getByLabel("Yeni şifrə", { exact: true }).fill("new-test-password");
-        await t.page.getByLabel("Şifrəni təkrarla", { exact: true }).fill("new-test-password");
-        await t.page.getByRole("button", { name: "Şifrəni saxla", exact: true }).click();
-        await t.page.getByRole("heading", { name: "Şifrən yeniləndi", exact: true }).waitFor();
+        await t.page
+          .getByLabel("Yeni şifrə", { exact: true })
+          .fill("new-test-password");
+        await t.page
+          .getByLabel("Şifrəni təkrarla", { exact: true })
+          .fill("new-test-password");
+        await t.page
+          .getByRole("button", { name: "Şifrəni saxla", exact: true })
+          .click();
+        await t.page
+          .getByRole("heading", { name: "Şifrən yeniləndi", exact: true })
+          .waitFor();
         assert.equal(t.updates.length, 1);
         assert.equal(t.updates[0].password, "new-test-password");
-        assert.equal(await t.page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+        assert.equal(
+          await t.page.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+        );
         assert.deepEqual(t.errors, []);
         await t.context.close();
       },
@@ -181,7 +219,10 @@ const { chromium } = require("playwright");
         await t.page.getByLabel("Yeni şifrə", { exact: true }).waitFor();
         await t.page.goto(`${base}/login`);
         await t.page.getByLabel("6 rəqəmli kod", { exact: true }).waitFor();
-        assert.equal(await t.page.getByLabel("Yeni şifrə", { exact: true }).count(), 0);
+        assert.equal(
+          await t.page.getByLabel("Yeni şifrə", { exact: true }).count(),
+          0,
+        );
         await t.context.close();
       },
     );

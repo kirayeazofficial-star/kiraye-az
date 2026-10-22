@@ -136,6 +136,8 @@ export type Listing = {
     floor?: string;
     total_floors?: string;
     contact_name?: string;
+    min_rental_value?: string;
+    min_rental_unit?: string;
     color?: string;
     fuel?: string;
     engine_cc?: string;

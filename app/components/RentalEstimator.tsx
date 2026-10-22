@@ -2,7 +2,11 @@
 import { useEffect, useState } from "react";
 import { type Listing, money } from "../../lib/marketplace";
 import { normalizePhone } from "../../lib/rental-details";
-import { addRentalDays, calculateRental } from "../../lib/rental-estimate";
+import {
+  addRentalDays,
+  calculateRental,
+  minimumRentalEnd,
+} from "../../lib/rental-estimate";
 export default function RentalEstimator({ item }: { item: Listing }) {
   const [today, setToday] = useState("");
   const [start, setStart] = useState("");
@@ -18,7 +22,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
         : value;
     setToday(value);
     setStart(first);
-    setEnd(addRentalDays(first, item.min_days || 1));
+    setEnd(minimumRentalEnd(item, first));
   }, [item.id, item.available_from, item.min_days]);
   const phone = normalizePhone(item.contact || "");
   const canDeliver = ["Çatdırılma", "Hər ikisi"].includes(
@@ -81,7 +85,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
             max={item.available_until || undefined}
             onChange={(event) => {
               setStart(event.target.value);
-              setEnd(addRentalDays(event.target.value, item.min_days || 1));
+              setEnd(minimumRentalEnd(item, event.target.value));
             }}
           />
         </label>
@@ -105,7 +109,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
               aria-label="Qaytarma tarixi"
               type="date"
               value={end}
-              min={addRentalDays(start, item.min_days || 1) || undefined}
+              min={minimumRentalEnd(item, start) || undefined}
               max={item.available_until || undefined}
               onChange={(event) => setEnd(event.target.value)}
             />

@@ -33,6 +33,19 @@ export function rentalMonthEnd(value: string, months: number) {
   date.setUTCDate(Math.min(day, lastDay));
   return date.toISOString().slice(0, 10);
 }
+export function minimumRentalEnd(
+  item: Pick<Listing, "min_days" | "attributes">,
+  start: string,
+) {
+  if (!validRentalDate(start)) return "";
+  const value = Number(item.attributes?.min_rental_value);
+  const unit = item.attributes?.min_rental_unit;
+  if (Number.isInteger(value) && value >= 1 && value <= 365) {
+    if (unit === "month") return rentalMonthEnd(start, value);
+    if (unit === "year") return rentalMonthEnd(start, value * 12);
+  }
+  return addRentalDays(start, item.min_days || 1);
+}
 export type RentalQuote =
   | { error: string }
   | {
@@ -70,8 +83,20 @@ export function calculateRental(
     (Date.parse(end) - Date.parse(input.start)) / 86400000,
   );
   const minimum = item.min_days ?? 1;
-  if (!Number.isInteger(minimum) || minimum < 1 || days < minimum)
-    return fail(`Minimum kirayə müddəti ${minimum} gündür.`);
+  if (
+    !Number.isInteger(minimum) ||
+    minimum < 1 ||
+    end < minimumRentalEnd(item, input.start)
+  ) {
+    const value = item.attributes?.min_rental_value || String(minimum);
+    const unit =
+      item.attributes?.min_rental_unit === "month"
+        ? "ay"
+        : item.attributes?.min_rental_unit === "year"
+          ? "il"
+          : "gün";
+    return fail(`Minimum kirayə müddəti ${value} ${unit}.`);
+  }
   if (
     item.available_from &&
     (!validRentalDate(item.available_from) || input.start < item.available_from)

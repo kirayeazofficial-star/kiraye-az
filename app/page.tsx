@@ -41,6 +41,7 @@ export default function Home() {
     [detail, setDetail] = useState<Listing | null>(null),
     [page, setPage] = useState(1),
     [advanced, setAdvanced] = useState(false),
+    [allCategories, setAllCategories] = useState(false),
     [rooms, setRooms] = useState(""),
     [area, setArea] = useState(""),
     [brand, setBrand] = useState(""),
@@ -281,6 +282,7 @@ export default function Home() {
     setGearbox("");
   }
   function reset() {
+    setAllCategories(false);
     setCategory("");
     setCity("");
     setPeriod("");
@@ -305,7 +307,11 @@ export default function Home() {
     city && { label: city, clear: () => setCity("") },
     period && {
       label: period === "daily" ? "Günlük kirayə" : "Aylıq kirayə",
-      clear: () => setPeriod(""),
+      clear: () => {
+        setPeriod("");
+        setMin("");
+        setMax("");
+      },
     },
     min && { label: `Ən azı ${min} ₼`, clear: () => setMin("") },
     max && { label: `Ən çox ${max} ₼`, clear: () => setMax("") },
@@ -358,10 +364,58 @@ export default function Home() {
               <p className="eyebrow">HƏR EHTİYACA BİR SEÇİM</p>
               <h2>Nə kirayələmək istəyirsən?</h2>
             </div>
-            <button className="textButton" onClick={() => changeCategory("")}>
-              Bütün kateqoriyalar →
+            <button
+              className="textButton"
+              aria-expanded={allCategories}
+              aria-controls="all-categories"
+              onClick={() => {
+                changeCategory("");
+                setAllCategories(!allCategories);
+              }}
+            >
+              {allCategories
+                ? "Kateqoriyaları bağla ×"
+                : "Bütün kateqoriyalar →"}
             </button>
           </div>
+          {allCategories && (
+            <div
+              className="allCategories"
+              id="all-categories"
+              aria-label="Bütün kateqoriyalar"
+            >
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => {
+                  changeCategory("");
+                  setAllCategories(false);
+                  document
+                    .getElementById("elanlar")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                Bütün elanlara bax
+              </button>
+              {categories.map((item) => (
+                <button
+                  type="button"
+                  className="secondary"
+                  key={item.id}
+                  onClick={() => {
+                    changeCategory(item.id);
+                    setAllCategories(false);
+                    setAdvanced(true);
+                    document
+                      .getElementById("kiraye-axtaris")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="categories">
             {categories.map((c) => (
               <button
@@ -422,7 +476,11 @@ export default function Home() {
               <select
                 aria-label="Kirayə müddəti"
                 value={period}
-                onChange={(e) => setPeriod(e.target.value)}
+                onChange={(e) => {
+                  setPeriod(e.target.value);
+                  setMin("");
+                  setMax("");
+                }}
               >
                 <option value="">İstənilən müddət</option>
                 <option value="daily">Günlük</option>
@@ -459,29 +517,14 @@ export default function Home() {
               <option value="high">Əvvəlcə bahalı</option>
             </select>
           </div>
-          <div className="filterRow" aria-label="Qiymət və əlavə filtrlər">
-            <label>
-              Minimum qiymət
-              <input
-                aria-label="Minimum qiymət"
-                type="number"
-                min="0"
-                placeholder="0 ₼"
-                value={min}
-                onChange={(e) => setMin(e.target.value)}
-              />
-            </label>
-            <label>
-              Maksimum qiymət
-              <input
-                aria-label="Maksimum qiymət"
-                type="number"
-                min="0"
-                placeholder="İstənilən ₼"
-                value={max}
-                onChange={(e) => setMax(e.target.value)}
-              />
-            </label>
+          <div className="filterRow" aria-label="Kirayə filtrləri">
+            <button
+              className={`pill ${noDeposit ? "active" : ""}`}
+              aria-pressed={noDeposit}
+              onClick={() => setNoDeposit(!noDeposit)}
+            >
+              Depozitsiz kirayə
+            </button>
             <button
               className={`pill ${onlyFavorites ? "active" : ""}`}
               aria-pressed={onlyFavorites}
@@ -539,6 +582,30 @@ export default function Home() {
                   ))}
                 </select>
               </label>
+              {period && (
+                <>
+                  <label>
+                    Minimum qiymət (₼ / {period === "daily" ? "gün" : "ay"})
+                    <input
+                      aria-label="Minimum qiymət"
+                      type="number"
+                      min="0"
+                      value={min}
+                      onChange={(event) => setMin(event.target.value)}
+                    />
+                  </label>
+                  <label>
+                    Maksimum qiymət (₼ / {period === "daily" ? "gün" : "ay"})
+                    <input
+                      aria-label="Maksimum qiymət"
+                      type="number"
+                      min="0"
+                      value={max}
+                      onChange={(event) => setMax(event.target.value)}
+                    />
+                  </label>
+                </>
+              )}
               {["property", "villa"].includes(category) && (
                 <label>
                   Otaq sayı

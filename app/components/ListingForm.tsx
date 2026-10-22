@@ -34,12 +34,13 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
   const [formVersion, setFormVersion] = useState(0);
   const [contactName, setContactName] = useState("");
   const [accountEmail, setAccountEmail] = useState("");
-  const [savedCity, setSavedCity] = useState("");
+  const [minimumUnit, setMinimumUnit] = useState("day");
   function suggestTitle(value: string) {
     if (!manualTitle.current) setTitle(value.slice(0, 120));
   }
   function resetForm() {
     setStep(1);
+    setMinimumUnit(initial?.attributes?.min_rental_unit || "day");
     setRentalPeriod(initial?.rental_period || "daily");
     setFormVersion((value) => value + 1);
     setCategory(initial?.category || "");
@@ -93,10 +94,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         setUser(data.user?.id ?? "");
         setLoginPhone(data.user?.phone ?? "");
         setAccountEmail(data.user?.email || "");
-        try {
-          const lastCity = localStorage.getItem("kiraye:last-city");
-          if (lastCity && cities.includes(lastCity)) setSavedCity(lastCity);
-        } catch {}
         if (data.user && supabase) {
           setContactName(data.user.user_metadata?.full_name || "");
           try {
@@ -127,6 +124,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             return;
           }
           setInitial(result.data as Listing);
+          setMinimumUnit(result.data.attributes?.min_rental_unit || "day");
           setRentalPeriod(result.data.rental_period);
           setTitle(result.data.title);
           setDescriptionText(result.data.description || "");
@@ -183,7 +181,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         ) ||
         validateRentalDetails({
           deposit: Number(form.get("deposit") || 0),
-          min_days: Number(form.get("min_days") || 1),
+          min_days:
+            Number(form.get("min_days") || 1) *
+            ({ day: 1, month: 30, year: 365 }[minimumUnit] || 1),
           available_from: String(form.get("available_from") || "") || null,
           available_until: String(form.get("available_until") || "") || null,
         });
@@ -239,7 +239,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     }
     const rental = {
       deposit: Number(form.get("deposit") || 0),
-      min_days: Number(form.get("min_days") || 1),
+      min_days:
+        Number(form.get("min_days") || 1) *
+        ({ day: 1, month: 30, year: 365 }[minimumUnit] || 1),
       available_from: String(form.get("available_from") || "") || null,
       available_until: String(form.get("available_until") || "") || null,
     };
@@ -334,9 +336,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         throw new Error(
           "Elan göndərilmədi. Məlumatları yoxlayıb yenidən cəhd edin.",
         );
-      try {
-        localStorage.setItem("kiraye:last-city", String(form.get("city")));
-      } catch {}
       saved = true;
       setSuccess(true);
     } catch (err) {
@@ -409,6 +408,15 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
               className="listingForm"
               noValidate
               onSubmit={submit}
+              onWheelCapture={(event) => {
+                const field = event.target;
+                if (
+                  field instanceof HTMLInputElement &&
+                  field.type === "number" &&
+                  document.activeElement === field
+                )
+                  field.blur();
+              }}
               onInput={() => {
                 if (preview) updatePreview();
               }}
@@ -500,7 +508,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           aria-label="Şəhər"
                           name="city"
                           required
-                          defaultValue={initial?.city || savedCity || ""}
+                          defaultValue={initial?.city || ""}
                         >
                           <option value="" disabled>
                             Şəhər seçin
@@ -647,20 +655,42 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             />
                           </label>
                           <label>
-                            Minimum kirayə (gün)
+                            Minimum kirayə müddəti
                             <input
                               name="min_days"
-                              type="number"
-                              min="1"
-                              max="365"
-                              required
-                              defaultValue={initial?.min_days ?? 1}
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]+"
+                              maxLength={3}
+                              defaultValue={
+                                initial?.attributes?.min_rental_value ||
+                                initial?.min_days ||
+                                1
+                              }
                             />
+                          </label>
+                          <label>
+                            Müddət vahidi
+                            <select
+                              name="min_rental_unit"
+                              value={minimumUnit}
+                              onChange={(event) =>
+                                setMinimumUnit(event.target.value)
+                              }
+                            >
+                              <option value="day">Gün</option>
+                              <option value="month">Ay</option>
+                              <option value="year">İl</option>
+                            </select>
+                            <small>
+                              Ən çox 365 gün / 12 ay / 1 il. Boş müddət 1
+                              sayılır.
+                            </small>
                           </label>
                         </div>
                         <div className="formGrid">
                           <label>
-                            Bu tarixdən mövcuddur
+                            Bu tarixdən mövcuddur (istəyə bağlı)
                             <input
                               name="available_from"
                               type="date"
@@ -668,7 +698,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             />
                           </label>
                           <label>
-                            Bu tarixədək mövcuddur
+                            Bu tarixədək mövcuddur (istəyə bağlı)
                             <input
                               name="available_until"
                               type="date"

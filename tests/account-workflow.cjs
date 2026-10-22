@@ -27,7 +27,8 @@ const { chromium } = require("playwright");
   const jwt = `${Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url")}.${Buffer.from(JSON.stringify({ sub: id, aud: "authenticated", role: "authenticated", exp: Math.floor(Date.now() / 1000) + 3600 })).toString("base64url")}.test-signature`;
   let rejectLogin = true,
     inserted,
-    updated;
+    updated,
+    submittedReport;
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   let item = {
@@ -91,7 +92,11 @@ const { chromium } = require("playwright");
               phone: "+994501234567",
             }
           : {};
-    else if (path.includes("/rest/v1/listings")) {
+    else if (path.includes("/rest/v1/listing_reports")) {
+      submittedReport = req.postDataJSON();
+      body = {};
+      status = 201;
+    } else if (path.includes("/rest/v1/listings")) {
       if (method === "POST") {
         inserted = req.postDataJSON();
         body = { id: listingId };
@@ -185,7 +190,7 @@ const { chromium } = require("playwright");
           user.email,
         );
         await page
-          .getByRole("button", { name: "Hesabın var? Daxil ol", exact: true })
+          .getByRole("link", { name: "Hesabın var? Daxil ol", exact: true })
           .click();
         await page.getByLabel("Şifrə", { exact: true }).fill("old123");
       },
@@ -234,6 +239,7 @@ const { chromium } = require("playwright");
     await check(
       "four-step flow blocks missing category and scopes each category",
       async () => {
+        await page.evaluate(() => localStorage.setItem("kiraye:last-city", "Xırdalan"));
         await page.goto(`${base}/new`);
         await next();
         assert.equal(
@@ -327,6 +333,35 @@ const { chromium } = require("playwright");
         assert.equal(
           await page.getByLabel("Yürüş, km", { exact: true }).inputValue(),
           "0",
+        );
+        await page
+          .getByLabel("Yeni / işlənmiş", { exact: true })
+          .selectOption("İşlənmiş");
+        const mileage = page.getByLabel("Yürüş, km", { exact: true });
+        await mileage.fill("50000");
+        await mileage.hover();
+        await page.mouse.wheel(0, 100);
+        assert.equal(await mileage.inputValue(), "50000");
+        await mileage.press("ArrowDown");
+        assert.equal(await mileage.inputValue(), "50000");
+        assert.equal(await page.locator('[name="city"]').inputValue(), "");
+        await page.locator(".optionalRentalTerms summary").click();
+        const minimum = page.locator('[name="min_days"]');
+        await minimum.fill("30");
+        await minimum.hover();
+        await page.mouse.wheel(0, 100);
+        await minimum.press("ArrowDown");
+        assert.equal(await minimum.inputValue(), "30");
+        await page.locator('[name="min_rental_unit"]').selectOption("month");
+        assert.equal(
+          await page.locator('[name="min_rental_unit"]').inputValue(),
+          "month",
+        );
+        assert.equal(
+          await page
+            .locator('[name="available_from"]')
+            .getAttribute("required"),
+          null,
         );
         await page.screenshot({
           path: "/tmp/kirayeal-car-form.png",
@@ -453,6 +488,8 @@ const { chromium } = require("playwright");
         );
         await page.getByText("Əlavə kirayə şərtləri", { exact: false }).click();
         await page.getByLabel("Depozit (₼)", { exact: true }).fill("45");
+        await page.locator('[name="min_days"]').fill("1");
+        await page.locator('[name="min_rental_unit"]').selectOption("month");
         await next();
         await page
           .locator('[data-post-step="3"]')
@@ -483,6 +520,9 @@ const { chromium } = require("playwright");
         assert.equal(inserted.attributes.fuel, undefined);
         assert.equal(inserted.attributes.included_items, undefined);
         assert.equal(inserted.deposit, 45);
+        assert.equal(inserted.min_days, 30);
+        assert.equal(inserted.attributes.min_rental_value, "1");
+        assert.equal(inserted.attributes.min_rental_unit, "month");
         assert.equal(inserted.rooms, null);
       },
     );
@@ -503,6 +543,11 @@ const { chromium } = require("playwright");
         assert.equal(
           await page.getByLabel("Marka", { exact: true }).inputValue(),
           "Trek",
+        );
+        assert.equal(await page.locator('[name="min_days"]').inputValue(), "1");
+        assert.equal(
+          await page.locator('[name="min_rental_unit"]').inputValue(),
+          "month",
         );
         await page
           .getByLabel("Təkər ölçüsü", { exact: true })
@@ -536,15 +581,24 @@ const { chromium } = require("playwright");
           name: "Kirayə xərcini hesabla",
         });
         await estimator
-          .getByRole("button", { name: "3 gün", exact: true })
+          .getByLabel("Götürmə tarixi", { exact: true })
+          .fill("2030-04-01");
+        await estimator
+          .getByRole("button", { name: "30 gün", exact: true })
           .click();
-        await estimator.getByText("120 ₼", { exact: true }).waitFor();
+        assert.equal(
+          (await estimator.locator(".estimateTotal dd").innerText()).replace(
+            /\D/g,
+            "",
+          ),
+          "1245",
+        );
         const message = new URL(
           await estimator
             .getByRole("link", { name: "Tarixləri WhatsApp-la soruş" })
             .getAttribute("href"),
         ).searchParams.get("text");
-        assert(message.includes("3 gün"));
+        assert(message.includes("30 gün"));
         assert.equal(
           await page.evaluate(
             () => document.documentElement.scrollWidth > innerWidth,
@@ -552,6 +606,54 @@ const { chromium } = require("playwright");
           false,
         );
         item = original;
+      },
+    );
+    await check(
+      "pending listings open only through the owner's private preview",
+      async () => {
+        item.status = "pending";
+        await page.goto(`${base}/profile`);
+        const imageLink = page.locator(".accountListings article > a");
+        await imageLink.waitFor();
+        assert.equal(
+          await imageLink.getAttribute("href"),
+          `/profile/listings/${listingId}`,
+        );
+        await imageLink.click();
+        await page.getByText(/Şəxsi önbaxış:/).waitFor();
+        await page.locator(".listingDetails").waitFor();
+        await page.goto(`${base}/profile`);
+        await page.locator(".accountListings article").waitFor();
+      },
+    );
+    await check(
+      "an authenticated visitor can report another owner's published listing",
+      async () => {
+        const previousOwner = item.owner_id;
+        item.owner_id = "99999999-9999-4999-8999-999999999999";
+        item.status = "published";
+        await page.goto(base);
+        await page.locator(".quickView").click();
+        await page
+          .getByRole("button", { name: "Bu elandan şikayət et", exact: true })
+          .click();
+        await page
+          .getByLabel("Əlavə məlumat", { exact: true })
+          .fill("Elanın qiyməti təsvirlə uyğun gəlmir, yoxlayın.");
+        await page
+          .getByRole("button", { name: "Şikayəti göndər", exact: true })
+          .click();
+        await page
+          .getByText("Şikayətiniz qeydə alındı. İdarəçi yoxlayacaq.", {
+            exact: true,
+          })
+          .waitFor();
+        assert.equal(submittedReport.reporter_id, id);
+        assert.equal(submittedReport.listing_id, listingId);
+        assert.equal(submittedReport.status, "open");
+        item.owner_id = previousOwner;
+        await page.goto(`${base}/profile`);
+        await page.locator(".accountListings article").waitFor();
       },
     );
     await check("owner can archive an existing listing", async () => {

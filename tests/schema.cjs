@@ -25,6 +25,9 @@ const { PGlite } = require(
   const sql = fs.readFileSync("supabase/schema.sql", "utf8");
   await db.exec(sql);
   await db.exec(sql);
+  const repair = fs.readFileSync("supabase/public-access-repair.sql", "utf8");
+  await db.exec(repair);
+  await db.exec(repair);
   checks++;
   console.log("PASS schema applies twice without data loss");
   await db.exec(

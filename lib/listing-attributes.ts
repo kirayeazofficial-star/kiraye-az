@@ -59,6 +59,16 @@ export function readListingAttributes(
     attributes.year = Number(form.get("year"));
   if (["property", "villa", "commercial"].includes(category))
     attributes.amenities = form.getAll("amenities").map(String);
+  const minimum = Number(form.get("min_days") || 1);
+  const unit = String(form.get("min_rental_unit") || "day");
+  if (
+    Number.isInteger(minimum) &&
+    minimum >= 1 &&
+    ["day", "month", "year"].includes(unit)
+  ) {
+    attributes.min_rental_value = String(minimum);
+    attributes.min_rental_unit = unit;
+  }
   return attributes;
 }
 export function validateListingAttributes(

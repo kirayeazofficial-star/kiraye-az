@@ -133,3 +133,19 @@ export function matchesRentalFilters(
   }
   return true;
 }
+
+// Preserve the owner's chosen unit; min_days remains compatible with existing searches.
+export function minimumRentalLabel(item: {
+  min_days?: number;
+  attributes?: { min_rental_value?: string; min_rental_unit?: string };
+}) {
+  const value = item.attributes?.min_rental_value;
+  const unit = item.attributes?.min_rental_unit;
+  if (
+    value &&
+    /^\d+$/.test(value) &&
+    ["day", "month", "year"].includes(unit || "")
+  )
+    return `${value} ${{ day: "gün", month: "ay", year: "il" }[unit!]}`;
+  return `${item.min_days ?? 1} gün`;
+}

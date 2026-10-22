@@ -1,4 +1,5 @@
 "use client";
+import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
@@ -71,11 +72,22 @@ export default function ListingDetails({
         setNotice("Şikayət göndərmək üçün hesabınıza daxil olun.");
         return;
       }
+      if (data.user.id === item.owner_id) {
+        setNotice(
+          "Öz elanına şikayət göndərə bilməzsən. Dəyişiklik üçün kabinetdə Redaktə et seç.",
+        );
+        return;
+      }
+      const message = String(form.get("message") ?? "").trim();
+      if (message.length < 10 || message.length > 1000) {
+        setNotice("Əlavə məlumat 10–1000 simvol olmalıdır.");
+        return;
+      }
       const result = await supabase.from("listing_reports").insert({
         listing_id: item.id,
         reporter_id: data.user.id,
         reason: form.get("reason"),
-        message: String(form.get("message") ?? "").trim(),
+        message,
         status: "open",
       });
       if (result.error?.code === "23505") {
@@ -87,8 +99,15 @@ export default function ListingDetails({
       setReported(true);
       setReport(false);
       setNotice("Şikayətiniz qeydə alındı. İdarəçi yoxlayacaq.");
-    } catch {
-      setNotice("Şikayət göndərilmədi. Bir az sonra yenidən yoxlayın.");
+    } catch (error) {
+      const code = (error as { code?: string })?.code;
+      setNotice(
+        code === "42501"
+          ? "Bu elan üçün şikayət icazəsi yoxdur. Hesabını və elanın yayımlandığını yoxla."
+          : code === "42P01" || code === "PGRST205"
+            ? "Şikayət xidməti bazada aktivləşdirilməyib. Sayt idarəçisi quraşdırmanı tamamlamalıdır."
+            : "Şikayət göndərilmədi. Bir az sonra yenidən yoxlayın.",
+      );
     } finally {
       setBusy(false);
     }
@@ -216,7 +235,7 @@ export default function ListingDetails({
           </div>
           <div>
             <dt>Minimum müddət</dt>
-            <dd>{item.min_days ?? 1} gün</dd>
+            <dd>{minimumRentalLabel(item)}</dd>
           </div>
           {item.attributes?.brand && (
             <div>

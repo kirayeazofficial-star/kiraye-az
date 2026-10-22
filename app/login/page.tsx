@@ -93,6 +93,11 @@ export default function Login() {
     );
   }
   useEffect(() => {
+    const requestedMode = new URLSearchParams(window.location.search).get(
+      "mode",
+    );
+    if (requestedMode === "signup" || requestedMode === "reset")
+      setMode(requestedMode);
     let recoveryPending = false;
     try {
       const stored = JSON.parse(
@@ -342,7 +347,7 @@ export default function Login() {
                     ? "Şifrəni yenilə"
                     : "Hesaba giriş"}
           </h1>
-          {!verification && mode === "login" && method === "email" && (
+          {!verification && mode !== "reset" && method === "email" && (
             <GoogleLogin />
           )}
           {phoneEnabled && !verification && mode === "login" && (
@@ -435,13 +440,16 @@ export default function Login() {
                       </label>
                     )}
                     {mode === "login" && (
-                      <button
-                        type="button"
+                      <a
+                        href="/login?mode=reset"
                         className="forgotPassword"
-                        onClick={() => changeMode("reset")}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          changeMode("reset");
+                        }}
                       >
                         Şifrəni unutmusunuz?
-                      </button>
+                      </a>
                     )}
                     <button
                       className="authSubmit"
@@ -502,20 +510,22 @@ export default function Login() {
                       E-poçtu dəyiş
                     </button>
                   </div>
-                  {verification !== "recovery" && <button
-                    className="codeDisclosure"
-                    type="button"
-                    disabled={busy}
-                    aria-expanded={useCode}
-                    onClick={() => {
-                      setUseCode(!useCode);
-                      setNotice("");
-                    }}
-                  >
-                    {useCode
-                      ? "Kod girişini bağla"
-                      : "Məktubda rəqəmli kod var"}
-                  </button>}
+                  {verification !== "recovery" && (
+                    <button
+                      className="codeDisclosure"
+                      type="button"
+                      disabled={busy}
+                      aria-expanded={useCode}
+                      onClick={() => {
+                        setUseCode(!useCode);
+                        setNotice("");
+                      }}
+                    >
+                      {useCode
+                        ? "Kod girişini bağla"
+                        : "Məktubda rəqəmli kod var"}
+                    </button>
+                  )}
                   {verification !== "recovery" && useCode && codeForm()}
                 </div>
               )}
@@ -559,19 +569,26 @@ export default function Login() {
                 </div>
               )}
               <div className="authFooter">
-                <button
+                <a
                   className="link"
-                  disabled={busy}
-                  onClick={() =>
-                    changeMode(
-                      mode === "login" && !verification ? "signup" : "login",
-                    )
+                  href={
+                    mode === "login" && !verification
+                      ? "/login?mode=signup"
+                      : "/login"
                   }
+                  aria-disabled={busy}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    if (!busy)
+                      changeMode(
+                        mode === "login" && !verification ? "signup" : "login",
+                      );
+                  }}
                 >
                   {mode === "login" && !verification
                     ? "Hesabın yoxdur? Qeydiyyatdan keç"
                     : "Hesabın var? Daxil ol"}
-                </button>
+                </a>
               </div>
             </>
           )}

@@ -134,7 +134,7 @@ vm.runInNewContext(
     )
       await page.getByRole("button", { name: "E-poçtla", exact: true }).click();
     await page
-      .getByRole("button", {
+      .getByRole("link", {
         name: "Hesabın yoxdur? Qeydiyyatdan keç",
         exact: true,
       })
@@ -243,7 +243,9 @@ vm.runInNewContext(
           fullPage: true,
         });
         await page.goto(`${base}/new`);
-        await page.getByLabel("Kateqoriya", { exact: true }).selectOption("property");
+        await page
+          .getByLabel("Kateqoriya", { exact: true })
+          .selectOption("property");
         assert.equal(
           await page.getByLabel(/Telefon nömrəsi/).inputValue(),
           "994501234567",
@@ -308,7 +310,7 @@ vm.runInNewContext(
         await page.reload();
         // Email is the default while no SMS provider has been configured.
         await page
-          .getByRole("button", {
+          .getByRole("link", {
             name: "Hesabın yoxdur? Qeydiyyatdan keç",
             exact: true,
           })
@@ -321,7 +323,7 @@ vm.runInNewContext(
         );
         assert.equal(calls.filter((x) => x.path.endsWith("/signup")).length, 1);
         await page
-          .getByRole("button", { name: "Hesabın var? Daxil ol", exact: true })
+          .getByRole("link", { name: "Hesabın var? Daxil ol", exact: true })
           .click();
         assert.equal(
           await page

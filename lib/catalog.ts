@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { publicSupabase as supabase } from "./supabase";
 import type { Listing } from "./marketplace";
 import { scopeRentalFilters, type RentalFilters } from "./rental-details";
 export const PAGE_SIZE = 18;
@@ -89,7 +89,7 @@ export async function searchCatalog(input: CatalogQuery) {
   const { data, count, error } = await applyCatalogFilters(
     supabase.from("listings").select("*", { count: "exact" }),
     { ...input, favorites: favorites ?? null },
-  );
+  ).abortSignal(AbortSignal.timeout(15000));
   if (error) throw error;
   return { items: data as Listing[], total: count ?? 0 };
 }

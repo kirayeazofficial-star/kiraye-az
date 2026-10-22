@@ -92,7 +92,10 @@ create policy "users update own profile" on public.profiles for update to authen
 drop policy if exists "published listings are public" on public.listings;
 drop policy if exists "users create own listings" on public.listings;
 drop policy if exists "users update own listings" on public.listings;
-create policy "published listings are public" on public.listings for select to anon,authenticated using(status='published' or owner_id=(select auth.uid()) or (select public.is_admin()));
+drop policy if exists "published listings anonymous access" on public.listings;
+drop policy if exists "owners and admins read listings" on public.listings;
+create policy "published listings anonymous access" on public.listings for select to anon,authenticated using(status='published');
+create policy "owners and admins read listings" on public.listings for select to authenticated using(owner_id=(select auth.uid()) or (select public.is_admin()));
 create policy "users create own listings" on public.listings for insert to authenticated with check(owner_id=(select auth.uid()) and status='pending');
 create policy "users update own listings" on public.listings for update to authenticated using(owner_id=(select auth.uid()) or (select public.is_admin())) with check(owner_id=(select auth.uid()) or (select public.is_admin()));
 grant select,insert,update on public.profiles to authenticated;

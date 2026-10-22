@@ -95,7 +95,12 @@ const { chromium } = require("playwright");
         assert.equal(data.status, "resolved");
         reportOpen = false;
         body = { id: report.id };
-      } else body = reportOpen ? [report] : [];
+      } else
+        body =
+          url.searchParams.get("status") ===
+          (reportOpen ? "eq.open" : "eq.resolved")
+            ? [{ ...report, status: reportOpen ? "open" : "resolved" }]
+            : [];
     } else if (path.includes("/rest/v1/listings")) {
       if (method === "PATCH") {
         assert.equal(admin, true);
@@ -175,6 +180,10 @@ const { chromium } = require("playwright");
           .getByText(report.message, { exact: true })
           .waitFor();
         await page
+          .getByRole("navigation", {
+            name: "Admin elan səhifələri",
+            exact: true,
+          })
           .getByRole("button", { name: "Növbəti", exact: true })
           .click();
         await page
@@ -182,6 +191,10 @@ const { chromium } = require("playwright");
           .waitFor();
         assert.equal(await rows.count(), 3);
         await page
+          .getByRole("navigation", {
+            name: "Admin elan səhifələri",
+            exact: true,
+          })
           .getByRole("button", { name: "Əvvəlki", exact: true })
           .click();
         await page
@@ -286,10 +299,34 @@ const { chromium } = require("playwright");
       "reports can be resolved without deleting the rental listing",
       async () => {
         await page
-          .getByRole("button", { name: "Baxıldı — bağla", exact: true })
+          .getByRole("button", { name: "Baxıldı — arxivə keçir", exact: true })
           .click();
         await page.getByText("Açıq şikayət yoxdur.", { exact: true }).waitFor();
         assert.equal(items[0].status, "pending");
+        await page
+          .getByRole("button", { name: "Şikayət arxivi", exact: true })
+          .click();
+        await page
+          .locator("#reports")
+          .getByText(report.message, { exact: true })
+          .waitFor();
+        assert.equal(
+          await page
+            .getByRole("button", {
+              name: "Baxıldı — arxivə keçir",
+              exact: true,
+            })
+            .count(),
+          0,
+        );
+        await page.reload();
+        await page
+          .getByRole("button", { name: "Şikayət arxivi", exact: true })
+          .click();
+        await page
+          .locator("#reports")
+          .getByText(report.message, { exact: true })
+          .waitFor();
       },
     );
     assert.deepEqual(errors, []);

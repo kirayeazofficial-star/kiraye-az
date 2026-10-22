@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { supabase } from "./supabase";
+import { publicSupabase as supabase } from "./supabase";
 import { examples, Listing } from "./marketplace";
 export const getPublicListing = cache(
   async (

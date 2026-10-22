@@ -23,9 +23,12 @@ cPanel → Git Version Control → Create:
 - Repository Path: `/home/kiraytfg/kirayeal-source`.
 - Repository Name: `kirayeal`.
 
-Bu, əvvəlcədən yaradılmış `kirayeal` qovluğuna toxunmur. Git yalnız boş/yeni
-qovluğa klonlaya bilir. Sonra Node.js tətbiqində Application root dəyərini
-`kirayeal-source` et, startup file `app.js` qalsın, dəyişikliyi saxla.
+Git yalnız boş/yeni qovluğa klonlaya bilir. Mövcud CloudLinux tətbiqinin
+Application root dəyəri `kirayeal` QALMALIDIR. Kodu `kirayeal-source` qovluğundan
+`kirayeal` qovluğuna kopyala; `node_modules`, `nodevenv` və serverdəki özəl
+konfiqurasiyanı əvəz etmə. İşləyən tətbiqin kökünü mövcud kod qovluğuna
+relocate etmək `public` toqquşması və yarımçıq virtual mühit köçürülməsi yaradır.
+Startup file `app.js` qalsın.
 GitHub layihənin mənbəyidir; bazanın və istifadəçilərin saxlanma xidməti deyil.
 
 ## Dəyişənlər və yığım
@@ -92,3 +95,35 @@ bildirir. Mənbə, dəyişənlər, asılılıqlar və production build olmadan s
 Poçt qutusu/SMTP və onun göndəriş limitləri ayrıca yoxlanılmalıdır; bu quraşdırma
 telefon SMS xidməti yaratmır. Mövcud Vercel/Supabase layihələrini yoxlamalar
 bitməmiş silmə.
+
+## CloudLinux yaddaş limiti və hazır paket
+
+`Max address space = 4294967296` prosesin virtual ünvan sahəsinin 4 GiB ilə
+məhdudlaşdırılmasıdır. Bu, eyni miqdarda fiziki RAM istifadəsi demək deyil.
+Node 22-də `NODE_OPTIONS=--disable-wasm-trap-handler` WebAssembly başlanğıc
+xətasını aradan qaldıra bilər. Ardınca native `Zone Allocation failed` və ya
+`Worklist::Segment::Create` ilə yığım dayanarsa, eyni build-i təkrar işlətmə.
+Təkcə JavaScript heap limitini böyütmək virtual ünvan limitini dəyişmir.
+
+Alternativ: ayrıca Linux x64 mühitində Node 22 ilə, məqsədə uyğun public
+konfiqurasiya verərək `npm ci`, `npm run build` və aşağıdakı əmri işlət:
+
+```sh
+npm run package:hosting
+```
+
+Nəticə `dist/hosting` qovluğundadır. `app.js` və gizli `.next` qovluğu daxil
+olmaqla içindəkiləri ZIP-ə sal. ZIP-in üstündə əlavə `hosting` qovluğu olmasın.
+Arxivi mövcud `/home/kiraytfg/kirayeal` tətbiq qovluğuna çıxar və Restart et.
+Hostinqdə yenidən NPM Install və ya build işlətmək lazım deyil. Runtime
+asılılıqları `.next/standalone/node_modules` daxilində paketlənir.
+Paket başqa qovluqda açıldıqdan sonra da yoxlanılmalıdır: `/api/health`, ana
+səhifə, `_next/static` faylları, birbaşa elan keçidi.
+
+Public baza konfiqurasiyası olmayan paket skript tərəfindən normalda rədd edilir.
+Yalnız açıq şəkildə nümunə/interfeys rejimi üçün
+`node scripts/package-hosting.mjs dist/hosting --allow-unconfigured` işlədilə
+bilər. Bu paketdə real qeydiyyat/giriş/elan göndərişi yoxdur; onu tam köçürülmüş
+sayt kimi təqdim etmə. `HOSTING-INFO.json` və `HOSTING-README.txt` bunu qeyd edir.
+Supabase-dən asılılığı çıxarmaq üçün server bazası, autentifikasiya, storage və
+icazə qaydaları ayrıca yazılıb real məlumatlarla yoxlanmalıdır.

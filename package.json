@@ -8,7 +8,8 @@
     "start": "node scripts/start-server.mjs",
     "lint": "tsc --noEmit --incremental false",
     "test:ui": "node tests/marketplace.cjs",
-    "postbuild": "node scripts/prepare-standalone.mjs"
+    "postbuild": "node scripts/prepare-standalone.mjs",
+    "package:hosting": "node scripts/package-hosting.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

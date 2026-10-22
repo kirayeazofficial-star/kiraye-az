@@ -633,6 +633,7 @@ const { chromium } = require("playwright");
         item.owner_id = "99999999-9999-4999-8999-999999999999";
         item.status = "published";
         await page.goto(base);
+        await page.locator(".listingCard").waitFor({ timeout: 60000 });
         await page.locator(".quickView").click();
         await page
           .getByRole("button", { name: "Bu elandan şikayət et", exact: true })

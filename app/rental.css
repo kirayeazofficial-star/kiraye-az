@@ -885,3 +885,26 @@ input[type="number"]::-webkit-outer-spin-button {
 .promotionPackage li { margin:8px 0; }
 .signupLink { font-size:13px; color:#344258; text-decoration:underline; }
 @media(max-width:720px) { .headerActions { flex-wrap:wrap; justify-content:flex-end; gap:6px; } .signupLink { font-size:11px; } }
+
+/* Promotion previews remain inactive; the colorful symbols identify each service. */
+.promotionPackage { margin-top:10px; padding:0; border:1px solid #e0e6e3; border-radius:12px; background:#fff; overflow:hidden; }
+.promotionPackage summary { display:flex; align-items:center; gap:12px; padding:12px; list-style:none; }
+.promotionPackage summary::-webkit-details-marker { display:none; }
+.promotionPackage summary::after { content:"+"; margin-left:auto; font-size:22px; color:#52665d; }
+.promotionPackage[open] summary::after { content:"−"; }
+.promotionIcon { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; flex:0 0 44px; border-radius:12px; font-size:26px; font-family:"Apple Color Emoji","Segoe UI Emoji",sans-serif; }
+.promotionIcon.bump { background:#e8f6e8; }
+.promotionIcon.vip { background:#e8f3ff; }
+.promotionIcon.premium { background:#fff2cf; }
+.promotionHeading { min-width:0; }
+.promotionHeading strong { display:block; font-size:14px; color:#263e35; }
+.promotionOptions .promotionHeading small { display:block; margin:3px 0 0; font-weight:400; }
+.promotionPackage > p, .promotionPackage > ul { margin:0 12px 12px; }
+.promotionPackage > ul { padding-left:20px; font-size:13px; }
+.promotionPackage > button { margin:0 12px 12px; }
+.galleryStage { position:relative; touch-action:pan-y pinch-zoom; }
+.galleryStage .galleryArrow { position:absolute; top:50%; transform:translateY(-50%); display:grid; place-items:center; width:44px; height:44px; min-height:44px; padding:0; border:1px solid #ffffffb3; border-radius:50%; background:#fffffff0; color:#183e36; font-size:32px; line-height:1; box-shadow:0 2px 8px #0003; cursor:pointer; }
+.galleryStage .previous { left:12px; }
+.galleryStage .next { right:12px; }
+.galleryCounter { position:absolute; right:12px; bottom:12px; padding:5px 10px; border-radius:20px; background:#12251fba; color:#fff; font-size:12px; pointer-events:none; }
+.listingGallery:focus-visible, .galleryArrow:focus-visible, .promotionPackage summary:focus-visible { outline:3px solid #f2784b; outline-offset:3px; }

@@ -1,7 +1,7 @@
 "use client";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import RentalEstimator from "./RentalEstimator";
 import {
@@ -26,7 +26,16 @@ export default function ListingDetails({
     [report, setReport] = useState(false),
     [busy, setBusy] = useState(false),
     [reported, setReported] = useState(false);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const imageCount = item.images?.length ?? 0;
+  const selectedImage = Math.min(image, Math.max(0, imageCount - 1));
+  useEffect(() => { setImage(0); }, [item.id]);
   useEffect(() => setFavorite(readFavorites().includes(item.id)), [item.id]);
+  function moveImage(direction: number) {
+    if (imageCount > 1) setImage((current) =>
+      (Math.min(current, imageCount - 1) + direction + imageCount) % imageCount,
+    );
+  }
   function toggleFavorite() {
     const saved = readFavorites();
     const next = favorite
@@ -117,22 +126,52 @@ export default function ListingDetails({
     new Date(`${value}T12:00:00`).toLocaleDateString("az-AZ");
   return (
     <div className={`listingDetails ${compact ? "compactDetails" : ""}`}>
-      <div className="listingGallery">
+      <div className="listingGallery" role="region" aria-label="Elan şəkilləri"
+        tabIndex={imageCount > 1 ? 0 : undefined}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+            event.preventDefault();
+            moveImage(event.key === "ArrowLeft" ? -1 : 1);
+          }
+        }}>
+        <div className="galleryStage"
+          onTouchStart={(event) => {
+            const touch = event.touches.length === 1 ? event.touches[0] : null;
+            touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
+          }}
+          onTouchCancel={() => { touchStart.current = null; }}
+          onTouchEnd={(event) => {
+            const start = touchStart.current;
+            touchStart.current = null;
+            const touch = event.changedTouches[0];
+            if (!start || !touch) return;
+            const dx = touch.clientX - start.x, dy = touch.clientY - start.y;
+            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.25)
+              moveImage(dx < 0 ? 1 : -1);
+          }}>
         <img
           className="listingMainImage"
-          src={item.images?.[image] || "/placeholder.svg"}
+          src={item.images?.[selectedImage] || "/placeholder.svg"}
           alt={item.title}
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = "/placeholder.svg";
           }}
         />
-        {(item.images?.length ?? 0) > 1 && (
+        {imageCount > 1 && <>
+          <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}>‹</button>
+          <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}>›</button>
+          <span className="galleryCounter" aria-live="polite" aria-atomic="true">{selectedImage + 1} / {imageCount}</span>
+        </>}
+        </div>
+        {imageCount > 1 && (
           <div className="thumbnails">
             {item.images.map((src, i) => (
               <button
+                type="button"
                 aria-label={`${i + 1}-ci şəkil`}
-                aria-pressed={image === i}
+                aria-pressed={selectedImage === i}
                 key={src}
                 onClick={() => setImage(i)}
               >

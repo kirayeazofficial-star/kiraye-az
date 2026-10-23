@@ -414,10 +414,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </p>
           </div>
         </div>
-        {!listingId && (
+        {!listingId && !canModerate && !loading && (
           <p className="notice">
-            {canModerate ? "Admin hesabında elan sayı məhdud deyil." :
-              "Hər kateqoriyada ayda 1 pulsuz təsdiqlənmiş elan. Yoxlamada və rədd edilmiş elanlar limiti doldurmur; elanı düzəldib yenidən göndərə bilərsən."}
+            Hər kateqoriyada ayda 1 pulsuz təsdiqlənmiş elan. Yoxlamada və rədd edilmiş elanlar limiti doldurmur; elanı düzəldib yenidən göndərə bilərsən.
           </p>
         )}
         {!success && <aside className="notice" aria-label="Təhlükəsiz elan yerləşdirmə">

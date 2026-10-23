@@ -363,6 +363,17 @@ const { chromium } = require("playwright");
           await model.selectOption(value);
           assert.equal(await page.locator('input[name="model"]').inputValue(), value);
         }
+        await brand.selectOption("Chevrolet");
+        for (const value of ["Camaro", "Corvette", "Tahoe", "Volt"]) {
+          await model.selectOption(value);
+          assert.equal(await page.locator('input[name="model"]').inputValue(), value);
+        }
+        await brand.selectOption("Lamborghini");
+        assert.equal(await model.inputValue(), "");
+        for (const value of ["Aventador", "Gallardo", "Huracan", "Revuelto", "Temerario", "Urus"]) {
+          await model.selectOption(value);
+          assert.equal(await page.locator('input[name="model"]').inputValue(), value);
+        }
         await brand.selectOption("__other__");
         await page.getByLabel("Digər marka", { exact: true }).fill("constructor");
         await model.selectOption("__other__");

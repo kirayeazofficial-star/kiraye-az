@@ -360,6 +360,14 @@ function VehicleFields({
           )}
         </>
       )}
+      {car && (
+        <SelectField
+          name="driver_service"
+          label="Sürücü xidməti (istəyə bağlı)"
+          options={["Sürücüsüz", "Sürücülü", "Hər iki variant"]}
+          value={attributes?.driver_service}
+        />
+      )}
       {bicycle && (
         <>
           <SelectField

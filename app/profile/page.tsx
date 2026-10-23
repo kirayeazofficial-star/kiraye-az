@@ -21,6 +21,7 @@ export default function Profile() {
     [error, setError] = useState(""),
     [admin, setAdmin] = useState(false),
     [busy, setBusy] = useState(""),
+    [notice, setNotice] = useState(""),
     [statusFilter, setStatusFilter] = useState("");
   useEffect(() => {
     if (!supabase) {
@@ -51,21 +52,27 @@ export default function Profile() {
     if (!supabase || busy) return;
     setBusy(item.id);
     setError("");
-    const { error } = await supabase
-      .from("listings")
-      .update({ status: "archived" })
-      .eq("id", item.id)
-      .select("id")
-      .single();
-    if (error) setError("Elanı arxivə keçirmək mümkün olmadı.");
-    else
-      setListings(
-        listings.map((x) =>
-          x.id === item.id ? { ...x, status: "archived" } : x,
-        ),
-      );
-    setBusy("");
+    setNotice("");
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: "archived" })
+        .eq("id", item.id)
+        .eq("owner_id", userId)
+        .select("id")
+        .single();
+      if (error) throw error;
+      setListings((current) => current.map((x) =>
+        x.id === item.id ? { ...x, status: "archived" } : x,
+      ));
+      setNotice("Elan axtarışdan götürüldü və arxivdə saxlanıldı. Yenidən kirayə vermək üçün arxivdən yeniləyib göndərə bilərsən.");
+    } catch {
+      setError("Elanı arxivə keçirmək mümkün olmadı. Yenidən cəhd et.");
+    } finally {
+      setBusy("");
+    }
   }
+
   async function logout() {
     if (!supabase) return;
     const { error } = await supabase.auth.signOut();
@@ -179,6 +186,8 @@ export default function Profile() {
                 !listings.some(
                   (x) => !statusFilter || x.status === statusFilter,
                 ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
+              <p className="muted">Kirayəyə verilib və ya artıq mövcud deyil? Elanı arxivə keçir: axtarışda görünməyəcək, məlumatları hesabında qalacaq.</p>
+              {notice && <p className="notice" role="status">{notice}</p>}
               <div className="accountListings">
                 {listings
                   .filter((x) => !statusFilter || x.status === statusFilter)

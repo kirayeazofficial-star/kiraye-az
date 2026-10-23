@@ -373,6 +373,10 @@ const { chromium } = require("playwright");
         await page
           .getByLabel("Yeni / işlənmiş", { exact: true })
           .selectOption("İşlənmiş");
+        const driver = page.getByLabel("Sürücü xidməti (istəyə bağlı)", { exact: true });
+        assert.equal(await driver.inputValue(), "");
+        await driver.selectOption("Sürücülü");
+        assert.equal(await driver.inputValue(), "Sürücülü");
         const mileage = page.getByLabel("Yürüş, km", { exact: true });
         await mileage.fill("50000");
         await mileage.hover();

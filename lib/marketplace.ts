@@ -129,6 +129,7 @@ export type Listing = {
     included_items?: string;
     return_terms?: string;
     utilities?: string;
+    driver_service?: string;
     min_driver_age?: string;
     license_years?: string;
     included_km_day?: string;

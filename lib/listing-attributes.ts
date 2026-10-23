@@ -8,6 +8,7 @@ export function readListingAttributes(
   const keys: Record<string, string[]> = {
     car: [
       ...vehicle,
+      "driver_service",
       "fuel",
       "engine_cc",
       "gearbox",

@@ -183,3 +183,11 @@ check("camera, lens and camping fields are scoped to the kind", () => {
  assert(validate("camping",{...tent,capacity:"2.5"}));
  assert(validate("electric",{kind:"Kostyum"}));
 });
+
+check("driver service is optional and belongs only to car listings", () => {
+  assert.equal(read("car", form(base)).driver_service, undefined);
+  for (const service of ["Sürücüsüz", "Sürücülü", "Hər iki variant"]) {
+    assert.equal(read("car", form({ ...base, driver_service: service })).driver_service, service);
+    assert.equal(read("clothing", form({ kind: "Aksesuar", driver_service: service })).driver_service, undefined);
+  }
+});

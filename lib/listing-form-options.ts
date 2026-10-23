@@ -144,6 +144,7 @@ export const extraAttributeLabels = {
   included_items: "Dəstə daxildir",
   return_terms: "Qaytarılma və ləğv şərtləri",
   utilities: "Kommunal xərclər",
+  driver_service: "Sürücü xidməti",
   min_driver_age: "Sürücünün minimum yaşı",
   license_years: "Tələb olunan sürücülük stajı (il)",
   included_km_day: "Günlük yürüş limiti (km)",

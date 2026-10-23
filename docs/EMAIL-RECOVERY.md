@@ -9,7 +9,7 @@ Köhnə məktublardakı bərpa linkləri də dəstəklənir.
 
 1. Authentication → Email Templates → Reset Password bölməsində məktubun mətnini
    `supabase/templates/recovery.html` faylının məzmunu ilə əvəz et. Mövzu:
-   `kiraye.az — Şifrə bərpa kodu`. `{{ .Token }}` Supabase-in kod dəyişənidir;
+   `kirayeal.az — Şifrə bərpa kodu`. `{{ .Token }}` Supabase-in kod dəyişənidir;
    link dəyişəni ilə əvəz etmə.
 2. Email provider ayarlarında Email OTP Length dəyərini **6** et. Kodun etibarlılıq
    müddətini layihənin təhlükəsizlik siyasətinə uyğun saxla (məsələn, 10 dəqiqə).
@@ -31,6 +31,6 @@ Brauzer testləri Auth cavablarını simulyasiya edir, real məktub göndərmir.
 
 `supabase/recovery-check.sql` tətbiq edilməli, `SUPABASE_SERVICE_ROLE_KEY` yalnız serverin məxfi mühitində saxlanmalıdır. Bu açar heç vaxt `NEXT_PUBLIC_` dəyişəninə və ya brauzer koduna qoyulmur. `/api/auth/recovery-check` yalnız mövcudluq nəticəsini qaytarır, istifadəçi siyahısı və açarı qaytarmır. Server-only RPC hər IP izi üçün 15 dəqiqədə 10 yoxlama ilə məhdudlaşdırılır; hostinqdə proksi IP başlığını özü təyin etməlidir.
 
-Yoxlama hesabın olmadığını təsdiqləyirsə, bərpa məktubu istənilmir və “Bu e-poçtla hesab tapılmadı” göstərilir. Server yoxlaması qurulmayıbsa, Supabase-in mövcud təhlükəsiz bərpa axını saxlanılır, amma kod xanası dərhal açılmır. İstifadəçi məktubu faktiki alandan sonra “Bərpa məktubum gəlib” ilə kodu yaza bilər. HTTP uğur cavabı məktubun inbox-a çatması kimi təqdim edilmir.
+Yoxlama hesabın olmadığını təsdiqləyirsə, bərpa məktubu istənilmir və “Bu e-poçtla hesab tapılmadı” göstərilir. Server yoxlaması qurulmayıbsa və ya nəticə məlum deyilsə, göndəriş dayandırılır və xidmətin müvəqqəti əlçatmaz olduğu göstərilir. Mövcud hesab təsdiqlənib göndəriş uğurlu olduqda 6 rəqəmli kod xanası birbaşa açılır. HTTP uğur cavabı məktubun inbox-a çatması kimi təqdim edilmir.
 
 Bu server yoxlaması SMTP-ni qurmur. “Error sending confirmation email” real poçt konfiqurasiyasının/göndərən domenin yoxlanmasını tələb edir; kod göndərmə uğuru uydurulmur və e-poçt təsdiqi söndürülmür.

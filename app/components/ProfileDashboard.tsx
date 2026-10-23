@@ -80,6 +80,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       setError("Hesabdan çıxmaq mümkün olmadı.");
       return;
     }
+    try {
+      sessionStorage.removeItem("kiraye:pending-confirmation");
+      sessionStorage.removeItem("kiraye:login-email");
+    } catch {}
     window.location.href = "/";
   }
   return (

@@ -25,7 +25,6 @@ export default function Login({
 }) {
   const [phoneEnabled, setPhoneEnabled] = useState(false);
   const [ready, setReady] = useState(false);
-  const [recoveryChecked, setRecoveryChecked] = useState(false);
   const emailInput = useRef<HTMLInputElement>(null);
   const passwordInput = useRef<HTMLInputElement>(null);
   const [loginFailed, setLoginFailed] = useState(false);
@@ -85,7 +84,6 @@ export default function Login({
   function pending(type: Verification, email: string, checked = false) {
     setVerification(type);
     setUseCode(type === "recovery" && checked);
-    setRecoveryChecked(checked);
     setCooldown(60);
     setNotice("");
     try {
@@ -113,9 +111,11 @@ export default function Login({
       // Preserve text/autofill entered before the client scripts finished loading.
       setEmailAddress(
         emailInput.current?.value ||
-          sessionStorage.getItem("kiraye:login-email") ||
+          (initialMode === "reset" ? sessionStorage.getItem("kiraye:login-email") : "") ||
           "",
       );
+      sessionStorage.removeItem("kiraye:login-email");
+      if (initialMode === "login") sessionStorage.removeItem(pendingKey);
     } catch {}
     try {
       const stored = JSON.parse(
@@ -133,9 +133,8 @@ export default function Login({
       const saved = JSON.parse(sessionStorage.getItem(pendingKey) || "null");
       if (
         saved &&
-        (initialMode === "login" ||
-          (initialMode === "signup" && saved.type === "signup") ||
-          (initialMode === "reset" && saved.type === "recovery")) &&
+        ((initialMode === "signup" && saved.type === "signup") ||
+          (initialMode === "reset" && saved.type === "recovery" && saved.checked === true)) &&
         ["signup", "recovery"].includes(saved.type) &&
         typeof saved.email === "string" &&
         saved.email.length <= 254 &&
@@ -147,7 +146,6 @@ export default function Login({
         setEmailAddress(saved.email);
         setVerification(saved.type);
         setUseCode(saved.type === "recovery" && saved.checked === true);
-        setRecoveryChecked(saved.checked === true);
         setCooldown(
           Math.max(0, Math.ceil((saved.retryAt - Date.now()) / 1000)),
         );
@@ -215,6 +213,10 @@ export default function Login({
         const account = await checkRecoveryEmail(email);
         if (account === "missing") {
           setNotice("Bu e-poçtla hesab tapılmadı. Ünvanı yoxla və ya qeydiyyatdan keç.");
+          return;
+        }
+        if (account !== "exists") {
+          setNotice("Hesabı yoxlamaq hazırda mümkün deyil. Kod göndərilmədi. Bir az sonra yenidən yoxla.");
           return;
         }
         const { error } = await finishWithin(supabase.auth.resetPasswordForEmail(email, {
@@ -309,7 +311,11 @@ export default function Login({
           setNotice("Bu e-poçtla hesab tapılmadı. Ünvanı yoxla və ya qeydiyyatdan keç.");
           return;
         }
-        checked = account === "exists";
+        if (account !== "exists") {
+          setNotice("Hesabı yoxlamaq hazırda mümkün deyil. Kod göndərilmədi. Bir az sonra yenidən yoxla.");
+          return;
+        }
+        checked = true;
       }
       const { error } =
         verification === "recovery"
@@ -376,9 +382,9 @@ export default function Login({
   return (
     <main className="loginPage">
       <div className="authHeader">
-        <Link className="logo" href="/">
+        <a className="logo" href="/" onClick={() => { clearPending(); try { sessionStorage.removeItem("kiraye:login-email"); } catch {} }}>
           kirayeal<span>.az</span>
-        </Link>
+        </a>
         <Link href="/help">Kömək</Link>
       </div>
       <div className="authShell">
@@ -405,7 +411,7 @@ export default function Login({
               ? "Hesaba giriş"
               : verification
                 ? verification === "recovery"
-                  ? (recoveryChecked || useCode ? "Kodu daxil et" : "Şifrə bərpası")
+                  ? "Kodu daxil et"
                   : "E-poçtunu yoxla"
                 : mode === "signup"
                   ? "Hesab yarat"
@@ -587,24 +593,19 @@ export default function Login({
                 <div className="confirmationPanel">
                   <p className="authLead">
                     {verification === "recovery"
-                      ? "Sorğu qəbul edildi. Bərpa məktubu yalnız qeydiyyatdan keçmiş hesabın e-poçtuna göndərilir."
+                      ? "Bərpa kodu üçün göndəriş sorğusu qəbul edildi."
                       : "Təsdiq məktubu üçün sorğu qəbul edildi."}
                   </p>
                   <div className="confirmationEmail">{emailAddress}</div>
                   <p className="confirmationInstruction">
                     {verification === "recovery"
-                      ? "Bu e-poçtla hesabın varsa, gələn 6 rəqəmli kodu yaz. Bu sorğu yeni hesab yaratmır."
+                      ? "E-poçtuna gələn 6 rəqəmli kodu daxil et."
                       : "Məktubdakı hesabı təsdiqlə linkini aç."}
                   </p>
                   <p className="mailHelp">
                     Məktub gəlməyib? Spam qovluğunu da yoxla.
-                    {verification === "recovery" &&
-                      " Məktubda kod əvəzinə bərpa linki varsa, həmin linki aç — yeni şifrə səhifəsinə keçəcəksən."}
                   </p>
-                  {verification === "recovery" && !useCode && (
-                    <button type="button" className="recoveryAction" onClick={() => setUseCode(true)}>Bərpa məktubum gəlib — kodu daxil et</button>
-                  )}
-                  {verification === "recovery" && useCode && codeForm()}
+                  {verification === "recovery" && codeForm()}
                   <div className="confirmationActions">
                     <button
                       className="authSubmit"

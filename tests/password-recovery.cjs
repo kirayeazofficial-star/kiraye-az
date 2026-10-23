@@ -212,6 +212,7 @@ const { chromium } = require("playwright");
               "kiraye:pending-confirmation",
               JSON.stringify({
                 type: "recovery",
+                checked: true,
                 email,
                 retryAt: Date.now(),
                 expiresAt: Date.now() + 1800000,
@@ -221,8 +222,7 @@ const { chromium } = require("playwright");
         );
         await t.page.goto(`${base}/reset-password${fragment}`);
         await t.page.getByLabel("Yeni şifrə", { exact: true }).waitFor();
-        await t.page.goto(`${base}/login`);
-        await t.page.getByRole("button", { name: "Bərpa məktubum gəlib — kodu daxil et", exact: true }).click();
+        await t.page.goto(`${base}/login?mode=reset`);
         await t.page.getByLabel("6 rəqəmli kod", { exact: true }).waitFor();
         assert.equal(
           await t.page.getByLabel("Yeni şifrə", { exact: true }).count(),

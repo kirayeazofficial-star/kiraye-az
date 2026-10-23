@@ -29,10 +29,10 @@ export default function Header() {
         </div>
       </div>
       <header className="header">
-        <Link className="logo" href="/">
+        <a className="logo" href="/">
           kirayeal<span>.az</span>
           <small>KİRAYƏ ÜÇÜN BİR ÜNVAN</small>
-        </Link>
+        </a>
         <nav aria-label="Əsas menyu">
           <a href="/#elanlar">Elanlar</a>
           <a href="/?favorites=1#elanlar">♡ Seçilmişlər</a>

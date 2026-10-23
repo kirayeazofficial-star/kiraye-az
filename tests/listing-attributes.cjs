@@ -191,3 +191,10 @@ check("driver service is optional and belongs only to car listings", () => {
     assert.equal(read("clothing", form({ kind: "Aksesuar", driver_service: service })).driver_service, undefined);
   }
 });
+
+check("motorcycle saves new/used and precise color without obsolete condition", () => {
+  const saved = read("motorcycle", form({brand:"Harley-Davidson",model:"Sportster",color:"Tünd qırmızı",is_new:"İşlənmiş",condition:"Əla"}));
+  assert.equal(saved.is_new, "İşlənmiş");
+  assert.equal(saved.color, "Tünd qırmızı");
+  assert.equal(saved.condition, undefined);
+});

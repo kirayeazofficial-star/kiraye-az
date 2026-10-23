@@ -189,6 +189,12 @@ export const colors = [
   "Çoxrəngli",
   "Digər",
 ];
+export const vehicleColors = [
+  ...colors.filter((color) => color !== "Çoxrəngli" && color !== "Digər"),
+  "Açıq boz", "Tünd boz", "Açıq mavi", "Tünd mavi", "Tünd göy",
+  "Açıq qırmızı", "Tünd qırmızı", "Bordo", "Açıq yaşıl", "Tünd yaşıl",
+  "Açıq qəhvəyi", "Tünd qəhvəyi", "Qızılı", "Digər",
+];
 export const extraAttributeLabels = {
   ...rentalSpecLabels,
   delivery_method: "Təhvil / çatdırılma",

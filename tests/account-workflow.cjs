@@ -321,6 +321,12 @@ const { chromium } = require("playwright");
               .isVisible(),
             false,
           );
+          if (value === "motorcycle") {
+            assert.equal(await page.getByLabel("Vəziyyət", { exact: true }).count(), 0);
+            await page.getByLabel("Yeni / işlənmiş", { exact: true }).selectOption("İşlənmiş");
+            await page.getByLabel("Rəng", { exact: true }).selectOption("Tünd yaşıl");
+            assert.equal(await page.getByLabel("Rəng", { exact: true }).locator('option[value="Çoxrəngli"]').count(), 0);
+          }
           await backToCategory();
         }
         await page

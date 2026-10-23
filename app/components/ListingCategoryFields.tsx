@@ -9,6 +9,7 @@ import {
   bicycleModels,
   equipmentModels,
   colors,
+  vehicleColors,
 } from "../../lib/listing-form-options";
 type Attributes = Listing["attributes"];
 export function SelectField({
@@ -233,7 +234,7 @@ function VehicleFields({
         <SelectField
           name="color"
           label="Rəng"
-          options={colors}
+          options={bicycle ? colors : vehicleColors}
           value={attributes?.color}
           required={car}
         />
@@ -252,6 +253,13 @@ function VehicleFields({
             value={fuel}
             required
             onChange={setFuel}
+          />
+        ) : !bicycle ? (
+          <SelectField
+            name="is_new"
+            label="Yeni / işlənmiş"
+            options={["Yeni", "İşlənmiş"]}
+            value={attributes?.is_new}
           />
         ) : (
           <SelectField

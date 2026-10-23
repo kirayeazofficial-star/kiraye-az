@@ -21,7 +21,8 @@ export function readListingAttributes(
       "included_km_day",
     ],
     motorcycle: [
-      ...vehicle,
+      ...vehicle.filter((key) => key !== "condition"),
+      "is_new",
       "engine_cc",
       "gearbox",
       "min_driver_age",

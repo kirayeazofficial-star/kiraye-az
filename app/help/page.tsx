@@ -39,8 +39,8 @@ export default function Help() {
               "Elan səhifəsində “Bu elandan şikayət et” seç. Hesabına daxil olub səbəbi və qısa təsviri yaz. İdarəçi şikayəti yoxlayacaq.",
             ],
             [
-              "Telefonla necə daxil olum?",
-              "Giriş səhifəsində “Telefonla” seç və mobil nömrəni yaz. SMS xidməti aktiv olduqda gələn kodla şifrəsiz daxil ola bilərsən. Xidmət aktiv deyilsə, e-poçtla davam et.",
+              "Hesabıma necə daxil olum?",
+              "“Daxil ol” bölməsində qeydiyyatdan keçdiyin e-poçt ünvanını və şifrəni yaz. Hesabın yoxdursa, “Qeydiyyatdan keç” seç. Şifrəni unutmusansa, “Şifrəni unutdum” ilə bərpa et.",
             ],
             [
               "Təsdiq məktubu gəlmir?",

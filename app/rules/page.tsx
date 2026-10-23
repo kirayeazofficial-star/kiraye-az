@@ -1,61 +1,97 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+
+export const metadata: Metadata = {
+  title: "Elan yerləşdirmə qaydaları | kirayeal.az",
+  description: "Kirayeal.az-da elan yerləşdirmə, müddət, limit, redaktə və təhlükəsizlik qaydaları.",
+};
+
+const sections = [
+  {
+    title: "Ümumi şərtlər",
+    rules: [
+      "Kirayeal.az kirayə elanları platformasıdır. Yalnız sahibi olduğun və ya kirayəyə verməyə icazən olan əmlak və əşyaları yerləşdir.",
+      "Elanın məlumatları düzgün, qanunvericiliyə uyğun və üçüncü şəxslərin hüquqlarını pozmayan olmalıdır. Saxta və qanunsuz təkliflər qəbul edilmir.",
+      "Elanın yoxlanılması elan sahibinin etibarlılığına və əşyanın vəziyyətinə zəmanət deyil. Bu qaydalar reklam xidmətindən istifadə olunub-olunmamasından asılı olmayaraq bütün elanlara aiddir.",
+    ],
+  },
+  {
+    title: "Elanın yerləşdirilməsi",
+    rules: [
+      "Elan yerləşdirmək üçün hesabına daxil ol. Yayımlanmış elanlara qeydiyyatsız baxmaq mümkündür.",
+      "Elanı əşyanın növünə uyğun kateqoriyada yerləşdir. Limitdən yayınmaq üçün yanlış kateqoriya seçmək olmaz.",
+      "Elan yerləşdirməyə kateqoriya üzrə müəyyən edilən limit tətbiq olunur. Hazırkı limit elan yerləşdirmə formasında göstərilir.",
+      "Bir elan konkret əmlakı, əşyanı və ya birlikdə kirayəyə verilən dəsti təsvir etməlidir. Əlaqəsiz məhsulları bir elanda birləşdirmək olmaz.",
+    ],
+  },
+  {
+    title: "Təkrar elanlar və redaktə",
+    rules: [
+      "Eyni əmlak və ya əşya üçün təkrar aktiv və ya yoxlamada olan elan yaratma. Elanı silib yenidən yerləşdirməklə və ya başqa hesabdan istifadə etməklə limitdən yayınmaq olmaz.",
+      "Qiymət, təsvir, şəkil və əlaqə məlumatlarında dəyişiklik üçün mövcud elanın “Redaktə et” seçimini istifadə et. Dəyişikliklər yenidən yoxlamaya göndərilir.",
+      "Mövcud elanın məlumatlarını başqa əmlakın və ya əşyanın məlumatları ilə əvəz etmək olmaz. Redaktə elanı avtomatik irəli çəkmir.",
+      "Artıq kirayəyə verilməyən və ya aktual olmayan elanı arxivə keçir. Arxivləşdirmə məlumatları hesabından silmir.",
+    ],
+  },
+  {
+    title: "Başlıq, qiymət və kirayə şərtləri",
+    rules: [
+      "Başlıq qısa, aydın və təklifə uyğun olmalıdır. Başlıqda telefon nömrəsi, reklam keçidləri, təkrarlanan açar sözlər və aldadıcı ifadələr yerləşdirmə.",
+      "Qiyməti AZN ilə və hansı müddətə aid olduğunu göstərərək yaz. Real kirayə haqqını gizlədən şərti qiymət göstərmək olmaz.",
+      "Depozit, minimum kirayə müddəti, çatdırılma və digər əlavə ödənişlər varsa, onları açıq qeyd et. Əşyanın məlum qüsurlarını və istifadə məhdudiyyətlərini gizlətmə.",
+    ],
+  },
+  {
+    title: "Şəkillər və əlaqə məlumatları",
+    rules: [
+      "Elana əşyanı aydın göstərən 1–6 real şəkil əlavə et. JPG, PNG və WebP qəbul olunur; hər şəkil maksimum 5 MB ola bilər. Başqasının şəkillərindən icazəsiz istifadə etmə.",
+      "İşlək e-poçt və istifadəsinə icazən olan telefon nömrəsi göstər. Əlaqə məlumatlarını bunun üçün ayrılmış xanalarda yaz; başqasına narahatlıq yaratmaq məqsədilə onun nömrəsini yerləşdirmək olmaz.",
+      "Şəxsiyyət vəsiqəsi, bank kartının həssas məlumatları, PIN/CVV, şifrə və SMS kodlarını elanda və şəkillərdə paylaşma. Hesabına giriş məlumatlarını başqasına vermə.",
+    ],
+  },
+  {
+    title: "Yoxlama və şikayətlər",
+    rules: [
+      "Yeni və redaktə edilmiş elanlar yoxlanılır. Qaydalara uyğun olmayan elan rədd edilə bilər; rədd səbəbi şəxsi kabinetdə göstərilir.",
+      "Şübhəli elan barədə elan səhifəsindəki şikayət funksiyasından istifadə et. Səbəbi və araşdırmaya kömək edəcək məlumatları göstər.",
+      "Qayda pozuntusu aşkarlandıqda düzəliş tələb oluna və ya elanın yayımı dayandırıla bilər. Təkrar və ciddi pozuntular hesabın məhdudlaşdırılması üçün əsas ola bilər.",
+      "Şikayətə araşdırma əsasında baxılır. Qərarla razılaşmadıqda elan nömrəsini və izahını göstərərək yenidən baxılmasını istəyə bilərsən.",
+    ],
+  },
+  {
+    title: "Reklam xidmətləri və ödənişlər",
+    rules: [
+      "VIP, Premium, irəli çəkmə və balans artırılması hazırda aktiv deyil. Paket və ödəniş üsulu seçimləri önbaxışdır; pul tutulmur və elanın sıralaması dəyişmir.",
+      "Ödənişli xidmətlər aktivləşdirildikdə qiymət, müddət, tətbiq və geri qaytarma şərtləri ödənişdən əvvəl göstəriləcək. Reklam xidməti elan qaydalarını və yerləşdirmə limitlərini aradan qaldırmır.",
+      "Kirayə razılaşması hazırda tərəflər arasında bağlanır. Əşyanı və qarşı tərəfi yoxlamadan beh göndərmə; qiymət, depozit, müddət, zərər və qaytarılma şərtlərini əvvəlcədən yazılı razılaşdır.",
+    ],
+  },
+];
+
 export default function Rules() {
-  return (
-    <>
-      <Header />
-      <main className="wrap prose">
-        <p className="eyebrow">QAYDALAR VƏ TƏHLÜKƏSİZLİK</p>
-        <h1>Etibarlı kirayə üçün</h1>
-        <h2>Elan yerləşdirərkən</h2>
-        <p>
-          Yalnız kirayə vermək hüququn olan əmlak və əşyaları yerləşdir. Real
-          şəkil, düzgün qiymət və işlək əlaqə nömrəsi göstər. Qanunsuz, saxta və
-          təkrar elanlar qəbul edilmir.
-        </p>
-        <h2>Pulsuz elan limiti və təkrar elanlar</h2>
-        <p>
-          Hər kateqoriyada ayda 1 pulsuz təsdiqlənmiş elan yerləşdirə bilərsən.
-          Yoxlamada və rədd edilmiş elanlar limiti doldurmur. Rədd edilmiş elanı
-          düzəldib yenidən göndərmək və mövcud elanı redaktə etmək pulsuzdur.
-          Limit növbəti ay yenilənir. Təsdiqlənmiş elanı arxivləşdirmək həmin ayın
-          istifadə edilmiş limitini geri qaytarmır. Admin panelinə giriş hüququ
-          olan hesablar üçün elan sayı məhdud deyil.
-        </p>
-        <p>
-          Eyni əmlak və ya əşya üçün təkrar aktiv elan yaratma. Məlumatları
-          dəyişmək üçün mövcud elanı redaktə et. Avtomatik yoxlama eyni
-          məlumatları və təkrar istifadə olunan şəkilləri yoxlayır; qalan hallar
-          moderasiya zamanı qiymətləndirilir.
-        </p>
-        <h2>VIP və irəli çəkmə</h2>
-        <p>
-          VIP və “İrəli çək” xidmətləri hələ aktiv deyil. Hazırda bu seçimlərə
-          görə ödəniş alınmır, elan VIP olmur və sıralaması dəyişmir. Qiymətlər
-          və xidmət müddətləri aktivləşdirmədən əvvəl elan ediləcək. Bu
-          xidmətlər moderasiya qaydalarını və elan limitini aradan qaldırmır.
-        </p>
-        <h2>Elanların yoxlanılması</h2>
-        <p>
-          Yeni elanlar yoxlamaya göndərilir. Qaydalara uyğun elanlar yayımlanır.
-          Elanın yoxlanılması əmlakın vəziyyətinə və ya elan sahibinin
-          etibarlılığına zəmanət deyil.
-        </p>
-        <h2>Ödəniş və razılaşma</h2>
-        <p>
-          Əmlakı görmədən və qarşı tərəfi yoxlamadan beh göndərmə. Qiymət,
-          depozit, müddət və məsuliyyət şərtlərini yazılı razılaşdır. Platforma
-          hazırda ödəniş qəbul etmir; tərəflər birbaşa əlaqə saxlayır.
-        </p>
-        <h2>Şəxsi məlumatlar</h2>
-        <p>
-          Elana əlavə etdiyin telefon nömrəsi, təsvir və şəkillər açıq
-          yayımlanır. Şəxsiyyət vəsiqəsi, bank kartı, şifrə və digər həssas
-          məlumatları elana əlavə etmə. E-poçt hesabına və paroluna girişi
-          başqasına vermə.
-        </p>
-      </main>
-      <Footer />
-    </>
-  );
+  return <>
+    <Header />
+    <main className="wrap prose">
+      <p className="eyebrow">QAYDALAR VƏ TƏHLÜKƏSİZLİK</p>
+      <h1>Elan yerləşdirmə qaydaları</h1>
+      <p>Elan yerləşdirməzdən əvvəl qaydalarla tanış ol. Bu səhifə kirayeal.az-da elan yerləşdirmə, redaktə və təhlükəsiz istifadə şərtlərini izah edir.</p>
+      {sections.map((section, index) => <section key={section.title} id={`qayda-${index + 1}`}>
+        <h2>{index + 1}. {section.title}</h2>
+        {section.rules.map((rule, ruleIndex) => <p key={ruleIndex}><strong>{index + 1}.{ruleIndex + 1}.</strong> {rule}</p>)}
+      </section>)}
+      <section id="muddet-ve-limit">
+        <h2>8. Aktivləşdiriləcək 30 günlük müddət və limit qaydaları</h2>
+        <p className="notice"><strong>Bu hissə hələ qüvvəyə minməyib.</strong> 30 günlük avtomatik müddət, bərpa sistemi və kateqoriyalar üzrə dəqiq limitlər aktivləşdirildikdə burada bildiriləcək. Hazırda elan yerləşdirmə formasında göstərilən limit tətbiq olunur; ödəniş qəbul edilmir.</p>
+        <p><strong>8.1.</strong> Elanın aktivlik müddəti 30 gün olacaq. Müddət başa çatdıqda yayımı dayanacaq və elan silinmədən “Müddəti başa çatmış” bölməsinə keçəcək.</p>
+        <p><strong>8.2.</strong> Həm eyni vaxtda aktiv elan sayı, həm də kateqoriya üzrə 30 gün ərzində yerləşdirilən elan sayı nəzərə alınacaq. Kateqoriyalar üzrə saylar ayrıca göstəriləcək.</p>
+        <p><strong>8.3.</strong> Limit aşıldıqda istifadəçi növbəti elan üçün limitin imkan verməsini gözləməli və ya ödənişli xidmətlər aktiv olduqda uyğun kateqoriya paketi seçməli olacaq.</p>
+        <p><strong>8.4.</strong> İlk yerləşdirmədən sonrakı 30 gün ərzində elan ödənişsiz bərpa edilə biləcək. Həmin müddətdən sonra ödənişsiz bərpa yalnız kateqoriya limiti aşılmadıqda mümkün olacaq; əks halda limitin imkan verməsi gözləniləcək və ya aktiv ödənişli xidmət seçiləcək.</p>
+        <p><strong>8.5.</strong> Ödənişli xidmətin elan müddətini bərpa etməsi və uzatması xidmət aktivləşdiriləndə göstərilən şərtlərlə tənzimlənəcək.</p>
+      </section>
+      <p><Link href="/help">Suallar və kömək</Link> · <Link href="/new">Elan yerləşdir</Link></p>
+    </main>
+    <Footer />
+  </>;
 }

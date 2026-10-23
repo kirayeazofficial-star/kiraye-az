@@ -198,3 +198,14 @@ check("motorcycle saves new/used and precise color without obsolete condition", 
   assert.equal(saved.color, "Tünd qırmızı");
   assert.equal(saved.condition, undefined);
 });
+
+check("motorcycle odometer survives saving and enforces new versus used", () => {
+  const used = read("motorcycle", form({brand:"Honda",model:"CB650R",is_new:"İşlənmiş",mileage_km:"250"}));
+  assert.equal(used.mileage_km, "250"); assert.equal(validate("motorcycle", used), null);
+  assert(validate("motorcycle", {...used, mileage_km:undefined}));
+  assert(validate("motorcycle", {...used, mileage_km:"-1"}));
+  assert(validate("motorcycle", {...used, mileage_km:"1.5"}));
+  assert(validate("motorcycle", {...used, is_new:"Yeni"}));
+  assert.equal(validate("motorcycle", {...used, is_new:"Yeni", mileage_km:"0"}), null);
+  assert.equal(read("electric",form({kind:"Elektrik skuter",mileage_km:"250"})).mileage_km,undefined);
+});

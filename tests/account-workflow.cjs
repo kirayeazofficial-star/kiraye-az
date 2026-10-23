@@ -222,6 +222,9 @@ const { chromium } = require("playwright");
         await page
           .getByRole("link", { name: "Hesabın var? Daxil ol", exact: true })
           .click();
+        await page.getByRole("heading", { name: "Hesaba giriş", exact: true }).waitFor();
+        assert.equal(await page.getByLabel("E-poçt", { exact: true }).inputValue(), "");
+        await page.getByLabel("E-poçt", { exact: true }).fill(user.email);
         await page.getByLabel("Şifrə", { exact: true }).fill("old123");
       },
     );
@@ -323,7 +326,14 @@ const { chromium } = require("playwright");
           );
           if (value === "motorcycle") {
             assert.equal(await page.getByLabel("Vəziyyət", { exact: true }).count(), 0);
+            await page.getByLabel("Yeni / işlənmiş", { exact: true }).selectOption("Yeni");
+            const motorcycleMileage = page.getByLabel("Yürüş, km", { exact: true });
+            assert.equal(await motorcycleMileage.inputValue(), "0");
+            assert.equal(await motorcycleMileage.getAttribute("readonly"), "");
             await page.getByLabel("Yeni / işlənmiş", { exact: true }).selectOption("İşlənmiş");
+            assert.equal(await motorcycleMileage.inputValue(), "");
+            await motorcycleMileage.fill("250");
+            assert.equal(await motorcycleMileage.inputValue(), "250");
             await page.getByLabel("Rəng", { exact: true }).selectOption("Tünd yaşıl");
             assert.equal(await page.getByLabel("Rəng", { exact: true }).locator('option[value="Çoxrəngli"]').count(), 0);
           }

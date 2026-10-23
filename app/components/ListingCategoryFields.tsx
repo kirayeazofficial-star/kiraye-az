@@ -217,7 +217,7 @@ function VehicleFields({
     bicycle = category === "bicycle";
   const [fuel, setFuel] = useState(attributes?.fuel || "");
   const [isNew, setIsNew] = useState(attributes?.is_new || "");
-  const [mileage, setMileage] = useState(attributes?.mileage_km || "");
+  const [mileage, setMileage] = useState(attributes?.is_new === "Yeni" ? "0" : attributes?.mileage_km || "");
   const years = Array.from(
     { length: new Date().getFullYear() - 1898 },
     (_, i) => String(new Date().getFullYear() + 1 - i),
@@ -259,7 +259,12 @@ function VehicleFields({
             name="is_new"
             label="Yeni / işlənmiş"
             options={["Yeni", "İşlənmiş"]}
-            value={attributes?.is_new}
+            value={isNew}
+            required
+            onChange={(value) => {
+              setIsNew(value);
+              setMileage(value === "Yeni" ? "0" : "");
+            }}
           />
         ) : (
           <SelectField
@@ -348,7 +353,7 @@ function VehicleFields({
               />
             )}
           </div>
-          {car && (
+          {!bicycle && (
             <label>
               Yürüş, km<span className="requiredMark"> *</span>
               <input

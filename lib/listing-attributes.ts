@@ -23,6 +23,7 @@ export function readListingAttributes(
     motorcycle: [
       ...vehicle.filter((key) => key !== "condition"),
       "is_new",
+      "mileage_km",
       "engine_cc",
       "gearbox",
       "min_driver_age",
@@ -130,6 +131,14 @@ export function validateListingAttributes(
       return "Mühərrik həcmini yazın.";
     if (attributes.is_new === "Yeni" && Number(attributes.mileage_km) !== 0)
       return "Yeni avtomobilin yürüşü 0 km olmalıdır.";
+  }
+  if (category === "motorcycle") {
+    if (!["Yeni", "İşlənmiş"].includes(attributes.is_new || ""))
+      return "Motosikletin yeni və ya işlənmiş olduğunu seçin.";
+    if (attributes.mileage_km === undefined)
+      return "Motosikletin yürüşünü yazın.";
+    if (attributes.is_new === "Yeni" && Number(attributes.mileage_km) !== 0)
+      return "Yeni motosikletin yürüşü 0 km olmalıdır.";
   }
   if (
     attributes.year !== undefined &&

@@ -196,8 +196,11 @@ export default function ListingDetails({
           {item.district ? `, ${item.district}` : ""} ·{" "}
           {item.demo
             ? "Nümunə"
-            : new Date(item.created_at).toLocaleDateString("az-AZ")}
+            : `Elan tarixi: ${new Date(item.created_at).toLocaleDateString("az-AZ")}`}
         </p>
+        {!item.demo && item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && (
+          <p className="muted">Elan sahibi {new Date(item.seller_since).toLocaleDateString("az-AZ", { month: "long", year: "numeric", timeZone: "Asia/Baku" })} tarixindən qeydiyyatdadır.</p>
+        )}
         <strong className="detailPrice">
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>

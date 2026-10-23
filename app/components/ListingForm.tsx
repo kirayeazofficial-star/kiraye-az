@@ -420,6 +420,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
               "Hər kateqoriyada ayda 1 pulsuz təsdiqlənmiş elan. Yoxlamada və rədd edilmiş elanlar limiti doldurmur; elanı düzəldib yenidən göndərə bilərsən."}
           </p>
         )}
+        {!success && <aside className="notice" aria-label="Təhlükəsiz elan yerləşdirmə">
+          <strong>Təhlükəsizliyinə diqqət et.</strong> Pul almaq üçün kartının PIN/CVV-sini, SMS kodunu və hesab şifrəsini heç kimə vermə. Naməlum şəxslərin göndərdiyi ödəniş keçidlərini açma. Yalnız sənə məxsus və ya yerləşdirməyə icazən olan əşyanın düzgün məlumatlarını və şəkillərini paylaş.
+        </aside>}
         {loading ? (
           <section><p role="status">Hesab yoxlanılır...</p>
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>

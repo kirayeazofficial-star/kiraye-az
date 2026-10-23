@@ -59,6 +59,9 @@ await firstPackage.getByRole('status').filter({hasText:'Texniki işlər aparıl�
 assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
 await p.screenshot({path:`/tmp/kiraye-category-profile-${width}.png`,fullPage:true});
 await p.getByRole('button',{name:'Reklam pəncərəsini bağla',exact:true}).click();assert.equal(await article.locator('.promotionPanel').isVisible(),false);
+await p.getByRole('link',{name:'Balans',exact:true}).click();
+await p.getByRole('heading',{name:'Balans',exact:true}).waitFor();
+assert.equal(await p.locator('.accountListings').count(),0);
 await p.getByRole('region',{name:'Şəxsi hesabın balansı'}).locator('summary').click();
 await p.getByRole('region',{name:'Şəxsi hesabın balansı'}).getByRole('status').waitFor();
 console.log('PASS compact owner promotion control and listing proportions',width);

@@ -273,6 +273,7 @@ const { chromium } = require("playwright");
           localStorage.setItem("kiraye:last-city", "Xırdalan"),
         );
         await page.goto(`${base}/new`);
+        await page.getByRole("complementary", { name: "Təhlükəsiz elan yerləşdirmə" }).waitFor();
         await next();
         assert.equal(
           await page.locator('[data-post-step="1"]').isVisible(),
@@ -341,6 +342,16 @@ const { chromium } = require("playwright");
         const brand = page.getByLabel("Marka", { exact: true }),
           model = page.getByLabel("Model", { exact: true });
         assert.equal(await model.isDisabled(), true);
+        await brand.selectOption("Changan");
+        for (const value of ["UNI-K", "UNI-T", "UNI-V", "UNI-Z"]) {
+          await model.selectOption(value);
+          assert.equal(await page.locator('input[name="model"]').inputValue(), value);
+        }
+        await brand.selectOption("__other__");
+        await page.getByLabel("Digər marka", { exact: true }).fill("constructor");
+        await model.selectOption("__other__");
+        await page.getByLabel("Digər model", { exact: true }).fill("İstifadəçinin modeli");
+        assert.equal(await page.locator('input[name="brand"]').inputValue(), "constructor");
         await brand.selectOption("Hyundai");
         await model.selectOption("Elantra");
         assert.equal(
@@ -494,6 +505,7 @@ const { chromium } = require("playwright");
         assert.equal(inserted.owner_id, id);
         assert.equal(inserted.rental_period, "monthly");
         assert.equal(inserted.price, 600);
+        assert.equal(await page.getByRole("complementary", { name: "Təhlükəsiz elan yerləşdirmə" }).count(), 0);
         assert.equal(inserted.images.length, 2);
       },
     );

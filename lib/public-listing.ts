@@ -20,7 +20,16 @@ export const getPublicListing = cache(
         .eq("id", id)
         .eq("status", "published")
         .maybeSingle();
-      return { item: data as Listing | null, unavailable: !!error };
+      const item = data as Listing | null;
+      if (item && !error) {
+        try {
+          const result = await supabase.rpc("public_seller_since", { listing_id: id })
+            .abortSignal(AbortSignal.timeout(1500));
+          if (!result.error && typeof result.data === "string" && Number.isFinite(Date.parse(result.data)))
+            item.seller_since = result.data;
+        } catch { /* Optional account age must never block a published listing. */ }
+      }
+      return { item, unavailable: !!error };
     } catch {
       return { item: null, unavailable: true };
     }

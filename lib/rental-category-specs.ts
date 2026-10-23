@@ -32,8 +32,8 @@ const clothingFields = [
 export const rentalCategorySpecs: Record<string,Category> = {
   clothing: {label:"Geyimin növü", kinds: Object.fromEntries(["Kostyum","Gəlinlik","Ziyafət geyimi","Milli geyim","Uşaq tədbir geyimi","Aksesuar","Digər"].map(kind => [kind,{models:clothingBrands[kind] || {},fields: kind === "Aksesuar" ? [{key:"accessory_size",label:"Ölçü / uyğunluq"}] : clothingFields}]))},
   electric: {label:"Elektrik nəqliyyatının növü", kinds:{
-    "Elektrik skuter":{models:{Xiaomi:["Electric Scooter 4","Electric Scooter 4 Pro","Mi Electric Scooter Pro 2"],"Segway-Ninebot":["MAX G2","F2","F2 Pro"],KuKirin:["G2","G2 Pro","G3"]},fields:electricFields},
-    "Elektrik velosiped":{models:{ENGWE:["EP-2 Pro","Engine Pro","L20"],Fiido:["D11","M1 Pro","D4S"],ADO:["A20","Air 20"],Cube:[]},fields:[...electricFields,choice("frame_size","Çərçivə ölçüsü",["XS","S","M","L","XL","Digər"])]},
+    "Elektrik skuter":{models:{Xiaomi:["Electric Scooter 4","Electric Scooter 4 Pro","Mi Electric Scooter Pro 2"],"Segway-Ninebot":["MAX G2","F2","F2 Pro"],KuKirin:["G2","G2 Pro","G2 Max","G3","G4"],Kugoo:["S1","S3","M4","M4 Pro"],NIU:["KQi2 Pro","KQi3 Pro","KQi3 Max"],Dualtron:["Mini","Thunder","Victor"],Inokim:["Light 2","OX","OXO"],Kaabo:["Mantis 10","Wolf Warrior 11"]},fields:electricFields},
+    "Elektrik velosiped":{models:{ENGWE:["EP-2 Pro","Engine Pro","L20"],Fiido:["D11","M1 Pro","D4S"],ADO:["A20","Air 20"],Cube:[],Giant:[],Trek:[],Specialized:[],Merida:[],Scott:[],HIMO:["C20","Z20"],SAMEBIKE:[]},fields:[...electricFields,choice("frame_size","Çərçivə ölçüsü",["XS","S","M","L","XL","Digər"])]},
   }},
   photo: {label:"Çəkiliş avadanlığının növü", kinds:{
     "Fotoaparat":{models:{Canon:["EOS R5","EOS R6","EOS 5D Mark IV"],Nikon:["Z6","Z7","D850"],Sony:["A7 III","A7 IV"],Fujifilm:["X-T4","X-T5"]},fields:[number("resolution_mp","Şəkil ölçüsü (MP)",1,500,"0.1")]},

@@ -103,6 +103,7 @@ export const cities = [
 export type Listing = {
   id: string;
   owner_id?: string;
+  seller_since?: string;
   category: string;
   title: string;
   city: string;

@@ -35,3 +35,6 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - Hostinq SMTP-si xarici ünvanlara təsdiq və bərpa məktubları göndərməyə icazə verirsə, əvvəlki Resend/Sender göndərişini əvəz edə bilər. Hazırkı Supabase Auth üçün əvvəlcə həmin SMTP onun göndəriş ayarlarına qoşulmalıdır; serverə köçürüldükdən sonra yerli tətbiqdə istifadə ediləcək.
 - Dəstəkdən SSH host/IP, SSH portu, istifadəçi adı və shell/key authentication aktivliyini təsdiqləməsini istə. cPanel 2083 SSH portu deyil. `kirayeal-deploy` açarı əvvəlcədən avtorizasiya edilib; şəxsi açarı və parolu söhbətə göndərmək lazım deyil.
 - Yeni elan: şəhər/qiymət boş başlayır, brauzer autofill söndürülür. Redaktə mövcud məlumatları saxlayır; əlaqə sahələri hesabdan doldurulur. Kateqoriya/növ/marka yalnız başlıq təklifi verə bilər.
+
+- Hesab yaşı: `supabase/public-seller-since.sql` yalnız yayımlanmış elanın sahibinin qeydiyyat ayını/ilini açır; e-poçt və şəxsi profil açılmır. SQL canlı bazaya tətbiq edilməyibsə tarix gizli qalır, elan bloklanmır. Hostinq köçürməsində eyni məxfilik qaydasını saxla.
+- Elan yerləşdirmə formasında PIN/CVV, SMS kodu, şübhəli ödəniş keçidləri və düzgün məlumat barədə qısa təhlükəsizlik qeydi var; uğurlu göndərişdən sonra və ictimai elan səhifəsində göstərilmir. Bu qeyd moderasiya və server icazələrini əvəz etmir.

@@ -127,7 +127,7 @@ function BrandModelPicker({
             <option value="">
               {resolvedBrand ? "Modeli seçin" : "Əvvəl markanı seçin"}
             </option>
-            {(models[resolvedBrand] || []).map((item) => (
+            {(Object.prototype.hasOwnProperty.call(models, resolvedBrand) ? models[resolvedBrand] : []).map((item) => (
               <option key={item}>{item}</option>
             ))}
             <option value="__other__">Digər model</option>

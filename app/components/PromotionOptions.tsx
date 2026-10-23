@@ -11,6 +11,7 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
   const panel = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLElement>(null);
   const [opened, setOpened] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
   function close() { if (root.current) root.current.open = false; }
   useEffect(() => {
     if (!opened) return;
@@ -20,7 +21,7 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
     return () => { document.body.style.overflow = previous; trigger.current?.focus(); };
   }, [opened]);
   return <details ref={root} className="promotionOptions" aria-label="Elanın irəlilədilməsi"
-    onToggle={(event) => setOpened(event.currentTarget.open)}>
+    onToggle={(event) => { setOpened(event.currentTarget.open); if (!event.currentTarget.open) setSelected(null); }}>
     <summary ref={trigger} className="promotionTrigger"><span aria-hidden="true">📣</span> Elanı reklam et</summary>
     <div className="promotionShade" aria-hidden="true" onClick={close} />
     <div ref={panel} className="promotionPanel" role="dialog" aria-modal="true" aria-label="Elanın reklam paketləri" tabIndex={-1}
@@ -34,7 +35,12 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
       }}>
       <div className="promotionModalHeader"><h3>Reklam paketləri</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}>×</button></div>
       <p>Hazırda xidmətlər aktiv deyil. Paket və ödəniş üsulunu seçərək önbaxış edə bilərsən; pul tutulmur.</p>
-      {packages.map(pack => <details key={pack.kind} className="promotionPackage">
+      {selected && <button type="button" className="textButton" onClick={() => setSelected(null)}>← Başqa xidmət seç</button>}
+      {packages.filter(pack => !selected || pack.kind === selected).map(pack => <details key={pack.kind} className="promotionPackage" open={selected === pack.kind}
+        onToggle={(event) => {
+          if (event.currentTarget.open) { setSelected(pack.kind); if (panel.current) panel.current.scrollTop = 0; }
+          else if (selected === pack.kind) setSelected(null);
+        }}>
         <summary>
           <span className={`promotionIcon ${pack.kind}`} aria-hidden="true">{pack.icon}</span>
           <span className="promotionHeading"><strong>{pack.title}</strong><small>Paket seç</small></span>

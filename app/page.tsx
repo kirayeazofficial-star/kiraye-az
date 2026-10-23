@@ -1,4 +1,5 @@
 "use client";
+import { readSearchHistory, rememberSearch, clearSearchHistory } from "../lib/search-history";
 import { rentalCategorySpecs } from "../lib/rental-category-specs";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -30,6 +31,7 @@ export default function Home() {
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
     [demo, setDemo] = useState(false);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [category, setCategory] = useState(""),
     [query, setQuery] = useState(""),
     [city, setCity] = useState(""),
@@ -53,6 +55,7 @@ export default function Home() {
     [total, setTotal] = useState(0),
     [retry, setRetry] = useState(0);
   useEffect(() => {
+    setSearchHistory(readSearchHistory());
     setFavorites(readFavorites());
     setOnlyFavorites(
       new URLSearchParams(window.location.search).has("favorites"),
@@ -449,6 +452,7 @@ export default function Home() {
             className="searchPanel"
             onSubmit={(e) => {
               e.preventDefault();
+              setSearchHistory(rememberSearch(query));
               document
                 .getElementById("elanlar")
                 ?.scrollIntoView({ behavior: "smooth" });
@@ -494,6 +498,13 @@ export default function Home() {
             </label>
             <button className="add">Elanları axtar →</button>
           </form>
+          {!!searchHistory.length && <details className="searchHistory">
+            <summary>Son axtarışların</summary>
+            <div className="searchHistoryItems">
+              {searchHistory.map(value => <button key={value} type="button" className="secondary" onClick={() => { setQuery(value); setPage(1); setSearchHistory(rememberSearch(value)); }}>{value}</button>)}
+              <button type="button" className="textButton" onClick={() => { clearSearchHistory(); setSearchHistory([]); }}>Tarixçəni təmizlə</button>
+            </div>
+          </details>}
         </div>
         <section className="wrap listingSection" id="elanlar">
           <div className="sectionTitle">

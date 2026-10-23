@@ -51,10 +51,19 @@ await article.locator('.promotionTrigger').click();await article.locator('.promo
 assert.equal(await article.locator('.paymentChoices input[type=radio]').count(),18);
 const firstPackage=article.locator('.promotionPackage').first();
 await firstPackage.locator('summary').first().click();
+await p.waitForFunction(()=>document.querySelectorAll('.promotionPanel .promotionPackage').length===1);
+assert.equal(await article.locator('.paymentChoices input[type=radio]').count(),6);
 await firstPackage.getByRole('radio',{name:'9 dəfə (8 saatdan bir) — 2 AZN',exact:true}).check();
 await firstPackage.getByRole('radio',{name:'Şəxsi hesab (0,00 AZN)',exact:true}).check();
 await firstPackage.locator('.inactivePayment summary').click();
 await firstPackage.getByRole('status').filter({hasText:'Texniki işlər aparılır'}).waitFor();
+assert.equal(await article.locator('.promotionPackage').count(),1);
+await p.getByRole('button',{name:'← Başqa xidmət seç',exact:true}).click();
+await p.waitForFunction(()=>document.querySelectorAll('.promotionPanel .promotionPackage').length===3);
+await article.locator('.promotionPackage > summary').filter({hasText:'VIP'}).click();
+await p.waitForFunction(()=>document.querySelectorAll('.promotionPanel .promotionPackage').length===1);
+await p.getByRole('radio',{name:'1 gün — 3 AZN',exact:true}).check();
+
 
 assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
 await p.screenshot({path:`/tmp/kiraye-category-profile-${width}.png`,fullPage:true});

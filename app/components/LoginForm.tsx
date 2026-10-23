@@ -1,4 +1,5 @@
 "use client";
+import { createStrongPassword } from "../../lib/strong-password";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
@@ -26,6 +27,7 @@ export default function Login({
   const [ready, setReady] = useState(false);
   const [recoveryChecked, setRecoveryChecked] = useState(false);
   const emailInput = useRef<HTMLInputElement>(null);
+  const passwordInput = useRef<HTMLInputElement>(null);
   const [loginFailed, setLoginFailed] = useState(false);
   useEffect(() => {
     let active = true;
@@ -500,6 +502,7 @@ export default function Login({
                         <label htmlFor="auth-password">Şifrə</label>
                         <div className="passwordField">
                           <input
+                            ref={passwordInput}
                             id="auth-password"
                             aria-describedby={mode === "signup" ? "password-hint" : undefined}
                             aria-label="Şifrə"
@@ -530,9 +533,18 @@ export default function Login({
                           </button>
                         </div>
                         {mode === "signup" && (
-                          <small className="passwordHint" id="password-hint">
-                            Ən azı 8 simvoldan ibarət şifrə yaz.
-                          </small>
+                          <>
+                            <button type="button" className="textButton" onClick={() => {
+                              try {
+                                if (passwordInput.current) {
+                                  passwordInput.current.value = createStrongPassword();
+                                  setShowPassword(true);
+                                  passwordInput.current.focus();
+                                }
+                              } catch { setNotice("Avtomatik şifrə yaratmaq mümkün olmadı. Şifrəni özün yaza bilərsən."); }
+                            }}>Güclü şifrə yarat</button>
+                            <small className="passwordHint" id="password-hint">Ən azı 8 simvoldan ibarət şifrə yaz. Yaradılan şifrəni parol menecerində saxla.</small>
+                          </>
                         )}
                       </div>
                     )}

@@ -38,3 +38,6 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 
 - Hesab yaşı: `supabase/public-seller-since.sql` yalnız yayımlanmış elanın sahibinin qeydiyyat ayını/ilini açır; e-poçt və şəxsi profil açılmır. SQL canlı bazaya tətbiq edilməyibsə tarix gizli qalır, elan bloklanmır. Hostinq köçürməsində eyni məxfilik qaydasını saxla.
 - Elan yerləşdirmə formasında PIN/CVV, SMS kodu, şübhəli ödəniş keçidləri və düzgün məlumat barədə qısa təhlükəsizlik qeydi var; uğurlu göndərişdən sonra və ictimai elan səhifəsində göstərilmir. Bu qeyd moderasiya və server icazələrini əvəz etmir.
+
+- Qeydiyyatın canlı xətası: “Təsdiq məktubu göndərilə bilmədi. Saytın e-poçt göndəriş xidməti yoxlanmalıdır.” SMTP göndərişi faktiki düzəlməyib; qeydiyyat yoxlamasını söndürməklə gizlətmə. Hostinq SMTP-si `mail.kirayeal.az:465`, istifadəçi/göndərən `noreply@kirayeal.az`; parol məxfi ayarda saxlanmalıdır. Köçürmədən sonra xarici istifadəçi ünvanına təsdiq və bərpa çatdırılmasını yoxla.
+- SSH açıldıqda tətbiq və baza imkanlarını, disk/backup/SMTP limitlərini təsdiqlə. Elanlar server bazasında saxlanmalı, təsdiqlənmiş elanları anonim ziyarətçi də bütün cihazlardan görə bilməlidir. Bu tələb tək hostinq alışı ilə avtomatik yerinə yetirilmir; məlumat köçürməsi və anonim giriş sınağı tamamlanmalıdır.

@@ -20,6 +20,9 @@ await p.getByLabel('E-poçt',{exact:true}).fill('legacy-test@');await p.getByRol
 await p.getByLabel('Şifrə',{exact:true}).fill('test-only-password-18');await p.getByRole('button',{name:'Şifrəni göstər',exact:true}).tap();assert.equal(await p.locator('input[name=password]').getAttribute('type'),'text');
 assert.equal(await p.evaluate(()=>window.__missingAtStartup),true);
 assert.equal(await p.evaluate(()=>[typeof Object.hasOwn,typeof Array.prototype.at,typeof AbortSignal.timeout,typeof crypto.randomUUID].join(',')),'function,function,function,function');
-await p.getByRole('button',{name:'Hesab yarat',exact:true}).tap();await p.getByRole('heading',{name:'E-poçtunu yoxla',exact:true}).waitFor();assert.equal(signup.email,'legacy-test@gmail.com');assert.deepEqual(errors,[]);
+await p.getByRole('button',{name:'Güclü şifrə yarat',exact:true}).tap();
+const generated=await p.locator('input[name=password]').inputValue();assert.equal(generated.length,20);assert(/[A-Z]/.test(generated)&&/[a-z]/.test(generated)&&/[0-9]/.test(generated)&&/[^A-Za-z0-9]/.test(generated));
+assert.equal(await p.locator('input[name=password]').getAttribute('type'),'text');
+await p.getByRole('button',{name:'Hesab yarat',exact:true}).tap();await p.getByRole('heading',{name:'E-poçtunu yoxla',exact:true}).waitFor();assert.equal(signup.email,'legacy-test@gmail.com');assert.equal(signup.password,generated);assert.deepEqual(errors,[]);
 console.log('PASS signup typing, completion, password visibility and submission with older-browser APIs initially missing');await ctx.close();
 }finally{await b.close()}})().catch(e=>{console.error(e);process.exit(1)});

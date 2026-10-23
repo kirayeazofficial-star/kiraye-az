@@ -5,6 +5,7 @@ import {
   authErrorMessage,
   safeLoginDestination,
 } from "../../lib/auth-messages";
+import { checkRecoveryEmail } from "../../lib/recovery-check";
 import { finishWithin } from "../../lib/auth-return";
 import { authCallbackUrl } from "../../lib/auth-flow";
 import { getAuthCapabilities, supabase } from "../../lib/supabase";
@@ -23,6 +24,7 @@ export default function Login({
 }) {
   const [phoneEnabled, setPhoneEnabled] = useState(false);
   const [ready, setReady] = useState(false);
+  const [recoveryChecked, setRecoveryChecked] = useState(false);
   const emailInput = useRef<HTMLInputElement>(null);
   const [loginFailed, setLoginFailed] = useState(false);
   useEffect(() => {
@@ -78,9 +80,10 @@ export default function Login({
       sessionStorage.removeItem(pendingKey);
     } catch {}
   }
-  function pending(type: Verification, email: string) {
+  function pending(type: Verification, email: string, checked = false) {
     setVerification(type);
-    setUseCode(type === "recovery");
+    setUseCode(type === "recovery" && checked);
+    setRecoveryChecked(checked);
     setCooldown(60);
     setNotice("");
     try {
@@ -89,6 +92,7 @@ export default function Login({
         JSON.stringify({
           type,
           email,
+          checked,
           retryAt: Date.now() + 60000,
           expiresAt: Date.now() + 1800000,
         }),
@@ -140,7 +144,8 @@ export default function Login({
         setMethod("email");
         setEmailAddress(saved.email);
         setVerification(saved.type);
-        setUseCode(saved.type === "recovery");
+        setUseCode(saved.type === "recovery" && saved.checked === true);
+        setRecoveryChecked(saved.checked === true);
         setCooldown(
           Math.max(0, Math.ceil((saved.retryAt - Date.now()) / 1000)),
         );
@@ -205,11 +210,16 @@ export default function Login({
     setUnconfirmed(false);
     try {
       if (mode === "reset") {
+        const account = await checkRecoveryEmail(email);
+        if (account === "missing") {
+          setNotice("Bu e-poçtla hesab tapılmadı. Ünvanı yoxla və ya qeydiyyatdan keç.");
+          return;
+        }
         const { error } = await finishWithin(supabase.auth.resetPasswordForEmail(email, {
           redirectTo: authCallbackUrl(window.location.origin, true),
         }));
         if (error) throw error;
-        pending("recovery", email);
+        pending("recovery", email, account === "exists");
       } else if (mode === "signup") {
         const { data, error } = await finishWithin(supabase.auth.signUp({
           email,
@@ -289,6 +299,16 @@ export default function Login({
     setBusy(true);
     setNotice("");
     try {
+      let checked = false;
+      if (verification === "recovery") {
+        const account = await checkRecoveryEmail(emailAddress);
+        if (account === "missing") {
+          clearPending(); setVerification(null); setMode("reset");
+          setNotice("Bu e-poçtla hesab tapılmadı. Ünvanı yoxla və ya qeydiyyatdan keç.");
+          return;
+        }
+        checked = account === "exists";
+      }
       const { error } =
         verification === "recovery"
           ? await supabase.auth.resetPasswordForEmail(emailAddress, {
@@ -305,6 +325,7 @@ export default function Login({
       pending(
         verification === "recovery" ? "recovery" : "signup",
         emailAddress,
+        checked,
       );
       setUnconfirmed(false);
     } catch (error) {
@@ -382,7 +403,7 @@ export default function Login({
               ? "Hesaba giriş"
               : verification
                 ? verification === "recovery"
-                  ? "Kodu daxil et"
+                  ? (recoveryChecked || useCode ? "Kodu daxil et" : "Şifrə bərpası")
                   : "E-poçtunu yoxla"
                 : mode === "signup"
                   ? "Hesab yarat"
@@ -568,7 +589,10 @@ export default function Login({
                     {verification === "recovery" &&
                       " Məktubda kod əvəzinə bərpa linki varsa, həmin linki aç — yeni şifrə səhifəsinə keçəcəksən."}
                   </p>
-                  {verification === "recovery" && codeForm()}
+                  {verification === "recovery" && !useCode && (
+                    <button type="button" className="recoveryAction" onClick={() => setUseCode(true)}>Bərpa məktubum gəlib — kodu daxil et</button>
+                  )}
+                  {verification === "recovery" && useCode && codeForm()}
                   <div className="confirmationActions">
                     <button
                       className="authSubmit"

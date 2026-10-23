@@ -881,17 +881,17 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .promotionPackage { padding:12px 0; border-top:1px solid #dde1e7; }
-.promotionPackage summary { cursor:pointer; min-height:44px; display:list-item; padding:10px 0; font-weight:600; }
+.promotionPackage > summary { cursor:pointer; min-height:44px; display:list-item; padding:10px 0; font-weight:600; }
 .promotionPackage li { margin:8px 0; }
 .signupLink { font-size:13px; color:#344258; text-decoration:underline; }
 @media(max-width:720px) { .headerActions { flex-wrap:wrap; justify-content:flex-end; gap:6px; } .signupLink { font-size:11px; } }
 
 /* Promotion previews remain inactive; the colorful symbols identify each service. */
 .promotionPackage { margin-top:10px; padding:0; border:1px solid #e0e6e3; border-radius:12px; background:#fff; overflow:hidden; }
-.promotionPackage summary { display:flex; align-items:center; gap:12px; padding:12px; list-style:none; }
-.promotionPackage summary::-webkit-details-marker { display:none; }
-.promotionPackage summary::after { content:"+"; margin-left:auto; font-size:22px; color:#52665d; }
-.promotionPackage[open] summary::after { content:"−"; }
+.promotionPackage > summary { display:flex; align-items:center; gap:12px; padding:12px; list-style:none; }
+.promotionPackage > summary::-webkit-details-marker { display:none; }
+.promotionPackage > summary::after { content:"+"; margin-left:auto; font-size:22px; color:#52665d; }
+.promotionPackage[open] > summary::after { content:"−"; }
 .promotionIcon { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; flex:0 0 44px; border-radius:12px; font-size:26px; font-family:"Apple Color Emoji","Segoe UI Emoji",sans-serif; }
 .promotionIcon.bump { background:#e8f6e8; }
 .promotionIcon.vip { background:#e8f3ff; }
@@ -907,7 +907,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .galleryStage .previous { left:12px; }
 .galleryStage .next { right:12px; }
 .galleryCounter { position:absolute; right:12px; bottom:12px; padding:5px 10px; border-radius:20px; background:#12251fba; color:#fff; font-size:12px; pointer-events:none; }
-.listingGallery:focus-visible, .galleryArrow:focus-visible, .promotionPackage summary:focus-visible { outline:3px solid #f2784b; outline-offset:3px; }
+.listingGallery:focus-visible, .galleryArrow:focus-visible, .promotionPackage > summary:focus-visible { outline:3px solid #f2784b; outline-offset:3px; }
 
 .accountItemActions .promotionOptions { width:auto; max-width:none; }
 .promotionOptions { position:relative; padding:0; background:white; }
@@ -927,3 +927,23 @@ input[type="number"]::-webkit-outer-spin-button {
   .accountItemActions .promotionOptions { grid-column:1 / -1; }
   .accountListings .accountItemActions > .secondary { margin:0; justify-content:center; text-align:center; }
 }
+
+.paymentChoices { margin:12px; padding:10px; border:1px solid #e0e6e3; border-radius:10px; min-width:0; }
+.paymentChoices legend { font-size:13px; font-weight:600; }
+.paymentChoices label { display:flex; align-items:center; gap:9px; min-height:44px; margin:4px 0; font-size:12px; cursor:pointer; }
+.paymentChoices input[type="radio"] { width:18px; height:18px; min-height:18px; flex:0 0 18px; margin:0; padding:0; }
+.inactivePayment { margin:12px; }
+.inactivePayment > summary { display:block; list-style:none; padding:12px; border-radius:8px; background:#f2784b; color:white; text-align:center; cursor:pointer; font-weight:600; }
+.inactivePayment > summary::-webkit-details-marker { display:none; }
+.inactivePayment p { background:#fff8e9; padding:10px; color:#654d24; border-radius:8px; font-size:12px; line-height:1.6; }
+.balancePreview { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; padding:16px; margin-bottom:20px; background:white; border:1px solid #e0e6e3; border-radius:12px; }
+.balancePreview h2 { font-size:16px; margin:0 0 8px; }
+.balancePreview strong { font-size:22px; color:#183e36; }
+.balancePreview p { font-size:12px; margin:8px 0 0; }
+.balancePreview .inactivePayment { max-width:300px; margin:0; }
+@supports not (height:100dvh) { .loginPage { min-height:100vh; } }
+.promotionShade { position:fixed; inset:0; z-index:1000; background:#10231f80; }
+.promotionOptions .promotionPanel { position:fixed; top:50%; left:50%; right:auto; transform:translate(-50%,-50%); z-index:1001; width:min(520px,calc(100vw - 32px)); max-height:80vh; -webkit-overflow-scrolling:touch; }
+.promotionModalHeader { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.promotionOptions .promotionModalHeader h3 { font-size:18px; margin:0; }
+.promotionModalHeader button { display:grid; place-items:center; flex:0 0 44px; width:44px; height:44px; background:white; border:1px solid #dce6e0; border-radius:8px; color:#28584c; font-size:28px; cursor:pointer; }

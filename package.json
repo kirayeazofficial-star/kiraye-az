@@ -9,7 +9,9 @@
     "lint": "tsc --noEmit --incremental false",
     "test:ui": "node tests/marketplace.cjs",
     "postbuild": "node scripts/prepare-standalone.mjs",
-    "package:hosting": "node scripts/package-hosting.mjs"
+    "package:hosting": "node scripts/package-hosting.mjs",
+    "prebuild": "node scripts/prepare-browser-compat.mjs",
+    "predev": "node scripts/prepare-browser-compat.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
@@ -20,5 +22,12 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "typescript": "5.7.2"
-  }
+  },
+  "browserslist": [
+    "Chrome >= 80",
+    "Edge >= 80",
+    "Firefox >= 78",
+    "Safari >= 15",
+    "iOS >= 15"
+  ]
 }

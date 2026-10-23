@@ -1,3 +1,4 @@
+import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import "./styles.css";
 import "./rental.css";
@@ -19,7 +20,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="az">
-      <body>{children}</body>
+      <body>
+        <Script src="/browser-compat.js" strategy="beforeInteractive" />
+        {children}
+      </body>
     </html>
   );
 }

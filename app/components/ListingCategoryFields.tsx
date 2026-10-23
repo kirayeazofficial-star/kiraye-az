@@ -57,7 +57,7 @@ function BrandModelPicker({
   required?: boolean;
   suggest?: (title: string) => void;
 }) {
-  const known = attributes?.brand && Object.hasOwn(models, attributes.brand);
+  const known = attributes?.brand && Object.prototype.hasOwnProperty.call(models, attributes.brand);
   const [brand, setBrand] = useState(
     known ? attributes!.brand! : attributes?.brand ? "__other__" : "",
   );

@@ -6,3 +6,6 @@ node_modules/
 *.log
 
 dist/
+
+# Generated from the installed framework by predev/prebuild.
+public/browser-compat.js

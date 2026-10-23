@@ -24,3 +24,7 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - Mövcud olmayan e-poçtun bərpa sorğusunda xidmətin ümumi cavabını məktubun göndərilməsi kimi təqdim etmə; bərpa sorğusu yeni istifadəçi yaratmamalıdır. Hostinqə keçəndə bunu göndəriş qeydləri ilə də yoxla.
 
 - Yeni kateqoriyalar üçün `supabase/rental-categories.sql` tətbiq et (tam yeni quraşdırmada yenilənmiş `schema.sql` da kifayətdir). Geyim, elektrik skuter/velosiped, foto-video və turizm kateqoriyalarında bir elan göndərib təsdiqlə. Mövcud avadanlıq elanlarının kateqoriyası və məlumatı dəyişdirilməyib.
+
+- Son ödəniş önbaxışı: paketlər və bank kartı/şəxsi hesab seçilə bilir, “Ödə” və “Balans yüklə” yalnız texniki işlər mesajını açır. Heç bir ödəniş endpointi və balans artırılması yoxdur. Gələcək E-point inteqrasiyası server təsdiqli sifariş və ayrıca balans uçotu tələb edir.
+- Bərpa üçün dəqiq “hesab tapılmadı” cavabı: `supabase/recovery-check.sql` tətbiq et və yalnız serverdə `SUPABASE_SERVICE_ROLE_KEY` saxla. SMTP-ni ayrıca düzəlt və real çatdırılmanı yoxla.
+- `npm run build` və `npm run dev` uyğunluq faylını Next-in quraşdırılmış paketindən yaradır; fərdi build əmri bu addımı ötürməməlidir. Köhnə brauzer API-ləri çıxarılaraq sınaqlar əlavə edilib, bu real iPhone Safari sınağının əvəzi deyil. Real iOS versiyası ilə yenidən yoxla.

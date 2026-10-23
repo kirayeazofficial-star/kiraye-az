@@ -28,6 +28,7 @@ const { chromium } = require("playwright");
       recoveries = [],
       errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
+    await page.route("**/api/auth/recovery-check", route => route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({exists:true})}));
     await page.route("https://*.supabase.co/**", async (route) => {
       const req = route.request(),
         path = new URL(req.url()).pathname;
@@ -221,6 +222,7 @@ const { chromium } = require("playwright");
         await t.page.goto(`${base}/reset-password${fragment}`);
         await t.page.getByLabel("Yeni şifrə", { exact: true }).waitFor();
         await t.page.goto(`${base}/login`);
+        await t.page.getByRole("button", { name: "Bərpa məktubum gəlib — kodu daxil et", exact: true }).click();
         await t.page.getByLabel("6 rəqəmli kod", { exact: true }).waitFor();
         assert.equal(
           await t.page.getByLabel("Yeni şifrə", { exact: true }).count(),

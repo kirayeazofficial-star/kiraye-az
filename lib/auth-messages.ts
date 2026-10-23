@@ -24,6 +24,7 @@ export function authErrorMessage(error: unknown) {
     return "E-poçt ünvanını yoxla və yenidən yaz.";
   if (code === "over_email_send_rate_limit")
     return "E-poçt göndəriş limiti dolub. Hesabın artıq varsa, yenidən qeydiyyat yaratmadan daxil ol. Məktub üçün bir müddət gözlə.";
+  if (/^Çox sayda/.test(message)) return message;
   if (e?.status === 429 || code.includes("rate_limit"))
     return "Çox sayda cəhd edildi. Bir qədər gözləyib yenidən yoxla.";
   if (
@@ -35,7 +36,7 @@ export function authErrorMessage(error: unknown) {
   )
     return "SMS xidməti hazırda əlçatan deyil. E-poçtla davam et və ya sonra yoxla.";
   if (/error sending|failed to send|smtp/i.test(message))
-    return "Təsdiq məktubu göndərilə bilmədi. Bir az sonra yenidən yoxla.";
+    return "Təsdiq məktubu göndərilə bilmədi. Saytın e-poçt göndəriş xidməti yoxlanmalıdır. Bu cəhdlə qeydiyyatın tamamlandığı təsdiqlənmir.";
   if (code === "phone_number_invalid") return "Düzgün mobil nömrə yaz.";
   if (code === "otp_disabled")
     return "SMS ilə giriş hələ aktiv deyil. E-poçtla davam edə bilərsən.";

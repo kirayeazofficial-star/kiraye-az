@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import BalancePreview from "../components/BalancePreview";
 import PromotionOptions from "../components/PromotionOptions";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -112,10 +113,12 @@ export default function Profile() {
               </Link>
               <Link href="/?favorites=1">Seçilmişlər</Link>
               <Link href="/account">Profil ayarları</Link>
+              <a href="#balance">Şəxsi hesab / Balans</a>
               <Link href="/help">Kömək və qaydalar</Link>
               {admin && <Link href="/admin">Admin paneli</Link>}
             </nav>
             <div className="cabinetContent">
+              <BalancePreview />
               <div className="stats">
                 <div>
                   <b>{listings.length}</b>

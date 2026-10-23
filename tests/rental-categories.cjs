@@ -4,6 +4,9 @@ const assert=require('node:assert/strict');const {chromium}=require('playwright'
 try{for(const width of [390,1440]){
 const ctx=await b.newContext({viewport:{width,height:900},hasTouch:true});const p=await ctx.newPage();const errors=[];let saved, profileItem;
 p.on('pageerror',e=>errors.push(e.message));
+if(process.env.TEST_LEGACY) await ctx.addInitScript(()=>{
+ for(const [object,key] of [[Object,'hasOwn'],[Array.prototype,'at'],[AbortSignal,'timeout'],[crypto,'randomUUID']]) Object.defineProperty(object,key,{value:undefined,writable:true,configurable:true});
+});
 const id='11111111-1111-4111-8111-111111111111',listingId='22222222-2222-4222-8222-222222222222';
 const user={id,email:'fixture@example.invalid',aud:'authenticated',role:'authenticated',app_metadata:{provider:'email'},user_metadata:{},created_at:new Date().toISOString()};
 const jwt=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:id,exp:Math.floor(Date.now()/1000)+3600,aud:'authenticated'})).toString('base64url')+'.test';
@@ -45,10 +48,19 @@ await p.goto(base+'/profile');const article=p.locator('.accountListings article'
 assert((await article.boundingBox()).height < (width < 720 ? 380 : 260));
 assert.equal(await article.locator('.promotionPanel').isVisible(),false);
 await article.locator('.promotionTrigger').click();await article.locator('.promotionPanel').waitFor();
-assert.equal(await article.locator('.promotionPackage button:disabled').count(),3);
+assert.equal(await article.locator('.paymentChoices input[type=radio]').count(),18);
+const firstPackage=article.locator('.promotionPackage').first();
+await firstPackage.locator('summary').first().click();
+await firstPackage.getByRole('radio',{name:'9 dəfə (8 saatdan bir) — 2 AZN',exact:true}).check();
+await firstPackage.getByRole('radio',{name:'Şəxsi hesab (0,00 AZN)',exact:true}).check();
+await firstPackage.locator('.inactivePayment summary').click();
+await firstPackage.getByRole('status').filter({hasText:'Texniki işlər aparılır'}).waitFor();
+
 assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
 await p.screenshot({path:`/tmp/kiraye-category-profile-${width}.png`,fullPage:true});
-await article.locator('.promotionTrigger').click();assert.equal(await article.locator('.promotionPanel').isVisible(),false);
+await p.getByRole('button',{name:'Reklam pəncərəsini bağla',exact:true}).click();assert.equal(await article.locator('.promotionPanel').isVisible(),false);
+await p.getByRole('region',{name:'Şəxsi hesabın balansı'}).locator('summary').click();
+await p.getByRole('region',{name:'Şəxsi hesabın balansı'}).getByRole('status').waitFor();
 console.log('PASS compact owner promotion control and listing proportions',width);
 assert.deepEqual(errors,[]);await ctx.close();
 }}finally{await b.close()}

@@ -28,3 +28,10 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - Son ödəniş önbaxışı: paketlər və bank kartı/şəxsi hesab seçilə bilir, “Ödə” və “Balans yüklə” yalnız texniki işlər mesajını açır. Heç bir ödəniş endpointi və balans artırılması yoxdur. Gələcək E-point inteqrasiyası server təsdiqli sifariş və ayrıca balans uçotu tələb edir.
 - Bərpa üçün dəqiq “hesab tapılmadı” cavabı: `supabase/recovery-check.sql` tətbiq et və yalnız serverdə `SUPABASE_SERVICE_ROLE_KEY` saxla. SMTP-ni ayrıca düzəlt və real çatdırılmanı yoxla.
 - `npm run build` və `npm run dev` uyğunluq faylını Next-in quraşdırılmış paketindən yaradır; fərdi build əmri bu addımı ötürməməlidir. Köhnə brauzer API-ləri çıxarılaraq sınaqlar əlavə edilib, bu real iPhone Safari sınağının əvəzi deyil. Real iOS versiyası ilə yenidən yoxla.
+
+## Hostinq e-poçtu və SSH məlumatları
+
+- Economic X paketində e-poçt hesabının olması SMTP göndərişinin sayta avtomatik qoşulması deyil. cPanel → Email Accounts → Connect Devices bölməsindəki SMTP hostu, TLS/SSL portu və tam e-poçt istifadəçi adı tələb olunur. Parol yalnız məxfi konfiqurasiyada saxlanır.
+- Hostinq SMTP-si xarici ünvanlara təsdiq və bərpa məktubları göndərməyə icazə verirsə, əvvəlki Resend/Sender göndərişini əvəz edə bilər. Hazırkı Supabase Auth üçün əvvəlcə həmin SMTP onun göndəriş ayarlarına qoşulmalıdır; serverə köçürüldükdən sonra yerli tətbiqdə istifadə ediləcək.
+- Dəstəkdən SSH host/IP, SSH portu, istifadəçi adı və shell/key authentication aktivliyini təsdiqləməsini istə. cPanel 2083 SSH portu deyil. `kirayeal-deploy` açarı əvvəlcədən avtorizasiya edilib; şəxsi açarı və parolu söhbətə göndərmək lazım deyil.
+- Yeni elan: şəhər/qiymət boş başlayır, brauzer autofill söndürülür. Redaktə mövcud məlumatları saxlayır; əlaqə sahələri hesabdan doldurulur. Kateqoriya/növ/marka yalnız başlıq təklifi verə bilər.

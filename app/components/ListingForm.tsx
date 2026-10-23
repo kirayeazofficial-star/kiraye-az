@@ -36,6 +36,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
   const submitLock = useRef(false);
   const manualTitle = useRef(false);
   const [title, setTitle] = useState("");
+  const [city, setCity] = useState("");
+  const [price, setPrice] = useState("");
   const [descriptionText, setDescriptionText] = useState("");
   const [formVersion, setFormVersion] = useState(0);
   const [contactName, setContactName] = useState("");
@@ -51,6 +53,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     setFormVersion((value) => value + 1);
     setCategory(initial?.category || "");
     setTitle(initial?.title || "");
+    setCity(initial?.city || "");
+    setPrice(initial?.price == null ? "" : String(initial.price));
     setDescriptionText(initial?.description || "");
     manualTitle.current = !!initial;
     setFiles([]);
@@ -90,6 +94,24 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [existingImages, setExistingImages] = useState<string[]>([]),
     [loadError, setLoadError] = useState(false);
   useEffect(() => {
+    setLoading(true);
+    setInitial(null);
+    setStep(1);
+    setCategory("");
+    setTitle("");
+    setDescriptionText("");
+    setCity("");
+    setPrice("");
+    setExistingImages([]);
+    setFiles([]);
+    setError("");
+    setLoadError(false);
+    setSuccess(false);
+    setPreview(null);
+    setRentalPeriod("daily");
+    setMinimumUnit("day");
+    manualTitle.current = false;
+    setFormVersion((value) => value + 1);
     let active = true;
     const timer = setTimeout(() => {
       if (!active) return;
@@ -147,6 +169,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           setMinimumUnit(result.data.attributes?.min_rental_unit || "day");
           setRentalPeriod(result.data.rental_period);
           setTitle(result.data.title);
+          setCity(result.data.city || "");
+          setPrice(result.data.price == null ? "" : String(result.data.price));
           setDescriptionText(result.data.description || "");
           manualTitle.current = true;
           setCategory(result.data.category);
@@ -432,6 +456,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <form
               ref={formRef}
               className="listingForm"
+              autoComplete="off"
               noValidate
               onSubmit={submit}
               onWheelCapture={(event) => {
@@ -534,7 +559,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           aria-label="Şəhər"
                           name="city"
                           required
-                          defaultValue={initial?.city || ""}
+                          value={city}
+                          onChange={(event) => setCity(event.target.value)}
+                          autoComplete="off"
                         >
                           <option value="" disabled>
                             Şəhər seçin
@@ -593,7 +620,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             <input
                               aria-label="Qiymət (₼)"
                               name="price"
-                              defaultValue={initial?.price}
+                              value={price}
+                              onChange={(event) => setPrice(event.target.value)}
+                              autoComplete="off"
                               required
                               type="number"
                               inputMode="decimal"
@@ -679,7 +708,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                                 min="0"
                                 max="1000000"
                                 step="0.01"
-                                defaultValue={initial?.deposit ?? 0}
+                                defaultValue={initial?.deposit ?? ""}
                               />
                               <span aria-hidden="true">₼</span>
                             </div>
@@ -690,7 +719,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             initialValue={String(
                               initial?.attributes?.min_rental_value ||
                                 initial?.min_days ||
-                                1,
+                                "",
                             )}
                             unit={minimumUnit}
                             onUnitChange={setMinimumUnit}

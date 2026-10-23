@@ -531,12 +531,12 @@ function ItemFields({
     <section className="categoryFields" aria-label="Kateqoriya məlumatları">
       <SelectField name="kind" label={definition?.label || "Məhsulun növü"}
         options={Array.from(new Set([...Object.keys(definition?.kinds || {}), ...(category === "equipment" ? Object.keys(equipmentModels) : []), "Digər"]))}
-        value={kind} required onChange={(value) => { setKind(value); setPowerSource(value === attributes?.kind ? String(attributes?.power_source || "") : ""); }} />
+        value={kind} required onChange={(value) => { setKind(value); suggest(value ? `${value} kirayəsi` : ""); setPowerSource(value === attributes?.kind ? String(attributes?.power_source || "") : ""); }} />
       {!kind && <p className="muted">Əvvəl növü seç. Sonra yalnız həmin məhsula uyğun suallar açılacaq.</p>}
       {kind && <div key={kind}>
         {Object.keys(models).length ? <BrandModelPicker models={models} attributes={initial} suggest={suggest} /> : (
           <div className="formGrid">
-            <label>Marka (istəyə bağlı)<input name="brand" maxLength={40} defaultValue={initial?.brand} placeholder="Markasızdırsa, boş saxla" /></label>
+            <label>Marka (istəyə bağlı)<input name="brand" maxLength={40} defaultValue={initial?.brand} onChange={(event) => suggest(`${event.target.value.trim()} ${kind} kirayəsi`.trim())} placeholder="Markasızdırsa, boş saxla" /></label>
             <label>Model / kolleksiya (istəyə bağlı)<input name="model" maxLength={60} defaultValue={initial?.model} /></label>
           </div>
         )}

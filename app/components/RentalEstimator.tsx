@@ -185,11 +185,13 @@ export default function RentalEstimator({ item }: { item: Listing }) {
                 <dt>
                   {quote.delivery === null
                     ? "Məlum xərclərin cəmi"
-                    : "İlkin hesab"}
+                    : includeDelivery ? "Kirayə + depozit + çatdırılma" : "Kirayə + depozit"}
                 </dt>
                 <dd>{money(quote.total)} ₼</dd>
               </div>
             </dl>
+            {quote.deposit > 0 && <p className="estimateNote">Depozitin qaytarılma şərtlərini elan sahibi ilə razılaşdır.</p>}
+            {includeDelivery && quote.delivery === null && <p className="estimateNote" role="status">Çatdırılma haqqı göstərilməyib və hesaba daxil deyil. Elan sahibi ilə dəqiqləşdir.</p>}
             {phone && !item.demo && (
               <a
                 className="add"
@@ -209,9 +211,6 @@ export default function RentalEstimator({ item }: { item: Listing }) {
         {item.rental_period === "monthly"
           ? "Aylıq qiymət təqvim ayı üzrə hesablanır."
           : "Qaytarma günü ayrıca tam gün kimi sayılmır."}{" "}
-        {quote.error === null && quote.delivery === null
-          ? "Çatdırılma haqqı cəmə daxil deyil."
-          : ""}
       </p>
     </section>
   );

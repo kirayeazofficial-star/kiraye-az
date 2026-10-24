@@ -343,7 +343,7 @@ export default function ListingDetails({
         )}
         <RentalEstimator key={item.id} item={item} />
         <p className="safetyNote">
-          Əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini
+          Kirayə götürəcəyin əşyanı, nəqliyyatı və ya əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini
           yazılı razılaşdır. Platforma hazırda ödəniş qəbul etmir.
         </p>
         {!item.demo && !reported && (

@@ -1,3 +1,4 @@
+import { isListingExpired } from "./listing-lifecycle";
 import { cache } from "react";
 import { publicSupabase as supabase } from "./supabase";
 import { examples, Listing } from "./marketplace";
@@ -20,7 +21,7 @@ export const getPublicListing = cache(
         .eq("id", id)
         .eq("status", "published")
         .maybeSingle();
-      const item = data as Listing | null;
+      const item = data && !isListingExpired(data as Listing) ? data as Listing : null;
       if (item && !error) {
         try {
           const result = await supabase.rpc("public_seller_since", { listing_id: id })

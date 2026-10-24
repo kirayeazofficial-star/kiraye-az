@@ -1,4 +1,6 @@
 "use client";
+import AzerbaijaniDateInput from "./components/AzerbaijaniDateInput";
+import { useLanguage } from "./components/LanguageProvider";
 import { readSearchHistory, rememberSearch, clearSearchHistory } from "../lib/search-history";
 import { rentalCategorySpecs } from "../lib/rental-category-specs";
 import { useEffect, useMemo, useState } from "react";
@@ -27,6 +29,15 @@ import {
 } from "../lib/marketplace";
 
 export default function Home() {
+  const {t} = useLanguage();
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    if (!supabase) return;
+    let active = true;
+    supabase.auth.getSession().then(({data}) => { if (active) setSignedIn(!!data.session); }).catch(() => {});
+    const {data} = supabase.auth.onAuthStateChange((_event, session) => { if (active) setSignedIn(!!session); });
+    return () => { active = false; data.subscription.unsubscribe(); };
+  }, []);
   const [listings, setListings] = useState<Listing[]>([]),
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
@@ -308,7 +319,7 @@ export default function Home() {
   }
   const activeFilters = [
     category && {
-      label: categoryName(category),
+      label: t(categoryName(category)),
       clear: () => changeCategory(""),
     },
     query && { label: `Axtarış: ${query}`, clear: () => setQuery("") },
@@ -327,7 +338,7 @@ export default function Home() {
     area && { label: `Ən azı ${area} m²`, clear: () => setArea("") },
     brand && { label: brand, clear: () => setBrand("") },
     gearbox && { label: gearbox, clear: () => setGearbox("") },
-    noDeposit && { label: "Depozitsiz", clear: () => setNoDeposit(false) },
+    noDeposit && { label: t("Depozitsiz"), clear: () => setNoDeposit(false) },
     from && { label: `Başlanğıc: ${from}`, clear: () => setFrom("") },
     until && { label: `Son tarix: ${until}`, clear: () => setUntil("") },
     onlyFavorites && {
@@ -344,33 +355,31 @@ export default function Home() {
         <section className="catalogIntro">
           <div>
             <p className="heroKicker">
-              <span aria-hidden="true">↗</span> Günlük və aylıq kirayə
-            </p>
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 19 19 5M5 5h14v14" /></svg> {t("Günlük və aylıq kirayə")}</p>
             <h1>
-              Almağa tələsmə.
-              <br />
-              <em>Kirayələ.</em>
+              {t("Almağa tələsmə.")}<br />
+              <em>{t("Kirayələ.")}</em>
             </h1>
             <span>
-              Ev, nəqliyyat, avadanlıq — ehtiyacına uyğun olanı tap, sahibi ilə
-              birbaşa danış.
-            </span>
+              {t("Ev, nəqliyyat, avadanlıq — ehtiyacına uyğun olanı tap, sahibi ilə birbaşa danış.")}</span>
           </div>
           <div className="heroNote">
             <span aria-hidden="true">⌂</span>
-            <strong>Bir ünvan. Çox seçim.</strong>
+            <strong>{t("Bir ünvan. Çox seçim.")}</strong>
             <p>
-              Şəhəri seç, qiymətləri müqayisə et,
-              <br />
-              kirayəni birbaşa razılaşdır.
-            </p>
+              {t("Şəhəri seç, qiymətləri müqayisə et,")}<br />
+              {t("kirayəni birbaşa razılaşdır.")}</p>
           </div>
+        </section>
+        <section className="wrap welcomeGuide" aria-label="Saytdan istifadə">
+          <div><strong>{t("Necə işləyir?")}</strong><p>{t("Tap → müqayisə et → sahibi ilə razılaş")}</p><small>{t("Elanlara baxmaq üçün qeydiyyat lazım deyil.")}</small></div>
+          <div>{signedIn ? <a className="add" href="/new">{t("+ Elan yerləşdir")}</a> : <><p>{t("Elan vermək istəyirsən? Əvvəl hesabına daxil ol.")}</p><a className="secondary" href="/login?next=/new">{t("Daxil ol")}</a> <a className="textButton" href="/login?mode=signup&next=/new">{t("Qeydiyyatdan keç")}</a></>}</div>
         </section>
         <section className="wrap categorySection">
           <div className="sectionTitle">
             <div>
-              <p className="eyebrow">HƏR EHTİYACA BİR SEÇİM</p>
-              <h2>Nə kirayələmək istəyirsən?</h2>
+              <p className="eyebrow">{t("HƏR EHTİYACA BİR SEÇİM")}</p>
+              <h2>{t("Nə kirayələmək istəyirsən?")}</h2>
             </div>
             <button
               className="textButton"
@@ -382,15 +391,15 @@ export default function Home() {
               }}
             >
               {allCategories
-                ? "Kateqoriyaları bağla ×"
-                : "Bütün kateqoriyalar →"}
+                ? t("Kateqoriyaları bağla ×")
+                : t("Bütün kateqoriyalar →")}
             </button>
           </div>
           {allCategories && (
             <div
               className="allCategories"
               id="all-categories"
-              aria-label="Bütün kateqoriyalar"
+              aria-label={t("Bütün kateqoriyalar")}
             >
               <button
                 type="button"
@@ -403,8 +412,7 @@ export default function Home() {
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
-                Bütün elanlara bax
-              </button>
+                {t("Bütün elanlara bax")}</button>
               {categories.map((item) => (
                 <button
                   type="button"
@@ -428,7 +436,7 @@ export default function Home() {
             {categories.map((c) => (
               <button
                 key={c.id}
-                aria-label={`${c.name} elanlarına bax`}
+                aria-label={`${t(c.name)} elanlarına bax`}
                 className={category === c.id ? "active" : ""}
                 aria-pressed={category === c.id}
                 onClick={() => {
@@ -441,8 +449,8 @@ export default function Home() {
                 <span className="categoryIcon">
                   <CategoryIcon id={c.id} />
                 </span>
-                <strong>{c.name}</strong>
-                <small>Elanlara bax →</small>
+                <strong>{t(c.name)}</strong>
+                <small>{t("Elanlara bax →")}</small>
               </button>
             ))}
           </div>
@@ -459,31 +467,31 @@ export default function Home() {
             }}
           >
             <label className="queryField">
-              <span>Nə axtarırsan?</span>
+              <span>{t("Nə axtarırsan?")}</span>
               <input
-                aria-label="Elan axtar"
-                placeholder="Ev, avtomobil, avadanlıq..."
+                aria-label={t("Elan axtar")}
+                placeholder={t("Ev, avtomobil, avadanlıq...")}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
             </label>
             <label>
-              <span>Harada?</span>
+              <span>{t("Harada?")}</span>
               <select
-                aria-label="Şəhər"
+                aria-label={t("Şəhər")}
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
               >
-                <option value="">Bütün şəhərlər</option>
+                <option value="">{t("Bütün şəhərlər")}</option>
                 {cities.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
               </select>
             </label>
             <label>
-              <span>Kirayə müddəti</span>
+              <span>{t("Kirayə müddəti")}</span>
               <select
-                aria-label="Kirayə müddəti"
+                aria-label={t("Kirayə müddəti")}
                 value={period}
                 onChange={(e) => {
                   setPeriod(e.target.value);
@@ -491,46 +499,46 @@ export default function Home() {
                   setMax("");
                 }}
               >
-                <option value="">İstənilən müddət</option>
-                <option value="daily">Günlük</option>
-                <option value="monthly">Aylıq</option>
+                <option value="">{t("İstənilən müddət")}</option>
+                <option value="daily">{t("Günlük")}</option>
+                <option value="monthly">{t("Aylıq")}</option>
               </select>
             </label>
-            <button className="add">Elanları axtar →</button>
+            <button className="add">{t("Elanları axtar →")}</button>
           </form>
           {!!searchHistory.length && <details className="searchHistory">
-            <summary>Son axtarışların</summary>
+            <summary>{t("Son axtarışların")}</summary>
             <div className="searchHistoryItems">
               {searchHistory.map(value => <button key={value} type="button" className="secondary" onClick={() => { setQuery(value); setPage(1); setSearchHistory(rememberSearch(value)); }}>{value}</button>)}
-              <button type="button" className="textButton" onClick={() => { clearSearchHistory(); setSearchHistory([]); }}>Tarixçəni təmizlə</button>
+              <button type="button" className="textButton" onClick={() => { clearSearchHistory(); setSearchHistory([]); }}>{t("Tarixçəni təmizlə")}</button>
             </div>
           </details>}
         </div>
         <section className="wrap listingSection" id="elanlar">
           <div className="sectionTitle">
             <div>
-              <p className="eyebrow">SƏNİN ÜÇÜN SEÇİMLƏR</p>
+              <p className="eyebrow">{t("SƏNİN ÜÇÜN SEÇİMLƏR")}</p>
               <h2>
                 {onlyFavorites
-                  ? "Seçilmiş elanlar"
+                  ? t("Seçilmiş elanlar")
                   : category
-                    ? categoryName(category)
-                    : "Kirayə elanları"}
+                    ? t(categoryName(category))
+                    : t("Kirayə elanları")}
               </h2>
               <p className="muted" role="status" aria-live="polite">
                 {loading
-                  ? "Elanlar yüklənir..."
-                  : `${demo ? filtered.length : total} ${demo ? "nümunə " : ""}elan tapıldı`}
+                  ? t("Elanlar yüklənir...")
+                  : `${demo ? filtered.length : total} ${demo ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
               </p>
             </div>
             <select
-              aria-label="Sıralama"
+              aria-label={t("Sıralama")}
               value={sort}
               onChange={(e) => setSort(e.target.value)}
             >
-              <option value="new">Əvvəlcə yenilər</option>
-              <option value="low">Əvvəlcə ucuz</option>
-              <option value="high">Əvvəlcə bahalı</option>
+              <option value="new">{t("Əvvəlcə yenilər")}</option>
+              <option value="low">{t("Əvvəlcə ucuz")}</option>
+              <option value="high">{t("Əvvəlcə bahalı")}</option>
             </select>
           </div>
           <div className="filterRow" aria-label="Kirayə filtrləri">
@@ -539,32 +547,29 @@ export default function Home() {
               aria-pressed={noDeposit}
               onClick={() => setNoDeposit(!noDeposit)}
             >
-              Depozitsiz kirayə
-            </button>
+              {t("Depozitsiz kirayə")}</button>
             <button
               className={`pill ${onlyFavorites ? "active" : ""}`}
               aria-pressed={onlyFavorites}
               onClick={() => setOnlyFavorites(!onlyFavorites)}
             >
-              ♡ Seçilmişlər ({favorites.length})
+              ♡ {t("Seçilmişlər")} ({favorites.length})
             </button>
             <button
               className="filterToggleButton"
               aria-expanded={advanced}
               onClick={() => setAdvanced(!advanced)}
             >
-              Ətraflı filtrlər
-            </button>
+              {t("Ətraflı filtrlər")}</button>
             <button className="textButton" onClick={reset}>
-              Filtrləri təmizlə
-            </button>
+              {t("Filtrləri təmizlə")}</button>
           </div>
           <p className="rentalSearchHint">
             {period === "daily"
               ? "Qiymətlər bir günlük kirayə üçündür."
               : period === "monthly"
                 ? "Qiymətlər bir aylıq kirayə üçündür."
-                : "Günlük və aylıq qiymətləri ayrıca müqayisə etmək üçün kirayə müddətini seç."}
+                : t("Günlük və aylıq qiymətləri ayrıca müqayisə etmək üçün kirayə müddətini seç.")}
           </p>
           {activeFilters.length > 0 && (
             <div className="activeFilters" aria-label="Seçilmiş filtrlər">
@@ -584,16 +589,15 @@ export default function Home() {
           {advanced && (
             <div className="advancedFilters">
               <label>
-                Kateqoriya
-                <select
+                {t("Kateqoriya")}<select
                   aria-label="Filtr kateqoriyası"
                   value={category}
                   onChange={(e) => changeCategory(e.target.value)}
                 >
-                  <option value="">Bütün kateqoriyalar</option>
+                  <option value="">{t("Bütün kateqoriyalar")}</option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.name}
+                      {t(c.name)}
                     </option>
                   ))}
                 </select>
@@ -601,9 +605,9 @@ export default function Home() {
               {period && (
                 <>
                   <label>
-                    Minimum qiymət (₼ / {period === "daily" ? "gün" : "ay"})
+                    {t("Minimum qiymət")} (₼ / {period === "daily" ? t("gün") : t("ay")})
                     <input
-                      aria-label="Minimum qiymət"
+                      aria-label={t("Minimum qiymət")}
                       type="number"
                       min="0"
                       value={min}
@@ -611,9 +615,9 @@ export default function Home() {
                     />
                   </label>
                   <label>
-                    Maksimum qiymət (₼ / {period === "daily" ? "gün" : "ay"})
+                    {t("Maksimum qiymət")} (₼ / {period === "daily" ? t("gün") : t("ay")})
                     <input
-                      aria-label="Maksimum qiymət"
+                      aria-label={t("Maksimum qiymət")}
                       type="number"
                       min="0"
                       value={max}
@@ -624,24 +628,22 @@ export default function Home() {
               )}
               {["property", "villa"].includes(category) && (
                 <label>
-                  Otaq sayı
-                  <select
-                    aria-label="Otaq sayı"
+                  {t("Otaq sayı")}<select
+                    aria-label={t("Otaq sayı")}
                     value={rooms}
                     onChange={(e) => setRooms(e.target.value)}
                   >
-                    <option value="">İstənilən</option>
-                    <option value="1">1 otaq</option>
-                    <option value="2">2 otaq</option>
-                    <option value="3">3 otaq</option>
-                    <option value="4+">4 və daha çox</option>
+                    <option value="">{t("İstənilən")}</option>
+                    <option value="1">{t("1 otaq")}</option>
+                    <option value="2">{t("2 otaq")}</option>
+                    <option value="3">{t("3 otaq")}</option>
+                    <option value="4+">{t("4 və daha çox")}</option>
                   </select>
                 </label>
               )}
               {isProperty(category) && (
                 <label>
-                  Minimum sahə (m²)
-                  <input
+                  {t("Minimum sahə (m²)")}<input
                     aria-label="Minimum sahə"
                     value={area}
                     onChange={(e) => setArea(e.target.value)}
@@ -666,7 +668,7 @@ export default function Home() {
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
                   >
-                    <option value="">İstənilən</option>
+                    <option value="">{t("İstənilən")}</option>
                     {brandOptions.map((name) => (
                       <option key={name} value={name}>
                         {name}
@@ -677,49 +679,28 @@ export default function Home() {
               )}
               {["car", "motorcycle"].includes(category) && (
                 <label>
-                  Sürətlər qutusu
-                  <select
-                    aria-label="Sürətlər qutusu"
+                  {t("Sürətlər qutusu")}<select
+                    aria-label={t("Sürətlər qutusu")}
                     value={gearbox}
                     onChange={(e) => setGearbox(e.target.value)}
                   >
-                    <option value="">İstənilən</option>
-                    <option>Avtomat</option>
-                    <option>Mexaniki</option>
+                    <option value="">{t("İstənilən")}</option>
+                    <option value="Avtomat">{t("Avtomat")}</option>
+                    <option value="Mexaniki">{t("Mexaniki")}</option>
                   </select>
                 </label>
               )}
-              <label>
-                Başlanğıc tarixi
-                <input
-                  aria-label="Başlanğıc tarixi"
-                  type="date"
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                />
-              </label>
-              <label>
-                Son tarix
-                <input
-                  aria-label="Son tarix"
-                  type="date"
-                  min={from || undefined}
-                  value={until}
-                  onChange={(e) => setUntil(e.target.value)}
-                />
-              </label>
+              <AzerbaijaniDateInput label={t("Başlanğıc tarixi")} value={from} onChange={setFrom} />
+              <AzerbaijaniDateInput label={t("Son tarix")} value={until} min={from || undefined} onChange={setUntil} />
               <label className="checkLabel">
                 <input
                   type="checkbox"
                   checked={noDeposit}
                   onChange={(e) => setNoDeposit(e.target.checked)}
                 />{" "}
-                Depozitsiz
-              </label>
+                {t("Depozitsiz")}</label>
               <p className="homeHelp">
-                Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır.
-                Mövcudluğu əlaqə saxlayaraq dəqiqləşdir.
-              </p>
+                {t("Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdir.")}</p>
             </div>
           )}
           {notice && (
@@ -730,8 +711,7 @@ export default function Home() {
                   className="textButton"
                   onClick={() => setRetry(retry + 1)}
                 >
-                  Yenidən yoxla
-                </button>
+                  {t("Yenidən yoxla")}</button>
               )}
             </p>
           )}
@@ -759,14 +739,12 @@ export default function Home() {
           {!loading && !filtered.length && (
             <div className="empty">
               <span>⌕</span>
-              <h3>Uyğun elan tapılmadı</h3>
-              <p>Başqa sözlə axtar və ya öz kirayə elanını yerləşdir.</p>
+              <h3>{t("Uyğun elan tapılmadı")}</h3>
+              <p>{t("Başqa sözlə axtar və ya öz kirayə elanını yerləşdir.")}</p>
               <Link className="add" href="/new">
-                + Elan yerləşdir
-              </Link>
+                {t("+ Elan yerləşdir")}</Link>
               <button className="add" onClick={reset}>
-                Bütün elanlara bax
-              </button>
+                {t("Bütün elanlara bax")}</button>
             </div>
           )}
           {!demo && total > PAGE_SIZE && (
@@ -779,8 +757,7 @@ export default function Home() {
                   document.getElementById("elanlar")?.scrollIntoView();
                 }}
               >
-                ← Əvvəlki
-              </button>
+                {t("← Əvvəlki")}</button>
               <span>
                 {page} / {Math.ceil(total / PAGE_SIZE)}
               </span>
@@ -792,20 +769,18 @@ export default function Home() {
                   document.getElementById("elanlar")?.scrollIntoView();
                 }}
               >
-                Növbəti →
-              </button>
+                {t("Növbəti →")}</button>
             </nav>
           )}
         </section>
         <section className="publishBanner wrap">
           <div>
-            <p className="eyebrow">İSTİFADƏ ETMƏDİYİN ƏŞYA GƏLİRİN OLSUN</p>
-            <h2>Səndə var, başqasına lazımdır.</h2>
-            <p>Elanını yerləşdir, kirayə götürmək istəyənlərlə əlaqə qur.</p>
+            <p className="eyebrow">{t("İSTİFADƏ ETMƏDİYİN ƏŞYA GƏLİRİN OLSUN")}</p>
+            <h2>{t("Səndə var, başqasına lazımdır.")}</h2>
+            <p>{t("Elanını yerləşdir, kirayə götürmək istəyənlərlə əlaqə qur.")}</p>
           </div>
           <Link href="/new" className="add">
-            İlk elanını yerləşdir →
-          </Link>
+            {t("İlk elanını yerləşdir →")}</Link>
         </section>
       </main>
       <Footer />

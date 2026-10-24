@@ -1,4 +1,5 @@
 "use client";
+import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { useEffect, useState } from "react";
 import { type Listing, money } from "../../lib/marketplace";
 import DurationField from "./DurationField";
@@ -111,21 +112,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
           unit={durationUnit}
           onUnitChange={setDurationUnit}
         />
-        <label>
-          Götürmə tarixi
-          <input
-            aria-label="Götürmə tarixi"
-            type="date"
-            value={start}
-            min={
-              item.available_from && item.available_from > today
-                ? item.available_from
-                : today || undefined
-            }
-            max={item.available_until || undefined}
-            onChange={(event) => setStart(event.target.value)}
-          />
-        </label>
+        <AzerbaijaniDateInput label="Götürmə tarixi" value={start} min={item.available_from && item.available_from > today ? item.available_from : today || undefined} max={item.available_until || undefined} onChange={setStart} />
       </div>
       {end && <p>Qaytarma: {dateLabel(end)}</p>}
       {item.rental_period === "daily" && durationUnit === "month" && (

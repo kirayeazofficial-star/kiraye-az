@@ -1,19 +1,22 @@
+"use client";
+import { useLanguage } from "./LanguageProvider";
 import Link from "next/link";
 export default function Footer() {
+  const {t} = useLanguage();
   return (
     <footer>
       <div>
         <Link href="/" className="logo">
           kirayeal<span>.az</span>
         </Link>
-        <p>Ehtiyacın olanı almalı deyilsən.</p>
+        <p>{t("Ehtiyacın olanı almalı deyilsən.")}</p>
       </div>
       <div>
-        <Link href="/new">Elan yerləşdir</Link>
-        <Link href="/profile">Şəxsi kabinet</Link>
-        <Link href="/rules">Qaydalar və təhlükəsizlik</Link>
-        <Link href="/help">Kömək</Link>
-        <Link href="/privacy">Məxfilik</Link>
+        <Link href="/new">{t("Elan yerləşdir")}</Link>
+        <Link href="/profile">{t("Şəxsi kabinet")}</Link>
+        <Link href="/rules">{t("Qaydalar və təhlükəsizlik")}</Link>
+        <Link href="/help">{t("Kömək")}</Link>
+        <Link href="/privacy">{t("Məxfilik")}</Link>
         <small>© {new Date().getFullYear()} kirayeal.az</small>
       </div>
     </footer>

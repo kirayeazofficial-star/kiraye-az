@@ -47,3 +47,18 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - Bərpa məktubu `supabase/templates/recovery.html` kod şablonundan istifadə etməlidir; yeni məktubda link olmasın, OTP uzunluğu 6 təyin edilsin. Repo faylı idarə olunan Auth şablonunu avtomatik dəyişmir. SMTP + yoxlama RPC/servis açarı + şablon/OTP ayarları canlıda ayrıca qurulmalıdır.
 
 - İstifadəçinin təsdiqlədiyi qayda istiqaməti: Tap.az nümunəsinə uyğun 30 günlük aktivlik, ayrıca eyni vaxtda aktiv elan limiti və 30 günlük kateqoriya yerləşdirmə limiti, şərtli bərpa. Köhnə ayda 1 təsdiqlənmiş elan qaydasını “Tap.az ilə eyni say” kimi təqdim etmə. Göndərilən mətndə kateqoriya üzrə konkret rəqəmlər yoxdur; saylar müəyyənləşdirilməlidir. /rules səhifəsində bu hissə aktivləşdiriləcək qaydalar kimi açıq işarələnib. Avtomatik bitmə/limit/bərpa serverdə həyata keçirilib yoxlanmadan aktiv statusa çevirmə; ödənişlər istifadəçi ayrıca aktivləşdirməyincə bağlı qalır.
+
+## İşlək 30 günlük limit və müddət sistemi
+
+- `supabase/listing-lifecycle.sql` faylını `schema.sql` və `listing-submission-rules.sql`-dən sonra ehtiyat nüsxə ilə tətbiq et. Mövcud elanlara ilk təsdiq tarixi (tarix yoxdursa ilkin yerləşdirmə tarixi) əsasında müddət verilir; müddəti bitənlər silinmir.
+- Kateqoriya sayları `listing_category_limits` cədvəlində idarə olunur. Əvvəlki sayt qaydasındakı 1 sayı saxlanılıb; bu Tap.az-ın dəqiq kateqoriya rəqəmi kimi təqdim edilmir. Tətbiq zamanı admin istisnası saxlanılır. Yeni sistem həm aktiv sayı, həm son 30 günlük təsdiqlənmiş yerləşdirmə/bərpa dövrlərini serverdə yoxlayır.
+- 30 gün bitəndə elan anonim axtarışdan və birbaşa ictimai keçiddən server icazələri ilə gizlənir; sahibin kabinetində “Müddəti bitib” görünür. Bərpa yalnız sahibə məxsus RPC ilə yoxlamaya göndərilir. İlk dövr daxilində bərpa tarixi uzatmır; sonrakı dövr yeni 30 günlük istifadə kimi hesablanır.
+- Hostinq planlaşdırıcısında `scripts/expire-listings.mjs` faylını məxfi server mühiti ilə müntəzəm işə sal. İşin işləməməsi ictimai gizlətməni pozmur: baza icazəsi bitmə tarixini ayrıca yoxlayır. Qaydalar səhifəsi yeni server funksiyasını görəndə yeni qaydanın aktiv olduğunu göstərir.
+- Bazaya tətbiq və real anonim/owner/admin yoxlamaları tamamlanmayınca bu sistemi canlıda aktiv sayma. Ödənişlər bağlı qalır; limit doludursa pul tutulmur.
+
+## Görünüş, dil, tarix və şəkillər
+
+- Ana səhifənin əsas interfeysində AZ/RU/EN seçimi var və seçim həmin brauzerdə saxlanılır. İstifadəçilərin elan mətnləri avtomatik tərcümə edilmir. Digər səhifələrin tam tərcüməsi ayrıca genişləndirilə bilər.
+- Azərbaycan təqvimi brauzerin türk dilindəki tarix pəncərəsindən istifadə etmir. Nömrənin son 4 rəqəmi ekranda ulduzlanır; zəng bağlantısı tam nömrə ilə işləyir.
+- Yeni şəkillər göndərilməzdən əvvəl şəffaf nişan faylın daxilinə çəkilir. Mövcud şəkillərə saytın görünüşündə nişan əlavə olunur; əvvəldən saxlanmış orijinal fayllar dəyişdirilməyib.
+- K nişanının SVG, 48 və 192 piksel PNG variantları əlavə edilib. Google nəticələrində yenilənmə axtarış sisteminin növbəti indeksləməsindən asılıdır.

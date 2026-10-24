@@ -1,4 +1,6 @@
 "use client";
+import PhotoMark from "./PhotoMark";
+import { maskContact } from "../../lib/contact-mask";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -159,6 +161,7 @@ export default function ListingDetails({
             e.currentTarget.src = "/placeholder.svg";
           }}
         />
+        <PhotoMark src={item.images?.[selectedImage]} />
         {imageCount > 1 && <>
           <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}>‹</button>
           <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}>›</button>
@@ -208,7 +211,7 @@ export default function ListingDetails({
         {phone && !item.demo ? (
           <div className="contactActions">
             <a className="add" href={`tel:${phone}`}>
-              Zəng et · {item.contact}
+              Zəng et · {maskContact(item.contact)}
             </a>
             <a
               className="secondary"

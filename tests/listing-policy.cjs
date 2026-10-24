@@ -42,11 +42,21 @@ console.log(
 
 (async () => {
   testClient = { rpc: async (name, args) => {
+    if (name === "listing_allowance") return { data: null, error: {code:"PGRST202"} };
     assert.equal(name, "has_category_listing_allowance");
     return { data: args.p_category !== "property", error: null };
   } };
   await exports_.checkMonthlyListingLimit("owner", "car");
   await assert.rejects(exports_.checkMonthlyListingLimit("owner", "property"), error => error.message === monthlyListingLimitMessage);
+  testClient = { rpc: async (name,args) => {
+    assert.equal(name,"listing_allowance"); assert.equal(args.p_listing_id,"existing-id");
+    return {data:{allowed:false,reason:"active"},error:null};
+  }};
+  await assert.rejects(exports_.checkMonthlyListingLimit("owner","car","existing-id"),/aktiv elan limitin/);
+  testClient = { rpc: async () => ({data:{allowed:false,reason:"period"},error:null}) };
+  await assert.rejects(exports_.checkMonthlyListingLimit("owner","car"),/son 30 gün/);
+  testClient = { rpc: async () => ({data:{allowed:true},error:null}) };
+  await exports_.checkMonthlyListingLimit("owner","car");
   testClient = { rpc: async () => ({data: true,error:null}) };
   await exports_.checkMonthlyListingLimit("admin", "property");
   testClient = { rpc: async () => ({data:null,error:{code:"FETCH_ERROR"}}) };

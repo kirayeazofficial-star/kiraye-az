@@ -1,8 +1,11 @@
 "use client";
+import LanguageSelect from "./LanguageSelect";
+import { useLanguage } from "./LanguageProvider";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 export default function Header() {
+  const {t} = useLanguage();
   const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     if (!supabase) return;
@@ -25,41 +28,45 @@ export default function Header() {
     <>
       <div className="topbar">
         <div>
-          Azərbaycanın kirayə platforması <span>Almağa tələsmə. Kirayələ.</span>
+          {t("Azərbaycanın kirayə platforması")}<span>{t("Almağa tələsmə. Kirayələ.")}</span>
         </div>
       </div>
       <header className="header">
         <a className="logo" href="/">
           kirayeal<span>.az</span>
-          <small>KİRAYƏ ÜÇÜN BİR ÜNVAN</small>
+          <small>{t("KİRAYƏ ÜÇÜN BİR ÜNVAN")}</small>
         </a>
         <nav aria-label="Əsas menyu">
-          <a href="/#elanlar">Elanlar</a>
-          <a href="/?favorites=1#elanlar">♡ Seçilmişlər</a>
-          <Link href="/help">Kömək</Link>
+          <a href="/#elanlar">{t("Elanlar")}</a>
+          <a href="/?favorites=1#elanlar">{t("♡ Seçilmişlər")}</a>
+          <Link href="/help">{t("Kömək")}</Link>
         </nav>
         <div className="headerActions">
+          <LanguageSelect />
+          <div className="headerAccountStack">
+          <div className="headerAuthLinks">
           <Link className="accountLink" href={signedIn ? "/profile" : "/login"}>
-            {signedIn ? "Hesabım" : "Daxil ol"}
+            {signedIn ? t("Hesabım") : t("Daxil ol")}
           </Link>
-          {!signedIn && <a className="signupLink" href="/login?mode=signup">Qeydiyyatdan keç</a>}
+          {!signedIn && <a className="signupLink" href="/login?mode=signup">{t("Qeydiyyatdan keç")}</a>}
+          </div>
           <Link className="add" href="/new">
-            + Elan yerləşdir
-          </Link>
+            {t("+ Elan yerləşdir")}</Link>
+          </div>
         </div>
       </header>
       <nav className="mobileNav" aria-label="Mobil menyu">
         <Link href="/">
-          ⌂<span>Ana səhifə</span>
+          ⌂<span>{t("Ana səhifə")}</span>
         </Link>
         <a href="/?favorites=1#elanlar">
-          ♡<span>Seçilmişlər</span>
+          ♡<span>{t("Seçilmişlər")}</span>
         </a>
         <Link className="mobilePublish" href="/new">
-          +<span>Elan yerləşdir</span>
+          +<span>{t("Elan yerləşdir")}</span>
         </Link>
         <Link href={signedIn ? "/profile" : "/login"}>
-          ◎<span>{signedIn ? "Hesabım" : "Hesab"}</span>
+          ◎<span>{signedIn ? t("Hesabım") : t("Daxil ol")}</span>
         </Link>
       </nav>
     </>

@@ -1,4 +1,5 @@
 "use client";
+import { watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
@@ -319,7 +320,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     const paths: string[] = [];
     let saved = false;
     try {
-      if (!listingId) await checkMonthlyListingLimit(user, category);
+      if (!listingId || initial?.expires_at) await checkMonthlyListingLimit(user, category, listingId);
       const profile = await supabase
         .from("profiles")
         .upsert({ id: user }, { onConflict: "id", ignoreDuplicates: true });
@@ -327,16 +328,11 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         throw new Error("Hesab məlumatlarını hazırlamaq mümkün olmadı.");
       const images: string[] = [...existingImages];
       for (const file of files) {
-        const ext =
-          file.type === "image/png"
-            ? "png"
-            : file.type === "image/webp"
-              ? "webp"
-              : "jpg";
-        const path = `${user}/${crypto.randomUUID()}.${ext}`;
+        const branded = await watermarkPhoto(file);
+        const path = `${user}/branded-${crypto.randomUUID()}.jpg`;
         const uploaded = await supabase.storage
           .from("listing-images")
-          .upload(path, file, { contentType: file.type, upsert: false });
+          .upload(path, branded, { contentType: branded.type, upsert: false });
         if (uploaded.error)
           throw new Error("Şəkil yüklənmədi. Bir az sonra yenidən yoxlayın.");
         paths.push(path);
@@ -416,7 +412,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         </div>
         {!listingId && !canModerate && !loading && (
           <p className="notice">
-            Hər kateqoriyada ayda 1 pulsuz təsdiqlənmiş elan. Yoxlamada və rədd edilmiş elanlar limiti doldurmur; elanı düzəldib yenidən göndərə bilərsən.
+            Elan yerləşdirmə kateqoriya üzrə limitlə tənzimlənir. Təkrar elan yaratmaq əvəzinə mövcud elanını redaktə et.
           </p>
         )}
         {!success && <aside className="notice" aria-label="Təhlükəsiz elan yerləşdirmə">

@@ -1,10 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import PhotoMark from "./PhotoMark";
 import BalancePreview from "../components/BalancePreview";
 import PromotionOptions from "../components/PromotionOptions";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { effectiveListingStatus } from "../../lib/listing-lifecycle";
+import { listingPolicyError } from "../../lib/listing-policy";
 import { supabase } from "../../lib/supabase";
 import {
   Listing,
@@ -73,6 +76,19 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     }
   }
 
+  async function renew(item: Listing) {
+    if (!supabase || busy) return;
+    setBusy(item.id); setError(""); setNotice("");
+    try {
+      const result = await supabase.rpc("renew_listing", { p_listing_id: item.id });
+      if (result.error) throw result.error;
+      setListings(current => current.map(value => value.id === item.id ? { ...value, status: "pending" } : value));
+      setNotice("Elan bərpa üçün yoxlamaya göndərildi.");
+    } catch (error) {
+      const value = error as { code?: string; message?: string };
+      setError(value.code === "PGRST202" ? "Elanı bərpa etmək hazırda mümkün deyil. Bir qədər sonra yenidən yoxla." : listingPolicyError(value));
+    } finally { setBusy(""); }
+  }
   async function logout() {
     if (!supabase) return;
     const { error } = await supabase.auth.signOut();
@@ -137,12 +153,12 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 </div>
                 <div>
                   <b>
-                    {listings.filter((x) => x.status === "published").length}
+                    {listings.filter((x) => effectiveListingStatus(x) === "published").length}
                   </b>
                   <span>Yayımlanmış</span>
                 </div>
                 <div>
-                  <b>{listings.filter((x) => x.status === "pending").length}</b>
+                  <b>{listings.filter((x) => effectiveListingStatus(x) === "pending").length}</b>
                   <span>Yoxlanılır</span>
                 </div>
               </div>
@@ -170,6 +186,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   ["pending", "Yoxlanılır"],
                   ["rejected", "Rədd edilmiş"],
                   ["archived", "Arxiv"],
+                  ["expired", "Müddəti bitib"],
                 ].map(([status, label]) => (
                   <button
                     key={status}
@@ -179,7 +196,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   >
                     {label} (
                     {
-                      listings.filter((x) => !status || x.status === status)
+                      listings.filter((x) => !status || effectiveListingStatus(x) === status)
                         .length
                     }
                     )
@@ -188,36 +205,38 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </div>
               {!!listings.length &&
                 !listings.some(
-                  (x) => !statusFilter || x.status === statusFilter,
+                  (x) => !statusFilter || effectiveListingStatus(x) === statusFilter,
                 ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
               <p className="muted">Kirayəyə verilib və ya artıq mövcud deyil? Elanı arxivə keçir: axtarışda görünməyəcək, məlumatları hesabında qalacaq.</p>
               {notice && <p className="notice" role="status">{notice}</p>}
               <div className="accountListings">
                 {listings
-                  .filter((x) => !statusFilter || x.status === statusFilter)
+                  .filter((x) => !statusFilter || effectiveListingStatus(x) === statusFilter)
                   .map((x) => (
                     <article key={x.id}>
                       <Link
                         href={
-                          x.status === "published"
+                          effectiveListingStatus(x) === "published"
                             ? `/listings/${x.id}`
                             : `/profile/listings/${x.id}`
                         }
                         aria-label={`${x.title} — elana bax`}
+                        className="ownedPhoto"
                       >
                         <img
                           src={x.images?.[0] || "/placeholder.svg"}
                           alt={x.title}
                         />
+                        <PhotoMark src={x.images?.[0]} />
                       </Link>
                       <div>
-                        <span className={`status ${x.status}`}>
-                          {statusName(x.status)}
+                        <span className={`status ${effectiveListingStatus(x)}`}>
+                          {statusName(effectiveListingStatus(x))}
                         </span>
                         <h3>
                           <Link
                             href={
-                              x.status === "published"
+                              effectiveListingStatus(x) === "published"
                                 ? `/listings/${x.id}`
                                 : `/profile/listings/${x.id}`
                             }
@@ -229,31 +248,31 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                           {money(x.price)} ₼ / {periodName(x.rental_period)} ·{" "}
                           {x.city}
                         </p>
-                        {x.status === "rejected" && x.rejection_reason && (
+                        {effectiveListingStatus(x) === "rejected" && x.rejection_reason && (
                           <p className="error">Səbəb: {x.rejection_reason}</p>
                         )}
-                        <small>
-                          {new Date(x.created_at).toLocaleDateString("az-AZ")}
-                        </small>
+                        <small>{new Date(x.created_at).toLocaleDateString("az-AZ")}</small>
+                        {x.expires_at && <p className="muted">Bitmə tarixi: {new Date(x.expires_at).toLocaleDateString("az-AZ")}</p>}
                       </div>
                       <div className="accountItemActions">
-                        <PromotionOptions eligible={x.status === "published"} />
+                        <PromotionOptions eligible={effectiveListingStatus(x) === "published"} />
+                        {!!x.expires_at && ["expired", "archived"].includes(effectiveListingStatus(x)) && <button type="button" className="secondary" disabled={!!busy} onClick={() => renew(x)}>{busy === x.id ? "Gözləyin..." : "Bərpa et"}</button>}
                         <Link className="secondary" href={`/edit/${x.id}`}>
-                          {x.status === "archived"
+                          {effectiveListingStatus(x) === "archived"
                             ? "Yenilə və göndər"
                             : "Redaktə et"}
                         </Link>
                         <Link
                           className="secondary"
                           href={
-                            x.status === "published"
+                            effectiveListingStatus(x) === "published"
                               ? `/listings/${x.id}`
                               : `/profile/listings/${x.id}`
                           }
                         >
                           Elana bax
                         </Link>
-                        {x.status !== "archived" && (
+                        {effectiveListingStatus(x) !== "archived" && (
                           <button
                             className="secondary"
                             disabled={!!busy}

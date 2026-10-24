@@ -1,0 +1,43 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+const {PGlite}=require(process.env.PGLITE_MODULE_PATH||'@electric-sql/pglite');
+(async()=>{const db=new PGlite();const owner='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222',admin='33333333-3333-4333-8333-333333333333';
+await db.exec(`create role anon;create role authenticated;create role service_role;create schema auth;create schema storage;
+create table auth.users(id uuid primary key,email text);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+grant usage on schema auth to anon,authenticated;grant execute on function auth.uid() to anon,authenticated;
+create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);
+create function storage.foldername(text) returns text[] language sql immutable as $$select string_to_array($1,'/')$$;
+insert into auth.users values('${owner}','owner@example.invalid'),('${other}','other@example.invalid'),('${admin}','admin@example.invalid');`);
+await db.exec(fs.readFileSync('supabase/schema.sql','utf8'));await db.exec(fs.readFileSync('supabase/listing-submission-rules.sql','utf8'));
+await db.query("update public.profiles set role='admin' where id=$1",[admin]);
+async function as(id,role='authenticated'){await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id||'']);if(id||role==='anon')await db.exec('set role '+role);}
+async function insert(who,category='car',status='pending',title='Müxtəlif avtomobil kirayə elanı'){
+ const image=`https://fixture.supabase.co/storage/v1/object/public/listing-images/${who}/${Math.random()}.jpg`;
+ return (await db.query(`insert into public.listings(owner_id,category,title,description,city,price,rental_period,contact,images,status) values($1,$2,$3,'Kirayə şərtləri əvvəlcədən razılaşdırılan saz vəziyyətdə əşyadır.','Bakı',50,'daily','+994501234567',$4,$5) returning *`,[who,category,title,[image],status])).rows[0];}
+let legacy=await insert(owner,'car','published','Əvvəlki avtomobilin kirayə elanı');
+await db.query("update public.listing_approval_usage set first_approved_at=now()-interval '31 days' where listing_id=$1",[legacy.id]);
+const migration=fs.readFileSync('supabase/listing-lifecycle.sql','utf8');await db.exec(migration);await db.exec(migration);
+legacy=(await db.query('select * from public.listings where id=$1',[legacy.id])).rows[0];assert.equal(legacy.status,'expired');
+await as(null,'anon');assert.equal((await db.query('select id from public.listings where id=$1',[legacy.id])).rows.length,0);await assert.rejects(db.exec('select public.expire_listings()'));
+await as(owner);assert.equal((await db.query('select id from public.listings where id=$1',[legacy.id])).rows.length,1);await db.query('select public.renew_listing($1)',[legacy.id]);
+await as(admin);await db.query("update public.listings set status='published' where id=$1",[legacy.id]);
+const active=(await db.query('select * from public.listings where id=$1',[legacy.id])).rows[0];assert(new Date(active.expires_at)-Date.now()>29*864e5);
+await as(owner);await assert.rejects(insert(owner),e=>e.code==='PLA01');
+await assert.rejects(db.query("update public.listings set expires_at=now()+interval '60 days' where id=$1",[legacy.id]),e=>e.code==='42501');
+await db.query("update public.listings set status='archived' where id=$1",[legacy.id]);await assert.rejects(insert(owner),e=>e.code==='PLR01');
+await db.query('select public.renew_listing($1)',[legacy.id]);await as(admin);await db.query("update public.listings set status='published' where id=$1",[legacy.id]);
+assert.equal(new Date((await db.query('select expires_at from public.listings where id=$1',[legacy.id])).rows[0].expires_at).toISOString(),new Date(active.expires_at).toISOString());
+await as(other);await assert.rejects(db.query('select public.renew_listing($1)',[legacy.id]),e=>e.code==='42501');
+await as(null);await db.exec("alter table public.listings disable trigger enforce_listing_submission_rules");await db.query("update public.listings set expires_at=now()-interval '1 second' where id=$1",[legacy.id]);await db.exec("alter table public.listings enable trigger enforce_listing_submission_rules");
+await as(null,'anon');assert.equal((await db.query('select id from public.listings where id=$1',[legacy.id])).rows.length,0);
+await as(null);await db.exec('select public.expire_listings()');assert.equal((await db.query('select status from public.listings where id=$1',[legacy.id])).rows[0].status,'expired');
+await as(owner);await assert.rejects(db.query('select public.renew_listing($1)',[legacy.id]),e=>e.code==='PLR01');
+await as(null);await db.query("update public.listing_cycle_usage set started_at=started_at-interval '31 days' where listing_id=$1",[legacy.id]);
+await as(owner);await db.query('select public.renew_listing($1)',[legacy.id]);await as(admin);await db.query("update public.listings set status='published' where id=$1",[legacy.id]);
+await as(null,'anon');assert.equal((await db.query('select id from public.listings where id=$1',[legacy.id])).rows.length,1);
+await as(admin);const adminFirst=await insert(admin,'car','pending','Adminin birinci avtomobil elanı');await db.query("update public.listings set status='published' where id=$1",[adminFirst.id]);const adminSecond=await insert(admin,'car','pending','Adminin ikinci avtomobil elanı');await db.query("update public.listings set status='published' where id=$1",[adminSecond.id]);assert.equal((await db.query("select count(*)::integer as count from public.listings where owner_id=$1 and status='published'",[admin])).rows[0].count,2);
+await as(owner);await assert.rejects(db.exec('select public.expire_listings()'));await assert.rejects(db.exec('select * from public.listing_cycle_usage'));await assert.rejects(db.exec("update public.listing_category_limits set period_limit=100"));
+await as(null);await db.exec('update public.listing_category_limits set period_limit=3,active_limit=3');
+await as(owner);assert.equal((await db.query("select public.listing_allowance('car',null) as value")).rows[0].value.allowed,true);
+await db.close();console.log('PASS existing and new 30-day periods, anonymous expiry, rolling/active quotas, owner-only renewal, immutable dates, admin exception, private ledger and repeatable migration');
+})().catch(error=>{console.error(error);process.exit(1)});

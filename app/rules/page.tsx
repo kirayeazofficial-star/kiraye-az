@@ -1,3 +1,5 @@
+import { categoryName } from "../../lib/marketplace";
+import { publicSupabase } from "../../lib/supabase";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Header from "../components/Header";
@@ -22,7 +24,7 @@ const sections = [
     rules: [
       "Elan yerləşdirmək üçün hesabına daxil ol. Yayımlanmış elanlara qeydiyyatsız baxmaq mümkündür.",
       "Elanı əşyanın növünə uyğun kateqoriyada yerləşdir. Limitdən yayınmaq üçün yanlış kateqoriya seçmək olmaz.",
-      "Elan yerləşdirməyə kateqoriya üzrə müəyyən edilən limit tətbiq olunur. Hazırkı limit elan yerləşdirmə formasında göstərilir.",
+      "Elan yerləşdirməyə kateqoriya üzrə müəyyən edilən limit tətbiq olunur. Elan göndərilərkən kateqoriya üzrə limit yoxlanılır.",
       "Bir elan konkret əmlakı, əşyanı və ya birlikdə kirayəyə verilən dəsti təsvir etməlidir. Əlaqəsiz məhsulları bir elanda birləşdirmək olmaz.",
     ],
   },
@@ -70,7 +72,13 @@ const sections = [
   },
 ];
 
-export default function Rules() {
+export const revalidate = 60;
+export default async function Rules() {
+  let active = false;
+  let limits: {category: string; active_limit: number; period_limit: number}[] = [];
+  try { const result = await publicSupabase?.rpc("listing_lifecycle_ready").abortSignal(AbortSignal.timeout(1000)); active = result?.data === true && !result?.error; } catch {}
+
+  if (active) { try { const result = await publicSupabase?.from("listing_category_limits").select("category,active_limit,period_limit").abortSignal(AbortSignal.timeout(1000)); if (!result?.error && result?.data) limits = result.data; } catch {} }
   return <>
     <Header />
     <main className="wrap prose">
@@ -82,8 +90,9 @@ export default function Rules() {
         {section.rules.map((rule, ruleIndex) => <p key={ruleIndex}><strong>{index + 1}.{ruleIndex + 1}.</strong> {rule}</p>)}
       </section>)}
       <section id="muddet-ve-limit">
-        <h2>8. Aktivləşdiriləcək 30 günlük müddət və limit qaydaları</h2>
-        <p className="notice"><strong>Bu hissə hələ qüvvəyə minməyib.</strong> 30 günlük avtomatik müddət, bərpa sistemi və kateqoriyalar üzrə dəqiq limitlər aktivləşdirildikdə burada bildiriləcək. Hazırda elan yerləşdirmə formasında göstərilən limit tətbiq olunur; ödəniş qəbul edilmir.</p>
+        <h2>8. {active ? "30 günlük müddət və limit qaydaları" : "Aktivləşdiriləcək 30 günlük müddət və limit qaydaları"}</h2>
+        {active ? <p className="notice">Elan müddəti 30 gündür. Limitlər həm aktiv elan sayına, həm də son 30 gün ərzində təsdiqlənən yerləşdirmə və bərpalara əsasən yoxlanılır. Ödənişlər hələ aktiv deyil.</p> : <p className="notice"><strong>Bu hissə hələ qüvvəyə minməyib.</strong> 30 günlük avtomatik müddət, bərpa sistemi və kateqoriyalar üzrə dəqiq limitlər aktivləşdirildikdə burada bildiriləcək. Yeni sistem qoşulanadək əvvəlki limit yoxlaması qüvvədədir; ödəniş qəbul edilmir.</p>}
+        {!!limits.length && <div className="rulesLimits"><table><caption>Hazırda tətbiq olunan kateqoriya limitləri</caption><thead><tr><th>Kateqoriya</th><th>Aktiv elan</th><th>Son 30 gün</th></tr></thead><tbody>{limits.map(limit => <tr key={limit.category}><td>{categoryName(limit.category)}</td><td>{limit.active_limit}</td><td>{limit.period_limit}</td></tr>)}</tbody></table></div>}
         <p><strong>8.1.</strong> Elanın aktivlik müddəti 30 gün olacaq. Müddət başa çatdıqda yayımı dayanacaq və elan silinmədən “Müddəti başa çatmış” bölməsinə keçəcək.</p>
         <p><strong>8.2.</strong> Həm eyni vaxtda aktiv elan sayı, həm də kateqoriya üzrə 30 gün ərzində yerləşdirilən elan sayı nəzərə alınacaq. Kateqoriyalar üzrə saylar ayrıca göstəriləcək.</p>
         <p><strong>8.3.</strong> Limit aşıldıqda istifadəçi növbəti elan üçün limitin imkan verməsini gözləməli və ya ödənişli xidmətlər aktiv olduqda uyğun kateqoriya paketi seçməli olacaq.</p>

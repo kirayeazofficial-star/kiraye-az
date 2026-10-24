@@ -1,3 +1,6 @@
+"use client";
+import { useLanguage } from "./LanguageProvider";
+import PhotoMark from "./PhotoMark";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import Link from "next/link";
 import {
@@ -17,6 +20,7 @@ export default function ListingCard({
   onFavorite: () => void;
   onOpen: () => void;
 }) {
+  const {t} = useLanguage();
   return (
     <article className="listingCard">
       <div
@@ -31,13 +35,14 @@ export default function ListingCard({
           href={`/listings/${item.id}`}
           aria-label={`${item.title} — ətraflı bax`}
         />
+        <PhotoMark src={item.images?.[0]} />
         <span className="badge">
-          {item.demo ? "Nümunə" : categoryName(item.category)}
+          {item.demo ? t("Nümunə") : t(categoryName(item.category))}
         </span>
         <button
           className={`heart ${favorite ? "selected" : ""}`}
           aria-label={
-            favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"
+            favorite ? t("Seçilmişlərdən çıxar") : t("Seçilmişlərə əlavə et")
           }
           aria-pressed={favorite}
           onClick={onFavorite}
@@ -49,13 +54,12 @@ export default function ListingCard({
           aria-label={`${item.title} — sürətli baxış`}
           onClick={onOpen}
         >
-          Sürətli baxış
-        </button>
+          {t("Sürətli baxış")}</button>
       </div>
       <Link prefetch={false} className="cardBody" href={`/listings/${item.id}`}>
         <strong className="price">
           {money(item.price)} ₼{" "}
-          <small>/ {periodName(item.rental_period)}</small>
+          <small>/ {t(periodName(item.rental_period))}</small>
         </strong>
         <h3>{item.title}</h3>
         <p>
@@ -65,10 +69,10 @@ export default function ListingCard({
         <div className="cardRentalFacts">
           <span>
             {item.deposit === 0
-              ? "Depozitsiz"
+              ? t("Depozitsiz")
               : item.deposit != null
                 ? `Depozit: ${money(item.deposit)} ₼`
-                : "Depoziti dəqiqləşdir"}
+                : t("Depoziti dəqiqləşdir")}
           </span>
           {(item.min_days ?? 1) > 1 && (
             <span>Ən azı {minimumRentalLabel(item)}</span>
@@ -77,7 +81,7 @@ export default function ListingCard({
           {!!item.area_m2 && <span>{item.area_m2} m²</span>}
         </div>
         <div className="cardMeta">
-          <span>{categoryName(item.category)}</span>
+          <span>{t(categoryName(item.category))}</span>
           <span>
             {item.demo
               ? "Nümunə elan"

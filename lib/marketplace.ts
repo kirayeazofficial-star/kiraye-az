@@ -104,6 +104,8 @@ export type Listing = {
   id: string;
   owner_id?: string;
   seller_since?: string;
+  first_published_at?: string | null;
+  expires_at?: string | null;
   category: string;
   title: string;
   city: string;
@@ -169,6 +171,7 @@ export const statusName = (id: string) =>
     published: "Yayımlanıb",
     rejected: "Qəbul edilməyib",
     archived: "Arxivdə",
+    expired: "Müddəti bitib",
     draft: "Qaralama",
   })[id] ?? id;
 // Keep SSR and browser output identical even when a browser lacks az-AZ ICU data.

@@ -953,3 +953,52 @@ input[type="number"]::-webkit-outer-spin-button {
 .searchHistory summary { cursor:pointer; }
 .searchHistoryItems { display:flex; flex-wrap:wrap; gap:8px; padding-top:10px; }
 .searchHistoryItems button { max-width:100%; overflow-wrap:anywhere; }
+/* Persistent, visible account access and language controls on small screens. */
+.headerAccountStack { display:flex; flex-direction:column; align-items:center; gap:5px; }
+.header .headerActions .accountLink { display:inline-flex; align-items:center; min-height:28px; font-weight:700; }
+.headerAuthLinks { display:flex; align-items:center; gap:10px; }
+.header .headerActions .signupLink { display:inline-flex; min-height:24px; font-size:11px; }
+.header { height:auto; min-height:90px; padding-top:10px; padding-bottom:10px; }
+.languageSelect { display:flex; flex-direction:column; align-items:center; gap:2px; font-size:10px; font-weight:700; }
+.languageSelect select { min-height:32px; padding:3px 5px; border:1px solid #dce6e0; border-radius:6px; background:#fff; color:#143f3b; }
+.welcomeGuide { display:flex; justify-content:space-between; align-items:center; gap:24px; padding-top:16px; padding-bottom:16px; border-top:1px solid #e0e7e4; border-bottom:1px solid #e0e7e4; }
+.welcomeGuide p { margin:6px 0; }
+.welcomeGuide small { color:#5e706c; }
+.photoMark { position:absolute; right:10px; bottom:10px; z-index:2; pointer-events:none; padding:3px 8px; border-radius:4px; background:rgba(255,255,255,.18); color:rgba(255,255,255,.82); font-size:clamp(10px,2vw,16px); font-weight:700; text-shadow:0 1px 3px #223b3780; user-select:none; }
+.listingGalleryMain,.ownedPhoto { position:relative; }
+.ownedPhoto { display:block; }
+.ownedPhoto .photoMark { font-size:11px; right:5px; bottom:5px; }
+.azDate { position:relative; min-width:0; }
+.azDate > label { display:block; margin-bottom:6px; }
+.azDateControl { display:flex; gap:4px; }
+.azDateControl input { width:100%; min-width:0; }
+.azDateControl > button { flex:0 0 42px; min-height:44px; background:#f2f7f5; border:1px solid #d7e1dc; border-radius:8px; color:#143f3b; font-size:22px; cursor:pointer; }
+.azCalendar { position:absolute; z-index:70; top:100%; right:0; width:280px; max-width:calc(100vw - 40px); padding:12px; background:#fff; border:1px solid #d7e1dc; border-radius:12px; box-shadow:0 10px 32px #143f3b26; }
+.azCalendarHeading,.azCalendarSelects { display:flex; gap:6px; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.azCalendarHeading button,.azCalendarDays button { min-height:32px; border:0; border-radius:6px; background:#eff5f2; color:#143f3b; cursor:pointer; }
+.azCalendarSelects select { width:50%; min-width:0; padding:6px; }
+.azCalendarDays { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:4px; text-align:center; }
+.azCalendarDays button[aria-pressed="true"] { background:#143f3b; color:#fff; }
+.azCalendarDays button:disabled { opacity:.3; cursor:default; }
+@media(max-width:720px) {
+ .header { min-height:100px; flex-wrap:wrap; gap:8px; }
+ .header .headerActions { margin-left:auto; gap:10px; }
+ .header .logo { font-size:23px; }
+ .header .accountLink { font-size:12px; }
+ .header .add { white-space:nowrap; }
+ .welcomeGuide { flex-direction:column; align-items:flex-start; gap:12px; }
+ .mobileNav { padding-bottom:env(safe-area-inset-bottom); }
+}
+
+.galleryStage .photoMark { left:12px; right:auto; }
+.photo .photoMark { left:10px; right:auto; }
+.status.expired { background:#fff0df; color:#8a4b13; }
+@media(max-width:600px) { .azCalendar { right:0; max-width:calc(100vw - 40px); } .estimateFields { grid-template-columns:1fr; } }
+.categorySection button strong { overflow-wrap:anywhere; }
+.heroKicker svg { flex-shrink:0; vertical-align:middle; }
+.rulesLimits { overflow-x:auto; }
+.rulesLimits table { width:100%; border-collapse:collapse; font-size:14px; }
+.rulesLimits th,.rulesLimits td { text-align:left; padding:10px; border-bottom:1px solid #dce6e0; }
+.rulesLimits caption { text-align:left; font-weight:700; margin-bottom:10px; }
+
+@media(max-width:720px) { .header .headerActions .signupLink { display:none; } }

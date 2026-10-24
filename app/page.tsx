@@ -1,4 +1,8 @@
 "use client";
+import { matchesSearch } from "../lib/search-query";
+import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../lib/saved-searches";
+import CatalogFilters from "./components/CatalogFilters";
+import { useCallback } from "react";
 import AzerbaijaniDateInput from "./components/AzerbaijaniDateInput";
 import { useLanguage } from "./components/LanguageProvider";
 import { readSearchHistory, rememberSearch, clearSearchHistory } from "../lib/search-history";
@@ -26,6 +30,7 @@ import {
   examples,
   readFavorites,
   categoryName,
+  periodName,
 } from "../lib/marketplace";
 
 export default function Home() {
@@ -34,6 +39,7 @@ export default function Home() {
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
     [demo, setDemo] = useState(false);
+  const [savedSearches,setSavedSearches] = useState<SavedSearch[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [category, setCategory] = useState(""),
     [query, setQuery] = useState(""),
@@ -59,6 +65,7 @@ export default function Home() {
     [retry, setRetry] = useState(0);
   useEffect(() => {
     setSearchHistory(readSearchHistory());
+    setSavedSearches(readSavedSearches());
     setFavorites(readFavorites());
     setOnlyFavorites(
       new URLSearchParams(window.location.search).has("favorites"),
@@ -67,6 +74,7 @@ export default function Home() {
     window.addEventListener("kiraye:favorites", syncFavorites);
     return () => window.removeEventListener("kiraye:favorites", syncFavorites);
   }, []);
+  const closeFilters = useCallback(() => setAdvanced(false), []);
   const favoriteIds = onlyFavorites ? favorites.join(",") : "";
   useEffect(() => {
     if (!supabase) {
@@ -218,9 +226,7 @@ export default function Home() {
             from,
             until,
           }) &&
-          `${x.title} ${x.city} ${x.district ?? ""}`
-            .toLocaleLowerCase("az")
-            .includes(query.toLocaleLowerCase("az")),
+          matchesSearch(`${x.title} ${x.city} ${x.district ?? ""}`, query),
       )
       .sort((a, b) =>
         sort === "low"
@@ -292,6 +298,13 @@ export default function Home() {
     setBrand("");
     setGearbox("");
   }
+  function rememberFilters() {
+    try { setSavedSearches(saveSearch({query,category,city,period,min,max,sort,rooms,area,brand,gearbox,from,until,noDeposit},[query,category&&categoryName(category),city,period&&periodName(period)].filter(Boolean).join(" · ")||"Bütün elanlar")); }
+    catch { setNotice("Axtarışı bu brauzerdə saxlamaq mümkün olmadı."); }
+  }
+  function restoreFilters(item:SavedSearch) {
+    const v=item.values;setQuery(v.query);changeCategory(v.category);setCity(v.city);setPeriod(v.period);setMin(v.min);setMax(v.max);setSort(v.sort);setRooms(v.rooms);setArea(v.area);setBrand(v.brand);setGearbox(v.gearbox);setFrom(v.from);setUntil(v.until);setNoDeposit(v.noDeposit);setPage(1);setAdvanced(false);
+  }
   function reset() {
     setAllCategories(false);
     setCategory("");
@@ -317,7 +330,7 @@ export default function Home() {
     query && { label: `Axtarış: ${query}`, clear: () => setQuery("") },
     city && { label: city, clear: () => setCity("") },
     period && {
-      label: period === "daily" ? "Günlük kirayə" : "Aylıq kirayə",
+      label: period === "daily" ? "Günlük kirayə" : period === "weekly" ? "Həftəlik kirayə" : "Aylıq kirayə",
       clear: () => {
         setPeriod("");
         setMin("");
@@ -400,11 +413,13 @@ export default function Home() {
               >
                 <option value="">{t("İstənilən müddət")}</option>
                 <option value="daily">{t("Günlük")}</option>
+                <option value="weekly">{t("Həftəlik")}</option>
                 <option value="monthly">{t("Aylıq")}</option>
               </select>
             </label>
             <button className="add" aria-label={t("Elanları axtar →")}><span className="desktopSearchLabel">{t("Elanları axtar →")}</span><span className="mobileSearchLabel">{t("Axtar")}</span></button>
           </form>
+          {!!savedSearches.length && <details className="savedSearches"><summary>{t("Saxlanmış axtarışlar")} ({savedSearches.length})</summary><div>{savedSearches.map(item=><div key={item.id}><button type="button" className="textButton" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" className="textButton" aria-label={`${item.label} axtarışını sil`} onClick={()=>setSavedSearches(removeSavedSearch(item.id))}>×</button></div>)}</div></details>}
           {!!searchHistory.length && <details className="searchHistory">
             <summary>{t("Son axtarışların")}</summary>
             <div className="searchHistoryItems">
@@ -458,7 +473,6 @@ export default function Home() {
                   onClick={() => {
                     changeCategory(item.id);
                     setAllCategories(false);
-                    setAdvanced(true);
                     document
                       .getElementById("kiraye-axtaris")
                       ?.scrollIntoView({ behavior: "smooth" });
@@ -525,7 +539,7 @@ export default function Home() {
             >
               {t("Depozitsiz kirayə")}</button>
             <button
-              className={`pill ${onlyFavorites ? "active" : ""}`}
+              className={`pill favoritesFilter ${onlyFavorites ? "active" : ""}`}
               aria-pressed={onlyFavorites}
               onClick={() => setOnlyFavorites(!onlyFavorites)}
             >
@@ -543,7 +557,7 @@ export default function Home() {
           {period && <p className="rentalSearchHint">
             {period === "daily"
               ? "Qiymətlər bir günlük kirayə üçündür."
-              : period === "monthly"
+              : period === "weekly" ? "Qiymətlər bir həftəlik kirayə üçündür." : period === "monthly"
                 ? "Qiymətlər bir aylıq kirayə üçündür."
                 : t("Günlük və aylıq qiymətləri ayrıca müqayisə etmək üçün kirayə müddətini seç.")}
           </p>}
@@ -563,7 +577,7 @@ export default function Home() {
             </div>
           )}
           {advanced && (
-            <div className="advancedFilters">
+            <CatalogFilters onClose={closeFilters} title={t("Ətraflı filtrlər")} done={t("Elanları göstər")}><div className="advancedFilters">
               <label>
                 {t("Kateqoriya")}<select
                   aria-label="Filtr kateqoriyası"
@@ -581,7 +595,7 @@ export default function Home() {
               {period && (
                 <>
                   <label>
-                    {t("Minimum qiymət")} (₼ / {period === "daily" ? t("gün") : t("ay")})
+                    {t("Minimum qiymət")} (₼ / {t(periodName(period))})
                     <input
                       aria-label={t("Minimum qiymət")}
                       type="number"
@@ -591,7 +605,7 @@ export default function Home() {
                     />
                   </label>
                   <label>
-                    {t("Maksimum qiymət")} (₼ / {period === "daily" ? t("gün") : t("ay")})
+                    {t("Maksimum qiymət")} (₼ / {t(periodName(period))})
                     <input
                       aria-label={t("Maksimum qiymət")}
                       type="number"
@@ -675,9 +689,10 @@ export default function Home() {
                   onChange={(e) => setNoDeposit(e.target.checked)}
                 />{" "}
                 {t("Depozitsiz")}</label>
+              <button type="button" className="secondary" onClick={rememberFilters}>{t("Axtarışı saxla")}</button>
               <p className="homeHelp">
                 {t("Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdir.")}</p>
-            </div>
+            </div></CatalogFilters>
           )}
           {notice && (
             <p className="notice" role="status">

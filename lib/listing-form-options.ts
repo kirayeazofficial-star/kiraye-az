@@ -236,7 +236,7 @@ export const extraAttributeLabels = {
   ...rentalSpecLabels,
   delivery_method: "Təhvil / çatdırılma",
   delivery_fee: "Çatdırılma haqqı (₼)",
-  included_items: "Dəstə daxildir",
+  included_items: "Qiymətə daxildir",
   return_terms: "Qaytarılma və ləğv şərtləri",
   utilities: "Kommunal xərclər",
   driver_service: "Sürücü xidməti",

@@ -28,6 +28,16 @@ export default function ListingDetails({
     [report, setReport] = useState(false),
     [busy, setBusy] = useState(false),
     [reported, setReported] = useState(false);
+  useEffect(()=>{
+    if(item.demo||item.status!=="published")return;
+    let active=true;
+    const timer=setTimeout(async()=>{
+      try{const session=await supabase?.auth.getSession();if(!active||session?.data.session?.user.id===item.owner_id)return;
+        await fetch('/api/listing-view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id}),keepalive:true});
+      }catch{/* Statistics never interrupt browsing. */}
+    },1500);
+    return()=>{active=false;clearTimeout(timer);};
+  },[item.id,item.owner_id,item.status,item.demo]);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const imageCount = item.images?.length ?? 0;
   const selectedImage = Math.min(image, Math.max(0, imageCount - 1));
@@ -306,11 +316,10 @@ export default function ListingDetails({
             const value =
               item.attributes?.[key as keyof typeof extraAttributeLabels];
             return value &&
-              key !== "included_items" &&
               key !== "contact_name" ? (
               <div key={key}>
                 <dt>{label}</dt>
-                <dd>{value}</dd>
+                <dd>{key === "delivery_fee" ? `${money(Number(value))} ₼` : key === "delivery_method" && value === "Hər ikisi" ? "Özün götür və ya çatdırılma" : value}</dd>
               </div>
             ) : null;
           })}

@@ -65,3 +65,11 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - Azərbaycan təqvimi brauzerin türk dilindəki tarix pəncərəsindən istifadə etmir. Nömrənin son 4 rəqəmi ekranda ulduzlanır; zəng bağlantısı tam nömrə ilə işləyir.
 - Yeni şəkillər göndərilməzdən əvvəl şəffaf nişan faylın daxilinə çəkilir. Mövcud şəkillərə saytın görünüşündə nişan əlavə olunur; əvvəldən saxlanmış orijinal fayllar dəyişdirilməyib.
 - K nişanının SVG, 48 və 192 piksel PNG variantları əlavə edilib. Google nəticələrində yenilənmə axtarış sisteminin növbəti indeksləməsindən asılıdır.
+
+
+## 24 oktyabr — həftəlik tarif və baxış statistikası
+
+- `supabase/rental-features.sql` canlı bazada tətbiq et. Həftəlik tarif radio düyməsi readiness RPC təsdiqindən sonra aktiv olur; hazırkı bazanın CHECK məhdudiyyətini keçmək üçün qiyməti günlük kimi saxlamaq olmaz.
+- `SUPABASE_SERVICE_ROLE_KEY` yalnız serverdə saxla. `/api/listing-view` üçün etibarlı reverse proxy `X-Forwarded-For` başlığını özü yazmalı, müştərinin saxta başlığını ötürməməlidir. Bu təminat olmadan sayğacı aktivləşdirmə. Eyni IP/brauzer üçün gündə bir baxış hesablanır, real unikal insan/zəng sayı deyil. Sahibi daxil olduqda öz baxışı sayılmır. Köhnə baxışlar uydurulmur.
+- İki ayrı sahib hesabı ilə statistikaya girişin yalnız öz elanlarını göstərdiyini, anon istifadəçinin xam məlumatlara və yazma RPC-sinə girmədiyini yoxla. Hazırkı commit canlı aktivləşmə iddiası deyil.
+- Köhnə `branded-` şəkillərində aşağıda olan yazı fayla əvvəldən həkk olunub. Onu itkisiz götürmək üçün orijinal şəkillər lazımdır. Yeni `branded-v2-` şəkillər mərkəzdə həkk olunur; köhnə URL şəkillərinin görünüş örtüyü mərkəzdədir.

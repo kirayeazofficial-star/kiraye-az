@@ -17,6 +17,7 @@ function load(path, modules = {}) {
 }
 const { applyCatalogFilters, PAGE_SIZE } = load("lib/catalog.ts", {
   "./supabase": { supabase: null },
+  "./search-query": load("lib/search-query.ts"),
   "./rental-details": load("lib/rental-details.ts"),
 });
 const { authErrorMessage, safeLoginDestination } = load("lib/auth-messages.ts");

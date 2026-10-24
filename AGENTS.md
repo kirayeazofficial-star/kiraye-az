@@ -11,3 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Live access priority — user instruction, 24 October 2026
 
 As soon as authorized working SSH or live database access is available, complete the pending server work in `docs/HOSTING-MIGRATION-CHECKLIST.md` BEFORE subsequent feature tasks, unless the user explicitly reprioritizes. This includes all deferred database migrations, old and new listing policies, public access, auth, six-digit email delivery, SMTP and deployment checks, not only listing limits. Preserve data and backups; verify replacements before removing Supabase/Vercel. Source commits do not prove live activation. Payments stay inactive until separately authorized.
+
+## Product choices — 24 October 2026
+
+Read `docs/FUTURE-IDEAS.md` during future product planning. The user deferred the “Kirayə axtarıram” board and rejected availability status and listing comparison. Do not add those without a new instruction. Weekly rates and view statistics require the migration and server setup in the hosting checklist; do not claim they are live from a source commit.

@@ -69,7 +69,8 @@ export function calculateRental(
   if (!validRentalDate(input.start)) return fail("Götürmə tarixini seç.");
   if (today && input.start < today) return fail("Keçmiş tarix seçmək olmaz.");
   const monthly = item.rental_period === "monthly";
-  if (!["daily", "monthly"].includes(item.rental_period))
+  const weekly = item.rental_period === "weekly";
+  if (!["daily", "weekly", "monthly"].includes(item.rental_period))
     return fail("Qiymət müddətini elan sahibi ilə dəqiqləşdir.");
   if (
     monthly &&
@@ -118,7 +119,8 @@ export function calculateRental(
     deposit > 1000000
   )
     return fail("Qiymət və depoziti elan sahibi ilə dəqiqləşdir.");
-  const units = monthly ? input.months : days;
+  if (weekly && days % 7 !== 0) return fail("Həftəlik tarif üçün tam həftə seç. Qısa müddəti sahibi ilə razılaşdır.");
+  const units = monthly ? input.months : weekly ? days / 7 : days;
   const rentalCents = Math.round(price * 100) * units,
     depositCents = Math.round(deposit * 100);
   let delivery: number | null = 0;

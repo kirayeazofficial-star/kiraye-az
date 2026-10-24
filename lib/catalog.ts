@@ -1,3 +1,4 @@
+import { searchVariants } from "./search-query";
 import { publicSupabase as supabase } from "./supabase";
 import type { Listing } from "./marketplace";
 import { scopeRentalFilters, type RentalFilters } from "./rental-details";
@@ -33,15 +34,9 @@ export function applyCatalogFilters<T>(builder: T, input: CatalogQuery): T {
   if (input.period) q = q.eq("rental_period", input.period);
   if (number(input.min) !== null) q = q.gte("price", number(input.min));
   if (number(input.max) !== null) q = q.lte("price", number(input.max));
-  const search = input.query
-    .replace(/[(),.%_"\\]/g, " ")
-    .trim()
-    .replace(/\s+/g, "%")
-    .slice(0, 120);
-  if (search)
-    q = q.or(
-      `title.ilike.%${search}%,city.ilike.%${search}%,district.ilike.%${search}%`,
-    );
+  const searches = searchVariants(input.query).map(value => value.replace(/\s+/g, "%"));
+  if (searches.length) q = q.or(searches.flatMap(search =>
+    ["title", "city", "district"].map(field => `${field}.ilike.%${search}%`)).join(","));
   if (input.rooms === "4+") q = q.gte("rooms", 4);
   else if (number(input.rooms) !== null) q = q.eq("rooms", number(input.rooms));
   if (number(input.area) !== null) q = q.gte("area_m2", number(input.area));

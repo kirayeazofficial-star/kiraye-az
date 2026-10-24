@@ -22,7 +22,7 @@ export default function AzerbaijaniDateInput({label,value,onChange,min,max}:{lab
  const days=new Date(year,month+1,0).getDate(),offset=(new Date(year,month,1).getDay()+6)%7;
  function move(delta:number){const date=new Date(year,month+delta,1);setYear(date.getFullYear());setMonth(date.getMonth());}
  const years=Array.from(new Set([year,new Date().getFullYear()-1,...Array.from({length:8},(_,i)=>new Date().getFullYear()+i)])).sort((a,b)=>a-b);
- return <div className="azDate" ref={root} onKeyDown={event=>{if(open && event.key==="Escape"){event.stopPropagation();setOpen(false);root.current?.querySelector("input")?.focus();}}}>
+ return <div className={`azDate${open ? " isOpen" : ""}`} ref={root} onKeyDown={event=>{if(open && event.key==="Escape"){event.stopPropagation();setOpen(false);root.current?.querySelector("input")?.focus();}}}>
   <label htmlFor={id}>{label}</label>
   <div className="azDateControl"><input id={id} aria-label={label} inputMode="numeric" placeholder="GG.AA.İİİİ" autoComplete="off" value={raw} maxLength={10} onChange={event=>{const text=event.target.value;setRaw(text);const parsed=parse(text);const next=parsed && (!min||parsed>=min)&&(!max||parsed<=max) ? parsed : "";typed.current=next;onChange(next);}} /><button type="button" aria-label={`${label} — təqvimi aç`} aria-expanded={open} onClick={()=>setOpen(!open)}>▦</button></div>
   {open && <section className="azCalendar" style={{left:placement.left,right:"auto",top:placement.above?"auto":"100%",bottom:placement.above?"100%":"auto"}} aria-label={`${label} — Azərbaycan təqvimi`}>

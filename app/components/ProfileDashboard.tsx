@@ -17,6 +17,7 @@ import {
   periodName,
 } from "../../lib/marketplace";
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
+  const [views,setViews] = useState<Record<string,number>|null>(null);
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
     [loading, setLoading] = useState(true),
@@ -45,6 +46,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
           .maybeSingle();
         setAdmin(role.data?.role === "admin");
         if (!balanceOnly) setListings(await loadListings("mine"));
+        if(!balanceOnly){try{const result=await client.rpc('own_listing_view_counts');if(!result.error && Array.isArray(result.data))setViews(Object.fromEntries(result.data.filter(row=>typeof row.listing_id==='string' && Number.isFinite(Number(row.views))).map(row=>[row.listing_id,Number(row.views)])));}catch{}}
+
       })
       .catch(() =>
         setError("Məlumatları yükləmək mümkün olmadı. Yenidən yoxlayın."),
@@ -251,6 +254,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         {effectiveListingStatus(x) === "rejected" && x.rejection_reason && (
                           <p className="error">Səbəb: {x.rejection_reason}</p>
                         )}
+                        <p className="listingViews" title="Sayğac aktivləşdirildikdən sonra eyni IP/brauzerdən təkrar baxışlar gündə bir dəfə sayılır.">{views ? `Baxış: ${views[x.id] ?? 0}` : "Baxış statistikası hələ aktiv deyil"}</p>
                         <small>{new Date(x.created_at).toLocaleDateString("az-AZ")}</small>
                         {x.expires_at && <p className="muted">Bitmə tarixi: {new Date(x.expires_at).toLocaleDateString("az-AZ")}</p>}
                       </div>

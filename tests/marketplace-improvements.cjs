@@ -31,6 +31,7 @@ await p.getByLabel('Transmission',{exact:true}).selectOption({label:'Automatic'}
 await p.getByRole('button',{name:'Start date — təqvimi aç',exact:true}).click();
 const calendar=await p.locator('.azCalendar').boundingBox();assert(calendar.x>=0 && calendar.x+calendar.width<=viewportWidth);
 await p.getByRole('button',{name:'Təqvimi bağla',exact:true}).click();
+if(viewportWidth<=720)await p.getByRole('button',{name:'Show listings',exact:true}).click();
 assert.equal(await p.locator('html').getAttribute('lang'),'en');
 await p.getByRole('button',{name:'Azərbaycanca',exact:true}).click();await p.getByRole('heading',{name:'Nə kirayələmək istəyirsən?',exact:true}).waitFor();
 assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);

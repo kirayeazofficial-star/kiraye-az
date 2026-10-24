@@ -1,4 +1,6 @@
 "use client";
+import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
+import { weeklyRatesReady } from "../../lib/rental-features";
 import { watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -9,6 +11,7 @@ import {
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { listingExamples } from "../../lib/listing-form-options";
+import RentalTermsFields from "./RentalTermsFields";
 import DurationField from "./DurationField";
 import ListingCategoryFields from "./ListingCategoryFields";
 
@@ -31,6 +34,8 @@ import {
 } from "../../lib/marketplace";
 
 export default function ListingForm({ listingId }: { listingId?: string }) {
+  const [weeklyReady,setWeeklyReady] = useState(false);
+  useEffect(()=>{let active=true;weeklyRatesReady().then(value=>{if(active)setWeeklyReady(value);});return()=>{active=false;};},[]);
   const [step, setStep] = useState(1);
   const [canModerate, setCanModerate] = useState(false);
   const [rentalPeriod, setRentalPeriod] = useState("daily");
@@ -48,18 +53,21 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     if (!manualTitle.current) setTitle(value.slice(0, 120));
   }
   function resetForm() {
+    draftDirty.current=false;
+    if(!listingId){void clearListingDraft(user);setSavedDraft(null);setInitial(null);}
+    const base=listingId?initial:null;
     setStep(1);
-    setMinimumUnit(initial?.attributes?.min_rental_unit || "day");
-    setRentalPeriod(initial?.rental_period || "daily");
+    setMinimumUnit(base?.attributes?.min_rental_unit || "day");
+    setRentalPeriod(base?.rental_period || "daily");
     setFormVersion((value) => value + 1);
-    setCategory(initial?.category || "");
-    setTitle(initial?.title || "");
-    setCity(initial?.city || "");
-    setPrice(initial?.price == null ? "" : String(initial.price));
-    setDescriptionText(initial?.description || "");
-    manualTitle.current = !!initial;
+    setCategory(base?.category || "");
+    setTitle(base?.title || "");
+    setCity(base?.city || "");
+    setPrice(base?.price == null ? "" : String(base.price));
+    setDescriptionText(base?.description || "");
+    manualTitle.current = !!base;
     setFiles([]);
-    setExistingImages(initial?.images || []);
+    setExistingImages(base?.images || []);
     setPreview(null);
     setError("");
   }
@@ -94,6 +102,30 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [initial, setInitial] = useState<Listing | null>(null),
     [existingImages, setExistingImages] = useState<string[]>([]),
     [loadError, setLoadError] = useState(false);
+  const [savedDraft,setSavedDraft]=useState<ListingDraft|null>(null);
+  const [draftNotice,setDraftNotice]=useState("");
+  const draftDirty=useRef(false),draftTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
+  const draftSave=useRef(()=>{});
+  draftSave.current=()=>{
+    if(listingId||!user||success||busy||!draftDirty.current||!category||!formRef.current)return;
+    const form=new FormData(formRef.current),fields:Record<string,string[]>={};
+    for(const [key,value] of form.entries())if(typeof value==='string'&&!['contact','contact_name'].includes(key))(fields[key] ||= []).push(value);
+    const draft:ListingDraft={version:1,updatedAt:Date.now(),category,step,fields,files};
+    void saveListingDraft(user,draft).then(mode=>setDraftNotice(mode==='text'&&files.length?'Mətn saxlanıldı; şəkilləri yenidən seçmək lazım ola bilər.':'Qaralama bu cihazda saxlanıldı.')).catch(()=>setDraftNotice('Bu brauzerdə qaralamanı saxlamaq mümkün olmadı.'));
+  };
+  function queueDraft(){if(listingId)return;draftDirty.current=true;setSavedDraft(null);if(draftTimer.current)clearTimeout(draftTimer.current);draftTimer.current=setTimeout(()=>draftSave.current(),350);}
+  useEffect(()=>{if(!user||loading||listingId)return;let active=true;readListingDraft(user).then(value=>{if(active)setSavedDraft(value);});return()=>{active=false;};},[user,loading,listingId]);
+  useEffect(()=>{const flush=()=>draftSave.current();const visibility=()=>{if(document.visibilityState==='hidden')flush();};window.addEventListener('pagehide',flush);document.addEventListener('visibilitychange',visibility);return()=>{flush();if(draftTimer.current)clearTimeout(draftTimer.current);window.removeEventListener('pagehide',flush);document.removeEventListener('visibilitychange',visibility);};},[]);
+  function restoreDraft(){
+    if(!savedDraft||!categories.some(item=>item.id===savedDraft.category))return;
+    const form=new FormData();for(const [key,values] of Object.entries(savedDraft.fields))for(const value of values)form.append(key,value);
+    const text=(key:string)=>String(form.get(key)||'');
+    const attributes=readListingAttributes(savedDraft.category,form);
+    setInitial({id:'',owner_id:user,category:savedDraft.category,title:text('title'),city:text('city'),price:Number(text('price'))||0,rental_period:text('rental_period')||'daily',description:text('description'),contact:'',images:[],status:'draft',created_at:'',deposit:Number(text('deposit'))||0,min_days:Number(text('min_days'))||1,rooms:Number(text('rooms'))||undefined,area_m2:Number(text('area_m2'))||undefined,attributes});
+    setCategory(savedDraft.category);setTitle(text('title'));manualTitle.current=!!text('title');setCity(text('city'));setPrice(text('price'));setDescriptionText(text('description'));setRentalPeriod(text('rental_period')||'daily');setMinimumUnit(text('min_rental_unit')||'day');
+    setFiles(savedDraft.files.filter(file=>file instanceof File).slice(0,6));setStep(Math.max(1,Math.min(4,savedDraft.step||1)));setFormVersion(value=>value+1);setSavedDraft(null);draftDirty.current=true;
+    setDraftNotice(savedDraft.photosMissing?'Mətn bərpa edildi. Şəkilləri yenidən seç.':'Qaralama bərpa edildi.');
+  }
   useEffect(() => {
     setLoading(true);
     setInitial(null);
@@ -188,6 +220,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     return () => urls.forEach(URL.revokeObjectURL);
   }, [files]);
   function goToStep(next: number) {
+    queueDraft();
     setStep(next);
     setError("");
     requestAnimationFrame(() => {
@@ -329,7 +362,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       const images: string[] = [...existingImages];
       for (const file of files) {
         const branded = await watermarkPhoto(file);
-        const path = `${user}/branded-${crypto.randomUUID()}.jpg`;
+        const path = `${user}/branded-v2-${crypto.randomUUID()}.jpg`;
         const uploaded = await supabase.storage
           .from("listing-images")
           .upload(path, branded, { contentType: branded.type, upsert: false });
@@ -376,6 +409,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         : await supabase.from("listings").insert(payload).select("id").single();
       if (result.error) throw new Error(listingPolicyError(result.error));
       saved = true;
+      draftDirty.current=false;
+      if(!listingId)void clearListingDraft(user);
       setSuccess(true);
     } catch (err) {
       if (paths.length && !saved) {
@@ -455,6 +490,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           </div>
         ) : !user ? null : (
           <div className="formLayout">
+            {savedDraft && <aside className="draftResume"><p>Yarımçıq elanın var. Davam etmək istəyirsən?</p><button type="button" className="secondary" onClick={restoreDraft}>Qaralamaya davam et</button><button type="button" className="textButton" onClick={()=>{void clearListingDraft(user);setSavedDraft(null);}}>Qaralamanı sil</button></aside>}
+            {!listingId && draftNotice && <p className="draftNotice" role="status">{draftNotice}</p>}
             <form
               ref={formRef}
               className="listingForm"
@@ -470,7 +507,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                 )
                   field.blur();
               }}
+              onChangeCapture={queueDraft}
               onInput={() => {
+                queueDraft();
                 if (preview) updatePreview();
               }}
             >
@@ -587,6 +626,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                               label: "Günlük",
                               hint: "1 gün üçün",
                             },
+                            {value:"weekly",label:"Həftəlik",hint:weeklyReady ? "1 həftə üçün" : "Hələ aktiv deyil"},
                             {
                               value: "monthly",
                               label: "Aylıq",
@@ -601,6 +641,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             >
                               <input
                                 type="radio"
+                                disabled={option.value === "weekly" && !weeklyReady && rentalPeriod !== "weekly"}
                                 name="rental_period"
                                 value={option.value}
                                 checked={rentalPeriod === option.value}
@@ -616,7 +657,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         <label>
                           {rentalPeriod === "monthly"
                             ? "1 aylıq kirayə qiyməti"
-                            : "1 günlük kirayə qiyməti"}{" "}
+                            : rentalPeriod === "weekly" ? "1 həftəlik kirayə qiyməti" : "1 günlük kirayə qiyməti"}{" "}
                           <span className="requiredMark">*</span>
                           <div className="priceInputWrap">
                             <input
@@ -638,7 +679,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                               }
                             />
                             <span>
-                              ₼ / {rentalPeriod === "monthly" ? "ay" : "gün"}
+                              ₼ / {periodName(rentalPeriod)}
                             </span>
                           </div>
                         </label>
@@ -728,6 +769,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             includeYear
                           />
                         </div>
+                        <RentalTermsFields key={category} category={category} attributes={initial?.attributes} />
                         <p className="muted">
                           Məsələn: 20 gün və ya 1 ay. Rəqəmi yaz, yanından
                           vahidi seç. Ən çox 365 gün / 12 ay / 1 il.

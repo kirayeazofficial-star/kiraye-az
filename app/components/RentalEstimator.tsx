@@ -1,7 +1,7 @@
 "use client";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { useEffect, useState } from "react";
-import { type Listing, money } from "../../lib/marketplace";
+import { type Listing, money, periodName } from "../../lib/marketplace";
 import DurationField from "./DurationField";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { normalizePhone } from "../../lib/rental-details";
@@ -20,7 +20,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
     item.attributes?.min_rental_unit === "year" ||
     item.rental_period === "monthly"
       ? "month"
-      : "day";
+      : item.rental_period === "weekly" ? "week" : "day";
   const [durationUnit, setDurationUnit] = useState(initialUnit);
   const [duration, setDuration] = useState(
     String(
@@ -30,7 +30,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
           ? item.attributes.min_rental_value || 1
           : initialUnit === "day"
             ? item.min_days || 1
-            : 1,
+            : initialUnit === "week" ? Math.max(1,Math.ceil((item.min_days || 1)/7)) : 1,
     ),
   );
   const [delivery, setDelivery] = useState(false);
@@ -70,14 +70,14 @@ export default function RentalEstimator({ item }: { item: Listing }) {
     count <= (durationUnit === "month" ? 120 : 3650)
       ? durationUnit === "month"
         ? rentalMonthEnd(start, count)
-        : addRentalDays(start, count)
+        : addRentalDays(start, count * (durationUnit === "week" ? 7 : 1))
       : "";
   const quote =
     !Number.isInteger(count) ||
     count < 1 ||
     count > (durationUnit === "month" ? 120 : 3650)
       ? { error: "Müddəti yalnız rəqəmlə yaz: ən çox 3650 gün və ya 120 ay." }
-      : item.rental_period === "monthly" && durationUnit === "day"
+      : item.rental_period === "monthly" && durationUnit !== "month"
         ? {
             error:
               "Bu elanda yalnız aylıq qiymət göstərilib. Günlük kirayə qiymətini elan sahibi ilə dəqiqləşdir və ya ay seç.",
@@ -90,13 +90,13 @@ export default function RentalEstimator({ item }: { item: Listing }) {
   const dateLabel = (value: string) => value.split("-").reverse().join(".");
   const message =
     quote.error === null
-      ? `Salam, “${item.title}” elanını ${dateLabel(quote.start)}–${dateLabel(quote.end)} tarixləri üçün kirayələmək istəyirəm. ${duration} ${durationUnit === "month" ? "ay" : "gün"}${durationUnit === "month" && !quote.monthly ? ` (${quote.days} gün hesabı)` : ""}: ${money(quote.rental)} AZN, depozit: ${money(quote.deposit)} AZN.${includeDelivery ? ` Çatdırılma istəyirəm (${quote.delivery === null ? "qiyməti razılaşdıraq" : `${money(quote.delivery)} AZN`}).` : ""} Bu tarixlər uyğundur? Son qiymət və qaytarılma şərtlərini dəqiqləşdirək.`
+      ? `Salam, “${item.title}” elanını ${dateLabel(quote.start)}–${dateLabel(quote.end)} tarixləri üçün kirayələmək istəyirəm. ${duration} ${durationUnit === "month" ? "ay" : durationUnit === "week" ? "həftə" : "gün"}${durationUnit === "month" && !quote.monthly ? ` (${quote.units} ${periodName(item.rental_period)} hesabı)` : ""}: ${money(quote.rental)} AZN, depozit: ${money(quote.deposit)} AZN.${includeDelivery ? ` Çatdırılma istəyirəm (${quote.delivery === null ? "qiyməti razılaşdıraq" : `${money(quote.delivery)} AZN`}).` : ""} Bu tarixlər uyğundur? Son qiymət və qaytarılma şərtlərini dəqiqləşdirək.`
       : "";
   return (
     <section className="rentalEstimator" aria-label="Kirayə xərcini hesabla">
       <h3>Kirayə xərcini hesabla</h3>
       <p className="estimateIntro">
-        Nə qədər müddətə lazımdır? Rəqəmi yaz, gün və ya ay seç.
+        Nə qədər müddətə lazımdır? Rəqəmi yaz, gün, həftə və ya ay seç.
       </p>
       <p className="minimumDurationNote">
         Elan sahibinin minimum müddəti:{" "}
@@ -149,7 +149,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
                 className="secondary"
                 target="_blank"
                 rel="noopener noreferrer"
-                href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, “${item.title}” elanını ${duration} ${durationUnit === "month" ? "ay" : "gün"} müddətinə kirayə götürmək istəyirəm. Bu müddət mümkündürmü? Qiyməti və şərtləri dəqiqləşdirək.`)}`}
+                href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, “${item.title}” elanını ${duration} ${durationUnit === "month" ? "ay" : durationUnit === "week" ? "həftə" : "gün"} müddətinə kirayə götürmək istəyirəm. Bu müddət mümkündürmü? Qiyməti və şərtləri dəqiqləşdirək.`)}`}
               >
                 Seçilən müddəti sahibi ilə dəqiqləşdir
               </a>
@@ -160,9 +160,9 @@ export default function RentalEstimator({ item }: { item: Listing }) {
             <dl>
               <div>
                 <dt>
-                  Kirayə · {duration} {durationUnit === "month" ? "ay" : "gün"}
+                  Kirayə · {duration} {durationUnit === "month" ? "ay" : durationUnit === "week" ? "həftə" : "gün"}
                   {durationUnit === "month" && !quote.monthly
-                    ? ` (${quote.days} gün hesabı)`
+                    ? ` (${quote.units} ${periodName(item.rental_period)} hesabı)`
                     : ""}
                 </dt>
                 <dd>{money(quote.rental)} ₼</dd>

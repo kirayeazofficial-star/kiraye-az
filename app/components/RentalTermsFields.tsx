@@ -25,14 +25,15 @@ export default function RentalTermsFields({
           <SelectField
             name="delivery_method"
             label="Təhvil / çatdırılma"
-            options={["Özün götür", "Çatdırılma", "Hər ikisi"]}
+            options={["Özün götür", "Hər ikisi"]}
             value={method}
             onChange={setMethod}
           />
           {["Çatdırılma", "Hər ikisi"].includes(method) && (
             <label>
               Çatdırılma haqqı (₼)
-              <input
+              <div className="currencyControl"><input
+                aria-label="Çatdırılma haqqı (₼)"
                 name="delivery_fee"
                 type="number"
                 min="0"
@@ -40,11 +41,11 @@ export default function RentalTermsFields({
                 step="0.01"
                 defaultValue={attributes?.delivery_fee}
                 placeholder="0 — pulsuz; boş — razılaşma ilə"
-              />
+              /><span aria-hidden="true">₼</span></div>
             </label>
           )}
           <label>
-            Dəstə daxildir
+            Qiymətə nə daxildir?
             <input
               name="included_items"
               maxLength={250}

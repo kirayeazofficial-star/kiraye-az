@@ -185,3 +185,10 @@ check("year minimum preserves leap-year calendar boundaries", () => {
 });
 
 console.log(`${count} rental estimate checks passed`);
+
+check("weekly price uses complete seven-day units and adds delivery once",()=>{
+ const weekly={...item,rental_period:'weekly',price:100};
+ const result=quote(weekly,{...request,end:'2026-11-05',delivery:true});
+ assert.equal(result.error,null);assert.equal(result.units,2);assert.equal(result.rental,200);assert.equal(result.total,257.5);
+ assert(quote(weekly,{...request,end:'2026-10-25'}).error.includes('tam həftə'));
+});

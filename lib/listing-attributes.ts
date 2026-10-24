@@ -147,6 +147,7 @@ export function validateListingAttributes(
       attributes.year > new Date().getFullYear() + 1)
   )
     return "Buraxılış ilini düzgün seçin.";
+  if ((attributes.included_items?.length || 0) > 250 || (attributes.return_terms?.length || 0) > 450) return "Əlavə şərtlərin mətni çox uzundur.";
   if (
     attributes.delivery_fee !== undefined &&
     (!Number.isFinite(Number(attributes.delivery_fee)) ||

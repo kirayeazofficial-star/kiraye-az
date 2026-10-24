@@ -51,6 +51,7 @@ export default function DurationField({
           onChange={(event) => onUnitChange(event.target.value)}
         >
           <option value="day">Gün</option>
+          {!includeYear && <option value="week">Həftə</option>}
           <option value="month">Ay</option>
           {includeYear && <option value="year">İl</option>}
         </select>

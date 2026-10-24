@@ -95,6 +95,8 @@ const { chromium } = require("playwright");
           user,
         };
     } else if (path.endsWith("/auth/v1/user")) body = user;
+    else if (path.endsWith("/rest/v1/rpc/rental_features_ready")) body = true;
+    else if (path.endsWith("/rest/v1/rpc/own_listing_view_counts")) body = [];
     else if (path.endsWith("/rest/v1/rpc/listing_allowance")) body = {allowed:true};
     else if (path.endsWith("/rest/v1/rpc/has_category_listing_allowance")) body = true;
     else if (path.includes("/rest/v1/profiles"))

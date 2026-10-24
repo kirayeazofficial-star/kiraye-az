@@ -1,0 +1,13 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),ts=require('typescript');
+(async()=>{let calls=[];const env={NEXT_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-only-test-key'};
+const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync('app/api/listing-view/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,require,process:{env},Response,TextDecoder,URL,AbortSignal,Date,fetch:async(url,options)=>{calls.push({url,options});return new Response('true');}});
+const id='11111111-1111-4111-8111-111111111111';
+const request=(body,headers={})=>new Request('https://kirayeal.az/api/listing-view',{method:'POST',headers:{host:'kirayeal.az',origin:'https://kirayeal.az','x-forwarded-for':'192.0.2.10','user-agent':'test-browser',...headers},body:JSON.stringify(body)});
+assert.equal((await exports.POST(request({id}))).status,204);assert.equal(calls.length,1);let input=JSON.parse(calls[0].options.body);assert.equal(input.p_listing_id,id);assert(/^[a-f0-9]{64}$/.test(input.p_visitor_hash));assert(!JSON.stringify(input).includes('192.0.2.10'));
+await exports.POST(request({id}));assert.equal(JSON.parse(calls[1].options.body).p_visitor_hash,input.p_visitor_hash);
+assert.equal((await exports.POST(request({id},{origin:'https://foreign.invalid'}))).status,403);
+assert.equal((await exports.POST(request({id:'not-uuid'}))).status,400);
+assert.equal((await exports.POST(request({id,extra:'x'.repeat(400)}))).status,413);
+delete env.SUPABASE_SERVICE_ROLE_KEY;assert.equal((await exports.POST(request({id}))).status,503);
+console.log('PASS view API rejects cross-origin/invalid/oversize input, hashes visitors and fails closed without server credentials');
+})().catch(e=>{console.error(e);process.exit(1)});

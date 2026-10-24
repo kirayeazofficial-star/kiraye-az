@@ -74,6 +74,7 @@ export default function ListingCard({
                 ? `Depozit: ${money(item.deposit)} ₼`
                 : t("Depoziti dəqiqləşdir")}
           </span>
+          {["Çatdırılma","Hər ikisi"].includes(item.attributes?.delivery_method || "") && <span>{t("Çatdırılma")}{item.attributes?.delivery_fee !== undefined && String(item.attributes.delivery_fee).trim() !== "" && Number.isFinite(Number(item.attributes.delivery_fee)) && Number(item.attributes.delivery_fee) >= 0 ? ` +${money(Number(item.attributes.delivery_fee))} ₼` : " · " + t("Razılaşma ilə")}</span>}
           {(item.min_days ?? 1) > 1 && (
             <span>Ən azı {minimumRentalLabel(item)}</span>
           )}

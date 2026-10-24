@@ -41,7 +41,7 @@ export function SelectField({
         <option value="">Seçin</option>
         {value && !options.includes(value) && <option>{value}</option>}
         {options.map((option) => (
-          <option key={option}>{option}</option>
+          <option key={option} value={option}>{option === "Hər ikisi" ? "Çatdırılma mümkündür" : option}</option>
         ))}
       </select>
     </label>

@@ -164,7 +164,7 @@ export type Listing = {
 };
 export const categoryName = (id: string) =>
   categories.find((c) => c.id === id)?.name ?? id;
-export const periodName = (id: string) => (id === "monthly" ? "ay" : "gün");
+export const periodName = (id: string) => (id === "monthly" ? "ay" : id === "weekly" ? "həftə" : "gün");
 export const statusName = (id: string) =>
   ({
     pending: "Yoxlanılır",

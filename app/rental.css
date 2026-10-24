@@ -1099,3 +1099,66 @@ input[type="number"]::-webkit-outer-spin-button {
  .guestPublishActions a { flex:1; padding:10px 8px; font-size:12px; }
  .guestFormPage > .notice { font-size:12px; line-height:1.65; }
 }
+
+/* The catalogue stays visible while detailed filters open separately on phones. */
+.catalogFilterShade,.catalogFilterHeading,.catalogFilterDone { display:none; }
+.photo .photoMark,.galleryStage .photoMark,.ownedPhoto .photoMark,.photoMark { left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);white-space:nowrap; }
+@media(max-width:720px){
+ .rentalHome .catalogIntro { display:none; }
+ .rentalHome .searchWrap { padding-top:12px; }
+ .rentalHome .categorySection { padding-top:10px; }
+ .rentalHome .categories button { min-height:70px;height:70px;padding:6px 3px; }
+ .rentalHome .listingSection { padding-top:8px; }
+ .rentalHome .filterRow .favoritesFilter { display:none; }
+ .rentalHome .filterRow { align-items:center; margin-bottom:8px; }
+ .rentalHome .filterRow .textButton { min-height:36px; padding:5px; font-size:10px; }
+ .rentalHome .activeFilters { gap:6px;margin:6px 0 10px; }
+ .rentalHome .activeFilters button { padding:6px 9px;min-height:32px;font-size:11px; }
+ .catalogFilterLayer { position:fixed;inset:0;z-index:1500;display:flex;align-items:flex-end;justify-content:center; }
+ .catalogFilterShade { display:block;position:absolute;inset:0;border:0;background:#102f29a8; }
+ .catalogFilterPanel { position:relative;width:100%;max-height:88vh;max-height:88dvh;overflow-y:auto;background:#fff;border-radius:16px 16px 0 0;padding:0 16px calc(12px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch; }
+ .catalogFilterHeading { display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:80;padding:10px 0;background:#fff; }
+ .catalogFilterHeading h2 { font-size:19px; }
+ .catalogFilterHeading button { width:44px;height:44px;border:0;border-radius:8px;background:#f0f5f3;color:#244d43;font-size:28px; }
+ .rentalHome .catalogFilterPanel .advancedFilters { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0 0 14px;margin:0;border:0;border-radius:0;background:#fff; }
+ .catalogFilterPanel .advancedFilters>label:first-child,.catalogFilterPanel .advancedFilters>.homeHelp { grid-column:1/-1; }
+ .rentalHome .catalogFilterPanel .advancedFilters label { font-size:12px; }
+ .catalogFilterPanel .advancedFilters input,.catalogFilterPanel .advancedFilters select { min-height:44px; }
+ .catalogFilterDone { display:flex;width:100%;min-height:44px;justify-content:center;position:sticky;bottom:0;z-index:80; }
+ .catalogFilterPanel .homeHelp { font-size:11px;margin:0; }
+}
+
+.rentalPeriodChoice { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.rentalPeriodChoice label { min-width:0;padding:10px;gap:6px; }
+.rentalPeriodChoice label:has(input:disabled) { opacity:.55; }
+.savedSearches { font-size:12px;margin-top:8px; }
+.savedSearches summary { cursor:pointer;color:#41645d; }
+.savedSearches>div>div { display:flex;justify-content:space-between;gap:10px; }
+.draftResume { padding:12px 16px;background:#eef5f1;border:1px solid #dce6e0;border-radius:10px;margin-bottom:12px; }
+.draftResume p { margin:0 0 8px; }
+.draftResume button { margin-right:10px; }
+.draftNotice,.listingViews { font-size:12px;color:#5c736b; }
+@media(max-width:720px){
+ .rentalPeriodChoice { gap:6px; }
+ .rentalPeriodChoice label { padding:8px 5px;gap:4px; }
+ .rentalPeriodChoice small { font-size:10px; }
+ .rentalPeriodChoice span { font-size:12px; }
+ .formPage .sectionTitle h1 { font-size:25px; }
+ .listingForm [data-post-step]>h2 { font-size:21px; }
+ .listingForm { padding:16px 12px; }
+ .rentalTermsFields { gap:12px; }
+}
+
+@media(max-width:720px){
+ .catalogFilterPanel .azDate.isOpen { grid-column:1/-1; }
+ .catalogFilterPanel .azCalendar { position:static;width:100%;max-width:none;transform:none;box-shadow:none;margin-top:8px; }
+}
+
+@media(max-width:720px){
+ .rentalHome .filterRow .pill,.rentalHome .filterRow .filterToggleButton { flex:1 1 0;text-align:center;justify-content:center; }
+ .catalogFilterPanel .advancedFilters>label { display:grid;gap:6px;color:#587168; }
+ .catalogFilterPanel .advancedFilters>label>select,.catalogFilterPanel .advancedFilters>label>input:not([type=checkbox]) { width:100%;max-width:none; }
+ .catalogFilterPanel .advancedFilters>.checkLabel { display:flex;flex-direction:row;align-items:center;gap:8px; }
+ .catalogFilterPanel .checkLabel input[type=checkbox] { width:18px;height:18px;min-height:18px;margin:0; }
+ .catalogFilterPanel .azDate>label { color:#587168;font-size:12px; }
+}

@@ -15,10 +15,11 @@ export async function watermarkPhoto(file: File): Promise<File> {
     context.font = `600 ${font}px Arial, sans-serif`;
     const width = context.measureText("kirayeal.az").width;
     context.fillStyle = "rgba(255,255,255,0.20)";
-    context.fillRect(padding, canvas.height - font - padding * 3, width + padding * 2, font + padding * 2);
+    const x = (canvas.width - width) / 2, y = canvas.height / 2;
+    context.fillRect(x - padding, y - font, width + padding * 2, font + padding * 2);
     context.fillStyle = "rgba(255,255,255,0.78)";
     context.shadowColor = "rgba(0,0,0,0.45)"; context.shadowBlur = 2;
-    context.fillText("kirayeal.az", padding * 2, canvas.height - padding * 2);
+    context.fillText("kirayeal.az", x, y);
     const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Şəkli hazırlamaq mümkün olmadı.")), "image/jpeg", 0.9));
     return new File([blob], `branded-${file.name}.jpg`, { type: "image/jpeg" });
   } finally { URL.revokeObjectURL(url); }

@@ -13,7 +13,7 @@ create table if not exists public.listings (
  title text not null check(char_length(title) between 10 and 120),
  city text not null, district text,
  price numeric(12,2) not null check(price > 0),
- rental_period text not null check(rental_period in ('daily','monthly')),
+ rental_period text not null check(rental_period in ('daily','weekly','monthly')),
  status text not null default 'pending' check(status in ('draft','pending','published','rejected','archived')),
  description text, rooms smallint, area_m2 integer,
  attributes jsonb not null default '{}'::jsonb,

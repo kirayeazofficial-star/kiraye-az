@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 export type Language = "az" | "ru" | "en";
 const dictionary: Record<string, [string, string]> = {
+ "Axtarış":["Поиск","Search"],
  "Müddət":["Срок","Period"],
  "Çatdırılma":["Доставка","Delivery"],"Razılaşma ilə":["По договорённости","By agreement"],
  "Axtarışı saxla":["Сохранить поиск","Save search"],"Saxlanmış axtarışlar":["Сохранённые поиски","Saved searches"],

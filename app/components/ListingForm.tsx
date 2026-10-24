@@ -1,5 +1,6 @@
 "use client";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
+import { effectiveListingStatus } from "../../lib/listing-lifecycle";
 import { weeklyRatesReady } from "../../lib/rental-features";
 import { watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -198,6 +199,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             );
             return;
           }
+          if(["archived","expired"].includes(effectiveListingStatus(result.data as Listing))){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetindən baxa bilərsən.");return;}
           setInitial(result.data as Listing);
           setMinimumUnit(result.data.attributes?.min_rental_unit || "day");
           setRentalPeriod(result.data.rental_period);

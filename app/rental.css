@@ -1210,3 +1210,33 @@ footer .footerLinks { flex-wrap:wrap; }
  footer .siteContact { width:100%; }
  .siteMenuPanel { padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
 }
+/* Clearer signed-in navigation and a full-height branded mobile menu. */
+.siteMenuPanel { display:flex;flex-direction:column;min-height:100vh;height:100dvh;background:linear-gradient(160deg,#f0f7f3 0,#fff 45%); }
+.siteMenuHeading { padding-bottom:22px;border-bottom:1px solid #dce8e1; }
+.siteMenuHeading .logo { color:#143f3b;font-size:29px;font-weight:800;letter-spacing:-1.6px; }
+.siteMenuHeading .logo span { color:#ed7249; }
+.siteMenuHeading .logo small { display:block;font-size:8px;letter-spacing:1.5px;margin-top:7px;color:#6e827a; }
+.siteMenuPanel nav { gap:10px; }
+.siteMenuPanel nav a { padding:10px 12px;border-radius:9px;font-size:16px;font-weight:500; }
+.siteMenuPanel nav a:hover { background:#e7f0eb;color:#14695d; }
+.siteMenuPanel .siteContact { margin-top:auto;padding:24px 12px 6px;border-top:1px solid #dce8e1;gap:15px;font-size:15px; }
+@media(max-width:720px){
+ .header .headerActions .signedAccountLink { display:none; }
+ .headerBrand { align-items:flex-start; }
+ .mobileMenuButton { min-height:26px;height:26px;align-items:center;margin-top:0; }
+ .header .headerActions .add { grid-column:2;justify-self:end; }
+ .rentalHome .searchPanel { grid-template-columns:minmax(82px,1.1fr) minmax(77px,1fr) minmax(77px,1fr) 42px;padding:5px;gap:2px; }
+ .rentalHome .searchPanel select { padding:4px 1px;font-size:16px; }
+ .rentalHome .searchPanel input { padding:4px 2px; }
+ .siteMenuPanel { width:min(380px,92vw);padding:22px 18px calc(24px + env(safe-area-inset-bottom)); }
+}
+@media(max-width:360px){ .rentalHome .searchWrap { padding-left:12px;padding-right:12px; } }
+.siteMenuPanel { min-height:0;height:100%;height:100dvh; }
+@media(max-width:720px){ .rentalHome .searchPanel label { padding:0;border-right:0; } }
+@media(max-height:740px){
+ .siteMenuPanel { padding-top:16px; }
+ .siteMenuHeading { margin-bottom:12px;padding-bottom:12px; }
+ .siteMenuPanel nav { gap:2px;margin-bottom:14px; }
+ .siteMenuPanel nav a { padding:8px 10px;min-height:42px; }
+ .siteMenuPanel .siteContact { padding-top:16px;gap:10px; }
+}

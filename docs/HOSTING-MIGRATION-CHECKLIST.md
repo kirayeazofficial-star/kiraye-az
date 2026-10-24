@@ -80,3 +80,9 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - `supabase/templates/confirmation.html` şablonunu Auth qeydiyyat təsdiqi üçün tətbiq et və OTP uzunluğunu 6 saxla. SMTP canlıda yoxlanılmayınca məktub çatdırılmasını işlək kimi göstərmə.
 - İstifadəçi telefon nömrələrinin elanda tam görünməsini və yeni şəffaf nişanın sol aşağıda olmasını istəyir; əvvəlki maskalama/mərkəz tələbi bununla əvəz edilib. Köhnə şəkilə həkk olunmuş nişanı itkisiz köçürmək üçün orijinal lazımdır; yeni yükləmələr `branded-v3-` olur.
 - İctimai əlaqə: 050 219 11 45, kirayeal.az@gmail.com, Instagram/TikTok @kirayeal.az. Bu ünvan SMTP göndərənini əvəz etmir.
+
+## 24 oktyabr — ödənişli arxiv bərpası
+
+- İstifadəçi əvvəlki pulsuz bərpa qaydasını dəyişdi: vaxtından əvvəl silinib/arxivlənmiş və müddəti bitmiş elan üçün bərpa pulludur. Qiymət hələ verilməyib; məbləğ uydurma. Ödənişlər aktivləşənədək bərpa bağlı qalır.
+- `supabase/paid-restoration.sql` faylını `listing-lifecycle.sql`-dən SONRA tətbiq et. RPC ilə yanaşı birbaşa UPDATE/redaktə yolu ilə ödənişsiz bərpa da serverdə bloklanır. Yeni ödəniş inteqrasiyası gələndə serverdə təsdiqlənmiş ödəniş və sahiblik yoxlanmadan bu qadağanı açma.
+- “Sil / arxivə keçir” yumşaq silmədir: məlumat və şəkillər qalır, ictimai siyahıdan çıxır. Arxiv bölməsi həm əl ilə arxivlənmiş, həm müddəti bitmiş elanları göstərir.

@@ -746,7 +746,7 @@ const { chromium } = require("playwright");
     await check("owner can archive an existing listing", async () => {
       await page.goto(`${base}/profile`);
       await page
-        .getByRole("button", { name: "Arxivə keçir", exact: true })
+        .getByRole("button", { name: "Sil / arxivə keçir", exact: true })
         .click();
       await page.getByText("Arxivdə", { exact: true }).waitFor();
       assert.equal(updated.status, "archived");

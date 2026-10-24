@@ -39,7 +39,7 @@ export default function Header() {
         </nav>
         <div className="headerActions">
           <LanguageSelect />
-          <Link className={`accountLink${signedIn ? "" : " guestAccountLink"}`} href={signedIn ? "/profile" : "/login"}>
+          <Link className={`accountLink${signedIn ? " signedAccountLink" : " guestAccountLink"}`} href={signedIn ? "/profile" : "/login"}>
             {signedIn ? t("Hesabım") : t("Daxil ol")}
           </Link>
           {!signedIn && <Link className="mobileSignupLink" href="/login?mode=signup">

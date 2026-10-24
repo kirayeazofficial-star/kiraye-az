@@ -382,7 +382,7 @@ export default function Home() {
               <span>{t("Nə axtarırsan?")}</span>
               <input
                 aria-label={t("Elan axtar")}
-                placeholder={t("Ev, avtomobil, avadanlıq...")}
+                placeholder={t("Axtarış")}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />

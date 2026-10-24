@@ -48,12 +48,13 @@ await p.getByRole('button',{name:`${future.getDate()} ${months[future.getMonth()
 assert.equal(await p.getByLabel('Götürmə tarixi',{exact:true}).inputValue(),`${String(future.getDate()).padStart(2,'0')}.${String(future.getMonth()+1).padStart(2,'0')}.${future.getFullYear()}`);
 assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
 await p.screenshot({path:`/tmp/kiraye-detail-improvements-${viewportWidth}.png`,fullPage:true});ad.expires_at=new Date(Date.now()-1000).toISOString();
-await p.goto(base+'/profile');await p.getByRole('button',{name:'Müddəti bitib (1)',exact:true}).click();
-await p.getByRole('button',{name:'Bərpa et',exact:true}).click();await p.getByRole('status').filter({hasText:'Elan bərpa üçün yoxlamaya göndərildi.'}).waitFor();
-await p.getByRole('button',{name:'Yoxlanılır (1)',exact:true}).waitFor();
+await p.goto(base+'/profile');await p.getByRole('button',{name:'Arxiv (1)',exact:true}).click();
+await p.getByRole('button',{name:'Bərpa et',exact:true}).click();await p.getByRole('status').filter({hasText:'Elanı bərpa etmək ödənişli xidmətdir.'}).waitFor();assert.equal(ad.status,'published');
+assert.equal(await p.getByRole('link',{name:'Yenilə və göndər',exact:true}).count(),0);
+await p.getByRole('link',{name:'Elana bax',exact:true}).waitFor();
 ad.status='archived';delete ad.expires_at;
 await p.goto(base+'/profile');await p.getByRole('heading',{name:'Elanlarım',exact:true}).waitFor();
-await p.locator('.accountListings article').waitFor();assert.equal(await p.getByRole('button',{name:'Bərpa et',exact:true}).count(),0);
-await p.getByRole('link',{name:'Yenilə və göndər',exact:true}).waitFor();
+await p.locator('.accountListings article').waitFor();await p.getByRole('button',{name:'Bərpa et',exact:true}).waitFor();
+assert.equal(await p.getByRole('link',{name:'Redaktə et',exact:true}).count(),0);
 assert.deepEqual(errors,[]);await ctx.close();console.log('PASS mobile account access, persistent AZ/RU/EN homepage, full call number, photo marks and Azerbaijani calendar under Turkish browser locale');
 }finally{await browser.close();}})().catch(error=>{console.error(error);process.exit(1)});

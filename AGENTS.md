@@ -15,3 +15,7 @@ As soon as authorized working SSH or live database access is available, complete
 ## Product choices — 24 October 2026
 
 Read `docs/FUTURE-IDEAS.md` during future product planning. The user deferred the “Kirayə axtarıram” board and rejected availability status and listing comparison. Do not add those without a new instruction. Weekly rates and view statistics require the migration and server setup in the hosting checklist; do not claim they are live from a source commit.
+
+## Latest archive policy — 24 October 2026
+
+The user now requires all archived/expired listing restoration to be paid, including early manual removal. Payments are still inactive. Apply `supabase/paid-restoration.sql` AFTER `listing-lifecycle.sql`; never re-enable the old free restoration RPC or direct edit path. Preserve archived data/photos. Do not invent a restoration price.

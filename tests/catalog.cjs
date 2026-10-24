@@ -87,7 +87,7 @@ test("search punctuation cannot become new PostgREST predicates", () => {
   const r = calls({ query: "x),status.eq.draft,(title" }).find(
     (c) => c[0] === "or",
   );
-  assert.equal(r[1].split(",").length, 3);
+  assert.equal(r[1].split(",").length, 5);
   assert.ok(!r[1].includes("status.eq."));
 });
 test("favorites scope sent to the database", () => {
@@ -159,3 +159,20 @@ test("legacy numeric auth codes still produce useful login feedback", () =>
     /şifrə düzgün deyil/,
   ));
 console.log(`${checks} catalog and login checks passed`);
+
+test("natural car requests filter category rather than requiring category words in title", () => {
+ const log=calls({query:"kirayə maşın"});
+ assert(log.some(c=>c[0]==="in" && c[1]==="category" && c[2].join(",")==="car"));
+ assert(!log.some(c=>c[0]==="or"));
+});
+test("home requests include apartments and villas without matching the word ev", () => {
+ const log=calls({query:"kiraye ev"});
+ assert(log.some(c=>c[0]==="in" && c[1]==="category" && c[2].join(",")==="property,villa"));
+ assert(!log.some(c=>c[0]==="or"));
+});
+test("motorcycle typo, brand alias and city combine without losing intent", () => {
+ const log=calls({query:"Bakıda reno kirayə maşın"});
+ assert(log.some(c=>c[0]==="eq" && c[1]==="city" && c[2]==="Bakı"));
+ assert(log.some(c=>c[0]==="or" && c[1].includes("Renault")));
+ assert(calls({query:"motosklet kirayəsi"}).some(c=>c[0]==="in" && c[2][0]==="motorcycle"));
+});

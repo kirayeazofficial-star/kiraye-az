@@ -1,4 +1,4 @@
-import { searchVariants } from "./search-query";
+import { searchVariants, rentalSearchIntent } from "./search-query";
 import { publicSupabase as supabase } from "./supabase";
 import type { Listing } from "./marketplace";
 import { scopeRentalFilters, type RentalFilters } from "./rental-details";
@@ -25,18 +25,23 @@ const date = (value: string) =>
     ? value
     : null;
 export function applyCatalogFilters<T>(builder: T, input: CatalogQuery): T {
-  input = { ...input, ...scopeRentalFilters(input.category, input) };
+  const intent = rentalSearchIntent(input.query);
+  const effectiveCategory = input.category || (intent.categories.length === 1 ? intent.categories[0] : "");
+  input = { ...input, ...scopeRentalFilters(effectiveCategory, input) };
   // Fixed field names and stripped PostgREST punctuation prevent query expression injection.
   let q = builder as any;
   q = q.eq("status", "published");
   if (input.category) q = q.eq("category", input.category);
-  if (input.city) q = q.eq("city", input.city);
+  if (intent.categories.length) q = q.in("category", intent.categories);
+  if (input.city || intent.city) q = q.eq("city", input.city || intent.city);
   if (input.period) q = q.eq("rental_period", input.period);
   if (number(input.min) !== null) q = q.gte("price", number(input.min));
   if (number(input.max) !== null) q = q.lte("price", number(input.max));
-  const searches = searchVariants(input.query).map(value => value.replace(/\s+/g, "%"));
-  if (searches.length) q = q.or(searches.flatMap(search =>
-    ["title", "city", "district"].map(field => `${field}.ilike.%${search}%`)).join(","));
+  for (const token of intent.query.split(/\s+/).filter(Boolean)) {
+    const searches = searchVariants(token);
+    q = q.or(searches.flatMap(search =>
+      ["title", "city", "district", "attributes->>brand", "attributes->>model"].map(field => `${field}.ilike.%${search}%`)).join(","));
+  }
   if (input.rooms === "4+") q = q.gte("rooms", 4);
   else if (number(input.rooms) !== null) q = q.eq("rooms", number(input.rooms));
   if (number(input.area) !== null) q = q.gte("area_m2", number(input.area));

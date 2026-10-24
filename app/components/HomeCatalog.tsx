@@ -1,5 +1,5 @@
 "use client";
-import { matchesSearch } from "../../lib/search-query";
+import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import AdSpaces from "./AdSpaces";
 import CatalogFilters from "./CatalogFilters";
@@ -212,11 +212,13 @@ export default function Home() {
   }, [detail]);
   const filtered = useMemo(() => {
     if (!demo) return listings;
+    const intent = rentalSearchIntent(query);
     return examples
       .filter(
         (x) =>
           (!category || x.category === category) &&
-          (!city || x.city === city) &&
+          (!intent.categories.length || intent.categories.includes(x.category)) &&
+          (!(city || intent.city) || x.city === (city || intent.city)) &&
           (!period || x.rental_period === period) &&
           (!min || x.price >= Number(min)) &&
           (!max || x.price <= Number(max)) &&
@@ -230,7 +232,7 @@ export default function Home() {
             from,
             until,
           }) &&
-          matchesSearch(`${x.title} ${x.city} ${x.district ?? ""}`, query),
+          matchesSearch(`${x.title} ${x.city} ${x.district ?? ""} ${x.attributes?.brand || ""} ${x.attributes?.model || ""}`, intent.query),
       )
       .sort((a, b) =>
         sort === "low"
@@ -376,6 +378,10 @@ export default function Home() {
             className="searchPanel"
             onSubmit={(e) => {
               e.preventDefault();
+              const intent = rentalSearchIntent(query);
+              if (intent.categories.length && !intent.categories.includes(category)) {
+                changeCategory(intent.categories.length === 1 ? intent.categories[0] : "");
+              }
               setSearchHistory(rememberSearch(query));
               document
                 .getElementById("elanlar")

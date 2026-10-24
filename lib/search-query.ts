@@ -15,3 +15,26 @@ export function matchesSearch(text:string,query:string){
  const haystack=foldSearch(text);
  return !query.trim()||searchVariants(query).some(value=>value.split(/\s+/).every(word=>haystack.includes(foldSearch(word))));
 }
+
+// Category words express intent; they need not appear in an advert's title.
+export function rentalSearchIntent(value: string) {
+ const variants = searchVariants(value);
+ const words = (variants[variants.length - 1] || "").split(/\s+/).filter(Boolean).slice(0, 12);
+ const groups: Record<string, string[]> = {
+  masin: ["car"], masinlar: ["car"], avtomobil: ["car"], avtomobiller: ["car"],
+  motosiklet: ["motorcycle"], motosikletler: ["motorcycle"],
+  ev: ["property", "villa"], evler: ["property", "villa"], menzil: ["property"], menziller: ["property"],
+  villa: ["villa"], villalar: ["villa"], velosiped: ["bicycle", "electric"], skuter: ["electric"],
+ };
+ const ignored = new Set(["kiraye", "kirayesi", "kirayeye", "icare", "icareye", "axtariram", "isteyirem"]);
+ const cityWords: Record<string,string> = {baki:"Bakı", bakida:"Bakı", xirdalan:"Xırdalan", xirdalanda:"Xırdalan", sumqayit:"Sumqayıt", sumqayitda:"Sumqayıt", gence:"Gəncə", gencede:"Gəncə"};
+ let categories: string[] = [], city = "";
+ const remaining: string[] = [];
+ for (const word of words) {
+  const key = foldSearch(word);
+  if (groups[key]) categories = categories.length ? categories.filter(c=>groups[key].includes(c)) : groups[key];
+  else if (cityWords[key]) city = cityWords[key];
+  else if (!ignored.has(key)) remaining.push(word);
+ }
+ return {categories, city, query: remaining.join(" ")};
+}

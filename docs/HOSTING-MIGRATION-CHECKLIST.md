@@ -92,3 +92,6 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - `docs/SEO-SETUP.md` üzrə canlı domen, server HTML, sitemap, robots və Search Console yoxlamalarını tamamla.
 - `supabase/property-details.sql` yeni sanuzel sayını JSON attributes-də 1–20 tam ədəd kimi yoxlayır, köhnə sətirləri silmir. “Həyət evi” adı formanın yeni seçimində “Bağ evi” ilə əvəz olunub; köhnə dəyər görünüşdə və redaktədə uyğunlaşdırılır.
 - Adminin elan yoxlamasında yalnız rədd/təsdiq düymələri var; əl ilə arxiv düyməsi çıxarılıb. Avtomatik müddət bitməsi və istifadəçinin öz elanını arxivləməsi əvvəlki kimi qalır.
+
+### Weekly selector correction — 25 October 2026
+The posting/editing form no longer depends on `rental_features_ready()` to enable weekly rates: a missing RPC or network timeout was incorrectly disabling a tariff already present in schema.sql. All categories offer daily/weekly/monthly. Apply the existing rental-features.sql migration if the live database still has the old daily/monthly constraint; verify a real weekly insert and edit after gaining access. Source changes alone do not establish live database readiness.

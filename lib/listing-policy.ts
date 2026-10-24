@@ -26,6 +26,8 @@ export function listingPolicyError(error: { code?: string; message?: string }) {
   if (error.code === "PLR01") return "Bu kateqoriyada son 30 gün üçün elan limitin dolub. Limitin yenilənməsini gözlə.";
   if (error.code === "PLC01") return "Yayımlanmış elanı başqa kateqoriyaya çevirmək olmaz.";
   if (error.code === "PLC02") return "Bu kateqoriyanın limit ayarları hazırlanır.";
+  if (error.code === "23514" && error.message?.includes("rental_period"))
+    return "Həftəlik tarif serverdə saxlanıla bilmədi. Baza yeniləməsi tamamlanmalıdır; yazdıqlarınız qaralamada saxlanılır.";
   if (error.code === "23514" && error.message?.includes("listings_category_check"))
     return "Bu kateqoriya serverdə hələ aktivləşdirilməyib. Saytın baza yeniləməsi tamamlanmalıdır.";
   if (error.code === "PDU01" || error.message?.includes("DUPLICATE_LISTING"))

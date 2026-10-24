@@ -1,7 +1,6 @@
 "use client";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
 import { effectiveListingStatus } from "../../lib/listing-lifecycle";
-import { weeklyRatesReady } from "../../lib/rental-features";
 import { watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -35,8 +34,6 @@ import {
 } from "../../lib/marketplace";
 
 export default function ListingForm({ listingId }: { listingId?: string }) {
-  const [weeklyReady,setWeeklyReady] = useState(false);
-  useEffect(()=>{let active=true;weeklyRatesReady().then(value=>{if(active)setWeeklyReady(value);});return()=>{active=false;};},[]);
   const [step, setStep] = useState(1);
   const [canModerate, setCanModerate] = useState(false);
   const [rentalPeriod, setRentalPeriod] = useState("daily");
@@ -628,7 +625,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                               label: "Günlük",
                               hint: "1 gün üçün",
                             },
-                            {value:"weekly",label:"Həftəlik",hint:weeklyReady ? "1 həftə üçün" : "Hələ aktiv deyil"},
+                            {value:"weekly",label:"Həftəlik",hint:"1 həftə üçün"},
                             {
                               value: "monthly",
                               label: "Aylıq",
@@ -643,7 +640,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             >
                               <input
                                 type="radio"
-                                disabled={option.value === "weekly" && !weeklyReady && rentalPeriod !== "weekly"}
                                 name="rental_period"
                                 value={option.value}
                                 checked={rentalPeriod === option.value}

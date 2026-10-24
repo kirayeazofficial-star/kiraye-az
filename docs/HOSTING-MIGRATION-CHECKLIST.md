@@ -1,5 +1,8 @@
 # kirayeal.az — hostinqə keçiddə tamamlanacaq işlər
 
+> **24 oktyabr 2026 — birinci prioritet:** İşlək və icazəli SSH/canlı baza bağlantısı verilən kimi, istifadəçi ayrıca prioriteti dəyişməzsə, yeni tapşırıqlardan ƏVVƏL bu sənəddəki bütün gözləyən server işlərini tamamla. Təkcə limitlər yox: mövcud və yeni elanlar, açıq giriş, qeydiyyat/bərpa, altırəqəmli kod, SMTP, məlumatların qorunması və yerləşdirmə yoxlamaları da daxildir. Sonda faktiki yoxlanmış və hələ bloklanan işləri ayrı bildir.
+
+
 İstifadəçinin 22 oktyabr 2026 tələbi: əlavə xatırlatma gözləmədən aşağıdakıları tamamla.
 
 - SSH açıldıqda ən son yoxlanmış mənbə kodunu yerləşdir; əvvəlcə işlək sayt və geri dönüş üçün ehtiyat nüsxə hazırla. CloudLinux tətbiq kökünü `kirayeal` saxla, mövcud dolu qovluğa selector relocation işlətmə.

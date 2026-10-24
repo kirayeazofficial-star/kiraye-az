@@ -30,14 +30,6 @@ import {
 
 export default function Home() {
   const {t} = useLanguage();
-  const [signedIn, setSignedIn] = useState(false);
-  useEffect(() => {
-    if (!supabase) return;
-    let active = true;
-    supabase.auth.getSession().then(({data}) => { if (active) setSignedIn(!!data.session); }).catch(() => {});
-    const {data} = supabase.auth.onAuthStateChange((_event, session) => { if (active) setSignedIn(!!session); });
-    return () => { active = false; data.subscription.unsubscribe(); };
-  }, []);
   const [listings, setListings] = useState<Listing[]>([]),
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
@@ -354,31 +346,76 @@ export default function Home() {
       <main className="rentalHome">
         <section className="catalogIntro">
           <div>
-            <p className="heroKicker">
-              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 19 19 5M5 5h14v14" /></svg> {t("Günlük və aylıq kirayə")}</p>
             <h1>
-              {t("Almağa tələsmə.")}<br />
+              {t("Almağa tələsmə.")}{" "}
               <em>{t("Kirayələ.")}</em>
             </h1>
             <span>
               {t("Ev, nəqliyyat, avadanlıq — ehtiyacına uyğun olanı tap, sahibi ilə birbaşa danış.")}</span>
           </div>
-          <div className="heroNote">
-            <span aria-hidden="true">⌂</span>
-            <strong>{t("Bir ünvan. Çox seçim.")}</strong>
-            <p>
-              {t("Şəhəri seç, qiymətləri müqayisə et,")}<br />
-              {t("kirayəni birbaşa razılaşdır.")}</p>
-          </div>
         </section>
-        <section className="wrap welcomeGuide" aria-label="Saytdan istifadə">
-          <div><strong>{t("Necə işləyir?")}</strong><p>{t("Tap → müqayisə et → sahibi ilə razılaş")}</p><small>{t("Elanlara baxmaq üçün qeydiyyat lazım deyil.")}</small></div>
-          <div>{signedIn ? <a className="add" href="/new">{t("+ Elan yerləşdir")}</a> : <><p>{t("Elan vermək istəyirsən? Əvvəl hesabına daxil ol.")}</p><a className="secondary" href="/login?next=/new">{t("Daxil ol")}</a> <a className="textButton" href="/login?mode=signup&next=/new">{t("Qeydiyyatdan keç")}</a></>}</div>
-        </section>
+        <div className="searchWrap" id="kiraye-axtaris">
+          <form
+            className="searchPanel"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setSearchHistory(rememberSearch(query));
+              document
+                .getElementById("elanlar")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            <label className="queryField">
+              <span>{t("Nə axtarırsan?")}</span>
+              <input
+                aria-label={t("Elan axtar")}
+                placeholder={t("Ev, avtomobil, avadanlıq...")}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
+            <label>
+              <span>{t("Harada?")}</span>
+              <select
+                aria-label={t("Şəhər")}
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+              >
+                <option value="">{t("Bütün şəhərlər")}</option>
+                {cities.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>{t("Kirayə müddəti")}</span>
+              <select
+                aria-label={t("Kirayə müddəti")}
+                value={period}
+                onChange={(e) => {
+                  setPeriod(e.target.value);
+                  setMin("");
+                  setMax("");
+                }}
+              >
+                <option value="">{t("İstənilən müddət")}</option>
+                <option value="daily">{t("Günlük")}</option>
+                <option value="monthly">{t("Aylıq")}</option>
+              </select>
+            </label>
+            <button className="add">{t("Elanları axtar →")}</button>
+          </form>
+          {!!searchHistory.length && <details className="searchHistory">
+            <summary>{t("Son axtarışların")}</summary>
+            <div className="searchHistoryItems">
+              {searchHistory.map(value => <button key={value} type="button" className="secondary" onClick={() => { setQuery(value); setPage(1); setSearchHistory(rememberSearch(value)); }}>{value}</button>)}
+              <button type="button" className="textButton" onClick={() => { clearSearchHistory(); setSearchHistory([]); }}>{t("Tarixçəni təmizlə")}</button>
+            </div>
+          </details>}
+        </div>
         <section className="wrap categorySection">
           <div className="sectionTitle">
             <div>
-              <p className="eyebrow">{t("HƏR EHTİYACA BİR SEÇİM")}</p>
               <h2>{t("Nə kirayələmək istəyirsən?")}</h2>
             </div>
             <button
@@ -450,74 +487,13 @@ export default function Home() {
                   <CategoryIcon id={c.id} />
                 </span>
                 <strong>{t(c.name)}</strong>
-                <small>{t("Elanlara bax →")}</small>
               </button>
             ))}
           </div>
         </section>
-        <div className="searchWrap" id="kiraye-axtaris">
-          <form
-            className="searchPanel"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSearchHistory(rememberSearch(query));
-              document
-                .getElementById("elanlar")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
-          >
-            <label className="queryField">
-              <span>{t("Nə axtarırsan?")}</span>
-              <input
-                aria-label={t("Elan axtar")}
-                placeholder={t("Ev, avtomobil, avadanlıq...")}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </label>
-            <label>
-              <span>{t("Harada?")}</span>
-              <select
-                aria-label={t("Şəhər")}
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              >
-                <option value="">{t("Bütün şəhərlər")}</option>
-                {cities.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>{t("Kirayə müddəti")}</span>
-              <select
-                aria-label={t("Kirayə müddəti")}
-                value={period}
-                onChange={(e) => {
-                  setPeriod(e.target.value);
-                  setMin("");
-                  setMax("");
-                }}
-              >
-                <option value="">{t("İstənilən müddət")}</option>
-                <option value="daily">{t("Günlük")}</option>
-                <option value="monthly">{t("Aylıq")}</option>
-              </select>
-            </label>
-            <button className="add">{t("Elanları axtar →")}</button>
-          </form>
-          {!!searchHistory.length && <details className="searchHistory">
-            <summary>{t("Son axtarışların")}</summary>
-            <div className="searchHistoryItems">
-              {searchHistory.map(value => <button key={value} type="button" className="secondary" onClick={() => { setQuery(value); setPage(1); setSearchHistory(rememberSearch(value)); }}>{value}</button>)}
-              <button type="button" className="textButton" onClick={() => { clearSearchHistory(); setSearchHistory([]); }}>{t("Tarixçəni təmizlə")}</button>
-            </div>
-          </details>}
-        </div>
         <section className="wrap listingSection" id="elanlar">
           <div className="sectionTitle">
             <div>
-              <p className="eyebrow">{t("SƏNİN ÜÇÜN SEÇİMLƏR")}</p>
               <h2>
                 {onlyFavorites
                   ? t("Seçilmiş elanlar")
@@ -561,16 +537,16 @@ export default function Home() {
               onClick={() => setAdvanced(!advanced)}
             >
               {t("Ətraflı filtrlər")}</button>
-            <button className="textButton" onClick={reset}>
-              {t("Filtrləri təmizlə")}</button>
+            {activeFilters.length > 0 && <button className="textButton" onClick={reset}>
+              {t("Filtrləri təmizlə")}</button>}
           </div>
-          <p className="rentalSearchHint">
+          {period && <p className="rentalSearchHint">
             {period === "daily"
               ? "Qiymətlər bir günlük kirayə üçündür."
               : period === "monthly"
                 ? "Qiymətlər bir aylıq kirayə üçündür."
                 : t("Günlük və aylıq qiymətləri ayrıca müqayisə etmək üçün kirayə müddətini seç.")}
-          </p>
+          </p>}
           {activeFilters.length > 0 && (
             <div className="activeFilters" aria-label="Seçilmiş filtrlər">
               {activeFilters.map((filter) => (
@@ -772,15 +748,6 @@ export default function Home() {
                 {t("Növbəti →")}</button>
             </nav>
           )}
-        </section>
-        <section className="publishBanner wrap">
-          <div>
-            <p className="eyebrow">{t("İSTİFADƏ ETMƏDİYİN ƏŞYA GƏLİRİN OLSUN")}</p>
-            <h2>{t("Səndə var, başqasına lazımdır.")}</h2>
-            <p>{t("Elanını yerləşdir, kirayə götürmək istəyənlərlə əlaqə qur.")}</p>
-          </div>
-          <Link href="/new" className="add">
-            {t("İlk elanını yerləşdir →")}</Link>
         </section>
       </main>
       <Footer />

@@ -6,13 +6,15 @@ const owner='11111111-1111-4111-8111-111111111111',id='22222222-2222-4222-8222-2
 const ad={id,owner_id:owner,category:'car',title:'Honda kirayəsi sınaq elanı',city:'Bakı',price:50,rental_period:'daily',status:'published',description:'Saz vəziyyətdə avtomobil münasib şərtlərlə kirayəyə verilir.',contact:'+994501234567',images:['/car.svg','/room.svg'],created_at:new Date().toISOString(),expires_at:new Date(Date.now()+29*864e5).toISOString(),min_days:1,deposit:0,attributes:{brand:'Honda',model:'Civic'}};
 await p.route('https://*.supabase.co/**',r=>{const req=r.request(),url=new URL(req.url()),headers={'access-control-allow-origin':'*','access-control-allow-headers':'*','access-control-allow-methods':'*','content-range':'0-0/1','access-control-expose-headers':'content-range'};let body=[];if(req.method()==='OPTIONS')return r.fulfill({status:204,headers});if(url.pathname.endsWith('/rpc/renew_listing')){ad.status='pending';body=null;}else if(url.pathname.endsWith('/user'))body=user;else if(url.pathname.includes('/profiles'))body={id:owner,role:'user'};else if(url.pathname.includes('/listings'))body=url.searchParams.get('id')?ad:[ad];return r.fulfill({status:200,headers,contentType:'application/json',body:JSON.stringify(body)});});
 await p.goto(base);await p.locator('.listingCard').first().waitFor();
+await p.screenshot({path:`/tmp/kiraye-home-first-screen-${viewportWidth}.png`});
 await p.locator('.header .accountLink').waitFor({state:'visible'});assert.equal(await p.locator('.header .accountLink').innerText(),'Daxil ol');
-const accountBox=await p.locator('.header .accountLink').boundingBox(),publishBox=await p.locator('.header .add').boundingBox();assert(accountBox.y<publishBox.y);
-if(viewportWidth>720)assert(await p.locator('.header .signupLink').isVisible());else assert(await p.locator('.welcomeGuide a[href*="mode=signup"]').isVisible());
+assert.equal(await p.locator('.header .accountLink').count(),1);
+assert.equal(await p.locator('.welcomeGuide,.header .signupLink').count(),0);
+const cardBox=await p.locator('.listingCard').first().boundingBox();assert(cardBox.y<(viewportWidth>720?570:720),`Listings start too low: ${cardBox.y}`);
 
 assert.equal(await p.locator('.listingCard .photoMark').count(),1);
-await p.getByLabel('Dil seçimi').selectOption('ru');await p.getByRole('heading',{name:'Что хочешь арендовать?',exact:true}).waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-await p.getByLabel('Dil seçimi').selectOption('en');await p.getByRole('heading',{name:'What would you like to rent?',exact:true}).waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+await p.getByRole('button',{name:'Русский',exact:true}).click();await p.getByRole('heading',{name:'Что хочешь арендовать?',exact:true}).waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+await p.getByRole('button',{name:'English',exact:true}).click();await p.getByRole('heading',{name:'What would you like to rent?',exact:true}).waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
 await p.reload();await p.getByRole('heading',{name:'What would you like to rent?',exact:true}).waitFor();
 await p.getByRole('button',{name:'More filters',exact:true}).click();
 await p.getByLabel('Filtr kateqoriyası',{exact:true}).selectOption('car');
@@ -21,7 +23,7 @@ await p.getByRole('button',{name:'Start date — təqvimi aç',exact:true}).clic
 const calendar=await p.locator('.azCalendar').boundingBox();assert(calendar.x>=0 && calendar.x+calendar.width<=viewportWidth);
 await p.getByRole('button',{name:'Təqvimi bağla',exact:true}).click();
 assert.equal(await p.locator('html').getAttribute('lang'),'en');
-await p.getByLabel('Dil seçimi').selectOption('az');await p.getByRole('heading',{name:'Nə kirayələmək istəyirsən?',exact:true}).waitFor();
+await p.getByRole('button',{name:'Azərbaycanca',exact:true}).click();await p.getByRole('heading',{name:'Nə kirayələmək istəyirsən?',exact:true}).waitFor();
 assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
 await p.screenshot({path:`/tmp/kiraye-home-improvements-${viewportWidth}.png`,fullPage:true});
 const jwt=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:owner,aud:'authenticated',role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.test';

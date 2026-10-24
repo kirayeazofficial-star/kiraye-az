@@ -26,11 +26,6 @@ export default function Header() {
   }, []);
   return (
     <>
-      <div className="topbar">
-        <div>
-          {t("Azərbaycanın kirayə platforması")}<span>{t("Almağa tələsmə. Kirayələ.")}</span>
-        </div>
-      </div>
       <header className="header">
         <a className="logo" href="/">
           kirayeal<span>.az</span>
@@ -43,16 +38,11 @@ export default function Header() {
         </nav>
         <div className="headerActions">
           <LanguageSelect />
-          <div className="headerAccountStack">
-          <div className="headerAuthLinks">
           <Link className="accountLink" href={signedIn ? "/profile" : "/login"}>
             {signedIn ? t("Hesabım") : t("Daxil ol")}
           </Link>
-          {!signedIn && <a className="signupLink" href="/login?mode=signup">{t("Qeydiyyatdan keç")}</a>}
-          </div>
           <Link className="add" href="/new">
             {t("+ Elan yerləşdir")}</Link>
-          </div>
         </div>
       </header>
       <nav className="mobileNav" aria-label="Mobil menyu">

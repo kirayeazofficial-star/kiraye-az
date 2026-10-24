@@ -483,7 +483,7 @@ export default function Login({
                   <fieldset className="authFields" disabled={busy}>
                     {mode === "signup" && <>
                       <label>Ad və soyad<input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Adın və soyadın" /></label>
-                      <label>Telefon nömrəsi<input name="contact_phone" aria-label="Telefon nömrəsi" type="tel" autoComplete="tel" required maxLength={25} placeholder="050 123 45 67" /><small>SMS kodu göndərilmir. Təsdiq kodu e-poçtuna gələcək.</small></label>
+                      <label>Telefon nömrəsi<input name="contact_phone" aria-label="Telefon nömrəsi" type="tel" autoComplete="tel" required maxLength={25} placeholder="050 123 45 67" /></label>
                     </>}
                     <label>
                       E-poçt

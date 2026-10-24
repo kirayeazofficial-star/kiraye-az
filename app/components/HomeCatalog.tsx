@@ -435,7 +435,7 @@ export default function Home() {
         <section className="wrap categorySection">
           <div className="sectionTitle">
             <div>
-              <h2>{t("Nə kirayələmək istəyirsən?")}</h2>
+              <h2><span className="desktopCategoryTitle">{t("Nə kirayələmək istəyirsən?")}</span><span className="mobileCategoryTitle">{t("Kateqoriyalar")}</span></h2>
             </div>
             <button
               className="textButton"

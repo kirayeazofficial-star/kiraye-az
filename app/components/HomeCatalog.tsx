@@ -78,6 +78,7 @@ export default function Home() {
     window.addEventListener("kiraye:favorites", syncFavorites);
     return () => window.removeEventListener("kiraye:favorites", syncFavorites);
   }, []);
+  const [moreCategories, setMoreCategories] = useState(true);
   const closeFilters = useCallback(() => setAdvanced(false), []);
   const favoriteIds = onlyFavorites ? favorites.join(",") : "";
   useEffect(() => {
@@ -493,7 +494,11 @@ export default function Home() {
               ))}
             </div>
           )}
-          <div className="categories">
+          <div className={`categoryScroller${moreCategories ? " hasMoreCategories" : ""}`}>
+          <div className="categories" onScroll={event => {
+            const rail = event.currentTarget;
+            setMoreCategories(rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 2);
+          }}>
             {categories.map((c) => (
               <button
                 key={c.id}
@@ -513,6 +518,7 @@ export default function Home() {
                 <strong>{t(c.name)}</strong>
               </button>
             ))}
+          </div>
           </div>
         </section>
         <section className="wrap listingSection" id="elanlar">

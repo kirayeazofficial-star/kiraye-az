@@ -1256,7 +1256,12 @@ footer .footerLinks { flex-wrap:wrap; }
 .seoGuidance h2 { font-size:21px; }
 @media(min-width:1440px){
  .adSpaces { display:contents; }
- .adSpace { position:fixed;top:210px;width:min(160px,calc((100vw - 1220px)/2));min-height:280px;padding:18px 10px;z-index:5; }
+ .adSpace { position:fixed;top:100px;bottom:16px;width:calc((100vw - 1180px)/2 - 24px);min-height:0;padding:24px 12px;z-index:5;gap:24px;border:1px solid #a82b35;border-radius:14px;background:linear-gradient(155deg,#b72c3b 0%,#d44248 55%,#a92335 100%);color:#fff;box-shadow:0 8px 24px #9f29351a;overflow:auto; }
+ .adSpace small { color:#fff;font-size:11px;letter-spacing:2px; }
+ .adSpace strong { max-width:240px;font-size:clamp(16px,1.25vw,24px);line-height:1.55;text-wrap:balance; }
+ .adSpace span { max-width:100%;padding:11px 12px;border:1px solid #fff8;border-radius:8px;background:#fff;color:#a92335;font-size:13px;font-weight:700;text-decoration:none; }
+ .adSpace:hover { background:linear-gradient(155deg,#a92335,#c73540); }
+ .adSpace:focus-visible { outline:3px solid #143f3b;outline-offset:3px; }
  .adSpace-left { left:12px; }
  .adSpace-right { right:12px; }
 }

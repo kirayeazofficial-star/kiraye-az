@@ -1272,3 +1272,7 @@ footer .footerLinks { flex-wrap:wrap; }
 .propertyBasics .propertyArea { grid-column:1/-1; }
 
 @media(max-width:720px){ .adSpaces { margin:16px; } .seoCatalog .adSpaces,.listingDetailPage .adSpaces { margin:16px 0; } }
+
+/* A clearer brand without crowding the mobile navigation. */
+.header .logo { font-size:36px; }
+@media(max-width:720px){ .header .logo { font-size:26px; } }

@@ -209,3 +209,9 @@ check("motorcycle odometer survives saving and enforces new versus used", () => 
   assert.equal(validate("motorcycle", {...used, is_new:"Yeni", mileage_km:"0"}), null);
   assert.equal(read("electric",form({kind:"Elektrik skuter",mileage_km:"250"})).mileage_km,undefined);
 });
+check("villa floor count survives saving and rejects fractional values", () => {
+  const attrs = read("villa", form({kind: "Villa", total_floors: "3"}));
+  assert.equal(attrs.total_floors, "3");
+  assert.equal(validate("villa", attrs), null);
+  assert(validate("villa", {...attrs, total_floors: "2.5"}));
+});

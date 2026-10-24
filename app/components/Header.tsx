@@ -50,9 +50,9 @@ export default function Header() {
         </div>
       </header>
       <nav className="mobileNav" aria-label="Mobil menyu">
-        <Link href="/">
+        <a href="/">
           ⌂<span>{t("Ana səhifə")}</span>
-        </Link>
+        </a>
         <a href="/?favorites=1#elanlar">
           ♡<span>{t("Seçilmişlər")}</span>
         </a>

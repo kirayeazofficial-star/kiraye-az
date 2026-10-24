@@ -322,8 +322,8 @@ export default function ListingDetails({
             return value &&
               key !== "contact_name" ? (
               <div key={key}>
-                <dt>{label}</dt>
-                <dd>{key === "kind" && item.category === "property" && value === "Həyət evi" ? "Bağ evi" : key === "delivery_fee" ? `${money(Number(value))} ₼` : key === "delivery_method" && value === "Hər ikisi" ? "Özün götür və ya çatdırılma" : value}</dd>
+                <dt>{key === "total_floors" && item.category === "villa" ? "Mərtəbə sayı" : label}</dt>
+                <dd>{key === "kind" && item.category === "property" && value === "Bağ evi" ? "Həyət evi" : key === "delivery_fee" ? `${money(Number(value))} ₼` : key === "delivery_method" && value === "Hər ikisi" ? "Özün götür və ya çatdırılma" : value}</dd>
               </div>
             ) : null;
           })}

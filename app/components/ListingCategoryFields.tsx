@@ -438,7 +438,7 @@ function PropertyFields({
   initial: Listing | null;
 }) {
   const attributes = initial?.attributes;
-  const [kind, setKind] = useState(category === "property" && attributes?.kind === "Həyət evi" ? "Bağ evi" : attributes?.kind || "");
+  const [kind, setKind] = useState(category === "property" && attributes?.kind === "Bağ evi" ? "Həyət evi" : attributes?.kind || "");
   return (
     <section className="categoryFields" aria-label="Kateqoriya məlumatları">
       <SelectField
@@ -449,7 +449,7 @@ function PropertyFields({
             ? ["Ofis", "Mağaza", "Anbar", "Qaraj", "Obyekt", "Digər"]
             : category === "villa"
               ? ["Villa", "Bağ evi", "Kottec", "Digər"]
-              : ["Mənzil", "Bağ evi", "Otaq", "Digər"]
+              : ["Mənzil", "Həyət evi", "Otaq", "Digər"]
         }
         value={kind}
         onChange={setKind}
@@ -515,6 +515,7 @@ function PropertyFields({
           </label>
         </div>
       )}
+      {category === "villa" && <label>Mərtəbə sayı<input name="total_floors" type="number" min="1" max="200" step="1" defaultValue={attributes?.total_floors} placeholder="Məsələn: 3" /></label>}
       <div className="amenitiesField">
         <p>İmkanlar</p>
         {amenities

@@ -34,7 +34,7 @@ export function readListingAttributes(
     equipment: ["kind", "brand", "model", "condition"],
     event: ["kind", "condition", "capacity"],
     property: ["kind", "building_type", "repair", "floor", "total_floors", "bathrooms"],
-    villa: ["kind", "bathrooms"],
+    villa: ["kind", "bathrooms", "total_floors"],
     commercial: ["kind"],
   };
   if (rentalCategorySpecs[category]) {

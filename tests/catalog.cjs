@@ -176,3 +176,17 @@ test("motorcycle typo, brand alias and city combine without losing intent", () =
  assert(log.some(c=>c[0]==="or" && c[1].includes("Renault")));
  assert(calls({query:"motosklet kirayəsi"}).some(c=>c[0]==="in" && c[2][0]==="motorcycle"));
 });
+
+test("moto abbreviation resolves to motorcycles, preserving brand", () => {
+ const log=calls({query:"kirayə moto BMW"});
+ assert(log.some(c=>c[0]==="in" && c[2][0]==="motorcycle"));
+ assert(log.some(c=>c[0]==="or" && c[1].includes("BMW")));
+ assert(!log.some(c=>c[0]==="or" && c[1].includes("%moto%")));
+});
+test("conversational housing requests remove filler but retain real requirements", () => {
+ const log=calls({query:"kirayə qalmağa ev Bakıda"});
+ assert(log.some(c=>c[0]==="in" && c[2].join(",")==="property,villa"));
+ assert(log.some(c=>c[0]==="eq" && c[1]==="city" && c[2]==="Bakı"));
+ assert(!log.some(c=>c[0]==="or"));
+ assert(calls({query:"yaşamaq üçün kirayə ev təmirli"}).some(c=>c[0]==="or" && c[1].includes("təmirli")));
+});

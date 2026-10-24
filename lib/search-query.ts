@@ -1,4 +1,5 @@
 const aliases: Record<string,string> = {
+ moto:'motosiklet',mot:'motosiklet',motorsiklet:'motosiklet',motosikletin:'motosiklet',
  motosklet:'motosiklet',motosikl:'motosiklet',motorcycle:'motosiklet',motocycle:'motosiklet',
  skuter:'skuter',scooter:'skuter',suziki:'Suzuki',suzuki:'Suzuki',reno:'Renault',renault:'Renault',
  sevrolet:'Chevrolet',sevroled:'Chevrolet',chevrolet:'Chevrolet',canqan:'Changan',changan:'Changan',
@@ -36,5 +37,7 @@ export function rentalSearchIntent(value: string) {
   else if (cityWords[key]) city = cityWords[key];
   else if (!ignored.has(key)) remaining.push(word);
  }
- return {categories, city, query: remaining.join(" ")};
+ const housing = categories.some(category => ["property", "villa"].includes(category));
+ const housingWords = new Set(["qalmaga", "qalmaq", "yasamaga", "yasamaq", "ucun", "lazimdir", "axtarisi"]);
+ return {categories, city, query: remaining.filter(word => !housing || !housingWords.has(foldSearch(word))).join(" ")};
 }

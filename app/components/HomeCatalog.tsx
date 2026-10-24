@@ -379,19 +379,26 @@ export default function Home() {
             className="searchPanel"
             onSubmit={(e) => {
               e.preventDefault();
+              // Release the mobile keyboard before scrolling to results.
+              if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
               const intent = rentalSearchIntent(query);
               if (intent.categories.length && !intent.categories.includes(category)) {
                 changeCategory(intent.categories.length === 1 ? intent.categories[0] : "");
               }
               setSearchHistory(rememberSearch(query));
-              document
+              requestAnimationFrame(() => document
                 .getElementById("elanlar")
-                ?.scrollIntoView({ behavior: "smooth" });
+                ?.scrollIntoView({ behavior: "smooth" }));
             }}
           >
             <label className="queryField">
               <span>{t("Nə axtarırsan?")}</span>
               <input
+                type="search"
+                enterKeyHint="search"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 aria-label={t("Elan axtar")}
                 placeholder={t("Axtarış")}
                 value={query}

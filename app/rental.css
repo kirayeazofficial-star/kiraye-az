@@ -1321,3 +1321,6 @@ footer .footerLinks { flex-wrap:wrap; }
  .rentalHome .categoryScroller::after { content:"";position:absolute;top:0;right:0;bottom:5px;width:26px;background:linear-gradient(to right,transparent,var(--bg,#f6f8f6));pointer-events:none;opacity:0;transition:opacity .15s; }
  .rentalHome .categoryScroller.hasMoreCategories::after { opacity:1; }
 }
+
+/* Safari can zoom focused fields below 16px, including landscape widths. */
+.rentalHome .searchPanel .queryField input { font-size:16px; }

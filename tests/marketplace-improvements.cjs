@@ -7,7 +7,16 @@ const ad={id,owner_id:owner,category:'car',title:'Honda kirayəsi sınaq elanı'
 await p.route('https://*.supabase.co/**',r=>{const req=r.request(),url=new URL(req.url()),headers={'access-control-allow-origin':'*','access-control-allow-headers':'*','access-control-allow-methods':'*','content-range':'0-0/1','access-control-expose-headers':'content-range'};let body=[];if(req.method()==='OPTIONS')return r.fulfill({status:204,headers});if(url.pathname.endsWith('/rpc/renew_listing')){ad.status='pending';body=null;}else if(url.pathname.endsWith('/user'))body=user;else if(url.pathname.includes('/profiles'))body={id:owner,role:'user'};else if(url.pathname.includes('/listings'))body=url.searchParams.get('id')?ad:[ad];return r.fulfill({status:200,headers,contentType:'application/json',body:JSON.stringify(body)});});
 await p.goto(base);await p.locator('.listingCard').first().waitFor();
 await p.screenshot({path:`/tmp/kiraye-home-first-screen-${viewportWidth}.png`});
-await p.locator('.header .accountLink').waitFor({state:'visible'});assert.equal(await p.locator('.header .accountLink').innerText(),'Daxil ol');
+if(viewportWidth>720){
+ await p.locator('.header .accountLink').waitFor({state:'visible'});assert.equal(await p.locator('.header .accountLink').innerText(),'Daxil ol');
+ assert.equal(await p.locator('.header .mobileSignupLink').isVisible(),false);
+}else{
+ const signup=p.locator('.header .mobileSignupLink');await signup.waitFor({state:'visible'});
+ assert.equal(await signup.innerText(),'Qeydiyyatdan keç');assert.equal(await signup.getAttribute('href'),'/login?mode=signup');
+ assert.equal(await p.locator('.header .accountLink').isVisible(),false);
+ const login=p.locator('.mobileNav a[href="/login"]');await login.waitFor({state:'visible'});assert((await login.innerText()).includes('Daxil ol'));
+ assert.equal(await p.locator('.mobileSearchLabel').innerText(),'Axtar');
+}
 assert.equal(await p.locator('.header .accountLink').count(),1);
 assert.equal(await p.locator('.welcomeGuide,.header .signupLink').count(),0);
 const cardBox=await p.locator('.listingCard').first().boundingBox();assert(cardBox.y<(viewportWidth>720?570:720),`Listings start too low: ${cardBox.y}`);

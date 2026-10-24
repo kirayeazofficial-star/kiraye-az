@@ -403,7 +403,7 @@ export default function Home() {
                 <option value="monthly">{t("Aylıq")}</option>
               </select>
             </label>
-            <button className="add">{t("Elanları axtar →")}</button>
+            <button className="add" aria-label={t("Elanları axtar →")}><span className="desktopSearchLabel">{t("Elanları axtar →")}</span><span className="mobileSearchLabel">{t("Axtar")}</span></button>
           </form>
           {!!searchHistory.length && <details className="searchHistory">
             <summary>{t("Son axtarışların")}</summary>

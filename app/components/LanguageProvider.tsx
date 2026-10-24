@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 export type Language = "az" | "ru" | "en";
 const dictionary: Record<string, [string, string]> = {
+ "Axtar":["Найти","Search"],
  "Azərbaycanın kirayə platforması":["Платформа аренды Азербайджана","Azerbaijan’s rental marketplace"],
  "Almağa tələsmə. Kirayələ.":["Не спеши покупать. Арендуй.","Don’t rush to buy. Rent."],
  "KİRAYƏ ÜÇÜN BİR ÜNVAN":["ВСЁ ДЛЯ АРЕНДЫ","ONE PLACE FOR RENTALS"],

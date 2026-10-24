@@ -15,7 +15,7 @@ export async function watermarkPhoto(file: File): Promise<File> {
     context.font = `600 ${font}px Arial, sans-serif`;
     const width = context.measureText("kirayeal.az").width;
     context.fillStyle = "rgba(255,255,255,0.20)";
-    const x = (canvas.width - width) / 2, y = canvas.height / 2;
+    const x = padding * 2, y = canvas.height - padding * 2;
     context.fillRect(x - padding, y - font, width + padding * 2, font + padding * 2);
     context.fillStyle = "rgba(255,255,255,0.78)";
     context.shadowColor = "rgba(0,0,0,0.45)"; context.shadowBlur = 2;

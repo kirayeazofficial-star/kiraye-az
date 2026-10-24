@@ -23,12 +23,8 @@ export default function ListingCard({
   const {t} = useLanguage();
   return (
     <article className="listingCard">
-      <div
-        className="photo"
-        style={{
-          backgroundImage: `url("${item.images?.[0] || "/placeholder.svg"}"),url('/placeholder.svg')`,
-        }}
-      >
+      <div className="photo">
+        <img className="cardPhoto" src={item.images?.[0] || "/placeholder.svg"} alt="" loading="lazy" onError={event=>{if(!event.currentTarget.src.endsWith('/placeholder.svg'))event.currentTarget.src='/placeholder.svg';}} />
         <Link
           prefetch={false}
           className="photoOpen"

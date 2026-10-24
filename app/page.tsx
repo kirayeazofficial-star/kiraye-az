@@ -394,7 +394,7 @@ export default function Home() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
               >
-                <option value="">{t("Bütün şəhərlər")}</option>
+                <option value="">{t("Şəhər")}</option>
                 {cities.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
@@ -411,7 +411,7 @@ export default function Home() {
                   setMax("");
                 }}
               >
-                <option value="">{t("İstənilən müddət")}</option>
+                <option value="">{t("Müddət")}</option>
                 <option value="daily">{t("Günlük")}</option>
                 <option value="weekly">{t("Həftəlik")}</option>
                 <option value="monthly">{t("Aylıq")}</option>

@@ -1,4 +1,5 @@
 "use client";
+import { normalizePhone } from "../../lib/rental-details";
 import { createStrongPassword } from "../../lib/strong-password";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -225,10 +226,14 @@ export default function Login({
         if (error) throw error;
         pending("recovery", email, account === "exists");
       } else if (mode === "signup") {
+        const fullName=String(form.get('full_name')||'').trim().replace(/\s+/g,' ');
+        const contactPhone=normalizePhone(String(form.get('contact_phone')||''));
+        if(fullName.length>100 || fullName.split(' ').length<2 || !fullName.split(' ').every(part=>/\p{L}/u.test(part))){setNotice('Ad və soyadını yaz.');return;}
+        if(!contactPhone){setNotice('Düzgün Azərbaycan telefon nömrəsi yaz.');return;}
         const { data, error } = await finishWithin(supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: authCallbackUrl(window.location.origin) },
+          options: { emailRedirectTo: authCallbackUrl(window.location.origin), data: {full_name:fullName,contact_phone:contactPhone} },
         }));
         if (error) throw error;
         if (data.session) {
@@ -467,7 +472,7 @@ export default function Login({
                   onInvalid={(event) => {
                     const field = event.target as HTMLInputElement;
                     setNotice(
-                      field.name === "email"
+                      field.name === "full_name" ? "Ad və soyadını yaz." : field.name === "contact_phone" ? "Düzgün Azərbaycan telefon nömrəsi yaz." : field.name === "email"
                         ? "Düzgün e-poçt ünvanı yaz."
                         : mode === "signup"
                           ? "Ən azı 8 simvoldan ibarət şifrə yaz."
@@ -476,6 +481,10 @@ export default function Login({
                   }}
                 >
                   <fieldset className="authFields" disabled={busy}>
+                    {mode === "signup" && <>
+                      <label>Ad və soyad<input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Adın və soyadın" /></label>
+                      <label>Telefon nömrəsi<input name="contact_phone" aria-label="Telefon nömrəsi" type="tel" autoComplete="tel" required maxLength={25} placeholder="050 123 45 67" /><small>SMS kodu göndərilmir. Təsdiq kodu e-poçtuna gələcək.</small></label>
+                    </>}
                     <label>
                       E-poçt
                       <input

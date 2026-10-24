@@ -163,7 +163,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       .then(async ({ data }) => {
         if (!active) return;
         setUser(data.user?.id ?? "");
-        setLoginPhone(data.user?.phone ?? "");
+        setLoginPhone(data.user?.phone || data.user?.user_metadata?.contact_phone || "");
         setAccountEmail(data.user?.email || "");
         if (data.user && supabase) {
           setContactName(data.user.user_metadata?.full_name || "");
@@ -177,7 +177,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             setCanModerate(profile.data?.role === "admin");
             if (profile.data?.display_name)
               setContactName(profile.data.display_name);
-            setLoginPhone(data.user.phone || profile.data?.phone || "");
+            setLoginPhone(data.user.phone || profile.data?.phone || data.user.user_metadata?.contact_phone || "");
           } catch {
             /* Optional contact defaults must not block loading an existing listing. */
           }
@@ -362,7 +362,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       const images: string[] = [...existingImages];
       for (const file of files) {
         const branded = await watermarkPhoto(file);
-        const path = `${user}/branded-v2-${crypto.randomUUID()}.jpg`;
+        const path = `${user}/branded-v3-${crypto.randomUUID()}.jpg`;
         const uploaded = await supabase.storage
           .from("listing-images")
           .upload(path, branded, { contentType: branded.type, upsert: false });

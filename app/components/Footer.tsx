@@ -1,5 +1,6 @@
 "use client";
 import { useLanguage } from "./LanguageProvider";
+import SiteContact from "./SiteContact";
 import Link from "next/link";
 export default function Footer() {
   const {t} = useLanguage();
@@ -11,7 +12,8 @@ export default function Footer() {
         </Link>
         <p>{t("Ehtiyacın olanı almalı deyilsən.")}</p>
       </div>
-      <div>
+      <SiteContact />
+      <div className="footerLinks">
         <Link href="/new">{t("Elan yerləşdir")}</Link>
         <Link href="/profile">{t("Şəxsi kabinet")}</Link>
         <Link href="/rules">{t("Qaydalar və təhlükəsizlik")}</Link>

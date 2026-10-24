@@ -151,6 +151,8 @@ vm.runInNewContext(
     await page
       .getByLabel("E-poçt", { exact: true })
       .fill("browser@example.invalid");
+    await page.getByLabel("Ad və soyad", {exact:true}).fill("Sınaq İstifadəçi");
+    await page.getByLabel("Telefon nömrəsi", {exact:true}).fill("0501234567");
     await page.getByLabel("Şifrə", { exact: true }).fill("safe-test-password");
     await page
       .getByRole("button", { name: "Hesab yarat", exact: true })

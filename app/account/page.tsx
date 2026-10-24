@@ -31,8 +31,8 @@ export default function Account() {
           .eq("id", data.user.id)
           .maybeSingle();
         if (profile.error) throw profile.error;
-        setName(profile.data?.display_name ?? "");
-        setPhone(profile.data?.phone || data.user.phone || "");
+        setName(profile.data?.display_name || data.user.user_metadata?.full_name || "");
+        setPhone(profile.data?.phone || data.user.user_metadata?.contact_phone || data.user.phone || "");
       })
       .catch(() => setNotice("Məlumatları yükləmək mümkün olmadı."))
       .finally(() => setLoading(false));

@@ -1,6 +1,7 @@
 "use client";
 import PhotoMark from "./PhotoMark";
-import { maskContact } from "../../lib/contact-mask";
+import PromotionOptions from "./PromotionOptions";
+import { formatContact } from "../../lib/contact-mask";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -22,6 +23,8 @@ export default function ListingDetails({
   item: Listing;
   compact?: boolean;
 }) {
+  const [isOwner,setIsOwner]=useState(false);
+  useEffect(()=>{if(!supabase)return;let active=true;supabase.auth.getUser().then(({data})=>{if(active)setIsOwner(!!data.user && data.user.id===item.owner_id);}).catch(()=>{});const {data}=supabase.auth.onAuthStateChange((_event,session)=>{if(active)setIsOwner(!!session&&session.user.id===item.owner_id);});return()=>{active=false;data.subscription.unsubscribe();};},[item.owner_id]);
   const [image, setImage] = useState(0),
     [favorite, setFavorite] = useState(false),
     [notice, setNotice] = useState(""),
@@ -218,10 +221,11 @@ export default function ListingDetails({
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
+        {isOwner && !item.demo && <div className="detailPromotion"><PromotionOptions eligible={item.status === "published"} /></div>}
         {phone && !item.demo ? (
           <div className="contactActions">
             <a className="add" href={`tel:${phone}`}>
-              Zəng et · {maskContact(item.contact)}
+              Zəng et · {formatContact(item.contact)}
             </a>
             <a
               className="secondary"

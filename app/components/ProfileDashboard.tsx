@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { formatContact } from "../../lib/contact-mask";
 import PhotoMark from "./PhotoMark";
 import BalancePreview from "../components/BalancePreview";
 import PromotionOptions from "../components/PromotionOptions";
@@ -17,6 +18,7 @@ import {
   periodName,
 } from "../../lib/marketplace";
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
+  const [accountPhone,setAccountPhone]=useState("");
   const [views,setViews] = useState<Record<string,number>|null>(null);
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
@@ -38,15 +40,18 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       .then(async ({ data, error }) => {
         if (error || !data.user) return;
         setUserId(data.user.id);
-        setIdentity(data.user.phone || data.user.email || "Hesab");
+        setIdentity(data.user.user_metadata?.full_name || data.user.email || "Hesab");
+        setAccountPhone(data.user.user_metadata?.contact_phone || data.user.phone || "");
         const role = await client
           .from("profiles")
-          .select("role")
+          .select("role,display_name,phone")
           .eq("id", data.user.id)
           .maybeSingle();
         setAdmin(role.data?.role === "admin");
+        if(role.data?.display_name)setIdentity(role.data.display_name);
+        if(role.data?.phone)setAccountPhone(role.data.phone);
         if (!balanceOnly) setListings(await loadListings("mine"));
-        if(!balanceOnly){try{const result=await client.rpc('own_listing_view_counts');if(!result.error && Array.isArray(result.data))setViews(Object.fromEntries(result.data.filter(row=>typeof row.listing_id==='string' && Number.isFinite(Number(row.views))).map(row=>[row.listing_id,Number(row.views)])));}catch{}}
+        if(!balanceOnly)void (async()=>{try{const result=await client.rpc('own_listing_view_counts').abortSignal(AbortSignal.timeout(2500));if(!result.error && Array.isArray(result.data))setViews(Object.fromEntries(result.data.filter(row=>typeof row.listing_id==='string' && Number.isFinite(Number(row.views))).map(row=>[row.listing_id,Number(row.views)])));}catch{}})();
 
       })
       .catch(() =>
@@ -116,6 +121,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             <p className="muted">
               {identity || "Elanlarını bir yerdən idarə et."}
             </p>
+            {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>} <span title={userId}>· ID: {userId.slice(0,8)}</span></p>}
           </div>
           {userId && (
             <button className="secondary" onClick={logout}>
@@ -136,7 +142,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             </Link>
           </div>
         ) : (
-          <div className="cabinetLayout">
+          <>{!balanceOnly && <BalancePreview />}<div className="cabinetLayout">
             <nav className="cabinetNav" aria-label="Şəxsi kabinet">
               <Link href="/profile" aria-current={!balanceOnly ? "page" : undefined}>
                 Elanlarım
@@ -291,7 +297,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </div>
               </>}
             </div>
-          </div>
+          </div></>
         )}
         {error && (
           <p className="error" role="alert">

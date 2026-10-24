@@ -39,7 +39,7 @@ await p.screenshot({path:`/tmp/kiraye-home-improvements-${viewportWidth}.png`,fu
 const jwt=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:owner,aud:'authenticated',role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.test';
 await p.evaluate(session=>localStorage.setItem('sb-browser-test-auth-token',JSON.stringify(session)),{access_token:jwt,refresh_token:'fixture-refresh',expires_at:Math.floor(Date.now()/1000)+3600,token_type:'bearer',user});
 await p.goto(base+'/profile/listings/'+id);await p.getByRole('heading',{name:ad.title,exact:true}).waitFor();
-const call=p.getByRole('link',{name:/Zəng et/});assert((await call.innerText()).endsWith('****'));assert.equal(await call.getAttribute('href'),'tel:'+ad.contact);
+const call=p.getByRole('link',{name:/Zəng et/});assert((await call.innerText()).includes('+994 50 123 45 67'));assert(!(await call.innerText()).includes('*'));assert.equal(await call.getAttribute('href'),'tel:'+ad.contact);
 assert.equal(await p.locator('.galleryStage .photoMark').count(),1);
 await p.getByRole('button',{name:'Götürmə tarixi — təqvimi aç',exact:true}).click();
 const future=new Date();future.setDate(future.getDate()+60);const months=['Yanvar','Fevral','Mart','Aprel','May','İyun','İyul','Avqust','Sentyabr','Oktyabr','Noyabr','Dekabr'];
@@ -55,5 +55,5 @@ ad.status='archived';delete ad.expires_at;
 await p.goto(base+'/profile');await p.getByRole('heading',{name:'Elanlarım',exact:true}).waitFor();
 await p.locator('.accountListings article').waitFor();assert.equal(await p.getByRole('button',{name:'Bərpa et',exact:true}).count(),0);
 await p.getByRole('link',{name:'Yenilə və göndər',exact:true}).waitFor();
-assert.deepEqual(errors,[]);await ctx.close();console.log('PASS mobile account access, persistent AZ/RU/EN homepage, masked call number, photo marks and Azerbaijani calendar under Turkish browser locale');
+assert.deepEqual(errors,[]);await ctx.close();console.log('PASS mobile account access, persistent AZ/RU/EN homepage, full call number, photo marks and Azerbaijani calendar under Turkish browser locale');
 }finally{await browser.close();}})().catch(error=>{console.error(error);process.exit(1)});

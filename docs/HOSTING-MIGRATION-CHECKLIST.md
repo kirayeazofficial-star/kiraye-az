@@ -73,3 +73,10 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - `SUPABASE_SERVICE_ROLE_KEY` yalnız serverdə saxla. `/api/listing-view` üçün etibarlı reverse proxy `X-Forwarded-For` başlığını özü yazmalı, müştərinin saxta başlığını ötürməməlidir. Bu təminat olmadan sayğacı aktivləşdirmə. Eyni IP/brauzer üçün gündə bir baxış hesablanır, real unikal insan/zəng sayı deyil. Sahibi daxil olduqda öz baxışı sayılmır. Köhnə baxışlar uydurulmur.
 - İki ayrı sahib hesabı ilə statistikaya girişin yalnız öz elanlarını göstərdiyini, anon istifadəçinin xam məlumatlara və yazma RPC-sinə girmədiyini yoxla. Hazırkı commit canlı aktivləşmə iddiası deyil.
 - Köhnə `branded-` şəkillərində aşağıda olan yazı fayla əvvəldən həkk olunub. Onu itkisiz götürmək üçün orijinal şəkillər lazımdır. Yeni `branded-v2-` şəkillər mərkəzdə həkk olunur; köhnə URL şəkillərinin görünüş örtüyü mərkəzdədir.
+
+## 24 oktyabr — qeydiyyat və əlaqə yeniləməsi
+
+- `supabase/profile-registration.sql` tətbiq et: ad-soyad və əlaqə nömrəsi Auth metadata-dan profilə götürülür, əvvəlki rol və doldurulmuş məlumatlar qorunur. Yeni email hesabları üçün bu məlumatlar serverdə də tələb olunur. Əlaqə nömrəsi SMS təsdiqi almış nömrə kimi işarələnməməlidir.
+- `supabase/templates/confirmation.html` şablonunu Auth qeydiyyat təsdiqi üçün tətbiq et və OTP uzunluğunu 6 saxla. SMTP canlıda yoxlanılmayınca məktub çatdırılmasını işlək kimi göstərmə.
+- İstifadəçi telefon nömrələrinin elanda tam görünməsini və yeni şəffaf nişanın sol aşağıda olmasını istəyir; əvvəlki maskalama/mərkəz tələbi bununla əvəz edilib. Köhnə şəkilə həkk olunmuş nişanı itkisiz köçürmək üçün orijinal lazımdır; yeni yükləmələr `branded-v3-` olur.
+- İctimai əlaqə: 050 219 11 45, kirayeal.az@gmail.com, Instagram/TikTok @kirayeal.az. Bu ünvan SMTP göndərənini əvəz etmir.

@@ -1,3 +1,4 @@
+import SiteContact from "../components/SiteContact";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -8,6 +9,7 @@ export default function Help() {
       <main className="wrap prose">
         <p className="eyebrow">KİRAYƏ ÜÇÜN BƏLƏDÇİ</p>
         <h1>Sualın var? Buradan başla.</h1>
+        <SiteContact />
         <div className="helpGrid">
           {[
             [

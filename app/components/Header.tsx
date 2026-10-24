@@ -1,4 +1,5 @@
 "use client";
+import SiteMenu from "./SiteMenu";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
 import { useEffect, useState } from "react";
@@ -27,10 +28,10 @@ export default function Header() {
   return (
     <>
       <header className="header">
-        <a className="logo" href="/">
+        <div className="headerBrand"><SiteMenu /><a className="logo" href="/">
           kirayeal<span>.az</span>
           <small>{t("KİRAYƏ ÜÇÜN BİR ÜNVAN")}</small>
-        </a>
+        </a></div>
         <nav aria-label="Əsas menyu">
           <a href="/#elanlar">{t("Elanlar")}</a>
           <a href="/?favorites=1#elanlar">{t("♡ Seçilmişlər")}</a>

@@ -16,6 +16,7 @@ await p.route('https://*.supabase.co/**',r=>{
  return r.fulfill({status:200,headers,contentType:'application/json',body:JSON.stringify(body)});
 });
 await p.goto((process.env.TEST_BASE_URL||'http://127.0.0.1:3013')+'/login?mode=signup');
+await p.getByLabel('Ad və soyad',{exact:true}).fill('Sınaq İstifadəçi');await p.getByLabel('Telefon nömrəsi',{exact:true}).fill('0501234567');
 await p.getByLabel('E-poçt',{exact:true}).fill('legacy-test@');await p.getByRole('button',{name:'@gmail.com',exact:true}).tap();
 await p.getByLabel('Şifrə',{exact:true}).fill('test-only-password-18');await p.getByRole('button',{name:'Şifrəni göstər',exact:true}).tap();assert.equal(await p.locator('input[name=password]').getAttribute('type'),'text');
 assert.equal(await p.evaluate(()=>window.__missingAtStartup),true);

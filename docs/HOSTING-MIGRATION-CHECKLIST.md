@@ -86,3 +86,9 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 - İstifadəçi əvvəlki pulsuz bərpa qaydasını dəyişdi: vaxtından əvvəl silinib/arxivlənmiş və müddəti bitmiş elan üçün bərpa pulludur. Qiymət hələ verilməyib; məbləğ uydurma. Ödənişlər aktivləşənədək bərpa bağlı qalır.
 - `supabase/paid-restoration.sql` faylını `listing-lifecycle.sql`-dən SONRA tətbiq et. RPC ilə yanaşı birbaşa UPDATE/redaktə yolu ilə ödənişsiz bərpa da serverdə bloklanır. Yeni ödəniş inteqrasiyası gələndə serverdə təsdiqlənmiş ödəniş və sahiblik yoxlanmadan bu qadağanı açma.
 - “Sil / arxivə keçir” yumşaq silmədir: məlumat və şəkillər qalır, ictimai siyahıdan çıxır. Arxiv bölməsi həm əl ilə arxivlənmiş, həm müddəti bitmiş elanları göstərir.
+
+## 24 oktyabr — SEO və əmlak sahələri
+
+- `docs/SEO-SETUP.md` üzrə canlı domen, server HTML, sitemap, robots və Search Console yoxlamalarını tamamla.
+- `supabase/property-details.sql` yeni sanuzel sayını JSON attributes-də 1–20 tam ədəd kimi yoxlayır, köhnə sətirləri silmir. “Həyət evi” adı formanın yeni seçimində “Bağ evi” ilə əvəz olunub; köhnə dəyər görünüşdə və redaktədə uyğunlaşdırılır.
+- Adminin elan yoxlamasında yalnız rədd/təsdiq düymələri var; əl ilə arxiv düyməsi çıxarılıb. Avtomatik müddət bitməsi və istifadəçinin öz elanını arxivləməsi əvvəlki kimi qalır.

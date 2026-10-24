@@ -438,7 +438,7 @@ function PropertyFields({
   initial: Listing | null;
 }) {
   const attributes = initial?.attributes;
-  const [kind, setKind] = useState(attributes?.kind || "");
+  const [kind, setKind] = useState(category === "property" && attributes?.kind === "Həyət evi" ? "Bağ evi" : attributes?.kind || "");
   return (
     <section className="categoryFields" aria-label="Kateqoriya məlumatları">
       <SelectField
@@ -449,12 +449,12 @@ function PropertyFields({
             ? ["Ofis", "Mağaza", "Anbar", "Qaraj", "Obyekt", "Digər"]
             : category === "villa"
               ? ["Villa", "Bağ evi", "Kottec", "Digər"]
-              : ["Mənzil", "Həyət evi", "Otaq", "Digər"]
+              : ["Mənzil", "Bağ evi", "Otaq", "Digər"]
         }
         value={kind}
         onChange={setKind}
       />
-      <div className="formGrid">
+      <div className="formGrid propertyBasics">
         {category !== "commercial" && (
           <label>
             Otaq sayı
@@ -467,7 +467,8 @@ function PropertyFields({
             />
           </label>
         )}
-        <label>
+        {category !== "commercial" && <label>Sanuzel sayı<input name="bathrooms" aria-label="Sanuzel sayı" type="number" min="1" max="20" step="1" defaultValue={attributes?.bathrooms as string | undefined} placeholder="Məsələn: 1" /></label>}
+        <label className="propertyArea">
           Sahə (m²)
           <input
             name="area_m2"

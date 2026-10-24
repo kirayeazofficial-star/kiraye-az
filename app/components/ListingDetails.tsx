@@ -323,7 +323,7 @@ export default function ListingDetails({
               key !== "contact_name" ? (
               <div key={key}>
                 <dt>{label}</dt>
-                <dd>{key === "delivery_fee" ? `${money(Number(value))} ₼` : key === "delivery_method" && value === "Hər ikisi" ? "Özün götür və ya çatdırılma" : value}</dd>
+                <dd>{key === "kind" && item.category === "property" && value === "Həyət evi" ? "Bağ evi" : key === "delivery_fee" ? `${money(Number(value))} ₼` : key === "delivery_method" && value === "Hər ikisi" ? "Özün götür və ya çatdırılma" : value}</dd>
               </div>
             ) : null;
           })}

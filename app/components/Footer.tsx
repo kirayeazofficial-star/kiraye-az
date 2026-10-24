@@ -14,6 +14,8 @@ export default function Footer() {
       </div>
       <SiteContact />
       <div className="footerLinks">
+        <Link href="/kiraye-masin">Kirayə maşın</Link>
+        <Link href="/kiraye-ev">Kirayə ev</Link>
         <Link href="/new">{t("Elan yerləşdir")}</Link>
         <Link href="/profile">{t("Şəxsi kabinet")}</Link>
         <Link href="/rules">{t("Qaydalar və təhlükəsizlik")}</Link>

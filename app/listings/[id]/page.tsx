@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdSpaces from "../../components/AdSpaces";
+import StructuredData from "../../components/StructuredData";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import ListingDetails from "../../components/ListingDetails";
@@ -49,8 +51,11 @@ export default async function ListingPage({ params }: Props) {
             </Link>
           </section>
         )}
+        <AdSpaces />
       </main>
       <Footer />
+      {item && <StructuredData data={{"@context":"https://schema.org","@type":"WebPage",name:item.title,description:item.description.slice(0,300),url:`${publicSiteUrl()}/listings/${item.id}`,inLanguage:"az-AZ",...(item.images?.[0]?.startsWith('https://')?{primaryImageOfPage:{"@type":"ImageObject",url:item.images[0]}}:{})}}/>}
+      {item && <StructuredData data={{"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"kirayeal.az",item:publicSiteUrl()},{"@type":"ListItem",position:2,name:item.title,item:`${publicSiteUrl()}/listings/${item.id}`}]}}/>}
     </>
   );
 }

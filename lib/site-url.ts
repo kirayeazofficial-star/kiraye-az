@@ -1,12 +1,12 @@
 export function publicSiteUrl() {
   try {
     const value = new URL(
-      process.env.NEXT_PUBLIC_SITE_URL || "https://kiraye-az.vercel.app",
+      process.env.NEXT_PUBLIC_SITE_URL || "https://kirayeal.az",
     );
     return value.protocol === "https:"
       ? value.origin
-      : "https://kiraye-az.vercel.app";
+      : "https://kirayeal.az";
   } catch {
-    return "https://kiraye-az.vercel.app";
+    return "https://kirayeal.az";
   }
 }

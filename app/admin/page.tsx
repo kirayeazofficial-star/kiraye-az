@@ -101,7 +101,7 @@ export default function Admin() {
       active = false;
     };
   }, [allowed, filter, query, page, revision]);
-  async function moderate(item: Listing, status: string) {
+  async function moderate(item: Listing, status: "published" | "rejected") {
     if (!supabase || busy || loading) return;
     const reason = reasons[item.id]?.trim() || "";
     if (status === "rejected" && reason.length < 10) {
@@ -336,13 +336,7 @@ export default function Admin() {
                         >
                           Rədd et
                         </button>
-                        <button
-                          disabled={!!busy || item.status === "archived"}
-                          className="secondary"
-                          onClick={() => moderate(item, "archived")}
-                        >
-                          Arxivə keçir
-                        </button>
+
                       </div>
                     </article>
                   ))}

@@ -234,6 +234,7 @@ export const vehicleColors = [
 ];
 export const extraAttributeLabels = {
   ...rentalSpecLabels,
+  bathrooms: "Sanuzel sayı",
   delivery_method: "Təhvil / çatdırılma",
   delivery_fee: "Çatdırılma haqqı (₼)",
   included_items: "Qiymətə daxildir",

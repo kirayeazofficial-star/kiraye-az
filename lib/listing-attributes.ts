@@ -33,8 +33,8 @@ export function readListingAttributes(
     bicycle: [...vehicle, "kind", "frame_size", "wheel_size"],
     equipment: ["kind", "brand", "model", "condition"],
     event: ["kind", "condition", "capacity"],
-    property: ["kind", "building_type", "repair", "floor", "total_floors"],
-    villa: ["kind"],
+    property: ["kind", "building_type", "repair", "floor", "total_floors", "bathrooms"],
+    villa: ["kind", "bathrooms"],
     commercial: ["kind"],
   };
   if (rentalCategorySpecs[category]) {
@@ -155,6 +155,7 @@ export function validateListingAttributes(
       Number(attributes.delivery_fee) > 1000000)
   )
     return "Çatdırılma haqqını düzgün yazın.";
+  if(attributes.bathrooms !== undefined && (!Number.isInteger(Number(attributes.bathrooms)) || Number(attributes.bathrooms)<1 || Number(attributes.bathrooms)>20)) return "Sanuzel sayını 1–20 arasında tam ədədlə yazın.";
   for (const [key, min, max] of [
     ["min_driver_age", 18, 100],
     ["license_years", 0, 80],

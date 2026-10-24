@@ -84,6 +84,7 @@ const { chromium } = require("playwright");
         user,
       };
     else if (path.endsWith("/auth/v1/user")) body = user;
+    else if (path.endsWith("/rest/v1/rpc/own_listing_view_counts")) body = [];
     else if (path.includes("/rest/v1/profiles"))
       body = {
         id: user.id,
@@ -189,6 +190,7 @@ const { chromium } = require("playwright");
         await page
           .getByText("27 elan · Səhifə 2 / 2", { exact: true })
           .waitFor();
+        await page.waitForFunction(()=>document.querySelectorAll("#moderation .moderationCard").length===3);
         assert.equal(await rows.count(), 3);
         await page
           .getByRole("navigation", {
@@ -222,15 +224,10 @@ const { chromium } = require("playwright");
         assert.equal(await rows.count(), 1);
       },
     );
-    await check("admin can archive a published listing", async () => {
-      await rows
-        .first()
-        .getByRole("button", { name: "Arxivə keçir", exact: true })
-        .click();
-      await page.getByText("0 elan · Səhifə 1 / 1", { exact: true }).waitFor();
-      await page.getByRole("button", { name: "Arxiv", exact: true }).click();
-      await page.getByText("1 elan · Səhifə 1 / 1", { exact: true }).waitFor();
-      assert.equal(items[26].status, "archived");
+    await check("admin review exposes approval/rejection without manual archive", async () => {
+      assert.equal(await rows.first().getByRole('button',{name:'Arxivə keçir',exact:true}).count(),0);
+      await rows.first().getByRole('button',{name:'Rədd et',exact:true}).waitFor();
+      assert.equal(items[26].status,'published');
     });
     await check(
       "rejection requires an explanation and saves it for the owner",

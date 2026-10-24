@@ -1079,3 +1079,23 @@ input[type="number"]::-webkit-outer-spin-button {
  .rentalHome .categorySection .textButton,.rentalHome .filterRow .textButton,.rentalHome .filterToggleButton { color:#41645d; }
  .rentalHome .filterRow .pill { color:#294c45; }
 }
+
+/* The posting entry remains reachable before explanatory notices on small screens. */
+.guestPublishPrompt { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px; margin-bottom:16px; background:#fff; border:1px solid #dfe7e1; border-radius:12px; }
+.guestPublishPrompt h2 { font-size:23px; letter-spacing:-.5px; }
+.guestPublishPrompt p { margin:8px 0 0; color:#657780; font-size:13px; }
+.guestPublishActions { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.guestPublishActions a { display:inline-flex; justify-content:center; align-items:center; min-height:44px; margin:0; white-space:nowrap; }
+@media(max-width:720px) {
+ .guestFormPage .breadcrumb { margin:0 0 12px; }
+ .guestFormPage .sectionTitle { margin-bottom:16px; }
+ .guestFormPage .sectionTitle .eyebrow { display:none; }
+ .guestFormPage .sectionTitle h1 { font-size:25px; }
+ .guestFormPage .sectionTitle .muted { margin:6px 0 0; font-size:12px; }
+ .guestPublishPrompt { display:block; padding:16px; margin-bottom:14px; }
+ .guestPublishPrompt h2 { font-size:20px; }
+ .guestPublishPrompt p { margin-top:6px; font-size:12px; }
+ .guestPublishActions { margin-top:14px; gap:8px; }
+ .guestPublishActions a { flex:1; padding:10px 8px; font-size:12px; }
+ .guestFormPage > .notice { font-size:12px; line-height:1.65; }
+}

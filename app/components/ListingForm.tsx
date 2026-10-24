@@ -394,7 +394,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
   return (
     <>
       <Header />
-      <main className="wrap formPage">
+      <main className={`wrap formPage${!user ? " guestFormPage" : ""}`}>
         <p className="breadcrumb">
           <Link href="/">Ana səhifə</Link> /{" "}
           {listingId ? "Elanı redaktə et" : "Yeni elan"}
@@ -410,7 +410,19 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </p>
           </div>
         </div>
-        {!listingId && !canModerate && !loading && (
+        {!loading && !success && !loadError && supabase && !user && (
+          <section className="guestPublishPrompt" aria-labelledby="guest-publish-title">
+            <div>
+              <h2 id="guest-publish-title">Əvvəl hesabına daxil ol</h2>
+              <p>Elanlarını şəxsi hesabından idarə et.</p>
+            </div>
+            <div className="guestPublishActions">
+              <Link className="add" href="/login?next=/new">Daxil ol</Link>
+              <Link className="secondary" href="/login?mode=signup&next=/new">Qeydiyyatdan keç</Link>
+            </div>
+          </section>
+        )}
+        {!listingId && user && !canModerate && !loading && (
           <p className="notice">
             Elan yerləşdirmə kateqoriya üzrə limitlə tənzimlənir. Təkrar elan yaratmaq əvəzinə mövcud elanını redaktə et.
           </p>
@@ -441,15 +453,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           <div className="notice">
             Elan qəbulu hələ aktivləşdirilməyib. Bir az sonra yenidən yoxlayın.
           </div>
-        ) : !user ? (
-          <section className="empty">
-            <h2>Əvvəl hesabına daxil ol</h2>
-            <p>Elanlarını idarə etmək üçün şəxsi hesabın olmalıdır.</p>
-            <Link className="add" href="/login?next=/new">
-              Daxil ol
-            </Link> <a className="secondary" href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a>
-          </section>
-        ) : (
+        ) : !user ? null : (
           <div className="formLayout">
             <form
               ref={formRef}

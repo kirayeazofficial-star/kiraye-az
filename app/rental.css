@@ -1343,3 +1343,15 @@ footer .footerLinks { flex-wrap:wrap; }
 .siteMenuPanel .socialLinks { gap:8px;flex-wrap:wrap;margin-top:2px; }
 .siteMenuPanel .socialLinks a { padding:8px 12px;border:1px solid #dce6df;border-radius:7px;background:#fff;font-size:12px;font-weight:600; }
 @media(max-height:740px){ .siteMenuPanel nav a { padding:10px;min-height:44px; } .siteMenuPanel .siteContact { padding:14px;gap:10px; } }
+
+/* Separate category discovery from official account and policy links. */
+.siteFooter { display:grid;grid-template-columns:1.15fr 1.1fr 1fr 1.1fr;gap:28px 32px;align-items:start; }
+.siteFooter .footerGroup { display:flex;flex-direction:column;align-items:flex-start;gap:11px;min-width:0;font-size:13px;line-height:1.5; }
+.siteFooter .footerGroup strong { margin-bottom:3px;color:#143f3b;font-size:14px; }
+.siteFooter .footerGroup a { color:#42645a;overflow-wrap:anywhere; }
+.siteFooter .footerGroup a:hover { color:#14695d;text-decoration:underline; }
+.siteFooter .siteContact { min-width:0;font-size:13px;line-height:1.5; }
+.siteFooter .siteContact strong { font-size:14px; }
+.siteFooter .footerCopyright { grid-column:1/-1;border-top:1px solid #e0e8e4;padding-top:16px;color:#718079;font-size:11px; }
+@media(max-width:1000px){ .siteFooter { grid-template-columns:repeat(2,minmax(0,1fr));gap:26px; } }
+@media(max-width:720px){ .siteFooter { gap:24px 18px; } .siteFooter .footerBrand,.siteFooter .siteContact { grid-column:1/-1; } .siteFooter .footerGroup { gap:10px;font-size:13px; } }

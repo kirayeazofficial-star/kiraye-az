@@ -4,22 +4,33 @@ import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 export default function Header() {
   const {t} = useLanguage();
   const [signedIn, setSignedIn] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const pathname = usePathname();
+  const [favoritesPage, setFavoritesPage] = useState(false);
   useEffect(() => {
-    if (!supabase) return;
+    const sync = () => setFavoritesPage(pathname === "/" && new URLSearchParams(window.location.search).has("favorites"));
+    sync();
+    window.addEventListener("popstate", sync);
+    return () => window.removeEventListener("popstate", sync);
+  }, [pathname]);
+  const accountPage = ["/profile", "/account", "/balance", "/admin"].some(path => pathname === path || pathname?.startsWith(path + "/"));
+  useEffect(() => {
+    if (!supabase) { setAuthReady(true); return; }
     let active = true;
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) setSignedIn(!!session);
+      if (active) { setSignedIn(!!session); setAuthReady(true); }
     });
     supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (active) setSignedIn(!!data.session);
+        if (active) { setSignedIn(!!data.session); setAuthReady(true); }
       })
-      .catch(() => {});
+      .catch(() => { if (active) setAuthReady(true); });
     return () => {
       active = false;
       data.subscription.unsubscribe();
@@ -42,7 +53,7 @@ export default function Header() {
           <Link className={`accountLink${signedIn ? " signedAccountLink" : " guestAccountLink"}`} href={signedIn ? "/profile" : "/login"}>
             {signedIn ? t("Hesabım") : t("Daxil ol")}
           </Link>
-          {!signedIn && <Link className="mobileSignupLink" href="/login?mode=signup">
+          {authReady && !signedIn && <Link className="mobileSignupLink" href="/login?mode=signup">
             {t("Qeydiyyatdan keç")}
           </Link>}
           <Link className="add" href="/new">
@@ -50,16 +61,16 @@ export default function Header() {
         </div>
       </header>
       <nav className="mobileNav" aria-label="Mobil menyu">
-        <a href="/">
+        <a href="/" aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
           ⌂<span>{t("Ana səhifə")}</span>
         </a>
-        <a href="/?favorites=1#elanlar">
+        <a href="/?favorites=1#elanlar" aria-current={favoritesPage ? "page" : undefined}>
           ♡<span>{t("Seçilmişlər")}</span>
         </a>
-        <Link className="mobilePublish" href="/new">
+        <Link className="mobilePublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
           +<span>{t("Elan yerləşdir")}</span>
         </Link>
-        <Link href={signedIn ? "/profile" : "/login"}>
+        <Link href={signedIn ? "/profile" : "/login"} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
           ◎<span>{signedIn ? t("Hesabım") : t("Daxil ol")}</span>
         </Link>
       </nav>

@@ -1,5 +1,5 @@
 "use client";
-import { publicDate } from "../../lib/public-date";
+import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
@@ -42,7 +42,9 @@ export default function ListingDetails({
     let active=true;
     const timer=setTimeout(async()=>{
       try{const session=await supabase?.auth.getSession();if(!active||session?.data.session?.user.id===item.owner_id)return;
-        await fetch('/api/listing-view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id}),keepalive:true});
+        const headers:Record<string,string>={'Content-Type':'application/json'};
+        if(session?.data.session?.access_token)headers.Authorization=`Bearer ${session.data.session.access_token}`;
+        await fetch('/api/listing-view',{method:'POST',headers,body:JSON.stringify({id:item.id}),keepalive:true});
       }catch{/* Statistics never interrupt browsing. */}
     },1500);
     return()=>{active=false;clearTimeout(timer);};
@@ -224,7 +226,7 @@ export default function ListingDetails({
         {!item.demo && <div className="publicListingMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
         {!item.demo && item.owner_id && <section className="sellerCard"><strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong><a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>İstifadəçinin bütün elanları</a></section>}
         {!item.demo && item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && (
-          <p className="muted">Elan sahibi {new Date(item.seller_since).toLocaleDateString("az-AZ", { month: "long", year: "numeric", timeZone: "Asia/Baku" })} tarixindən qeydiyyatdadır.</p>
+          <p className="muted">Elan sahibi {publicMonthYear(item.seller_since)} tarixindən qeydiyyatdadır.</p>
         )}
         <strong className="detailPrice">
           {money(item.price)} ₼{" "}

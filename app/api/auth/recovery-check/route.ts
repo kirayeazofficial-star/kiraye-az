@@ -1,18 +1,12 @@
 import { createHmac } from "node:crypto";
+import { sameOrigin, trustedClientIp } from "../../../../lib/server-request";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const reply = (body: object, status = 200) => Response.json(body, {
   status, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
 });
 export async function POST(request: Request) {
-  const origin = request.headers.get("origin");
-  const current = new URL(request.url);
-  // Next may use an internal hostname behind a reverse proxy.
-  const host = request.headers.get("host") || current.host;
-  const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0].trim();
-  const protocol = forwardedProtocol === "https" || forwardedProtocol === "http"
-    ? `${forwardedProtocol}:` : current.protocol;
-  if (origin && origin !== `${protocol}//${host}`) return reply({code:"forbidden"},403);
+  if (!sameOrigin(request)) return reply({code:"forbidden"},403);
   let email: string;
   try {
     const reader = request.body?.getReader();
@@ -35,7 +29,8 @@ export async function POST(request: Request) {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (!url || !/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url) || !serviceKey)
     return reply({code:"recovery_check_unavailable"},503);
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  const ip = trustedClientIp(request);
+  if (!ip) return reply({code:"recovery_check_unavailable"},503);
   const fingerprint = createHmac("sha256",serviceKey).update(ip).digest("hex");
   try {
     const result = await fetch(`${url.replace(/\/$/,"")}/rest/v1/rpc/recovery_email_exists`, {

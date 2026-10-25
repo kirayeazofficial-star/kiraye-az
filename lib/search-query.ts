@@ -24,10 +24,14 @@ export function rentalSearchIntent(value: string) {
  const groups: Record<string, string[]> = {
   masin: ["car"], masinlar: ["car"], avtomobil: ["car"], avtomobiller: ["car"],
   motosiklet: ["motorcycle"], motosikletler: ["motorcycle"],
-  ev: ["property", "villa"], evler: ["property", "villa"], menzil: ["property"], menziller: ["property"],
+  ev: ["property", "villa"], evi: ["property", "villa"], evler: ["property", "villa"], evleri: ["property", "villa"],
+  menzil: ["property"], menziller: ["property"], menzili: ["property"],
+  bina: ["property"], binada: ["property"], binalar: ["property"],
+  apartment: ["property"], flat: ["property"],
+  heyet: ["property"], bag: ["villa"], bagda: ["villa"], kottec: ["villa"],
   villa: ["villa"], villalar: ["villa"], velosiped: ["bicycle", "electric"], skuter: ["electric"],
  };
- const ignored = new Set(["kiraye", "kirayesi", "kirayeye", "icare", "icareye", "axtariram", "isteyirem"]);
+ const ignored = new Set(["kiraye", "kirayesi", "kirayeye", "icare", "icareye", "axtariram", "isteyirem", "lazimdir", "ucun"]);
  const cityWords: Record<string,string> = {baki:"Bakı", bakida:"Bakı", xirdalan:"Xırdalan", xirdalanda:"Xırdalan", sumqayit:"Sumqayıt", sumqayitda:"Sumqayıt", gence:"Gəncə", gencede:"Gəncə"};
  let categories: string[] = [], city = "";
  const remaining: string[] = [];

@@ -190,3 +190,18 @@ test("conversational housing requests remove filler but retain real requirements
  assert(!log.some(c=>c[0]==="or"));
  assert(calls({query:"yaşamaq üçün kirayə ev təmirli"}).some(c=>c[0]==="or" && c[1].includes("təmirli")));
 });
+
+test("building and apartment wording selects housing without title keyword requirements", () => {
+ for (const query of ["kirayə bina", "kiraye bina", "bina evi axtarıram", "binada mənzil", "kirayə mənzili istəyirəm"]) {
+  const log=calls({query});
+  assert(log.some(c=>c[0]==="in" && c[1]==="category" && c[2].join(",")==="property"),query);
+  assert(!log.some(c=>c[0]==="or"),query);
+ }
+});
+test("housing synonyms retain location and unrecognized descriptive words", () => {
+ const log=calls({query:"Bakıda kirayə bina təmirli"});
+ assert(log.some(c=>c[0]==="eq" && c[1]==="city" && c[2]==="Bakı"));
+ assert(log.some(c=>c[0]==="or" && c[1].includes("təmirli")));
+ assert(calls({query:"kirayə həyət evi"}).some(c=>c[0]==="in" && c[2].join(",")==="property"));
+ assert(calls({query:"kirayə bağ evi"}).some(c=>c[0]==="in" && c[2].join(",")==="villa"));
+});

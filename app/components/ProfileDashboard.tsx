@@ -18,6 +18,7 @@ import {
   money,
   periodName,
 } from "../../lib/marketplace";
+const listingTabs = [["", "Hamısı"], ["published", "Yayımlanmış"], ["pending", "Yoxlanılır"], ["rejected", "Rədd edilmiş"], ["draft", "Dərc olunmamış"], ["expired", "Müddəti bitmiş"], ["archived", "Arxiv"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
   const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState("");
   useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards"].includes(value))setSection(value);},[]);
@@ -112,8 +113,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   return (
     <>
       <Header />
-      <main className="wrap dashboard">
-        <div className="sectionTitle">
+      <main className="wrap dashboard accountDashboard">
+        <div className="sectionTitle accountHeading">
           <div>
             <p className="eyebrow">ŞƏXSİ KABİNET</p>
             <h1>Hesabım</h1>
@@ -122,11 +123,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             </p>
             {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>} <span title={userId}>· ID: {profileNumber||userId.slice(0,8)}</span></p>}
           </div>
-          {userId && (
-            <button className="secondary" onClick={logout}>
-              Hesabdan çıx
-            </button>
-          )}
+
         </div>
         {loading ? (
           <p role="status">Yüklənir...</p>
@@ -141,7 +138,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             </Link>
           </div>
         ) : (
-          <>{!balanceOnly && <BalancePreview />}<div className="cabinetLayout">
+          <><div className="cabinetLayout">
+            <aside className="cabinetSidebar">
+              <div className="mobileCabinetControls"><label>Hesab bölməsi<select aria-label="Hesab bölməsi" value={balanceOnly?"/balance":section==="transactions"?"/profile?section=transactions":section==="cards"?"/profile?section=cards":"/profile"} onChange={event=>{window.location.href=event.target.value;}}><option value="/profile">Elanlarım</option><option value="/account">Profil ayarları</option><option value="/balance">Balans</option><option value="/profile?section=transactions">Əməliyyat tarixçəsi</option><option value="/profile?section=cards">Mənim kartlarım</option><option value="/help">Kömək və qaydalar</option>{admin&&<option value="/admin">Admin paneli</option>}</select></label><button type="button" className="secondary" onClick={logout}>Hesabdan çıx</button></div>
+              {!balanceOnly && <BalancePreview compact/>}
             <nav className="cabinetNav" aria-label="Şəxsi kabinet">
               <Link href="/profile" aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 Elanlarım
@@ -149,11 +149,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/?favorites=1">Seçilmişlər</Link>
               <Link href="/account">Profil ayarları</Link>
               <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}>Balans</Link>
-              <a href="/profile?section=transactions">Əməliyyat tarixçəsi</a>
-              <a href="/profile?section=cards">Mənim kartlarım</a>
+              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}>Əməliyyat tarixçəsi</a>
+              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}>Mənim kartlarım</a>
               <Link href="/help">Kömək və qaydalar</Link>
               {admin && <Link href="/admin">Admin paneli</Link>}
+              <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
             </nav>
+            </aside>
             <div className="cabinetContent">
               {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : <>
               <div className="stats">
@@ -189,16 +191,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   </Link>
                 </div>
               )}
-              <div className="profileTabs" aria-label="Elan vəziyyəti">
-                {[
-                  ["", "Hamısı"],
-                  ["published", "Yayımlanmış"],
-                  ["pending", "Yoxlanılır"],
-                  ["rejected", "Rədd edilmiş"],
-                  ["draft", "Dərc olunmamış"],
-                  ["expired", "Müddəti bitmiş"],
-                  ["archived", "Arxiv"],
-                ].map(([status, label]) => (
+              <label className="mobileListingStatus">Elan vəziyyəti<select aria-label="Elan vəziyyəti" value={statusFilter} onChange={event=>setStatusFilter(event.target.value)}>{listingTabs.map(([status,label])=><option key={status} value={status}>{label} ({listings.filter(item=>matchesTab(item,status)).length})</option>)}</select></label>
+              <div className="profileTabs desktopListingTabs" aria-label="Elan vəziyyəti">
+                {listingTabs.map(([status, label]) => (
                   <button
                     key={status}
                     className="secondary"
@@ -219,7 +214,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 !listings.some(
                   (x) => matchesTab(x,statusFilter),
                 ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
-              <p className="muted">Kirayəyə verilib və ya artıq mövcud deyil? “Elanı sil” seç: saytda görünməyəcək, məlumatları hesabının arxivində qalacaq. Bərpa ödənişlidir.</p>
+              <details className="listingManagementHelp"><summary>Elanı necə idarə edim?</summary><p>Kirayəyə verilib və ya artıq mövcud deyil? “Elanı sil” seç: elan saytda görünməyəcək, məlumatları arxivdə qalacaq. Bərpa ödənişlidir və ödəniş xidməti açılanadək bağlıdır.</p></details>
               {notice && <p className="notice" role="status">{notice}</p>}
               <div className="accountListings">
                 {listings

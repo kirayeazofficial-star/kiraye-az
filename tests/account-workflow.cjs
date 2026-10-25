@@ -249,13 +249,11 @@ const { chromium } = require("playwright");
       },
     );
     await check("profile status tabs actually filter listings", async () => {
-      await page
-        .getByRole("button", { name: "Arxiv (0)", exact: true })
-        .click();
+      if(process.env.TEST_MOBILE)await page.getByRole('combobox',{name:'Elan vəziyyəti',exact:true}).selectOption('archived');
+      else await page.getByRole("button", { name: "Arxiv (0)", exact: true }).click();
       assert.equal(await page.locator(".accountListings article").count(), 0);
-      await page
-        .getByRole("button", { name: "Hamısı (1)", exact: true })
-        .click();
+      if(process.env.TEST_MOBILE)await page.getByRole('combobox',{name:'Elan vəziyyəti',exact:true}).selectOption('');
+      else await page.getByRole("button", { name: "Hamısı (1)", exact: true }).click();
       assert.equal(await page.locator(".accountListings article").count(), 1);
     });
     const next = () =>

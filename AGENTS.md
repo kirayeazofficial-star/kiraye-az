@@ -23,3 +23,7 @@ The user now requires all archived/expired listing restoration to be paid, inclu
 ## Latest public presentation — 25 October 2026
 
 New uploads use a centered, faint white wordmark without a background. Existing baked watermarks require original files to replace losslessly. Public contact starts with the final two digits masked, then reveals the full number and safety note. Payments/cards stay inactive; never fabricate wallet activity or promotion badges. Apply `public-marketplace.sql` after the dependencies recorded in the hosting checklist before claiming its server features live.
+
+## Mobile account navigation — 25 October 2026
+
+The user wants account access in the bottom-right mobile navigation, with language selection above. Hide the signed-in header avatar on mobile; keep it on desktop. The cabinet uses a mobile section select and separate listing-status select instead of horizontally clipped rows. Desktop uses the sidebar. Keep payments inactive and preserve all account/listing data.

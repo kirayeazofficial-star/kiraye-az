@@ -1512,3 +1512,51 @@ footer .footerLinks { flex-wrap:wrap; }
 .adminDashboard .staffManagement form label { flex:1;min-width:180px; }
 .adminDashboard .staffManagement form input { display:block;width:100%;margin-top:7px; }
 @media(max-width:720px){ .adminDashboard .adminExtraFilters label { flex:1 1 130px; } .adminDashboard .moderationCard { padding:14px; } .adminDashboard .adminSearch button { flex-shrink:0;padding:8px 12px; } .adminDashboard .adminSearch input { width:0; } }
+/* Familiar account layout: language above, account access in the mobile bottom bar. */
+.accountDashboard .cabinetLayout { grid-template-columns:250px minmax(0,1fr);gap:24px; }
+.cabinetSidebar { min-width:0; }
+.mobileCabinetControls,.mobileListingStatus { display:none; }
+.accountDashboard .accountHeading { align-items:flex-start;margin-bottom:20px; }
+.accountDashboard .accountHeading h1 { font-size:28px;margin-bottom:8px; }
+.accountDashboard .accountHeading .eyebrow { margin-bottom:8px; }
+.accountDashboard .cabinetNav { border-radius:12px;padding:8px; }
+.accountDashboard .cabinetNav a { min-height:44px;padding:12px;font-size:14px; }
+.accountDashboard .cabinetLogout { text-align:left;padding:12px;margin-top:6px;border-top:1px solid #e5ebe8;color:#6b5750; }
+.accountDashboard .compactBalance { flex-direction:column;align-items:stretch;padding:16px;margin-bottom:14px;gap:8px; }
+.accountDashboard .compactBalance h2 { font-size:14px; }
+.accountDashboard .compactBalance strong { font-size:22px; }
+.accountDashboard .compactBalance .inactivePayment { max-width:none; }
+.accountDashboard .compactBalance .inactivePayment summary { background:#f4f6f5;color:#365a4e;border:1px solid #dce5df;box-shadow:none;font-size:13px;min-height:40px; }
+.accountDashboard .listingManagementHelp { margin:12px 0;color:#64766d;font-size:12px;line-height:1.6; }
+.listingManagementHelp summary { cursor:pointer;padding:6px 0; }
+.accountDashboard .desktopListingTabs { flex-wrap:wrap;overflow:visible;gap:6px; }
+.accountDashboard .desktopListingTabs button { min-height:40px;padding:9px 12px;font-size:12px; }
+@media(max-width:760px){
+ .accountDashboard .cabinetLayout { grid-template-columns:1fr;gap:16px; }
+ .accountDashboard .cabinetNav,.accountDashboard .desktopListingTabs { display:none; }
+ .accountDashboard .mobileCabinetControls { display:flex;align-items:end;gap:10px;margin-bottom:12px; }
+ .mobileCabinetControls label { display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;font-size:12px;color:#64766d; }
+ .mobileCabinetControls select,.mobileListingStatus select { min-height:44px;width:100%;padding:10px 12px;font-size:16px;border:1px solid #dce5df;border-radius:9px;background:#fff;color:#29453d; }
+ .mobileCabinetControls button { min-height:44px;flex-shrink:0;padding:10px;font-size:12px; }
+ .mobileCabinetControls select:focus,.mobileListingStatus select:focus { outline:none;border-color:#80918b;box-shadow:inset 0 0 0 1px #80918b; }
+ .accountDashboard .mobileListingStatus { display:flex;flex-direction:column;gap:6px;font-size:12px;color:#64766d; }
+ .accountDashboard .accountHeading { margin-bottom:14px; }
+ .accountDashboard .accountHeading h1 { font-size:24px; }
+ .accountDashboard .accountHeading .muted { font-size:14px;margin:6px 0; }
+ .accountDashboard .accountIdentity { line-height:1.6;overflow-wrap:anywhere; }
+ .accountDashboard .compactBalance { flex-direction:row;align-items:center;gap:10px;padding:12px;margin-bottom:0; }
+ .accountDashboard .compactBalance>div { flex:1;min-width:0; }
+ .accountDashboard .compactBalance h2 { font-size:12px;margin-bottom:4px; }
+ .accountDashboard .compactBalance strong { font-size:20px; }
+ .accountDashboard .compactBalance p { font-size:11px;line-height:1.5; }
+ .accountDashboard .compactBalance .inactivePayment { flex:0 1 120px; }
+ .accountDashboard .compactBalance .inactivePayment[open] { flex:1 0 100%; }
+ .accountDashboard .cabinetContent>.sectionTitle { align-items:center;gap:12px;margin-bottom:12px; }
+ .accountDashboard .cabinetContent>.sectionTitle h2 { font-size:21px;margin:0; }
+ .accountDashboard .cabinetContent>.sectionTitle .add { min-height:42px;padding:10px 12px;font-size:12px; }
+}
+@media(max-width:720px){
+ .header.isSignedIn { grid-template-columns:minmax(0,1fr) 54px; }
+ .header.isSignedIn .headerActions .accountMenu,.header.isSignedIn .headerActions .headerPublish { display:none; }
+ .header.isSignedIn .languageSelect { grid-column:2; }
+}

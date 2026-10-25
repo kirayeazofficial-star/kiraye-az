@@ -95,3 +95,18 @@ Bu fayl server qurulduğu və ya SMTP/Google aktiv olduğu iddiası deyil. SSH v
 
 ### Weekly selector correction — 25 October 2026
 The posting/editing form no longer depends on `rental_features_ready()` to enable weekly rates: a missing RPC or network timeout was incorrectly disabling a tariff already present in schema.sql. All categories offer daily/weekly/monthly. Apply the existing rental-features.sql migration if the live database still has the old daily/monthly constraint; verify a real weekly insert and edit after gaining access. Source changes alone do not establish live database readiness.
+
+## 25 oktyabr — istifadəçinin növbəti sessiya üçün təsdiqlədiyi işlər
+
+Bu siyahı davametmə qeydidir; gələcək vaxta avtomatik icra və ya artıq canlıya tətbiq iddiası deyil.
+
+- Mobil menyunun bağlama düyməsi gözləyir: şəkildə iri yaşıl fokus çərçivəsi və mavi × görünür. Yığcam, sayt rəngində SVG X, minimum 44px toxunma sahəsi, pointer ilə açılışda iri çərçivəsiz görünüş; klaviatura üçün görünən fokus və fokusun geri qaytarılması saxlanılsın. Hələ dəyişdirilməyib.
+- Hostinq.az işlək SSH host/IP, port və istifadəçi məlumatını verdikdən sonra əvvəlcə bağlantını və mövcud açarın girişini yoxla. cPanel 2083 SSH portu deyil. Məxfi açar və SMTP parolunu çatda göstərmə.
+- Əvvəl tam ehtiyat nüsxə və bərpa planı. Bütün mövcud istifadəçilər, elanlar, şəkillər, rollar və şikayətlər qorunsun. Hədəf yalnız Hostinq.az-da tətbiq, baza, fayllar və autentifikasiyadır; DB və runtime imkanlarını yoxlayıb uyğunlaşdır. Supabase SQL/RPC-lərini başqa bazaya kor-koranə icra etmə; davranışları hədəf sistemə köçür.
+- Bu sənəddəki BÜTÜN gözləyən server işlərini tamamla: köhnə/yeni elanlara limitlər, 30 günlük dövr/arxiv, ödəniş bağlıykən pullu bərpa qadağası, həftəlik tarif, profil qeydiyyatı, sanuzel yoxlaması, baxış statistikası, şikayətlər və giriş səlahiyyətləri. Qeydiyyatsız ziyarətçi bütün uyğun yayımlanmış elanları görə bilməlidir.
+- Qeydiyyat, giriş/çıxış, email təsdiqi və şifrə bərpasını real serverdə yoxla. Mövcud olmayan emailə kod göndərilməsin; mövcud hesaba yalnız 6 rəqəmli kod göndərilsin. Noreply göndərən: noreply@kirayeal.az, SMTP mail.kirayeal.az:465 SSL/TLS; parol ayrıca təhlükəsiz konfiqurasiyada. SPF/DKIM/DMARC, göndəriş limitləri və real çatdırılma testləri tamamlanmalıdır.
+- Google ilə giriş istifadəçi tərəfindən təsdiqlənib; uyğun OAuth layihəsi/client ID/server secret, consent və callback domenləri lazımdır. Bunlar olmadan aktiv düymə və uğurlu giriş iddiası etmə. SMS xidməti bu tapşırığa daxil deyil.
+- kirayeal.az domeninin DNS, HTTPS/sertifikat, canonical, yönləndirmələr, sitemap və robots yoxlamalarını et. Search Console sahiblik təsdiqi üçün istifadəçinin Google hesabına səlahiyyət və ya verilən DNS TXT tokeni lazımdır; təsdiqi və sıralamanı uydurma.
+- Epoint və bütün real ödənişlər, balans yükləmə, pullu reklam aktivləşdirmə və pullu bərpa bağlı qalır. Şəxsi hesabda saxta balans və ya əməliyyat yaratma.
+- Yeni hostingdə real qəbul testləri keçdikdən və geri dönüş imkanı saxlandıqdan sonra Vercel/Supabase asılılıqlarını çıxar. Köhnə layihə/məlumatları silməzdən əvvəl ehtiyatın və yeni sistemin tamlığı yoxlanmalıdır; servis hesablarını bütövlükdə bağlamaq nəzərdə tutulmur.
+- Əmlak növü üzrə son qərar: “Həyət evi” saxlanılır, “Bağ evi” ilə əvəz edilmir. Villa üçün mərtəbə sayı əlavə edilib; əvvəlki 24 oktyabr qeydi bu hissədə köhnədir.

@@ -1,7 +1,10 @@
 "use client";
+import { publicDate } from "../../lib/public-date";
+import ListingSuggestions from "./ListingSuggestions";
+import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
 import PromotionOptions from "./PromotionOptions";
-import { formatContact } from "../../lib/contact-mask";
+import { formatContact, partiallyHiddenContact } from "../../lib/contact-mask";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -23,6 +26,9 @@ export default function ListingDetails({
   item: Listing;
   compact?: boolean;
 }) {
+  const [phoneShown,setPhoneShown]=useState(false);
+  const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number}|null>(null);
+  useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(!supabase||item.demo||item.status!=="published")return;let active=true;Promise.resolve(supabase.rpc('public_listing_info',{p_listing_id:item.id}).abortSignal(AbortSignal.timeout(3000))).then(({data,error})=>{if(active&&!error&&data&&typeof data==='object'&&!Array.isArray(data))setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
   const [isOwner,setIsOwner]=useState(false);
   useEffect(()=>{if(!supabase)return;let active=true;supabase.auth.getUser().then(({data})=>{if(active)setIsOwner(!!data.user && data.user.id===item.owner_id);}).catch(()=>{});const {data}=supabase.auth.onAuthStateChange((_event,session)=>{if(active)setIsOwner(!!session&&session.user.id===item.owner_id);});return()=>{active=false;data.subscription.unsubscribe();};},[item.owner_id]);
   const [image, setImage] = useState(0),
@@ -175,6 +181,7 @@ export default function ListingDetails({
           }}
         />
         <PhotoMark src={item.images?.[selectedImage]} />
+        <PromotionBadges item={item}/>
         {imageCount > 1 && <>
           <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}>‹</button>
           <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}>›</button>
@@ -212,8 +219,10 @@ export default function ListingDetails({
           {item.district ? `, ${item.district}` : ""} ·{" "}
           {item.demo
             ? "Nümunə"
-            : `Elan tarixi: ${new Date(item.created_at).toLocaleDateString("az-AZ")}`}
+            : `Elan tarixi: ${publicDate(item.created_at)}`}
         </p>
+        {!item.demo && <div className="publicListingMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
+        {!item.demo && item.owner_id && <section className="sellerCard"><strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong><a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>İstifadəçinin bütün elanları</a></section>}
         {!item.demo && item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && (
           <p className="muted">Elan sahibi {new Date(item.seller_since).toLocaleDateString("az-AZ", { month: "long", year: "numeric", timeZone: "Asia/Baku" })} tarixindən qeydiyyatdadır.</p>
         )}
@@ -224,9 +233,7 @@ export default function ListingDetails({
         {isOwner && !item.demo && <div className="detailPromotion"><PromotionOptions eligible={item.status === "published"} /></div>}
         {phone && !item.demo ? (
           <div className="contactActions">
-            <a className="add" href={`tel:${phone}`}>
-              Zəng et · {formatContact(item.contact)}
-            </a>
+            {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et · {formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər">Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"
               href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, kirayeal.az saytındakı “${item.title}” elanınızla maraqlanıram.`)}`}
@@ -243,6 +250,7 @@ export default function ListingDetails({
               : "Əlaqə nömrəsi düzgün göstərilməyib."}
           </p>
         )}
+        {phoneShown && <p className="phoneSafety" role="status">Diqqət: beh göndərməmişdən əvvəl sövdələşmənin təhlükəsiz olduğundan əmin ol. Kartının PIN/CVV-sini və SMS kodunu paylaşma.</p>}
         <div className="detailTools">
           <button
             className="secondary"
@@ -384,6 +392,7 @@ export default function ListingDetails({
           </p>
         )}
       </div>
+      {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}
     </div>
   );
 }

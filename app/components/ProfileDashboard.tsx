@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatContact } from "../../lib/contact-mask";
+import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
 import BalancePreview from "../components/BalancePreview";
 import PromotionOptions from "../components/PromotionOptions";
@@ -18,6 +19,8 @@ import {
   periodName,
 } from "../../lib/marketplace";
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
+  const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState("");
+  useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards"].includes(value))setSection(value);},[]);
   const [accountPhone,setAccountPhone]=useState("");
   const [views,setViews] = useState<Record<string,number>|null>(null);
   const [identity, setIdentity] = useState(""),
@@ -44,9 +47,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         setAccountPhone(data.user.user_metadata?.contact_phone || data.user.phone || "");
         const role = await client
           .from("profiles")
-          .select("role,display_name,phone")
+          .select("*")
           .eq("id", data.user.id)
           .maybeSingle();
+        if(role.data?.profile_no)setProfileNumber(String(role.data.profile_no));
         setAdmin(role.data?.role === "admin");
         if(role.data?.display_name)setIdentity(role.data.display_name);
         if(role.data?.phone)setAccountPhone(role.data.phone);
@@ -116,7 +120,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             <p className="muted">
               {identity || "Elanlarını bir yerdən idarə et."}
             </p>
-            {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>} <span title={userId}>· ID: {userId.slice(0,8)}</span></p>}
+            {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>} <span title={userId}>· ID: {profileNumber||userId.slice(0,8)}</span></p>}
           </div>
           {userId && (
             <button className="secondary" onClick={logout}>
@@ -139,17 +143,19 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ) : (
           <>{!balanceOnly && <BalancePreview />}<div className="cabinetLayout">
             <nav className="cabinetNav" aria-label="Şəxsi kabinet">
-              <Link href="/profile" aria-current={!balanceOnly ? "page" : undefined}>
+              <Link href="/profile" aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 Elanlarım
               </Link>
               <Link href="/?favorites=1">Seçilmişlər</Link>
               <Link href="/account">Profil ayarları</Link>
               <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}>Balans</Link>
+              <a href="/profile?section=transactions">Əməliyyat tarixçəsi</a>
+              <a href="/profile?section=cards">Mənim kartlarım</a>
               <Link href="/help">Kömək və qaydalar</Link>
               {admin && <Link href="/admin">Admin paneli</Link>}
             </nav>
             <div className="cabinetContent">
-              {balanceOnly ? <BalancePreview /> : <>
+              {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : <>
               <div className="stats">
                 <div>
                   <b>{listings.length}</b>
@@ -189,6 +195,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   ["published", "Yayımlanmış"],
                   ["pending", "Yoxlanılır"],
                   ["rejected", "Rədd edilmiş"],
+                  ["draft", "Dərc olunmamış"],
+                  ["expired", "Müddəti bitmiş"],
                   ["archived", "Arxiv"],
                 ].map(([status, label]) => (
                   <button
@@ -205,6 +213,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     )
                   </button>
                 ))}
+                <button type="button" className="secondary" disabled title="Ödəniş xidməti hələ aktiv deyil">Ödəniş gözləyir (0)</button>
               </div>
               {!!listings.length &&
                 !listings.some(

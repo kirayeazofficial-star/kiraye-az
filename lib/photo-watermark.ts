@@ -11,15 +11,12 @@ export async function watermarkPhoto(file: File): Promise<File> {
     if (!context) throw new Error("Şəkli hazırlamaq mümkün olmadı.");
     context.fillStyle = "#fff"; context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    const font = Math.max(10, Math.round(canvas.width * 0.035)), padding = Math.max(4, Math.round(canvas.width * 0.02));
-    context.font = `600 ${font}px Arial, sans-serif`;
-    const width = context.measureText("kirayeal.az").width;
-    context.fillStyle = "rgba(255,255,255,0.20)";
-    const x = padding * 2, y = canvas.height - padding * 2;
-    context.fillRect(x - padding, y - font, width + padding * 2, font + padding * 2);
-    context.fillStyle = "rgba(255,255,255,0.78)";
-    context.shadowColor = "rgba(0,0,0,0.45)"; context.shadowBlur = 2;
-    context.fillText("kirayeal.az", x, y);
+    const font = Math.max(10, Math.round(canvas.width * 0.05));
+    context.font = `700 ${font}px Arial, sans-serif`;
+    context.textAlign = "center"; context.textBaseline = "middle";
+    context.fillStyle = "rgba(255,255,255,0.22)";
+    context.shadowColor = "rgba(0,0,0,0.12)"; context.shadowBlur = 1;
+    context.fillText("kirayeal.az", canvas.width / 2, canvas.height / 2);
     const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Şəkli hazırlamaq mümkün olmadı.")), "image/jpeg", 0.9));
     return new File([blob], `branded-${file.name}.jpg`, { type: "image/jpeg" });
   } finally { URL.revokeObjectURL(url); }

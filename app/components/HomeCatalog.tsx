@@ -21,7 +21,8 @@ import {
   equipmentModels,
 } from "../../lib/listing-form-options";
 import ListingDetails from "./ListingDetails";
-import CategoryIcon from "./CategoryIcon";
+import CategoryVisual from "./CategoryVisual";
+import ListingSuggestions from "./ListingSuggestions";
 import Header from "./Header";
 import Footer from "./Footer";
 import ListingCard from "./ListingCard";
@@ -68,6 +69,7 @@ export default function Home() {
   useEffect(() => {
     const params=new URLSearchParams(window.location.search);
     const initialCategory=params.get("category");if(categories.some(item=>item.id===initialCategory))setCategory(initialCategory!);
+    const owner=params.get("owner");if(owner && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(owner))setOwnerFilter(owner);
     const initialQuery=params.get("q");if(initialQuery)setQuery(initialQuery.slice(0,120));
     setSearchHistory(readSearchHistory());
     setSavedSearches(readSavedSearches());
@@ -79,6 +81,7 @@ export default function Home() {
     window.addEventListener("kiraye:favorites", syncFavorites);
     return () => window.removeEventListener("kiraye:favorites", syncFavorites);
   }, []);
+  const [ownerFilter,setOwnerFilter]=useState("");
   const [moreCategories, setMoreCategories] = useState(true);
   const closeFilters = useCallback(() => setAdvanced(false), []);
   const favoriteIds = onlyFavorites ? favorites.join(",") : "";
@@ -95,6 +98,7 @@ export default function Home() {
     setLoading(true);
     const timer = setTimeout(() => {
       searchCatalog({
+        owner:ownerFilter,
         category,
         city,
         period,
@@ -144,6 +148,7 @@ export default function Home() {
     };
   }, [
     category,
+    ownerFilter,
     city,
     period,
     query,
@@ -219,6 +224,7 @@ export default function Home() {
       .filter(
         (x) =>
           (!category || x.category === category) &&
+          (!ownerFilter || x.owner_id === ownerFilter) &&
           (!intent.categories.length || intent.categories.includes(x.category)) &&
           (!(city || intent.city) || x.city === (city || intent.city)) &&
           (!period || x.rental_period === period) &&
@@ -247,6 +253,7 @@ export default function Home() {
     demo,
     listings,
     category,
+    ownerFilter,
     city,
     period,
     min,
@@ -335,6 +342,7 @@ export default function Home() {
       label: t(categoryName(category)),
       clear: () => changeCategory(""),
     },
+    ownerFilter && {label:"Elan sahibinin təklifləri",clear:()=>setOwnerFilter("")},
     query && { label: `Axtarış: ${query}`, clear: () => setQuery("") },
     city && { label: city, clear: () => setCity("") },
     period && {
@@ -520,8 +528,8 @@ export default function Home() {
                     ?.scrollIntoView({ behavior: "smooth" });
                 }}
               >
-                <span className="categoryIcon">
-                  <CategoryIcon id={c.id} />
+                <span className="categoryArtwork">
+                  <CategoryVisual id={c.id} />
                 </span>
                 <strong>{t(c.name)}</strong>
               </button>
@@ -529,6 +537,7 @@ export default function Home() {
           </div>
           </div>
         </section>
+        {!ownerFilter&&<ListingSuggestions premiumOnly/>}
         <section className="wrap listingSection" id="elanlar">
           <div className="sectionTitle">
             <div>
@@ -537,7 +546,7 @@ export default function Home() {
                   ? t("Seçilmiş elanlar")
                   : category
                     ? t(categoryName(category))
-                    : t("Kirayə elanları")}
+                    : t(ownerFilter ? "İstifadəçinin elanları" : "Kirayə elanları")}
               </h2>
               <p className="muted" role="status" aria-live="polite">
                 {loading

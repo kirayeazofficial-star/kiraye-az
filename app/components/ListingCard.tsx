@@ -1,5 +1,6 @@
 "use client";
 import { useLanguage } from "./LanguageProvider";
+import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import Link from "next/link";
@@ -32,6 +33,7 @@ export default function ListingCard({
           aria-label={`${item.title} — ətraflı bax`}
         />
         <PhotoMark src={item.images?.[0]} />
+        <PromotionBadges item={item}/>
         <span className="badge">
           {item.demo ? t("Nümunə") : t(categoryName(item.category))}
         </span>

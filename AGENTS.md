@@ -19,3 +19,7 @@ Read `docs/FUTURE-IDEAS.md` during future product planning. The user deferred th
 ## Latest archive policy — 24 October 2026
 
 The user now requires all archived/expired listing restoration to be paid, including early manual removal. Payments are still inactive. Apply `supabase/paid-restoration.sql` AFTER `listing-lifecycle.sql`; never re-enable the old free restoration RPC or direct edit path. Preserve archived data/photos. Do not invent a restoration price.
+
+## Latest public presentation — 25 October 2026
+
+New uploads use a centered, faint white wordmark without a background. Existing baked watermarks require original files to replace losslessly. Public contact starts with the final two digits masked, then reveals the full number and safety note. Payments/cards stay inactive; never fabricate wallet activity or promotion badges. Apply `public-marketplace.sql` after the dependencies recorded in the hosting checklist before claiming its server features live.

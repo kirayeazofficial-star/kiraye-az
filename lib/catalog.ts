@@ -6,6 +6,7 @@ import { scopeRentalFilters, type RentalFilters } from "./rental-details";
 export const PAGE_SIZE = 18;
 export type CatalogQuery = RentalFilters & {
   category: string;
+  owner?: string;
   city: string;
   period: string;
   query: string;
@@ -32,6 +33,7 @@ export function applyCatalogFilters<T>(builder: T, input: CatalogQuery): T {
   // Fixed field names and stripped PostgREST punctuation prevent query expression injection.
   let q = builder as any;
   q = q.eq("status", "published");
+  if(input.owner && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(input.owner)) q=q.eq("owner_id",input.owner);
   if (input.category) q = q.eq("category", input.category);
   if (intent.categories.length) q = q.in("category", intent.categories);
   if (input.city || intent.city) q = q.eq("city", input.city || intent.city);

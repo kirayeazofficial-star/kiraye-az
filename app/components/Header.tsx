@@ -1,4 +1,5 @@
 "use client";
+import AccountMenu from "./AccountMenu";
 import NavigationIcon from "./NavigationIcon";
 import SiteMenu from "./SiteMenu";
 import LanguageSelect from "./LanguageSelect";
@@ -9,6 +10,7 @@ import { usePathname } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 export default function Header() {
   const {t} = useLanguage();
+  const [accountId,setAccountId]=useState(""),[accountName,setAccountName]=useState(""),[accountPhone,setAccountPhone]=useState("");
   const [signedIn, setSignedIn] = useState(false);
   const [authReady, setAuthReady] = useState(false);
   const pathname = usePathname();
@@ -24,12 +26,12 @@ export default function Header() {
     if (!supabase) { setAuthReady(true); return; }
     let active = true;
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) { setSignedIn(!!session); setAuthReady(true); }
+      if (active) { setSignedIn(!!session);setAccountId(session?.user.id||"");setAccountName(session?.user.user_metadata?.full_name||"");setAccountPhone(session?.user.user_metadata?.contact_phone||""); setAuthReady(true); }
     });
     supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (active) { setSignedIn(!!data.session); setAuthReady(true); }
+        if (active) { setSignedIn(!!data.session);setAccountId(data.session?.user.id||"");setAccountName(data.session?.user.user_metadata?.full_name||"");setAccountPhone(data.session?.user.user_metadata?.contact_phone||""); setAuthReady(true); }
       })
       .catch(() => { if (active) setAuthReady(true); });
     return () => {
@@ -39,7 +41,7 @@ export default function Header() {
   }, []);
   return (
     <>
-      <header className="header">
+      <header className={`header${signedIn?" isSignedIn":""}`}>
         <div className="headerBrand"><SiteMenu /><a className="logo" href="/">
           kirayeal<span>.az</span>
           <small>{t("KİRAYƏ ÜÇÜN BİR ÜNVAN")}</small>
@@ -51,9 +53,7 @@ export default function Header() {
         </nav>
         <div className="headerActions">
           <LanguageSelect />
-          <Link className={`accountLink${signedIn ? " signedAccountLink" : " guestAccountLink"}`} href={signedIn ? "/profile" : "/login"}>
-            {signedIn ? t("Hesabım") : t("Daxil ol")}
-          </Link>
+          {signedIn && accountId ? <AccountMenu key={accountId} userId={accountId} initialName={accountName} initialPhone={accountPhone}/> : <Link className="accountLink guestAccountLink" href="/login">{t("Daxil ol")}</Link>}
           {authReady && !signedIn && <Link className="mobileSignupLink" href="/login?mode=signup">
             {t("Qeydiyyatdan keç")}
           </Link>}

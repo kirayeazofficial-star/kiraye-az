@@ -361,7 +361,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       const images: string[] = [...existingImages];
       for (const file of files) {
         const branded = await watermarkPhoto(file);
-        const path = `${user}/branded-v3-${crypto.randomUUID()}.jpg`;
+        const path = `${user}/branded-v4-${crypto.randomUUID()}.jpg`;
         const uploaded = await supabase.storage
           .from("listing-images")
           .upload(path, branded, { contentType: branded.type, upsert: false });

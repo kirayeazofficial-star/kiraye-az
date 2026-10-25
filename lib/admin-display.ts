@@ -4,4 +4,11 @@ export function adminDate(value:string|null|undefined) {
  const part=(type:string)=>parts.find(item=>item.type===type)?.value || '';
  return `${part('day')}.${part('month')}.${part('year')} · ${part('hour')}:${part('minute')}:${part('second')} — Bakı vaxtı`;
 }
-export const staffRoleName=(role:string)=>role==='leader'?'Rəhbər':role==='moderator'?'Köməkçi admin':'İstifadəçi';
+export const staffRoleName=(role:string)=>role==='leader'?'Rəhbər':role==='moderator'?'Admin':'İstifadəçi';
+
+export function adminLoadError(error:unknown){
+ const code=(error&&typeof error==='object'&&'code' in error)?String(error.code):'';
+ if(['PGRST202','42883','42P01','42703'].includes(code))return 'Bu bölmənin baza yeniləməsi hələ tətbiq edilməyib. Ödəniş tələb olunmur; serverdə admin yeniləməsi tamamlanmalıdır.';
+ if(code==='42501')return 'Bu əməliyyat üçün admin səlahiyyəti təsdiqlənmədi. Hesabına yenidən daxil ol.';
+ return 'Məlumat yüklənmədi. Bağlantını yoxlayıb yenidən cəhd et. Bu xəta tarixçənin boş olması demək deyil.';
+}

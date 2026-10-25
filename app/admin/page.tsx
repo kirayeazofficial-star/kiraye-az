@@ -25,7 +25,7 @@ const statuses = [
   ["", "Hamısı"],
 ];
 export default function Admin() {
-  const [dateFrom,setDateFrom]=useState(""),[dateUntil,setDateUntil]=useState(""),[reviewKind,setReviewKind]=useState("");
+  const [dateFrom,setDateFrom]=useState(""),[reviewKind,setReviewKind]=useState("");
   const [staffRole,setStaffRole] = useState(""), [staffAccessReady,setStaffAccessReady] = useState(false);
   const [allowed, setAllowed] = useState(false),
     [checking, setChecking] = useState(true),
@@ -86,7 +86,7 @@ export default function Admin() {
     setLoadError(false);
     setError("");
     const builder = supabase.from("listings").select("*", { count: "exact" });
-    Promise.resolve(adminListingQuery(builder, filter, query, page,{from:dateFrom,until:dateUntil,kind:reviewKind}))
+    Promise.resolve(adminListingQuery(builder, filter, query, page,{from:dateFrom,until:dateFrom,kind:reviewKind}))
       .then(({ data, error, count }) => {
         if (!active) return;
         if (error) {
@@ -114,7 +114,7 @@ export default function Admin() {
     return () => {
       active = false;
     };
-  }, [allowed, filter, query, page, revision,dateFrom,dateUntil,reviewKind]);
+  }, [allowed, filter, query, page, revision,dateFrom,reviewKind]);
   async function moderate(item: Listing, status: "published" | "rejected") {
     if (!supabase || busy || loading) return;
     const reason = reasons[item.id]?.trim() || "";
@@ -151,7 +151,7 @@ export default function Admin() {
     }
   }
   function inspect(id: string) {
-    setDateFrom("");setDateUntil("");setReviewKind("");setFilter(""); setSearch(id); setQuery(id); setPage(1);
+    setDateFrom("");setReviewKind("");setFilter(""); setSearch(id); setQuery(id); setPage(1);
     document.getElementById("moderation")?.scrollIntoView({behavior:"smooth"});
   }
   function find(e: FormEvent<HTMLFormElement>) {
@@ -242,8 +242,7 @@ export default function Admin() {
                 </div>
               </form>
               <div className="adminExtraFilters">
-                <label>Tarixdən<input type="date" value={dateFrom} max={dateUntil||undefined} onChange={event=>{setDateFrom(event.target.value);setPage(1);}}/></label>
-                <label>Tarixədək<input type="date" value={dateUntil} min={dateFrom||undefined} onChange={event=>{setDateUntil(event.target.value);setPage(1);}}/></label>
+                <label>Elanın tarixi<input type="date" value={dateFrom} onChange={event=>{setDateFrom(event.target.value);setPage(1);}}/></label>
                 {staffAccessReady && <label>Yoxlama növü<select aria-label="Yoxlama növü" value={reviewKind} onChange={event=>{setReviewKind(event.target.value);setPage(1);}}><option value="">Hamısı</option><option value="new">Yeni elanlar</option><option value="edited">Dəyişdirilmiş elanlar</option></select></label>}
               </div>
               {error && (

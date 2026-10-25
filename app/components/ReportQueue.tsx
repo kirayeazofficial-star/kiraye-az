@@ -16,7 +16,7 @@ type Report = {
   listings: { title: string;listing_no?:number|string } | null;
 };
 export default function ReportQueue({onInspect,numbered=false}:{onInspect?:(id:string)=>void;numbered?:boolean}={}) {
-  const [search,setSearch]=useState(""),[query,setQuery]=useState(""),[from,setFrom]=useState(""),[until,setUntil]=useState("");
+  const [search,setSearch]=useState(""),[query,setQuery]=useState(""),[from,setFrom]=useState("");
   const [reports, setReports] = useState<Report[]>([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(""),
@@ -33,9 +33,9 @@ export default function ReportQueue({onInspect,numbered=false}:{onInspect?:(id:s
     let active = true;
     let builder=supabase.from("listing_reports").select(numbered?"*,listings(title,listing_no)":"*,listings(title)").eq("status",tab);
     if (/^\d{8,18}$/.test(query)) builder=builder.eq("report_no",query);
-    else if(query) builder=builder.ilike("reason",`%${query.replace(/[%_]/g,"")}%`);
+
     if(from)builder=builder.gte("created_at",`${from}T00:00:00+04:00`);
-    if(until)builder=builder.lte("created_at",`${until}T23:59:59.999999+04:00`);
+    if(from)builder=builder.lte("created_at",`${from}T23:59:59.999999+04:00`);
     builder.order("created_at", { ascending: false })
       .order("id",{ascending:false})
       .range(page * 50, page * 50 + 49)
@@ -48,7 +48,7 @@ export default function ReportQueue({onInspect,numbered=false}:{onInspect?:(id:s
     return () => {
       active = false;
     };
-  }, [tab, page,query,from,until,numbered]);
+  }, [tab, page,query,from,numbered]);
   async function resolve(id: string) {
     if (!supabase || busy) return;
     setBusy(id);
@@ -93,8 +93,8 @@ export default function ReportQueue({onInspect,numbered=false}:{onInspect?:(id:s
           Şikayət arxivi
         </button>
       </div>
-      <form className="adminSearch" onSubmit={event=>{event.preventDefault();setQuery(search.trim());setPage(0);}}><label>Şikayət nömrəsi və ya səbəb<input aria-label="Şikayət nömrəsi və ya səbəb" value={search} onChange={event=>setSearch(event.target.value)} maxLength={100}/></label><button className="secondary">Şikayət axtar</button></form>
-      <div className="adminExtraFilters"><label>Şikayət tarixindən<input type="date" value={from} max={until||undefined} onChange={event=>{setFrom(event.target.value);setPage(0);}}/></label><label>Şikayət tarixinədək<input type="date" value={until} min={from||undefined} onChange={event=>{setUntil(event.target.value);setPage(0);}}/></label></div>
+      <form className="adminSearch reportSearch" onSubmit={event=>{event.preventDefault();setQuery(search.trim());setPage(0);}}><label htmlFor="report-number">Şikayət nömrəsi</label><div><input id="report-number" aria-label="Şikayət nömrəsi" inputMode="numeric" pattern="[0-9]{8,18}" value={search} onChange={event=>setSearch(event.target.value.replace(/[^0-9]/g,''))} maxLength={18} placeholder="Məsələn, 20000001"/><button className="secondary">Şikayət axtar</button></div></form>
+      <div className="adminExtraFilters"><label>Şikayət tarixi<input type="date" value={from} onChange={event=>{setFrom(event.target.value);setPage(0);}}/></label></div>
       <p className="muted">Baxılan şikayətlər silinmir, arxivdə saxlanılır.</p>
       {loading ? (
         <p role="status">Yüklənir...</p>

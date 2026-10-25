@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { adminDate } from "../../lib/admin-display";
+import { useEffect, useState } from "react";
+import { adminDate, adminLoadError } from "../../lib/admin-display";
 import { supabase } from "../../lib/supabase";
 import { statusName } from "../../lib/marketplace";
 import { moderationActions, moderationFields, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
@@ -16,10 +16,9 @@ function EventList({events,onInspect}:{events:ModerationEvent[];onInspect?:(id:s
  </li>)}</ol>;
 }
 function renderValue(value:unknown) {return value === null || value === undefined || value === "" ? "Qeyd edilməyib" : typeof value === 'object' ? JSON.stringify(value) : String(value);}
-const unavailable = "Yoxlama məlumatları yüklənmədi. Server yeniləməsi və admin icazəsi yoxlanmalıdır. Bu, tarixçənin boş olması demək deyil.";
 export function ModerationReview({listingId,onInspect}:{listingId:string;onInspect:(id:string)=>void}) {
  const [data,setData]=useState<ModerationContext|null>(null),[loading,setLoading]=useState(false),[error,setError]=useState("");
- async function load(){if(loading || data || !supabase)return;setLoading(true);setError("");try{const result=await supabase.rpc('admin_listing_context',{p_listing_id:listingId}).abortSignal(AbortSignal.timeout(8000));if(result.error || !result.data?.owner)throw new Error();setData(result.data as ModerationContext);}catch{setError(unavailable);}finally{setLoading(false);}}
+ async function load(){if(loading || data || !supabase)return;setLoading(true);setError("");try{const result=await supabase.rpc('admin_listing_context',{p_listing_id:listingId}).abortSignal(AbortSignal.timeout(8000));if(result.error)throw result.error;if(!result.data?.owner)throw new Error();setData(result.data as ModerationContext);}catch(error){setError(adminLoadError(error));}finally{setLoading(false);}}
  return <details className="moderationReview" onToggle={event=>{if(event.currentTarget.open)void load();}}><summary>Uyğunluqlar, istifadəçi və dəyişiklik tarixçəsi</summary>
  {loading && <p role="status">Yoxlama məlumatları yüklənir...</p>}
  {error && <p role="alert">{error} <button className="secondary" type="button" onClick={load}>Yenidən yoxla</button></p>}
@@ -32,7 +31,18 @@ export function ModerationReview({listingId,onInspect}:{listingId:string;onInspe
  </details>;
 }
 export function ModerationHistory({revision,onInspect}:{revision:number;onInspect:(id:string)=>void}) {
- const [events,setEvents]=useState<ModerationEvent[]|null>(null),[loading,setLoading]=useState(false),[error,setError]=useState(""),[loadedRevision,setLoadedRevision]=useState(-1);
- async function load(){if(loading || !supabase)return;setLoading(true);setError("");try{const result=await supabase.rpc('admin_moderation_history').abortSignal(AbortSignal.timeout(8000));if(result.error || !Array.isArray(result.data))throw new Error();setEvents(result.data);setLoadedRevision(revision);}catch{setError(unavailable);}finally{setLoading(false);}}
- return <section id="moderation-history"><h2>Əməliyyat tarixçəsi</h2><p className="muted">Serverdə qeydə alınmış son 50 əməliyyat. Qeydiyyat server yeniləməsindən başlayır.</p><button type="button" className="secondary" disabled={loading} onClick={load}>{loading?"Yüklənir...":"Tarixçəni yenilə"}</button>{loadedRevision!==revision && events && <p role="status">Yeni qərar verilib. Son əməliyyatları görmək üçün tarixçəni yenilə.</p>}{error && <p role="alert">{error}</p>}{!error&&events&&(events.length?<EventList events={events} onInspect={onInspect}/>:<p>Hələ qeydə alınmış əməliyyat yoxdur.</p>)}</section>;
+ const [events,setEvents]=useState<ModerationEvent[]>([]),[cursor,setCursor]=useState<string|null>(null),[loading,setLoading]=useState(false),[error,setError]=useState(""),[loadedRevision,setLoadedRevision]=useState(-1),[legacy,setLegacy]=useState(false);
+ async function load(before:string|null=null){if(loading || !supabase)return;setLoading(true);setError("");try{
+  const result=await supabase.rpc('admin_moderation_history_page',{p_before:before}).abortSignal(AbortSignal.timeout(8000));
+  if(result.error){
+   if(!before&&['PGRST202','42883'].includes(result.error.code)){
+    const previous=await supabase.rpc('admin_moderation_history').abortSignal(AbortSignal.timeout(8000));
+    if(previous.error)throw previous.error;if(!Array.isArray(previous.data))throw new Error();
+    setEvents(previous.data);setCursor(null);setLegacy(true);
+   }else throw result.error;
+  }else{if(!Array.isArray(result.data?.events))throw new Error();setEvents(old=>before?[...old,...result.data.events]:result.data.events);setCursor(result.data.next);setLegacy(false);}
+  setLoadedRevision(revision);
+ }catch(error){setError(adminLoadError(error));}finally{setLoading(false);}}
+ useEffect(()=>{void load();},[]);
+ return <section id="moderation-history"><div className="sectionTitle"><h2>Əməliyyat tarixçəsi</h2><button type="button" className="secondary" disabled={loading} onClick={()=>load()}>{loading?"Yüklənir...":"Tarixçəni yenilə"}</button></div><p className="muted">Qərarlar serverdə qeydə alınır. Köhnə qeydləri aşağıdan yükləyə bilərsən.</p>{legacy&&<p className="notice">Mövcud server son 50 qeydi qaytarır. Daha köhnə qeydlərin səhifələnməsi üçün baza yeniləməsi gözlənilir; qeydlər silinmir.</p>}{loadedRevision!==revision && loadedRevision>=0 && <p role="status">Yeni qərar verilib. Son əməliyyatları görmək üçün tarixçəni yenilə.</p>}{error && <p role="alert">{error}</p>}{loading&&loadedRevision<0&&<p role="status">Tarixçə yüklənir...</p>}{loadedRevision>=0&&(events.length?<EventList events={events} onInspect={onInspect}/>:<p>Hələ qeydə alınmış əməliyyat yoxdur.</p>)}{cursor&&<button type="button" className="secondary" disabled={loading} onClick={()=>load(cursor)}>Əvvəlki əməliyyatları göstər</button>}</section>;
 }

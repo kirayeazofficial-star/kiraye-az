@@ -1494,3 +1494,21 @@ footer .footerLinks { flex-wrap:wrap; }
 
 .rentalHome .categories .categoryArtwork { display:block;width:76px;height:76px;flex:0 0 76px;margin:0; }
 @media(max-width:720px){ .rentalHome .categories .categoryArtwork { width:70px;height:70px;flex-basis:70px; } }
+/* Admin controls: neutral, compact, readable with iOS keyboard focus. */
+.adminDashboard { max-width:1100px; }
+.adminDashboard .adminSearch { max-width:none;margin:14px 0; }
+.adminDashboard .adminSearch>div { display:flex;gap:8px;align-items:stretch; }
+.adminDashboard .adminSearch input { width:100%;min-width:0;flex:1; }
+.adminDashboard input,.adminDashboard select,.adminDashboard textarea { min-height:42px;border:1px solid #dce2e7;border-radius:8px;background:#fff;color:#243b3a;font-size:16px;padding:10px 12px; }
+.adminDashboard input:focus,.adminDashboard select:focus,.adminDashboard textarea:focus { outline:none;outline-offset:0;border-color:#788994;box-shadow:inset 0 0 0 1px #788994; }
+.adminDashboard .adminExtraFilters { margin:12px 0;gap:10px; }
+.adminDashboard .adminExtraFilters label { flex:0 1 230px; }
+.adminDashboard .moderationCard { padding:18px;margin:14px 0;border-radius:12px; }
+.adminDashboard .sectionTitle { margin-bottom:12px;gap:12px; }
+.adminDashboard .sectionTitle h2 { font-size:20px;margin:0; }
+.adminDashboard .profileTabs { gap:6px;padding:6px; }
+.adminDashboard .profileTabs button { min-height:40px;padding:8px 12px;font-size:13px; }
+.adminDashboard .staffManagement form { display:flex;gap:10px;align-items:end;flex-wrap:wrap; }
+.adminDashboard .staffManagement form label { flex:1;min-width:180px; }
+.adminDashboard .staffManagement form input { display:block;width:100%;margin-top:7px; }
+@media(max-width:720px){ .adminDashboard .adminExtraFilters label { flex:1 1 130px; } .adminDashboard .moderationCard { padding:14px; } .adminDashboard .adminSearch button { flex-shrink:0;padding:8px 12px; } .adminDashboard .adminSearch input { width:0; } }

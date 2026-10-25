@@ -85,6 +85,7 @@ const { chromium } = require("playwright");
       };
     else if (path.endsWith("/auth/v1/user")) body = user;
     else if (path.endsWith("/rest/v1/rpc/own_listing_view_counts")) body = [];
+    else if (path.endsWith("/rest/v1/rpc/admin_moderation_history_page")) body = {events:[],next:null};
     else if (path.endsWith("/rest/v1/rpc/own_wallet_summary")) body = {balance:0,currency:"AZN"};
     else if (path.endsWith("/rest/v1/rpc/admin_current_access")) body = {allowed:admin,role:admin?"moderator":"user"};
     else if (path.includes("/rest/v1/profiles"))

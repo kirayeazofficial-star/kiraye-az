@@ -1,4 +1,5 @@
 "use client";
+import NavigationIcon from "./NavigationIcon";
 import SiteMenu from "./SiteMenu";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
@@ -56,22 +57,24 @@ export default function Header() {
           {authReady && !signedIn && <Link className="mobileSignupLink" href="/login?mode=signup">
             {t("Qeydiyyatdan keç")}
           </Link>}
-          <Link className="add" href="/new">
-            {t("+ Elan yerləşdir")}</Link>
+          <Link className="add headerPublish" href="/new" aria-label={t("Elan yerləşdir")}>
+            <span className="desktopPublishLabel">{t("+ Elan yerləşdir")}</span>
+            <span className="mobilePublishLabel"><NavigationIcon name="plus"/><span>{t("Elan")}</span></span>
+          </Link>
         </div>
       </header>
       <nav className="mobileNav" aria-label="Mobil menyu">
         <a href="/" aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
-          ⌂<span>{t("Ana səhifə")}</span>
+          <NavigationIcon name="home"/><span>{t("Ana səhifə")}</span>
         </a>
         <a href="/?favorites=1#elanlar" aria-current={favoritesPage ? "page" : undefined}>
-          ♡<span>{t("Seçilmişlər")}</span>
+          <NavigationIcon name="heart"/><span>{t("Seçilmişlər")}</span>
         </a>
         <Link className="mobilePublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
-          +<span>{t("Elan yerləşdir")}</span>
+          <NavigationIcon name="plus"/><span>{t("Elan yerləşdir")}</span>
         </Link>
         <Link href={signedIn ? "/profile" : "/login"} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
-          ◎<span>{signedIn ? t("Hesabım") : t("Daxil ol")}</span>
+          <NavigationIcon name="account"/><span>{signedIn ? t("Hesabım") : t("Daxil ol")}</span>
         </Link>
       </nav>
     </>

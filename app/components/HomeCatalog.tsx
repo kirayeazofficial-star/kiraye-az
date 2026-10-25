@@ -1,4 +1,5 @@
 "use client";
+import NavigationIcon from "./NavigationIcon";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import AdSpaces from "./AdSpaces";
@@ -435,7 +436,7 @@ export default function Home() {
                 <option value="monthly">{t("Aylıq")}</option>
               </select>
             </label>
-            <button className="add" aria-label={t("Elanları axtar →")}><span className="desktopSearchLabel">{t("Elanları axtar →")}</span><span className="mobileSearchLabel">{t("Axtar")}</span></button>
+            <button className="add" aria-label={t("Elanları axtar →")}><span className="desktopSearchLabel">{t("Elanları axtar →")}</span><span className="mobileSearchLabel"><NavigationIcon name="search"/></span></button>
           </form>
           {!!savedSearches.length && <details className="savedSearches"><summary>{t("Saxlanmış axtarışlar")} ({savedSearches.length})</summary><div>{savedSearches.map(item=><div key={item.id}><button type="button" className="textButton" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" className="textButton" aria-label={`${item.label} axtarışını sil`} onClick={()=>setSavedSearches(removeSavedSearch(item.id))}>×</button></div>)}</div></details>}
           {!!searchHistory.length && <details className="searchHistory">

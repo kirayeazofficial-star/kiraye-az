@@ -11,20 +11,20 @@ if(viewportWidth>720){
  await p.locator('.header .accountLink').waitFor({state:'visible'});assert.equal(await p.locator('.header .accountLink').innerText(),'Daxil ol');
  assert.equal(await p.locator('.header .mobileSignupLink').isVisible(),false);
 }else{
- const signup=p.locator('.header .mobileSignupLink');await signup.waitFor({state:'visible'});
- assert.equal(await signup.innerText(),'Qeydiyyatdan keç');assert.equal(await signup.getAttribute('href'),'/login?mode=signup');
+ assert.equal(await p.locator('.header .mobileSignupLink').isVisible(),false);
  assert.equal(await p.locator('.header .accountLink').isVisible(),false);
  const login=p.locator('.mobileNav a[href="/login"]');await login.waitFor({state:'visible'});assert((await login.innerText()).includes('Daxil ol'));
- assert.equal(await p.locator('.mobileSearchLabel').innerText(),'Axtar');
+ assert.equal(await p.locator('.mobileSearchLabel svg').count(),1);
+
 }
 assert.equal(await p.locator('.header .accountLink').count(),1);
 assert.equal(await p.locator('.welcomeGuide,.header .signupLink').count(),0);
 const cardBox=await p.locator('.listingCard').first().boundingBox();assert(cardBox.y<(viewportWidth>720?570:720),`Listings start too low: ${cardBox.y}`);
 
 assert.equal(await p.locator('.listingCard .photoMark').count(),1);
-await p.getByRole('button',{name:'Русский',exact:true}).click();await p.getByRole('heading',{name:'Что хочешь арендовать?',exact:true}).waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-await p.getByRole('button',{name:'English',exact:true}).click();await p.getByRole('heading',{name:'What would you like to rent?',exact:true}).waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
-await p.reload();await p.getByRole('heading',{name:'What would you like to rent?',exact:true}).waitFor();
+if(viewportWidth>720)await p.getByRole('button',{name:'Русский',exact:true}).click();else await p.locator('.mobileLanguageSelect').selectOption('ru');await p.getByRole('heading',{name:viewportWidth>720?'Что хочешь арендовать?':'Категории',exact:true}).waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+if(viewportWidth>720)await p.getByRole('button',{name:'English',exact:true}).click();else await p.locator('.mobileLanguageSelect').selectOption('en');await p.getByRole('heading',{name:viewportWidth>720?'What would you like to rent?':'Categories',exact:true}).waitFor();assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+await p.reload();await p.getByRole('heading',{name:viewportWidth>720?'What would you like to rent?':'Categories',exact:true}).waitFor();
 await p.getByRole('button',{name:'More filters',exact:true}).click();
 await p.getByLabel('Filtr kateqoriyası',{exact:true}).selectOption('car');
 await p.getByLabel('Transmission',{exact:true}).selectOption({label:'Automatic'});assert.equal(await p.getByLabel('Transmission',{exact:true}).inputValue(),'Avtomat');
@@ -33,7 +33,7 @@ const calendar=await p.locator('.azCalendar').boundingBox();assert(calendar.x>=0
 await p.getByRole('button',{name:'Təqvimi bağla',exact:true}).click();
 if(viewportWidth<=720)await p.getByRole('button',{name:'Show listings',exact:true}).click();
 assert.equal(await p.locator('html').getAttribute('lang'),'en');
-await p.getByRole('button',{name:'Azərbaycanca',exact:true}).click();await p.getByRole('heading',{name:'Nə kirayələmək istəyirsən?',exact:true}).waitFor();
+if(viewportWidth>720)await p.getByRole('button',{name:'Azərbaycanca',exact:true}).click();else await p.locator('.mobileLanguageSelect').selectOption('az');await p.getByRole('heading',{name:viewportWidth>720?'Nə kirayələmək istəyirsən?':'Kateqoriyalar',exact:true}).waitFor();
 assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
 await p.screenshot({path:`/tmp/kiraye-home-improvements-${viewportWidth}.png`,fullPage:true});
 const jwt=Buffer.from(JSON.stringify({alg:'HS256'})).toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:owner,aud:'authenticated',role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.test';

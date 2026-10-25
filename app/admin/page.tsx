@@ -1,6 +1,8 @@
 "use client";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { ModerationReview, ModerationHistory } from "../components/ModerationReview";
+import { rejectionReasons } from "../../lib/moderation";
 import ReportQueue from "../components/ReportQueue";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -136,6 +138,10 @@ export default function Admin() {
       setBusy("");
     }
   }
+  function inspect(id: string) {
+    setFilter(""); setSearch(id); setQuery(id); setPage(1);
+    document.getElementById("moderation")?.scrollIntoView({behavior:"smooth"});
+  }
   function find(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setPage(1);
@@ -175,6 +181,7 @@ export default function Admin() {
             <nav className="adminSections" aria-label="Admin bölmələri">
               <a href="#moderation">Elanların yoxlanılması</a>
               <a href="#reports">Şikayətlər</a>
+              <a href="#moderation-history">Əməliyyat tarixçəsi</a>
             </nav>
             <section id="moderation" aria-labelledby="moderation-title">
               <div className="sectionTitle">
@@ -304,9 +311,18 @@ export default function Admin() {
                           Əvvəlki səbəb: {item.rejection_reason}
                         </p>
                       )}
+                      <ModerationReview key={`${item.id}-${revision}`} listingId={item.id} onInspect={inspect} />
+                      <label className="moderationPreset">
+                        Hazır rədd səbəbi
+                        <select aria-label="Hazır rədd səbəbi" value={rejectionReasons.includes(reasons[item.id] || "") ? reasons[item.id] : ""} onChange={event=>{if(event.target.value)setReasons(current=>({...current,[item.id]:event.target.value}));}}>
+                          <option value="">Səbəb seç və ya aşağıda özün yaz</option>
+                          {rejectionReasons.map(reason=><option key={reason} value={reason}>{reason}</option>)}
+                        </select>
+                      </label>
                       <label className="moderationReason">
                         Rədd səbəbi
                         <textarea
+                          aria-label="Rədd səbəbi"
                           maxLength={500}
                           rows={2}
                           value={reasons[item.id] ?? ""}
@@ -365,6 +381,7 @@ export default function Admin() {
                 </>
               )}
             </section>
+            <ModerationHistory revision={revision} onInspect={inspect}/>
             <div id="reports">
               <ReportQueue />
             </div>

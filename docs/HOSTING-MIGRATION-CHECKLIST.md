@@ -110,3 +110,13 @@ Bu siyahı davametmə qeydidir; gələcək vaxta avtomatik icra və ya artıq ca
 - Epoint və bütün real ödənişlər, balans yükləmə, pullu reklam aktivləşdirmə və pullu bərpa bağlı qalır. Şəxsi hesabda saxta balans və ya əməliyyat yaratma.
 - Yeni hostingdə real qəbul testləri keçdikdən və geri dönüş imkanı saxlandıqdan sonra Vercel/Supabase asılılıqlarını çıxar. Köhnə layihə/məlumatları silməzdən əvvəl ehtiyatın və yeni sistemin tamlığı yoxlanmalıdır; servis hesablarını bütövlükdə bağlamaq nəzərdə tutulmur.
 - Əmlak növü üzrə son qərar: “Həyət evi” saxlanılır, “Bağ evi” ilə əvəz edilmir. Villa üçün mərtəbə sayı əlavə edilib; əvvəlki 24 oktyabr qeydi bu hissədə köhnədir.
+
+## 25 oktyabr — admin yoxlamasının genişləndirilməsi
+
+- `supabase/admin-moderation.sql` faylını schema/lifecycle/paid-restoration yeniləmələrindən sonra tətbiq et. Təkrar icra edilə bilər, köhnə əməliyyatlar uydurulmur. Təhlükəsizlik: admin-only SECURITY DEFINER RPC-lər, bağlı audit cədvəli, yalnız triggerlə server tərəfindən yazılan actor/time və əvvəl/sonra məlumatları. Adi istifadəçinin başqa hesab məlumatını, audit oxuma/yazmasını yoxla.
+- Hazır rədd səbəbləri interfeysdədir; admin əlavə izahı dəyişə bilər. Rədd səbəbinin serverdə minimum uzunluq yoxlaması qalır.
+- Oxşarlıq xəbərdarlıqları: son 180 gündəki ən yeni 500 elan, ən çox 8 uyğunluq. Telefon son 9 rəqəm, eyni şəkil URL-si, eyni/oxşar mətn; vizual şəkil tanıma deyil. Bunlar yalnız moderator siqnallarıdır, avtomatik rədd və ya hesab bloklaması deyil.
+- İstifadəçi tarixçəsi: real hesab tarixi (Auth.created_at, köhnə məlumatda profil tarixinə fallback), son 20 elan/rədd səbəbi, açıq/baxılmış şikayət sayı. Şikayət sübut hesab edilmir. Məlumat yalnız adminə verilir.
+- Yayımlanmış elanın məzmunu, qiyməti, nömrəsi, şəkilləri və şərtləri dəyişəndə server `pending` edir. Əvvəl/sonra müqayisəsi auditdə saxlanır. İlk yayım və bitmə tarixləri uzadılmır; ödənişsiz arxiv bərpası açılmır. Eyni məzmunlu texniki UPDATE lüzumsuz audit yaratmır.
+- Əməliyyat tarixçəsi son 50 qeyd, elan daxilində son 10 qeyd göstərir; cədvəldəki köhnə qeydlər bu göstərmə limiti ilə silinmir. RPC olmadıqda interfeys açıq server yeniləmə xətası göstərir, boş tarixçə kimi təqdim etmir.
+- Host-only köçürmədə eyni məhdudiyyətləri və audit məlumatlarını yeni baza/backend-ə keçir. Bu mənbə dəyişikliyi canlı tətbiq iddiası deyil.

@@ -1324,3 +1324,22 @@ footer .footerLinks { flex-wrap:wrap; }
 
 /* Safari can zoom focused fields below 16px, including landscape widths. */
 .rentalHome .searchPanel .queryField input { font-size:16px; }
+
+/* Mobile drawer: intentional touch focus, crisp controls and grouped content. */
+.siteMenuPanel { background:#fff;outline:none;overscroll-behavior:contain; }
+.siteMenuHeading { flex-shrink:0;align-items:center;padding-bottom:20px;margin-bottom:14px;border-bottom:1px solid #e3ebe7; }
+.siteMenuHeading .logo { font-size:28px;line-height:1.1; }
+.siteMenuHeading .siteMenuClose { display:flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:#f1f5f3;color:#143f3b;box-shadow:none;-webkit-appearance:none;appearance:none; }
+.siteMenuClose svg { display:block;pointer-events:none; }
+.siteMenuHeading .siteMenuClose:focus:not(:focus-visible) { outline:none; }
+.siteMenuHeading .siteMenuClose:focus-visible { outline:2px solid #ed7249;outline-offset:2px; }
+.siteMenuPanel nav { flex-shrink:0;gap:2px;margin-bottom:24px; }
+.siteMenuPanel nav a { justify-content:space-between;gap:12px;padding:12px 10px;min-height:46px;font-size:15px;font-weight:500;border-radius:8px;line-height:1.4; }
+.siteMenuPanel nav a svg { flex-shrink:0;color:#94a69d; }
+.siteMenuPanel nav .siteMenuGroupStart { margin-top:10px;border-top:1px solid #e3ebe7;border-radius:0;padding-top:18px; }
+.siteMenuPanel .siteContact { flex-shrink:0;margin-top:auto;padding:18px 16px;border:1px solid #e0e9e4;border-radius:12px;background:#f5f8f6;gap:12px;font-size:14px;line-height:1.5; }
+.siteMenuPanel .siteContact strong { font-size:14px;color:#143f3b; }
+.siteMenuPanel .siteContact>a { color:#36594d; }
+.siteMenuPanel .socialLinks { gap:8px;flex-wrap:wrap;margin-top:2px; }
+.siteMenuPanel .socialLinks a { padding:8px 12px;border:1px solid #dce6df;border-radius:7px;background:#fff;font-size:12px;font-weight:600; }
+@media(max-height:740px){ .siteMenuPanel nav a { padding:10px;min-height:44px; } .siteMenuPanel .siteContact { padding:14px;gap:10px; } }

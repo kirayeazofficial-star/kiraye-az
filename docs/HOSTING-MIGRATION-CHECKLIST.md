@@ -100,7 +100,7 @@ The posting/editing form no longer depends on `rental_features_ready()` to enabl
 
 Bu siyahı davametmə qeydidir; gələcək vaxta avtomatik icra və ya artıq canlıya tətbiq iddiası deyil.
 
-- Mobil menyunun bağlama düyməsi gözləyir: şəkildə iri yaşıl fokus çərçivəsi və mavi × görünür. Yığcam, sayt rəngində SVG X, minimum 44px toxunma sahəsi, pointer ilə açılışda iri çərçivəsiz görünüş; klaviatura üçün görünən fokus və fokusun geri qaytarılması saxlanılsın. Hələ dəyişdirilməyib.
+- Mobil menyunun bağlama düyməsi mənbə kodunda düzəldilib: sayt rəngində SVG X, 44px dairəvi toxunma sahəsi, touch ilə açılışda fokus dialoqa verilir, klaviatura ilə açılışda düyməyə fokus və görünən işarə saxlanır. Bölmələr qruplaşdırılıb, əlaqə kartı əlavə edilib. 320×568 və 390×844 sınaqları keçib; real iPhone və canlı yayımlanma ayrıca yoxlanmalıdır.
 - Hostinq.az işlək SSH host/IP, port və istifadəçi məlumatını verdikdən sonra əvvəlcə bağlantını və mövcud açarın girişini yoxla. cPanel 2083 SSH portu deyil. Məxfi açar və SMTP parolunu çatda göstərmə.
 - Əvvəl tam ehtiyat nüsxə və bərpa planı. Bütün mövcud istifadəçilər, elanlar, şəkillər, rollar və şikayətlər qorunsun. Hədəf yalnız Hostinq.az-da tətbiq, baza, fayllar və autentifikasiyadır; DB və runtime imkanlarını yoxlayıb uyğunlaşdır. Supabase SQL/RPC-lərini başqa bazaya kor-koranə icra etmə; davranışları hədəf sistemə köçür.
 - Bu sənəddəki BÜTÜN gözləyən server işlərini tamamla: köhnə/yeni elanlara limitlər, 30 günlük dövr/arxiv, ödəniş bağlıykən pullu bərpa qadağası, həftəlik tarif, profil qeydiyyatı, sanuzel yoxlaması, baxış statistikası, şikayətlər və giriş səlahiyyətləri. Qeydiyyatsız ziyarətçi bütün uyğun yayımlanmış elanları görə bilməlidir.

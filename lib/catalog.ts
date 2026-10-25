@@ -1,3 +1,4 @@
+import { isListingExpired } from "./listing-lifecycle";
 import { searchVariants, rentalSearchIntent } from "./search-query";
 import { publicSupabase as supabase } from "./supabase";
 import type { Listing } from "./marketplace";
@@ -91,5 +92,5 @@ export async function searchCatalog(input: CatalogQuery) {
     { ...input, favorites: favorites ?? null },
   ).abortSignal(AbortSignal.timeout(15000));
   if (error) throw error;
-  return { items: data as Listing[], total: count ?? 0 };
+  return { items: (data as Listing[]).filter(item=>item.status === "published" && !isListingExpired(item)), total: count ?? 0 };
 }

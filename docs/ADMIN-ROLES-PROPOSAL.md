@@ -1,6 +1,6 @@
-# Admin idarəetməsi — təsdiq üçün təklif, 25 oktyabr 2026
+# Admin idarəetməsi — təsdiqlənmiş tətbiq planı, 25 oktyabr 2026
 
-İstifadəçi bu yeni admin quruluşunu əvvəl yazmağı, sonra tətbiqi müzakirə etməyi istəyib. Bu sənəd planıdır; rol təyinatı, canlı baza və idarəetmə interfeysi burada tətbiq olunmayıb. Mövcud beş moderasiya funksiyası qalır.
+İstifadəçi planı təsdiqləyib; interfeys və `admin-management.sql` hazırlandı. Canlı tətbiq üçün səlahiyyətli baza girişi hələ lazımdır. İstifadəçinin son göstərişi: hazırda tək olan admin ilkin Rəhbər olsun. Migration yalnız bir mövcud admin tapanda bunu edir; birdən çox olduqda hesabı təxmin etmir. Mövcud beş moderasiya funksiyası qalır.
 
 ## Rəhbər və Köməkçi admin
 
@@ -16,7 +16,7 @@
 - Hazırkı UUID-lər, əlaqələr və keçidlər saxlanılır. Əlavə, dəyişməz rəqəmli istinad nömrəsi serverdə verilir.
 - Elanlar üçün nümunə: 10000001; şikayətlər üçün: 20000001. Bunlar başlanğıc təklifidir; heç bir real hesaba/nömrəyə burada təyinat edilməyib. Minimum 8 rəqəm, artdıqca daha uzun ola bilər.
 - Atomik sequence + UNIQUE məhdudiyyət; paralel göndərişlərdə toqquşma olmaz. Silinmiş/arxivlənmiş nömrə başqa qeydə verilmir. Nömrələr arasında boşluq ola bilər; onları say kimi istifadə etmə.
-- Köhnə məlumatlar yaradılma tarixi/UUID üzrə sabit sıra ilə nömrələnir; sıralama dəqiq tarixi göstərmək iddiası deyil. Keçmiş zaman, admin qərarı və sıralama uydurulmur.
+- Köhnə qeydlərə identity sütunu əlavə edilərkən rəqəmli nömrələr verilir; nömrə xronoloji yayım sırasını göstərmir. Tarix ayrıca saxlanılır. Keçmiş zaman, admin qərarı və sıralama uydurulmur.
 - Admin elan/şikayət nömrəsi ilə axtarır, şikayətdə aid olduğu elanın nömrəsini görür. UUID ilə əvvəlki axtarış da qalır.
 
 ## Vaxt və gündəlik iş axını

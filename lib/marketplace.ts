@@ -103,6 +103,8 @@ export const cities = [
 export type Listing = {
   id: string;
   owner_id?: string;
+  listing_no?: number | string;
+  review_kind?: "new" | "edited";
   seller_since?: string;
   first_published_at?: string | null;
   expires_at?: string | null;

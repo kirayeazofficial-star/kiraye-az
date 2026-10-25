@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
+import { adminDate } from "../../lib/admin-display";
 import { supabase } from "../../lib/supabase";
 import { statusName } from "../../lib/marketplace";
 import { moderationActions, moderationFields, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
-const date = (value:string) => new Date(value).toLocaleString("az-AZ");
+const date = adminDate;
 function EventList({events,onInspect}:{events:ModerationEvent[];onInspect?:(id:string)=>void}) {
  return <ol className="moderationTimeline">{events.map(event=><li key={event.id}>
   <strong>{moderationActions[event.action] || event.action}</strong>

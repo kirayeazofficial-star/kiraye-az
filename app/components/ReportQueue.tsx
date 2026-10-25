@@ -1,17 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { adminDate } from "../../lib/admin-display";
 import { supabase } from "../../lib/supabase";
 type Report = {
   id: string;
   listing_id: string;
+  report_no?: number|string;
+  resolved_at?:string|null;
+  resolved_by?:string|null;
   reason: string;
   message: string;
   status: string;
   created_at: string;
-  listings: { title: string } | null;
+  listings: { title: string;listing_no?:number|string } | null;
 };
-export default function ReportQueue() {
+export default function ReportQueue({onInspect,numbered=false}:{onInspect?:(id:string)=>void;numbered?:boolean}={}) {
+  const [search,setSearch]=useState(""),[query,setQuery]=useState(""),[from,setFrom]=useState(""),[until,setUntil]=useState("");
   const [reports, setReports] = useState<Report[]>([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(""),
@@ -26,11 +31,13 @@ export default function ReportQueue() {
     setLoading(true);
     setError("");
     let active = true;
-    supabase
-      .from("listing_reports")
-      .select("*,listings(title)")
-      .eq("status", tab)
-      .order("created_at", { ascending: false })
+    let builder=supabase.from("listing_reports").select(numbered?"*,listings(title,listing_no)":"*,listings(title)").eq("status",tab);
+    if (/^\d{8,18}$/.test(query)) builder=builder.eq("report_no",query);
+    else if(query) builder=builder.ilike("reason",`%${query.replace(/[%_]/g,"")}%`);
+    if(from)builder=builder.gte("created_at",`${from}T00:00:00+04:00`);
+    if(until)builder=builder.lte("created_at",`${until}T23:59:59.999999+04:00`);
+    builder.order("created_at", { ascending: false })
+      .order("id",{ascending:false})
       .range(page * 50, page * 50 + 49)
       .then(({ data, error }) => {
         if (!active) return;
@@ -41,7 +48,7 @@ export default function ReportQueue() {
     return () => {
       active = false;
     };
-  }, [tab, page]);
+  }, [tab, page,query,from,until,numbered]);
   async function resolve(id: string) {
     if (!supabase || busy) return;
     setBusy(id);
@@ -50,6 +57,7 @@ export default function ReportQueue() {
         .from("listing_reports")
         .update({ status: "resolved" })
         .eq("id", id)
+        .eq("status","open")
         .select("id")
         .single();
       if (result.error) throw result.error;
@@ -85,6 +93,8 @@ export default function ReportQueue() {
           Şikayət arxivi
         </button>
       </div>
+      <form className="adminSearch" onSubmit={event=>{event.preventDefault();setQuery(search.trim());setPage(0);}}><label>Şikayət nömrəsi və ya səbəb<input aria-label="Şikayət nömrəsi və ya səbəb" value={search} onChange={event=>setSearch(event.target.value)} maxLength={100}/></label><button className="secondary">Şikayət axtar</button></form>
+      <div className="adminExtraFilters"><label>Şikayət tarixindən<input type="date" value={from} max={until||undefined} onChange={event=>{setFrom(event.target.value);setPage(0);}}/></label><label>Şikayət tarixinədək<input type="date" value={until} min={from||undefined} onChange={event=>{setUntil(event.target.value);setPage(0);}}/></label></div>
       <p className="muted">Baxılan şikayətlər silinmir, arxivdə saxlanılır.</p>
       {loading ? (
         <p role="status">Yüklənir...</p>
@@ -95,13 +105,17 @@ export default function ReportQueue() {
       ) : (
         reports.map((report) => (
           <article className="moderationCard" key={report.id}>
+            <strong>Şikayət № {report.report_no ?? "təyin edilməyib"}</strong>
+            <p>Elan № {report.listings?.listing_no ?? "təyin edilməyib"}</p>
             <span className="status pending">{report.reason}</span>
             <h3>{report.listings?.title ?? "Elan"}</h3>
             <p className="description">{report.message}</p>
             <p className="muted">
-              {new Date(report.created_at).toLocaleDateString("az-AZ")}
+              Göndərilib: {adminDate(report.created_at)}
             </p>
+            {tab === "resolved" && <p className="muted">Baxılıb: {adminDate(report.resolved_at)}{report.resolved_by && <small> · Admin ID: {report.resolved_by}</small>}</p>}
             <div className="contactActions">
+              {onInspect && <button type="button" className="secondary" onClick={()=>onInspect(report.listing_id)}>Elanı paneldə yoxla</button>}
               <Link
                 className="secondary"
                 href={`/listings/${report.listing_id}`}
@@ -121,7 +135,7 @@ export default function ReportQueue() {
               )}
             </div>
             <small className="muted">
-              Elanı silmək üçün yuxarıdakı elan idarəetməsindən arxivə keçir.
+              Şikayətə baxmaq elanı avtomatik silmir. Elan barədə qərarı yoxlama bölməsində ver.
             </small>
           </article>
         ))

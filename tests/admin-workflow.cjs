@@ -85,6 +85,7 @@ const { chromium } = require("playwright");
       };
     else if (path.endsWith("/auth/v1/user")) body = user;
     else if (path.endsWith("/rest/v1/rpc/own_listing_view_counts")) body = [];
+    else if (path.endsWith("/rest/v1/rpc/admin_current_access")) body = {allowed:admin,role:admin?"moderator":"user"};
     else if (path.includes("/rest/v1/profiles"))
       body = {
         id: user.id,
@@ -267,7 +268,7 @@ const { chromium } = require("playwright");
       "search reaches an older listing by ID and compact admin fits mobile",
       async () => {
         await page
-          .getByLabel("Başlıq, telefon və ya elan ID-si", { exact: true })
+          .getByLabel("Başlıq, telefon, elan nömrəsi və ya ID-si", { exact: true })
           .fill(items[0].id);
         await page.getByRole("button", { name: "Axtar", exact: true }).click();
         await page

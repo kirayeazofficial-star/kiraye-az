@@ -21,7 +21,7 @@ export const getPublicListing = cache(
         .eq("id", id)
         .eq("status", "published")
         .maybeSingle();
-      const item = data && !isListingExpired(data as Listing) ? data as Listing : null;
+      const item = data && data.status === "published" && !isListingExpired(data as Listing) ? data as Listing : null;
       if (item && !error) {
         try {
           const result = await supabase.rpc("public_seller_since", { listing_id: id })

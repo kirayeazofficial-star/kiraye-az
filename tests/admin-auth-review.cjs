@@ -23,7 +23,7 @@ function test(name, fn) {
 function builder() {
   const calls = [];
   const result = { calls };
-  for (const key of ["eq", "or", "order", "range"])
+  for (const key of ["eq", "in", "or", "gte", "lte", "order", "range"])
     result[key] = (...args) => {
       calls.push([key, ...args]);
       return result;
@@ -78,3 +78,11 @@ test("fallback throttling supports codes and bounds invalid intervals", () => {
   assert.equal(rateLimitSeconds({ status: 400 }), null);
 });
 console.log(`${checks} admin/auth query checks passed`);
+
+test("archived admin tab includes expired listings and numeric IDs retain phone lookup", () => {
+ const q=builder();adminListingQuery(q,'archived','10000001',1,{from:'2026-10-01',until:'2026-10-25',kind:'edited'});
+ assert.equal(q.calls.find(c=>c[0]==='in')[2].join(','),'archived,expired');
+ assert(q.calls.some(c=>c[0]==='or'&&c[1].includes('listing_no.eq.10000001')));
+ assert(q.calls.some(c=>c[0]==='eq'&&c[1]==='review_kind'&&c[2]==='edited'));
+ assert(q.calls.some(c=>c[0]==='gte'&&c[2]==='2026-10-01T00:00:00+04:00'));
+});

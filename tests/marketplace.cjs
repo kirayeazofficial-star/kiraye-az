@@ -291,7 +291,7 @@ const { chromium } = require(
     await check("unknown listing returns missing-page UI", async () => {
       await page.goto(`${base}/listings/not-a-listing`);
       await page
-        .getByRole("heading", { name: "Bu ünvanda elan yoxdur" })
+        .getByRole("heading", { name: "Bu elan artıq aktiv deyil" })
         .waitFor();
     });
     await check(

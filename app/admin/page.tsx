@@ -3,6 +3,8 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { ModerationReview, ModerationHistory } from "../components/ModerationReview";
 import { rejectionReasons } from "../../lib/moderation";
+import StaffManagement from "../components/StaffManagement";
+import { adminDate, staffRoleName } from "../../lib/admin-display";
 import ReportQueue from "../components/ReportQueue";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -23,6 +25,8 @@ const statuses = [
   ["", "Hamısı"],
 ];
 export default function Admin() {
+  const [dateFrom,setDateFrom]=useState(""),[dateUntil,setDateUntil]=useState(""),[reviewKind,setReviewKind]=useState("");
+  const [staffRole,setStaffRole] = useState(""), [staffAccessReady,setStaffAccessReady] = useState(false);
   const [allowed, setAllowed] = useState(false),
     [checking, setChecking] = useState(true),
     [loading, setLoading] = useState(false),
@@ -55,6 +59,14 @@ export default function Admin() {
           .maybeSingle();
         if (result.error) throw result.error;
         if (active) setAllowed(result.data?.role === "admin");
+        if (result.data?.role === "admin") {
+          try {
+            const access=await client.rpc("admin_current_access").abortSignal(AbortSignal.timeout(5000));
+            if(active && !access.error && typeof access.data?.allowed==='boolean') {
+              setAllowed(access.data.allowed);setStaffRole(access.data.role);setStaffAccessReady(true);
+            }
+          } catch { /* Legacy access stays read from profiles; never infer leadership. */ }
+        }
       })
       .catch(() => {
         if (active)
@@ -74,7 +86,7 @@ export default function Admin() {
     setLoadError(false);
     setError("");
     const builder = supabase.from("listings").select("*", { count: "exact" });
-    Promise.resolve(adminListingQuery(builder, filter, query, page))
+    Promise.resolve(adminListingQuery(builder, filter, query, page,{from:dateFrom,until:dateUntil,kind:reviewKind}))
       .then(({ data, error, count }) => {
         if (!active) return;
         if (error) {
@@ -102,7 +114,7 @@ export default function Admin() {
     return () => {
       active = false;
     };
-  }, [allowed, filter, query, page, revision]);
+  }, [allowed, filter, query, page, revision,dateFrom,dateUntil,reviewKind]);
   async function moderate(item: Listing, status: "published" | "rejected") {
     if (!supabase || busy || loading) return;
     const reason = reasons[item.id]?.trim() || "";
@@ -139,7 +151,7 @@ export default function Admin() {
     }
   }
   function inspect(id: string) {
-    setFilter(""); setSearch(id); setQuery(id); setPage(1);
+    setDateFrom("");setDateUntil("");setReviewKind("");setFilter(""); setSearch(id); setQuery(id); setPage(1);
     document.getElementById("moderation")?.scrollIntoView({behavior:"smooth"});
   }
   function find(e: FormEvent<HTMLFormElement>) {
@@ -178,10 +190,12 @@ export default function Admin() {
           </div>
         ) : (
           <>
+            <p className="adminRoleLabel">Səlahiyyət: <strong>{staffAccessReady ? staffRoleName(staffRole) : "Admin — rol məlumatı serverdə yenilənməlidir"}</strong></p>
             <nav className="adminSections" aria-label="Admin bölmələri">
               <a href="#moderation">Elanların yoxlanılması</a>
               <a href="#reports">Şikayətlər</a>
               <a href="#moderation-history">Əməliyyat tarixçəsi</a>
+              {staffRole === "leader" && <a href="#staff-management">Adminlər</a>}
             </nav>
             <section id="moderation" aria-labelledby="moderation-title">
               <div className="sectionTitle">
@@ -212,7 +226,7 @@ export default function Admin() {
               </div>
               <form className="adminSearch" onSubmit={find}>
                 <label htmlFor="admin-search">
-                  Başlıq, telefon və ya elan ID-si
+                  Başlıq, telefon, elan nömrəsi və ya ID-si
                 </label>
                 <div>
                   <input
@@ -227,6 +241,11 @@ export default function Admin() {
                   </button>
                 </div>
               </form>
+              <div className="adminExtraFilters">
+                <label>Tarixdən<input type="date" value={dateFrom} max={dateUntil||undefined} onChange={event=>{setDateFrom(event.target.value);setPage(1);}}/></label>
+                <label>Tarixədək<input type="date" value={dateUntil} min={dateFrom||undefined} onChange={event=>{setDateUntil(event.target.value);setPage(1);}}/></label>
+                {staffAccessReady && <label>Yoxlama növü<select aria-label="Yoxlama növü" value={reviewKind} onChange={event=>{setReviewKind(event.target.value);setPage(1);}}><option value="">Hamısı</option><option value="new">Yeni elanlar</option><option value="edited">Dəyişdirilmiş elanlar</option></select></label>}
+              </div>
               {error && (
                 <p className="error" role="alert">
                   {error}
@@ -264,6 +283,7 @@ export default function Admin() {
                         {statusName(item.status)}
                       </span>
                       <h3>{item.title}</h3>
+                      {item.status === "pending" && item.review_kind === "edited" && <p className="notice">Yayımdan sonra dəyişdirilib — təkrar yoxlanmalıdır.</p>}
                       <p>
                         <strong>
                           {money(item.price)} ₼ /{" "}
@@ -303,8 +323,8 @@ export default function Admin() {
                       </dl>
                       <p className="description">{item.description}</p>
                       <p className="adminItemId">
-                        Elan ID: {item.id} ·{" "}
-                        {new Date(item.created_at).toLocaleDateString("az-AZ")}
+                        Elan № {item.listing_no ?? "təyin edilməyib"} · {adminDate(item.created_at)}
+                        <small> · Sistem ID: {item.id}</small>
                       </p>
                       {item.rejection_reason && (
                         <p className="error">
@@ -381,9 +401,10 @@ export default function Admin() {
                 </>
               )}
             </section>
+            {staffRole === "leader" && <StaffManagement/>}
             <ModerationHistory revision={revision} onInspect={inspect}/>
             <div id="reports">
-              <ReportQueue />
+              <ReportQueue onInspect={inspect} numbered={staffAccessReady} />
             </div>
           </>
         )}

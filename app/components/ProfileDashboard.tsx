@@ -59,6 +59,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       )
       .finally(() => setLoading(false));
   }, [balanceOnly]);
+  const [deleteConfirm,setDeleteConfirm]=useState("");
   async function archive(item: Listing) {
     if (!supabase || busy) return;
     setBusy(item.id);
@@ -70,15 +71,17 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         .update({ status: "archived" })
         .eq("id", item.id)
         .eq("owner_id", userId)
+        .eq("status",item.status)
         .select("id")
         .single();
       if (error) throw error;
       setListings((current) => current.map((x) =>
         x.id === item.id ? { ...x, status: "archived" } : x,
       ));
+      setDeleteConfirm("");
       setNotice("Elan axtarışdan götürüldü və arxivdə saxlanıldı. Bərpa ödənişli xidmətdir; hazırda ödənişlər aktiv deyil.");
     } catch {
-      setError("Elanı arxivə keçirmək mümkün olmadı. Yenidən cəhd et.");
+      setError("Elanı silmək mümkün olmadı. Yenidən cəhd et.");
     } finally {
       setBusy("");
     }
@@ -207,7 +210,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 !listings.some(
                   (x) => matchesTab(x,statusFilter),
                 ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
-              <p className="muted">Kirayəyə verilib və ya artıq mövcud deyil? Elanı arxivə keçir: axtarışda görünməyəcək, məlumatları hesabında qalacaq.</p>
+              <p className="muted">Kirayəyə verilib və ya artıq mövcud deyil? “Elanı sil” seç: saytda görünməyəcək, məlumatları hesabının arxivində qalacaq. Bərpa ödənişlidir.</p>
               {notice && <p className="notice" role="status">{notice}</p>}
               <div className="accountListings">
                 {listings
@@ -273,12 +276,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                           <button
                             className="secondary"
                             disabled={!!busy}
-                            onClick={() => archive(x)}
+                            onClick={() => setDeleteConfirm(x.id)}
                           >
-                            {busy === x.id ? "Gözləyin..." : "Sil / arxivə keçir"}
+                            {busy === x.id ? "Gözləyin..." : "Elanı sil"}
                           </button>
                         )}
                       </div>
+                    {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan saytdan götürüləcək və hesabının arxivində saxlanılacaq. Bərpa ödənişlidir; hazırda ödənişlər bağlıdır.</p><button type="button" className="secondary" disabled={!!busy} onClick={()=>archive(x)}>Bəli, elanı sil</button><button type="button" className="textButton" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
                     </article>
                   ))}
               </div>

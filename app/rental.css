@@ -1420,3 +1420,10 @@ footer .footerLinks { flex-wrap:wrap; }
  .rentalHome .searchPanel .mobileSearchLabel::after { content:none; }
  .rentalHome .searchPanel .mobileSearchLabel svg { width:20px;height:20px; }
 }
+
+/* Rounded control focus replaces the oversized global green outline. */
+.rentalHome .searchPanel input[type="search"] { -webkit-appearance:none;appearance:none; }
+.rentalHome .searchPanel input:focus,
+.rentalHome .searchPanel select:focus { outline:none;outline-offset:0;border-color:#7d8792;box-shadow:inset 0 0 0 1px #7d8792; }
+.header .mobileLanguageSelect { border:1px solid transparent;border-radius:8px; }
+.header .mobileLanguageSelect:focus { outline:none;outline-offset:0;border-color:#7d8792;box-shadow:inset 0 0 0 1px #7d8792;background:#f5f6f8; }

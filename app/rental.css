@@ -1533,7 +1533,9 @@ footer .footerLinks { flex-wrap:wrap; }
 .accountDashboard .desktopListingTabs button { min-height:40px;padding:9px 12px;font-size:12px; }
 @media(max-width:760px){
  .accountDashboard .cabinetLayout { grid-template-columns:1fr;gap:16px; }
- .accountDashboard .cabinetNav,.accountDashboard .desktopListingTabs { display:none; }
+ .accountDashboard .cabinetNav { display:none; }
+ .accountDashboard .desktopListingTabs.listingStatusStrip { display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;padding-bottom:8px;scroll-snap-type:x proximity; }
+ .accountDashboard .listingStatusStrip button { flex:0 0 auto;scroll-snap-align:start;white-space:nowrap; }
  .accountDashboard .mobileCabinetControls { display:flex;align-items:end;gap:10px;margin-bottom:12px; }
  .mobileCabinetControls label { display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;font-size:12px;color:#64766d; }
  .mobileCabinetControls select,.mobileListingStatus select { min-height:44px;width:100%;padding:10px 12px;font-size:16px;border:1px solid #dce5df;border-radius:9px;background:#fff;color:#29453d; }
@@ -1559,4 +1561,45 @@ footer .footerLinks { flex-wrap:wrap; }
  .header.isSignedIn { grid-template-columns:minmax(0,1fr) 54px; }
  .header.isSignedIn .headerActions .accountMenu,.header.isSignedIn .headerActions .headerPublish { display:none; }
  .header.isSignedIn .languageSelect { grid-column:2; }
+}
+
+/* Private, persistent listing conversations. */
+.messagesPage { max-width:1100px;margin:24px auto;padding:0 20px 110px; }
+.messagesLayout { display:grid;grid-template-columns:300px minmax(0,1fr);border:1px solid #dce5df;border-radius:12px;background:white;min-height:65vh;overflow:hidden; }
+.conversationList { min-width:0;border-right:1px solid #dce5df;padding:10px;max-height:75vh;overflow-y:auto; }
+.conversationList>button { display:flex;flex-direction:column;align-items:flex-start;position:relative;width:100%;text-align:left;padding:12px;border:0;border-radius:8px;background:transparent;gap:5px;overflow-wrap:anywhere; }
+.conversationList>button[aria-pressed=true] { background:#fff4ee; }
+.conversationList small { color:#64766d; }
+.conversationList b,.unreadMessages { border-radius:20px;background:#bd4a26;color:white;padding:2px 6px;font-size:11px; }
+.conversationBody { min-width:0;padding:16px;display:flex;flex-direction:column; }
+.conversationHeading { padding-bottom:12px;border-bottom:1px solid #dce5df;overflow-wrap:anywhere; }
+.conversationHeading h2 { font-size:18px; }
+.conversationHeading button,.chatReport button { padding:8px;border:1px solid #dce5df;border-radius:8px;background:white;margin-top:8px; }
+.conversationBack { display:none; }
+.messageHistory { min-height:160px;max-height:50dvh;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:16px 0; }
+.messageHistory article { max-width:90%;border-radius:12px;padding:10px 14px;overflow-wrap:anywhere; }
+.messageHistory article p { white-space:pre-wrap;margin:0 0 6px; }
+.messageHistory article small { font-size:11px;color:#64766d; }
+.ownMessage { align-self:flex-end;background:#eef5ef; }
+.peerMessage { align-self:flex-start;background:#f4f4f4; }
+.peerMessage button { display:block;font-size:11px;background:transparent;border:0;color:#64766d;padding:6px 0; }
+.messageComposer { display:flex;flex-wrap:wrap;gap:8px;margin-top:auto; }
+.messageComposer label,.messageComposer textarea { width:100%; }
+.messageComposer textarea,.chatReport textarea { box-sizing:border-box;width:100%;min-height:80px;padding:10px;border:1px solid #dce5df;border-radius:8px;resize:vertical;font-size:16px; }
+.messageComposer button { margin-left:auto;min-height:44px; }
+.chatReport { padding:12px;background:#fff8f3; }
+@media(max-width:760px) {
+ .mobileNav { grid-template-columns:repeat(5,minmax(0,1fr)); }
+ .mobileNav a { position:relative; }
+ .mobileNav .unreadMessages { position:absolute;top:0;right:2px; }
+ .messagesPage { padding:0 12px calc(100px + env(safe-area-inset-bottom)); }
+ .messagesLayout { display:block; }
+ .conversationList { border-right:0;max-height:none; }
+ .conversationBody { display:none; }
+ .hasConversation .conversationList { display:none; }
+ .hasConversation .conversationBody { display:flex; }
+ .conversationBack { display:inline-block; }
+ .messageHistory { max-height:45dvh; }
+ .contactActions { display:flex;flex-wrap:wrap;gap:8px; }
+ .contactActions>a,.contactActions>button { min-height:44px;flex:1 1 auto; }
 }

@@ -6,6 +6,7 @@ import { rejectionReasons } from "../../lib/moderation";
 import StaffManagement from "../components/StaffManagement";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import ReportQueue from "../components/ReportQueue";
+import ChatReports from "../components/ChatReports";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { supabase } from "../../lib/supabase";
@@ -402,6 +403,7 @@ export default function Admin() {
             </section>
             {staffRole === "leader" && <StaffManagement/>}
             <ModerationHistory revision={revision} onInspect={inspect}/>
+            <ChatReports/>
             <div id="reports">
               <ReportQueue onInspect={inspect} numbered={staffAccessReady} />
             </div>

@@ -191,8 +191,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   </Link>
                 </div>
               )}
-              <label className="mobileListingStatus">Elan vəziyyəti<select aria-label="Elan vəziyyəti" value={statusFilter} onChange={event=>setStatusFilter(event.target.value)}>{listingTabs.map(([status,label])=><option key={status} value={status}>{label} ({listings.filter(item=>matchesTab(item,status)).length})</option>)}</select></label>
-              <div className="profileTabs desktopListingTabs" aria-label="Elan vəziyyəti">
+              <div className="profileTabs desktopListingTabs listingStatusStrip" aria-label="Elan vəziyyəti">
                 {listingTabs.map(([status, label]) => (
                   <button
                     key={status}
@@ -208,7 +207,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     )
                   </button>
                 ))}
-                <button type="button" className="secondary" disabled title="Ödəniş xidməti hələ aktiv deyil">Ödəniş gözləyir (0)</button>
               </div>
               {!!listings.length &&
                 !listings.some(

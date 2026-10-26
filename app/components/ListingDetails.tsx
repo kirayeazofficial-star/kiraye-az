@@ -3,7 +3,6 @@ import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
-import PromotionOptions from "./PromotionOptions";
 import { formatContact, partiallyHiddenContact } from "../../lib/contact-mask";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
@@ -232,9 +231,9 @@ export default function ListingDetails({
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
-        {isOwner && !item.demo && <div className="detailPromotion"><PromotionOptions eligible={item.status === "published"} /></div>}
         {phone && !item.demo ? (
           <div className="contactActions">
+            {!isOwner&&<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
             {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et · {formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər">Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"
@@ -242,7 +241,7 @@ export default function ListingDetails({
               target="_blank"
               rel="noopener noreferrer"
             >
-              WhatsApp
+               WhatsApp
             </a>
           </div>
         ) : (

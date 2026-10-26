@@ -32,6 +32,8 @@ The user wants account access in the bottom-right mobile navigation, with langua
 
 Ən yeni davam nöqtəsi `docs/CONTINUATION-LATEST.md`, son məhsul qərarları isə `docs/USER-DECISIONS-2026-10-26.md` faylındadır. Əvvəl bunları oxu. Aşağıdakı yenilənmiş qaydalar əvvəlki ziddiyyətli qaydaları əvəz edir, qalan tapşırıqlar qüvvədədir:
 
+- Son şərtli silmə icazəsi: yalnız bu saytın kodu, tam DB/Auth/Storage/mesaj/cron/domen yolları hostinqdə müstəqil işlədikdə, köhnə canlı asılılıq qalmadıqda və müstəqil şifrəli ehtiyatdan bərpa təsdiqləndikdə həmin sayta aid Supabase layihəsi/Vercel yerləşdirmələri silinə bilər. Bu konkret şərtli icazə əvvəlki əlavə son təsdiq gözləntisini əvəz edir; şərtlər ödənməyibsə heç nə silmə. Hesabların özünü və digər layihələri silmək icazəsi yoxdur. Sadəcə PGdump bərpası bütün Auth/API/Storage platformasının bərpası deyil. Hazırda şərtlər ödənməyib.
+
 - Mobil qəbul matrisi:320,360,375,390,430px və ayrıca375×667; böyük telefon sınağı kifayət deyil. Kabinet uzun mətnləri normal şriftlə sətirə keçirsin, dar ekranda sütun sayı uyğunlaşsın; səhifə daşması gizlədilməsin. Yalnız status sətri məqsədli üfüqi sürüşür. VisualViewport/klaviatura, uzun ad/mətn, boş/yüklənmə/xəta və masaüstü yoxlansın. Real iPhone7/Safari yoxlanmayıbsa bunu açıq yaz; Chromium ölçü sınağı Safari deyil.
 
 - İlk prioritet istifadəçinin bildirdiyi mesaj çatdırılma nasazlığıdır: əvvəlki idarə olunan sınaq keçsə belə bunu həll olunmuş sayma. İki ayrı brauzer sessiyasında düzgün alıcı, bazaya yazılma, RLS, inbox, yenilənmə və təkrar giriş yoxlansın. Göndərənin ekranındakı mesaj təkbaşına çatdırılma sübutu deyil.

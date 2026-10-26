@@ -1,6 +1,7 @@
 "use client";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
+import NavigationIcon from './NavigationIcon';
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
 import { formatContact, partiallyHiddenContact } from "../../lib/contact-mask";
@@ -233,7 +234,7 @@ export default function ListingDetails({
         </strong>
         {phone && !item.demo ? (
           <div className="contactActions">
-            {!isOwner&&<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
+            {isOwner?<Link className="secondary" href={`/edit/${item.id}`}>Elanı redaktə et</Link>:<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
             {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et · {formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər">Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"
@@ -258,7 +259,7 @@ export default function ListingDetails({
             aria-pressed={favorite}
             onClick={toggleFavorite}
           >
-            {favorite ? "♥ Seçilmişlərdə" : "♡ Seçilmişlərə əlavə et"}
+            <NavigationIcon name="heart" filled={favorite}/>{favorite ? "Seçilmişlərdə" : "Seçilmişlərə əlavə et"}
           </button>
           <button className="secondary" onClick={share}>
             Keçidi paylaş

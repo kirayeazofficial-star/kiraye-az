@@ -49,7 +49,7 @@ export default function Header() {
         </a></div>
         <nav aria-label="Əsas menyu">
           <a href="/#elanlar">{t("Elanlar")}</a>
-          <a href="/?favorites=1#elanlar">{t("♡ Seçilmişlər")}</a>
+          <a href="/?favorites=1#elanlar"><NavigationIcon name="heart"/>{t("Seçilmişlər")}</a>
           <Link href="/help">{t("Kömək")}</Link>
           <Link className="desktopMessagesLink" href="/messages"><NavigationIcon name="message"/>{t("Mesajlar")}{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
         </nav>

@@ -2,6 +2,7 @@
 import { useLanguage } from "./LanguageProvider";
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
+import NavigationIcon from './NavigationIcon';
 import { minimumRentalLabel } from "../../lib/rental-details";
 import Link from "next/link";
 import {
@@ -43,7 +44,7 @@ export default function ListingCard({
           aria-pressed={favorite}
           onClick={event=>{event.preventDefault();event.stopPropagation();onFavorite();}}
         >
-          {favorite ? "♥" : "♡"}
+          <NavigationIcon name="heart" filled={favorite}/>
         </button>
       </div>
       <Link prefetch={false} className="cardBody" href={`/listings/${item.id}`}>

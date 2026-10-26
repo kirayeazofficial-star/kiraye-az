@@ -7,7 +7,6 @@ import PhotoMark from "./PhotoMark";
 import NavigationIcon from "./NavigationIcon";
 import AccountLimits from "./AccountLimits";
 import BalancePreview from "../components/BalancePreview";
-import PromotionOptions from "../components/PromotionOptions";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { effectiveListingStatus } from "../../lib/listing-lifecycle";
@@ -37,6 +36,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
     [statusFilter, setStatusFilter] = useState("");
+  useEffect(()=>{if(!supabase||!userId)return;const {data}=supabase.auth.onAuthStateChange((_event,session)=>{if((session?.user.id||'')!==userId){setListings([]);setViews(null);setAdmin(false);setIdentity('');setUserId('');window.location.replace(session?'/profile':'/');}});return()=>data.subscription.unsubscribe();},[userId]);
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
@@ -152,10 +152,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </span></Link>
               
               <Link href="/account"><NavigationIcon name="account"/><span>Profil</span></Link>
-              <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}>Balans</Link>
-              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="search"/><span>Əməliyyat tarixçəsi</span></a>
-              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="account"/><span>Mənim kartlarım</span></a>
-              <a href="/profile?section=limits" aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="search"/><span>Limitlər</span></a>
+              <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}><NavigationIcon name="wallet"/><span>Balans</span></Link>
+              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></a>
+              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></a>
+              <a href="/profile?section=limits" aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></a>
               {admin && <Link href="/admin">Admin paneli</Link>}
               <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
             </nav>
@@ -265,7 +265,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         {x.expires_at && <p className="muted">Bitmə tarixi: {new Date(x.expires_at).toLocaleDateString("az-AZ")}</p>}
                       </div>
                       <div className="accountItemActions">
-                        {!["archived","expired"].includes(effectiveListingStatus(x)) && <PromotionOptions eligible={effectiveListingStatus(x) === "published"} />}
                         {["expired", "archived"].includes(effectiveListingStatus(x)) && <button type="button" className="secondary" disabled={!!busy} onClick={() => renew(x)}>{busy === x.id ? "Gözləyin..." : "Bərpa et"}</button>}
                         {!["archived","expired"].includes(effectiveListingStatus(x)) && <Link className="secondary" href={`/edit/${x.id}`}>Redaktə et</Link>}
                         <Link

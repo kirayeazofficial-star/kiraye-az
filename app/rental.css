@@ -1533,7 +1533,9 @@ footer .footerLinks { flex-wrap:wrap; }
 .accountDashboard .desktopListingTabs button { min-height:40px;padding:9px 12px;font-size:12px; }
 @media(max-width:760px){
  .accountDashboard .cabinetLayout { grid-template-columns:1fr;gap:16px; }
- .accountDashboard .cabinetNav,.accountDashboard .desktopListingTabs { display:none; }
+ .accountDashboard .cabinetNav { display:none; }
+ .accountDashboard .desktopListingTabs.listingStatusStrip { display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;padding-bottom:8px;scroll-snap-type:x proximity; }
+ .accountDashboard .listingStatusStrip button { flex:0 0 auto;scroll-snap-align:start;white-space:nowrap; }
  .accountDashboard .mobileCabinetControls { display:flex;align-items:end;gap:10px;margin-bottom:12px; }
  .mobileCabinetControls label { display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;font-size:12px;color:#64766d; }
  .mobileCabinetControls select,.mobileListingStatus select { min-height:44px;width:100%;padding:10px 12px;font-size:16px;border:1px solid #dce5df;border-radius:9px;background:#fff;color:#29453d; }
@@ -1559,4 +1561,147 @@ footer .footerLinks { flex-wrap:wrap; }
  .header.isSignedIn { grid-template-columns:minmax(0,1fr) 54px; }
  .header.isSignedIn .headerActions .accountMenu,.header.isSignedIn .headerActions .headerPublish { display:none; }
  .header.isSignedIn .languageSelect { grid-column:2; }
+}
+
+/* Private, persistent listing conversations. */
+/* Older iOS receives vh fallbacks before the dynamic viewport declarations. */
+.messageHistory { max-height:50vh; }
+.header nav .desktopMessagesLink { display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;background:#fff4ee;color:#a44124;font-weight:600; }
+.directAdminLink { font-weight:700;color:#a44124; }
+.adminSections { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px; }
+.adminSections button[aria-pressed=true] { background:#fff4ee;border-color:#d9a58e; }
+.adminDashboard [hidden] { display:none!important; }
+.accountLimits { display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px; }
+.accountLimits article { border:1px solid #dce5df;padding:14px;border-radius:10px; }
+.cabinetCards a { display:flex;align-items:center;gap:8px; }
+.messageHistory article { font-size:16px;line-height:1.65; }
+.conversationList>button { min-height:76px;line-height:1.5; }
+@media(max-width:760px){
+ .accountDashboard .cabinetNav.cabinetCards { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0; }
+ .cabinetCards a { min-width:0;min-height:56px;padding:10px;font-size:14px;line-height:1.4;overflow-wrap:anywhere;background:white;border:1px solid #dce5df;border-radius:10px; }
+ .cabinetCards a[aria-current=page] { background:#fff4ee;border-color:#e5b79e; }
+ .cabinetCards a svg { flex-shrink:0; }
+ .cabinetCards .cabinetLogout { grid-column:1/-1;min-height:44px;text-align:left; }
+ .accountDashboard .compactBalance { margin-bottom:8px; }
+ .listingCard .heart { width:30px;height:30px;min-height:30px;min-width:30px;padding:0;background:transparent;border:0;box-shadow:none;border-radius:0;color:white;text-shadow:0 1px 4px #000;font-size:28px;line-height:30px; }
+ .listingCard .heart.selected { color:#ef623d; }
+}
+.messagesPage { max-width:1100px;margin:24px auto;padding:0 20px 110px; }
+.messagesLayout { display:grid;grid-template-columns:300px minmax(0,1fr);border:1px solid #dce5df;border-radius:12px;background:white;min-height:65vh;overflow:hidden; }
+.conversationList { min-width:0;border-right:1px solid #dce5df;padding:10px;max-height:75vh;overflow-y:auto; }
+.conversationList>button { display:flex;flex-direction:column;align-items:flex-start;position:relative;width:100%;text-align:left;padding:12px;border:0;border-radius:8px;background:transparent;gap:5px;overflow-wrap:anywhere; }
+.conversationList>button[aria-pressed=true] { background:#fff4ee; }
+.conversationList small { color:#64766d; }
+.conversationList b,.unreadMessages { border-radius:20px;background:#bd4a26;color:white;padding:2px 6px;font-size:11px; }
+.conversationBody { min-width:0;padding:16px;display:flex;flex-direction:column; }
+.conversationHeading { padding-bottom:12px;border-bottom:1px solid #dce5df;overflow-wrap:anywhere; }
+.conversationHeading h2 { font-size:18px; }
+.conversationHeading button,.chatReport button { padding:8px;border:1px solid #dce5df;border-radius:8px;background:white;margin-top:8px; }
+.conversationBack { display:none; }
+.messageHistory { min-height:160px;max-height:50dvh;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:16px 0; }
+.messageHistory article { max-width:90%;border-radius:12px;padding:10px 14px;overflow-wrap:anywhere; }
+.messageHistory article p { white-space:pre-wrap;margin:0 0 6px; }
+.messageHistory article small { font-size:11px;color:#64766d; }
+.ownMessage { align-self:flex-end;background:#eef5ef; }
+.peerMessage { align-self:flex-start;background:#f4f4f4; }
+.peerMessage button { display:block;font-size:11px;background:transparent;border:0;color:#64766d;padding:6px 0; }
+.messageComposer { display:flex;flex-wrap:wrap;gap:8px;margin-top:auto; }
+.messageComposer label,.messageComposer textarea { width:100%; }
+.messageComposer textarea,.chatReport textarea { box-sizing:border-box;width:100%;min-height:80px;padding:10px;border:1px solid #dce5df;border-radius:8px;resize:vertical;font-size:16px; }
+.messageComposer button { margin-left:auto;min-height:44px; }
+.chatReport { padding:12px;background:#fff8f3; }
+@media(max-width:760px) {
+ .mobileNav { grid-template-columns:repeat(5,minmax(0,1fr)); }
+ .mobileNav a { position:relative; }
+ .mobileNav .unreadMessages { position:absolute;top:0;right:2px; }
+ .messagesPage { padding:0 12px calc(100px + env(safe-area-inset-bottom)); }
+ .messagesLayout { display:block; }
+ .conversationList { border-right:0;max-height:none; }
+ .conversationBody { display:none; }
+ .hasConversation .conversationList { display:none; }
+ .hasConversation .conversationBody { display:flex; }
+ .conversationBack { display:inline-block; }
+ .messageHistory { max-height:45dvh; }
+ .contactActions { display:flex;flex-wrap:wrap;gap:8px; }
+ .contactActions>a,.contactActions>button { min-height:44px;flex:1 1 auto; }
+}
+
+/* Narrow mobile layouts: wrap content instead of shrinking labels or hiding overflow. */
+.cabinetMenuToggle { display:none; }
+.profileSettingsGrid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start;margin-top:20px; }
+.profileSettingsGrid .accountForm { margin:0;max-width:none;padding:22px;border:1px solid #dce5df;border-radius:12px;background:#fff;min-width:0; }
+.profileSettingsGrid p { line-height:1.6;overflow-wrap:anywhere; }
+.profileSettingsGrid h2 { font-size:22px;margin:0 0 8px; }
+.profileSettingsGrid input { width:100%;box-sizing:border-box; }
+.rememberLogin { display:flex!important;flex-direction:row!important;align-items:center;gap:10px;font-size:16px;line-height:1.4;min-height:44px;margin:6px 0 14px; }
+.rememberLogin input { width:20px!important;height:20px!important;min-height:20px!important;margin:0;accent-color:#bd4a26; }
+.listingCard .heart { display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;min-width:44px;padding:8px;border:0;background:transparent!important;border-radius:0;box-shadow:none;color:#fff; }
+.listingCard .heart svg { width:25px;height:25px;filter:drop-shadow(0 1px 2px #0008); }
+.listingCard .heart.selected { color:#e95e38; }
+.detailTools button { display:inline-flex;align-items:center;justify-content:center;gap:8px; }
+.cabinetCards a { color:#29453d; }
+@media(max-width:760px){
+ .profileSettingsGrid { grid-template-columns:minmax(0,1fr);gap:16px; }
+ .profileSettingsGrid .accountForm { padding:16px; }
+ .cabinetMenuToggle { display:block;width:100%;text-align:left;font-size:16px;min-height:48px;margin-bottom:10px; }
+ .accountDashboard .cabinetSidebar.isCollapsed .cabinetNav.cabinetCards,.accountDashboard .cabinetSidebar.isCollapsed>.balancePreview { display:none; }
+ .wrap,.messagesPage { box-sizing:border-box;min-width:0; }
+ main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select,main textarea { font-size:16px!important; }
+ main input[autocomplete=one-time-code] { font-size:24px!important; }
+ .cabinetLayout>* ,.cabinetContent,.cabinetSidebar,.listingForm>*,.adminDashboard section { min-width:0; }
+ .accountDashboard .cabinetNav.cabinetCards { overflow:visible;align-items:stretch;padding:0; }
+ .accountDashboard .cabinetNav.cabinetCards a { box-sizing:border-box;flex:initial;white-space:normal;word-break:normal;overflow-wrap:break-word;min-width:0;max-width:100%;min-height:64px;font-size:16px;line-height:1.45;align-items:center;padding:12px 10px; }
+ .accountDashboard .cabinetNav.cabinetCards a span { min-width:0;white-space:normal; }
+ .accountDashboard .cabinetNav.cabinetCards .cabinetLogout { white-space:normal;min-height:48px;font-size:16px;margin-top:6px; }
+ .accountDashboard .accountIdentity,.accountDashboard .accountHeading { overflow-wrap:anywhere; }
+ .wrap h1,.messagesPage h1 { font-size:28px;line-height:1.2;overflow-wrap:break-word; }
+ .wrap h2 { font-size:22px;line-height:1.3;overflow-wrap:break-word; }
+ .wrap p,.wrap label,.messagesPage p { overflow-wrap:break-word; }
+ .wrap input,.wrap select,.wrap textarea,.authCard input,.authCard select { box-sizing:border-box;max-width:100%;min-width:0;font-size:16px; }
+ .wrap button,.wrap .add,.wrap .secondary { white-space:normal;line-height:1.4;min-height:44px; }
+ .accountDashboard .listingStatusStrip button { white-space:nowrap; }
+ .sectionTitle,.accountDashboard .cabinetContent>.sectionTitle { flex-wrap:wrap; }
+ .accountLimits { grid-template-columns:minmax(0,1fr); }
+ .adminSections { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .adminSections button { min-width:0;font-size:16px;padding:10px; }
+ .adminDashboard .adminSearch>div { flex-wrap:wrap; }
+ .adminDashboard .adminSearch input { flex:1 1 180px;width:auto; }
+ .adminDashboard .adminSearch button { flex:1 1 80px; }
+ .adminDashboard .moderationCard,.staffAccount,.walletPanel { min-width:0;overflow-wrap:anywhere; }
+ .conversationList button span,.conversationList button strong { max-width:100%;white-space:normal;overflow-wrap:anywhere; }
+ .conversationList button small { display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5; }
+ .conversationList time { font-size:12px;line-height:1.4;color:#64766d; }
+ .messageComposer { flex-shrink:0;padding-bottom:env(safe-area-inset-bottom); }
+ .messageComposer textarea { font:inherit;font-size:16px;line-height:1.5;min-height:76px; }
+ .messageComposer button { min-height:48px;min-width:100px;font-size:16px; }
+ .messagesPage.isKeyboardOpen { position:fixed;z-index:10000;top:var(--chat-visible-top,0px);left:0;right:0;height:var(--chat-visible-height,100vh);margin:0;padding:6px;background:#f5f8f6; }
+ .messagesPage.isKeyboardOpen>h1 { display:none; }
+ .isKeyboardOpen .messagesLayout,.isKeyboardOpen .conversationBody { height:100%;min-height:0;box-sizing:border-box; }
+ .isKeyboardOpen .conversationHeading { flex-shrink:0;max-height:28%;overflow-y:auto; }
+ .isKeyboardOpen .messageHistory { flex:1 1 auto;min-height:40px;max-height:none; }
+ .isKeyboardOpen .messageComposer textarea { min-height:52px;max-height:90px; }
+}
+@media(max-width:359px){
+ .accountDashboard .cabinetNav.cabinetCards { grid-template-columns:minmax(0,1fr); }
+ .accountDashboard .cabinetNav.cabinetCards a { min-height:52px; }
+ .adminSections { grid-template-columns:minmax(0,1fr); }
+}
+/* Tablet is a separate layout, not a squeezed desktop header/sidebar. */
+@media(min-width:761px) and (max-width:1100px){
+ .header>nav { display:none; }
+ .header .logo { font-size:30px; }
+ .headerActions { min-width:0;gap:12px; }
+ .headerActions .accountMenuCaption { display:none; }
+}
+@media(min-width:761px) and (max-width:1024px){
+ .accountDashboard .cabinetLayout { grid-template-columns:minmax(0,1fr);gap:20px; }
+ .accountDashboard .cabinetMenuToggle { display:block;width:100%;min-height:48px;text-align:left;font-size:16px;margin-bottom:12px; }
+ .accountDashboard .cabinetNav.cabinetCards { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;overflow:visible;margin:12px 0; }
+ .accountDashboard .cabinetNav.cabinetCards a { flex:initial;white-space:normal;min-width:0;font-size:16px;line-height:1.5;min-height:56px; }
+ .accountDashboard .cabinetNav.cabinetCards .cabinetLogout { grid-column:1/-1;min-height:44px; }
+ .accountDashboard .cabinetSidebar.isCollapsed .cabinetNav.cabinetCards,.accountDashboard .cabinetSidebar.isCollapsed>.balancePreview { display:none; }
+ .accountDashboard .compactBalance { flex-direction:row;align-items:center;justify-content:space-between; }
+ .accountDashboard .accountListings article { grid-template-columns:160px minmax(0,1fr) auto; }
+ main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select,main textarea { font-size:16px!important; }
+ .wrap button,.wrap .add,.wrap .secondary { min-height:44px; }
 }

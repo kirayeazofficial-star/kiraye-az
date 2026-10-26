@@ -1,0 +1,8 @@
+{
+  "database": {"host": "SESSION_POOLER_HOST", "port": 5432, "user": "DATABASE_USER", "password": "SECRET", "name": "postgres"},
+  "supabase": {"project_ref": "PROJECT_REF", "read_token": "PROJECT_ONLY_READ_TOKEN"},
+  "drive": {"client_id": "GOOGLE_OAUTH_CLIENT_ID", "client_secret": "SECRET", "refresh_token": "OFFLINE_DRIVE_FILE_SCOPE_TOKEN", "folder_id": ""},
+  "server": {"host": "SSH_HOST", "port": 22, "user": "SSH_USER", "readonly_key": "NEW_DEDICATED_FORCED_COMMAND_KEY_ONLY", "known_hosts": "VERIFIED_SSH_HOST_KEY_LINE"},
+  "recipient_public_key": "age1PUBLIC_RECOVERY_RECIPIENT_ONLY_NO_PASSWORD_OR_PRIVATE_KEY",
+  "notification": {"host": "SMTP_HOST_IF_USED", "user": "SMTP_USER", "password": "SECRET", "sender": "noreply@kirayeal.az"}
+}

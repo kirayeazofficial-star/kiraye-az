@@ -9,6 +9,7 @@ import {
 } from "../../lib/auth-messages";
 import { checkRecoveryEmail } from "../../lib/recovery-check";
 import { finishWithin } from "../../lib/auth-return";
+import {rememberLogin,setRememberLogin} from '../../lib/auth-storage';
 import { authCallbackUrl } from "../../lib/auth-flow";
 import { getAuthCapabilities, supabase } from "../../lib/supabase";
 import { rateLimitSeconds } from "../../lib/auth-throttle";
@@ -25,6 +26,8 @@ export default function Login({
   next?: string;
 }) {
   const [phoneEnabled, setPhoneEnabled] = useState(false);
+  const [remember,setRemember]=useState(true);
+  useEffect(()=>setRemember(rememberLogin()),[]);
   const [ready, setReady] = useState(false);
   const emailInput = useRef<HTMLInputElement>(null);
   const passwordInput = useRef<HTMLInputElement>(null);
@@ -194,6 +197,7 @@ export default function Login({
     return () => clearTimeout(timer);
   }, [requestCooldown]);
   async function submit(e: FormEvent<HTMLFormElement>) {
+    setRememberLogin(remember);
     e.preventDefault();
     if (!ready || busy || submitBlocked) return;
     if (!supabase) {
@@ -275,7 +279,7 @@ export default function Login({
     const token = String(
       new FormData(e.currentTarget).get("code") || "",
     ).trim();
-    if (!(verification === "recovery" ? /^\d{6}$/ : /^\d{6,10}$/).test(token)) {
+    if (!/^\d{6}$/.test(token)) {
       setNotice(
         verification === "recovery"
           ? "E-poçtuna gələn 6 rəqəmli kodu yaz."
@@ -371,9 +375,9 @@ export default function Login({
             name="code"
             inputMode="numeric"
             autoComplete="one-time-code"
-            pattern={verification === "recovery" ? "[0-9]{6}" : "[0-9]{6,10}"}
+            pattern="[0-9]{6}"
             minLength={6}
-            maxLength={verification === "recovery" ? 6 : 10}
+            maxLength={6}
             required
             placeholder="000000"
           />
@@ -584,6 +588,7 @@ export default function Login({
                         Şifrəni unutmusunuz?
                       </a>
                     )}
+                    {mode!=="reset"&&<label className="rememberLogin"><input type="checkbox" checked={remember} onChange={event=>setRemember(event.target.checked)}/>Məni yadda saxla</label>}
                     <button
                       className="authSubmit"
                       disabled={!ready || busy || submitBlocked}
@@ -609,7 +614,7 @@ export default function Login({
                   <p className="confirmationInstruction">
                     {verification === "recovery"
                       ? "E-poçtuna gələn 6 rəqəmli kodu daxil et."
-                      : "Məktubdakı hesabı təsdiqlə linkini aç."}
+                      : "Məktubdakı 6 rəqəmli təsdiq kodunu daxil et."}
                   </p>
                   <p className="mailHelp">
                     Məktub gəlməyib? Spam qovluğunu da yoxla.

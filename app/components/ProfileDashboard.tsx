@@ -4,8 +4,9 @@ import Link from "next/link";
 import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
+import NavigationIcon from "./NavigationIcon";
+import AccountLimits from "./AccountLimits";
 import BalancePreview from "../components/BalancePreview";
-import PromotionOptions from "../components/PromotionOptions";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { effectiveListingStatus } from "../../lib/listing-lifecycle";
@@ -20,8 +21,10 @@ import {
 } from "../../lib/marketplace";
 const listingTabs = [["", "Hamısı"], ["published", "Yayımlanmış"], ["pending", "Yoxlanılır"], ["rejected", "Rədd edilmiş"], ["draft", "Dərc olunmamış"], ["expired", "Müddəti bitmiş"], ["archived", "Arxiv"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
+  const [cabinetMenuOpen,setCabinetMenuOpen]=useState(true);
+  useEffect(()=>{if(balanceOnly||new URLSearchParams(window.location.search).has('section'))setCabinetMenuOpen(false);},[balanceOnly]);
   const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState("");
-  useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards"].includes(value))setSection(value);},[]);
+  useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards","limits"].includes(value))setSection(value);},[]);
   const [accountPhone,setAccountPhone]=useState("");
   const [views,setViews] = useState<Record<string,number>|null>(null);
   const [identity, setIdentity] = useState(""),
@@ -33,6 +36,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
     [statusFilter, setStatusFilter] = useState("");
+  useEffect(()=>{if(!supabase||!userId)return;const {data}=supabase.auth.onAuthStateChange((_event,session)=>{if((session?.user.id||'')!==userId){setListings([]);setViews(null);setAdmin(false);setIdentity('');setUserId('');window.location.replace(session?'/profile':'/');}});return()=>data.subscription.unsubscribe();},[userId]);
   useEffect(() => {
     if (!supabase) {
       setLoading(false);
@@ -139,25 +143,25 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
           </div>
         ) : (
           <><div className="cabinetLayout">
-            <aside className="cabinetSidebar">
-              <div className="mobileCabinetControls"><label>Hesab bölməsi<select aria-label="Hesab bölməsi" value={balanceOnly?"/balance":section==="transactions"?"/profile?section=transactions":section==="cards"?"/profile?section=cards":"/profile"} onChange={event=>{window.location.href=event.target.value;}}><option value="/profile">Elanlarım</option><option value="/account">Profil ayarları</option><option value="/balance">Balans</option><option value="/profile?section=transactions">Əməliyyat tarixçəsi</option><option value="/profile?section=cards">Mənim kartlarım</option><option value="/help">Kömək və qaydalar</option>{admin&&<option value="/admin">Admin paneli</option>}</select></label><button type="button" className="secondary" onClick={logout}>Hesabdan çıx</button></div>
+            <aside className={`cabinetSidebar${cabinetMenuOpen?'':' isCollapsed'}`}>
+              <button type="button" className="secondary cabinetMenuToggle" aria-expanded={cabinetMenuOpen} aria-controls="cabinet-menu" onClick={()=>setCabinetMenuOpen(value=>!value)}>Kabinet bölmələri · {cabinetMenuOpen?'Bağla':'Aç'}</button>
               {!balanceOnly && <BalancePreview compact/>}
-            <nav className="cabinetNav" aria-label="Şəxsi kabinet">
+            <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
               <Link href="/profile" aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
-                Elanlarım
-              </Link>
-              <Link href="/?favorites=1">Seçilmişlər</Link>
-              <Link href="/account">Profil ayarları</Link>
-              <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}>Balans</Link>
-              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}>Əməliyyat tarixçəsi</a>
-              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}>Mənim kartlarım</a>
-              <Link href="/help">Kömək və qaydalar</Link>
+                <NavigationIcon name="home"/><span>Mənim elanlarım
+              </span></Link>
+              
+              <Link href="/account"><NavigationIcon name="account"/><span>Profil</span></Link>
+              <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}><NavigationIcon name="wallet"/><span>Balans</span></Link>
+              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></a>
+              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></a>
+              <a href="/profile?section=limits" aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></a>
               {admin && <Link href="/admin">Admin paneli</Link>}
               <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
             </nav>
             </aside>
             <div className="cabinetContent">
-              {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : <>
+              {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : <>
               <div className="stats">
                 <div>
                   <b>{listings.length}</b>
@@ -191,8 +195,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   </Link>
                 </div>
               )}
-              <label className="mobileListingStatus">Elan vəziyyəti<select aria-label="Elan vəziyyəti" value={statusFilter} onChange={event=>setStatusFilter(event.target.value)}>{listingTabs.map(([status,label])=><option key={status} value={status}>{label} ({listings.filter(item=>matchesTab(item,status)).length})</option>)}</select></label>
-              <div className="profileTabs desktopListingTabs" aria-label="Elan vəziyyəti">
+              <div className="profileTabs desktopListingTabs listingStatusStrip" aria-label="Elan vəziyyəti">
                 {listingTabs.map(([status, label]) => (
                   <button
                     key={status}
@@ -208,7 +211,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     )
                   </button>
                 ))}
-                <button type="button" className="secondary" disabled title="Ödəniş xidməti hələ aktiv deyil">Ödəniş gözləyir (0)</button>
               </div>
               {!!listings.length &&
                 !listings.some(
@@ -263,7 +265,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         {x.expires_at && <p className="muted">Bitmə tarixi: {new Date(x.expires_at).toLocaleDateString("az-AZ")}</p>}
                       </div>
                       <div className="accountItemActions">
-                        {!["archived","expired"].includes(effectiveListingStatus(x)) && <PromotionOptions eligible={effectiveListingStatus(x) === "published"} />}
                         {["expired", "archived"].includes(effectiveListingStatus(x)) && <button type="button" className="secondary" disabled={!!busy} onClick={() => renew(x)}>{busy === x.id ? "Gözləyin..." : "Bərpa et"}</button>}
                         {!["archived","expired"].includes(effectiveListingStatus(x)) && <Link className="secondary" href={`/edit/${x.id}`}>Redaktə et</Link>}
                         <Link

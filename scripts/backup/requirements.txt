@@ -1,0 +1,4 @@
+psycopg[binary]==3.2.12
+pyzipper==0.4.0
+pycryptodomex==3.24.1
+pyrage==1.4.0

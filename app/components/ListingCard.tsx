@@ -2,6 +2,7 @@
 import { useLanguage } from "./LanguageProvider";
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
+import NavigationIcon from './NavigationIcon';
 import { minimumRentalLabel } from "../../lib/rental-details";
 import Link from "next/link";
 import {
@@ -34,25 +35,17 @@ export default function ListingCard({
         />
         <PhotoMark src={item.images?.[0]} />
         <PromotionBadges item={item}/>
-        <span className="badge">
-          {item.demo ? t("Nümunə") : t(categoryName(item.category))}
-        </span>
+        {item.demo&&<span className="badge">{t("Nümunə")}</span>}
         <button
           className={`heart ${favorite ? "selected" : ""}`}
           aria-label={
             favorite ? t("Seçilmişlərdən çıxar") : t("Seçilmişlərə əlavə et")
           }
           aria-pressed={favorite}
-          onClick={onFavorite}
+          onClick={event=>{event.preventDefault();event.stopPropagation();onFavorite();}}
         >
-          {favorite ? "♥" : "♡"}
+          <NavigationIcon name="heart" filled={favorite}/>
         </button>
-        <button
-          className="quickView"
-          aria-label={`${item.title} — sürətli baxış`}
-          onClick={onOpen}
-        >
-          {t("Sürətli baxış")}</button>
       </div>
       <Link prefetch={false} className="cardBody" href={`/listings/${item.id}`}>
         <strong className="price">

@@ -49,7 +49,7 @@ try{
  activated=true;
  if(await exists(join(target,'.next')))await rename(join(target,'.next'),join(privateRoot,stamp+'-previous-build'));
  await cp(join(source,'.next'),join(target,'.next'),{recursive:true,filter:path=>!relative(join(source,'.next'),path).startsWith('cache')});
- for(const path of manifest.files){await mkdir(dirname(join(target,path)),{recursive:true});await copyFile(join(source,path),join(target,path));}
+ for(const path of manifest.files){await mkdir(dirname(join(target,path)),{recursive:true});await copyFile(join(source,path),join(target,path));if(path.startsWith('public/'))await chmod(join(target,path),0o644);}
  await writeFile(join(target,'DEPLOYED-RELEASE.json'),JSON.stringify({commit:manifest.commit,buildId,created_at:stamp},null,2));
  await mkdir(join(target,'tmp'),{recursive:true});await writeFile(join(target,'tmp/restart.txt'),stamp);
  console.log('Source and build installed. Restart requested. Backup:',archive);
@@ -60,6 +60,12 @@ try{
   if(attempt<2)await new Promise(done=>setTimeout(done,2000));
  }
  console.log(verified?'HTTP verified: the new build is responding.':'HTTP release NOT verified. Use cPanel Node.js Restart and inspect kirayeal.az.');
+ if(verified&&process.env.KIRAYE_REQUIRE_CLOUD_BACKUP==='1'){
+  const{requestCloudBackup}=await import('./request-cloud-backup.mjs');
+  const backup=await requestCloudBackup(manifest.commit);
+  if(backup.ok)console.log('Bulud ehtiyatı növbəyə alındı; tamamlanması Drive-da ayrıca yoxlanmalıdır.');
+  else{console.error('Sayt yerləşdirildi, amma bulud ehtiyatı növbəyə alınmadı. Əvvəlki ehtiyatlar saxlanılıb.');process.exitCode=1;}
+ }else if(verified)console.warn('Bulud ehtiyatının yerləşdirmədən sonrakı avtomatik çağırışı hələ qurulmayıb.');
  console.log('Database migrations, SMTP/Google and host-only data migration are still pending. Payments remain inactive.');
 }catch(error){
  console.error(error.message);

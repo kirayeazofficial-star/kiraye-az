@@ -1,6 +1,7 @@
 "use client";
 import AccountMenu from "./AccountMenu";
 import NavigationIcon from "./NavigationIcon";
+import UnreadMessages from "./UnreadMessages";
 import SiteMenu from "./SiteMenu";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
@@ -48,8 +49,9 @@ export default function Header() {
         </a></div>
         <nav aria-label="Əsas menyu">
           <a href="/#elanlar">{t("Elanlar")}</a>
-          <a href="/?favorites=1#elanlar">{t("♡ Seçilmişlər")}</a>
+          <a href="/?favorites=1#elanlar"><NavigationIcon name="heart"/>{t("Seçilmişlər")}</a>
           <Link href="/help">{t("Kömək")}</Link>
+          <Link className="desktopMessagesLink" href="/messages"><NavigationIcon name="message"/>{t("Mesajlar")}{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
         </nav>
         <div className="headerActions">
           <LanguageSelect />
@@ -65,16 +67,19 @@ export default function Header() {
       </header>
       <nav className="mobileNav" aria-label="Mobil menyu">
         <a href="/" aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
-          <NavigationIcon name="home"/><span>{t("Ana səhifə")}</span>
+          <NavigationIcon name="home"/><span>{t("Əsas")}</span>
         </a>
         <a href="/?favorites=1#elanlar" aria-current={favoritesPage ? "page" : undefined}>
           <NavigationIcon name="heart"/><span>{t("Seçilmişlər")}</span>
         </a>
         <Link className="mobilePublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
-          <NavigationIcon name="plus"/><span>{t("Elan yerləşdir")}</span>
+          <NavigationIcon name="plus"/><span>{t("Yeni elan")}</span>
+        </Link>
+        <Link href="/messages" aria-current={pathname === "/messages" ? "page" : undefined}>
+          <NavigationIcon name="message"/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
         </Link>
         <Link href={signedIn ? "/profile" : "/login"} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
-          <NavigationIcon name="account"/><span>{signedIn ? t("Hesabım") : t("Daxil ol")}</span>
+          <NavigationIcon name="account"/><span>{t("Kabinet")}</span>
         </Link>
       </nav>
     </>

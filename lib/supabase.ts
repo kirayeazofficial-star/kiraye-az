@@ -1,4 +1,5 @@
 import "./auth-return";
+import {authStorage} from './auth-storage';
 import { createClient } from "@supabase/supabase-js";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const key =
@@ -11,6 +12,7 @@ export const supabase =
   key &&
   /^(sb_publishable_|eyJ)/.test(key)
     ? createClient(url, key, {
+        auth:{storage:authStorage,persistSession:true,autoRefreshToken:true},
         global: {
           fetch: async (input, init) => {
             const controller = new AbortController();

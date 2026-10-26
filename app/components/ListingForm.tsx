@@ -175,7 +175,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             setCanModerate(profile.data?.role === "admin");
             if (profile.data?.display_name)
               setContactName(profile.data.display_name);
-            setLoginPhone(data.user.phone || profile.data?.phone || data.user.user_metadata?.contact_phone || "");
+            setLoginPhone(profile.data?.phone || data.user.phone || data.user.user_metadata?.contact_phone || "");
           } catch {
             /* Optional contact defaults must not block loading an existing listing. */
           }
@@ -922,13 +922,14 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         <input
                           name="contact"
                           defaultValue={initial?.contact || loginPhone}
+                          readOnly
                           type="tel"
                           required
                           maxLength={25}
                           placeholder="050 123 45 67"
                         />
                         <small>
-                          Bu nömrə elanla birlikdə açıq göstəriləcək.
+                          Yeni elanda hesabın əsas telefonu istifadə olunur. Telefonu Profil bölməsindən dəyişə bilərsiniz. Mövcud elanın nömrəsi avtomatik dəyişdirilmir.
                         </small>
                       </label>
                       <label className="checkLabel">

@@ -60,6 +60,12 @@ try{
   if(attempt<2)await new Promise(done=>setTimeout(done,2000));
  }
  console.log(verified?'HTTP verified: the new build is responding.':'HTTP release NOT verified. Use cPanel Node.js Restart and inspect kirayeal.az.');
+ if(verified&&process.env.KIRAYE_REQUIRE_CLOUD_BACKUP==='1'){
+  const{requestCloudBackup}=await import('./request-cloud-backup.mjs');
+  const backup=await requestCloudBackup(manifest.commit);
+  if(backup.ok)console.log('Bulud ehtiyatı növbəyə alındı; tamamlanması Drive-da ayrıca yoxlanmalıdır.');
+  else{console.error('Sayt yerləşdirildi, amma bulud ehtiyatı növbəyə alınmadı. Əvvəlki ehtiyatlar saxlanılıb.');process.exitCode=1;}
+ }else if(verified)console.warn('Bulud ehtiyatının yerləşdirmədən sonrakı avtomatik çağırışı hələ qurulmayıb.');
  console.log('Database migrations, SMTP/Google and host-only data migration are still pending. Payments remain inactive.');
 }catch(error){
  console.error(error.message);
@@ -67,4 +73,3 @@ try{
  else console.error('Live application files were not changed.');
  process.exitCode=1;
 }finally{if(locked)await rm(lock,{recursive:true,force:true});}
-

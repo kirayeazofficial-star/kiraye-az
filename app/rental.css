@@ -1686,3 +1686,22 @@ footer .footerLinks { flex-wrap:wrap; }
  .accountDashboard .cabinetNav.cabinetCards a { min-height:52px; }
  .adminSections { grid-template-columns:minmax(0,1fr); }
 }
+/* Tablet is a separate layout, not a squeezed desktop header/sidebar. */
+@media(min-width:761px) and (max-width:1100px){
+ .header>nav { display:none; }
+ .header .logo { font-size:30px; }
+ .headerActions { min-width:0;gap:12px; }
+ .headerActions .accountMenuCaption { display:none; }
+}
+@media(min-width:761px) and (max-width:1024px){
+ .accountDashboard .cabinetLayout { grid-template-columns:minmax(0,1fr);gap:20px; }
+ .accountDashboard .cabinetMenuToggle { display:block;width:100%;min-height:48px;text-align:left;font-size:16px;margin-bottom:12px; }
+ .accountDashboard .cabinetNav.cabinetCards { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;overflow:visible;margin:12px 0; }
+ .accountDashboard .cabinetNav.cabinetCards a { flex:initial;white-space:normal;min-width:0;font-size:16px;line-height:1.5;min-height:56px; }
+ .accountDashboard .cabinetNav.cabinetCards .cabinetLogout { grid-column:1/-1;min-height:44px; }
+ .accountDashboard .cabinetSidebar.isCollapsed .cabinetNav.cabinetCards,.accountDashboard .cabinetSidebar.isCollapsed>.balancePreview { display:none; }
+ .accountDashboard .compactBalance { flex-direction:row;align-items:center;justify-content:space-between; }
+ .accountDashboard .accountListings article { grid-template-columns:160px minmax(0,1fr) auto; }
+ main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select,main textarea { font-size:16px!important; }
+ .wrap button,.wrap .add,.wrap .secondary { min-height:44px; }
+}

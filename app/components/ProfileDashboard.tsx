@@ -22,6 +22,8 @@ import {
 } from "../../lib/marketplace";
 const listingTabs = [["", "Hamısı"], ["published", "Yayımlanmış"], ["pending", "Yoxlanılır"], ["rejected", "Rədd edilmiş"], ["draft", "Dərc olunmamış"], ["expired", "Müddəti bitmiş"], ["archived", "Arxiv"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
+  const [cabinetMenuOpen,setCabinetMenuOpen]=useState(true);
+  useEffect(()=>{if(balanceOnly||new URLSearchParams(window.location.search).has('section'))setCabinetMenuOpen(false);},[balanceOnly]);
   const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState("");
   useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards","limits"].includes(value))setSection(value);},[]);
   const [accountPhone,setAccountPhone]=useState("");
@@ -141,9 +143,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
           </div>
         ) : (
           <><div className="cabinetLayout">
-            <aside className="cabinetSidebar">
+            <aside className={`cabinetSidebar${cabinetMenuOpen?'':' isCollapsed'}`}>
+              <button type="button" className="secondary cabinetMenuToggle" aria-expanded={cabinetMenuOpen} aria-controls="cabinet-menu" onClick={()=>setCabinetMenuOpen(value=>!value)}>Kabinet bölmələri · {cabinetMenuOpen?'Bağla':'Aç'}</button>
               {!balanceOnly && <BalancePreview compact/>}
-            <nav className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
+            <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
               <Link href="/profile" aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 <NavigationIcon name="home"/><span>Mənim elanlarım
               </span></Link>

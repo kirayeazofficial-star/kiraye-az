@@ -1627,8 +1627,13 @@ footer .footerLinks { flex-wrap:wrap; }
 }
 
 /* Narrow mobile layouts: wrap content instead of shrinking labels or hiding overflow. */
+.cabinetMenuToggle { display:none; }
 @media(max-width:760px){
+ .cabinetMenuToggle { display:block;width:100%;text-align:left;font-size:16px;min-height:48px;margin-bottom:10px; }
+ .accountDashboard .cabinetSidebar.isCollapsed .cabinetNav.cabinetCards,.accountDashboard .cabinetSidebar.isCollapsed>.balancePreview { display:none; }
  .wrap,.messagesPage { box-sizing:border-box;min-width:0; }
+ main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select,main textarea { font-size:16px!important; }
+ main input[autocomplete=one-time-code] { font-size:24px!important; }
  .cabinetLayout>* ,.cabinetContent,.cabinetSidebar,.listingForm>*,.adminDashboard section { min-width:0; }
  .accountDashboard .cabinetNav.cabinetCards { overflow:visible;align-items:stretch;padding:0; }
  .accountDashboard .cabinetNav.cabinetCards a { box-sizing:border-box;flex:initial;white-space:normal;word-break:normal;overflow-wrap:break-word;min-width:0;max-width:100%;min-height:64px;font-size:16px;line-height:1.45;align-items:center;padding:12px 10px; }

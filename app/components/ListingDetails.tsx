@@ -30,7 +30,8 @@ export default function ListingDetails({
   const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number}|null>(null);
   useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(!supabase||item.demo||item.status!=="published")return;let active=true;Promise.resolve(supabase.rpc('public_listing_info',{p_listing_id:item.id}).abortSignal(AbortSignal.timeout(3000))).then(({data,error})=>{if(active&&!error&&data&&typeof data==='object'&&!Array.isArray(data))setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
   const [isOwner,setIsOwner]=useState(false);
-  useEffect(()=>{if(!supabase)return;let active=true;supabase.auth.getUser().then(({data})=>{if(active)setIsOwner(!!data.user && data.user.id===item.owner_id);}).catch(()=>{});const {data}=supabase.auth.onAuthStateChange((_event,session)=>{if(active)setIsOwner(!!session&&session.user.id===item.owner_id);});return()=>{active=false;data.subscription.unsubscribe();};},[item.owner_id]);
+  const [ownerReady,setOwnerReady]=useState(false);
+  useEffect(()=>{if(!supabase){setOwnerReady(true);return;}let active=true,authChanged=false;setOwnerReady(false);const {data}=supabase.auth.onAuthStateChange((_event,session)=>{authChanged=true;if(active){setIsOwner(!!session&&session.user.id===item.owner_id);setOwnerReady(true);}});supabase.auth.getUser().then(({data})=>{if(active&&!authChanged){setIsOwner(!!data.user&&data.user.id===item.owner_id);setOwnerReady(true);}}).catch(()=>{if(active&&!authChanged)setOwnerReady(true);});return()=>{active=false;data.subscription.unsubscribe();};},[item.owner_id]);
   const [image, setImage] = useState(0),
     [favorite, setFavorite] = useState(false),
     [notice, setNotice] = useState(""),
@@ -234,7 +235,7 @@ export default function ListingDetails({
         </strong>
         {phone && !item.demo ? (
           <div className="contactActions">
-            {isOwner?<Link className="secondary" href={`/edit/${item.id}`}>Elanı redaktə et</Link>:<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
+            {ownerReady&&(isOwner?<Link className="secondary" href={`/edit/${item.id}`}>Elanı redaktə et</Link>:<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>)}
             {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et · {formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər">Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"

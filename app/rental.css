@@ -1635,7 +1635,7 @@ footer .footerLinks { flex-wrap:wrap; }
 .profileSettingsGrid input { width:100%;box-sizing:border-box; }
 .rememberLogin { display:flex!important;flex-direction:row!important;align-items:center;gap:10px;font-size:16px;line-height:1.4;min-height:44px;margin:6px 0 14px; }
 .rememberLogin input { width:20px!important;height:20px!important;min-height:20px!important;margin:0;accent-color:#bd4a26; }
-.listingCard .heart { display:flex;align-items:center;justify-content:center;width:36px;height:36px;min-height:36px;min-width:36px;padding:5px;border:0;background:transparent!important;border-radius:0;box-shadow:none;color:#fff; }
+.listingCard .heart { display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;min-width:44px;padding:8px;border:0;background:transparent!important;border-radius:0;box-shadow:none;color:#fff; }
 .listingCard .heart svg { width:25px;height:25px;filter:drop-shadow(0 1px 2px #0008); }
 .listingCard .heart.selected { color:#e95e38; }
 .detailTools button { display:inline-flex;align-items:center;justify-content:center;gap:8px; }

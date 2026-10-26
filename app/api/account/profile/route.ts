@@ -1,5 +1,6 @@
 import {createClient} from '@supabase/supabase-js';
 import {sameOrigin} from '../../../../lib/server-request';
+import {normalizePhone} from '../../../../lib/rental-details';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const reply=(body:object,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
@@ -37,6 +38,7 @@ export async function POST(request:Request){
   }
   const name=typeof input.name==='string'?input.name.trim().replace(/\s+/g,' '):'',phone=typeof input.phone==='string'?input.phone:'';
   if(name.length>100||!/^\S+\s+\S/.test(name)||phone.length>32)return reply({code:'invalid_profile'},400);
+  if(normalizePhone(phone)!==normalizePhone(String(status.data.phone||''))&&!password)return reply({code:'recent_login_required'},403);
   const saved=await client.rpc('update_own_profile',{p_name:name,p_phone:phone});
   if(saved.error){const code=saved.error.code;return reply({code:code==='PCL03'?'phone_limit_reached':code==='PRA01'?'recent_login_required':code==='22023'?'invalid_profile':'profile_save_failed'},code==='PCL03'?409:code==='PRA01'?403:code==='22023'?400:503);}
   return reply({profile:saved.data});

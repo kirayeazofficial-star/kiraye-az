@@ -51,7 +51,7 @@ export default function Header() {
           <a href="/#elanlar">{t("Elanlar")}</a>
           <a href="/?favorites=1#elanlar">{t("♡ Seçilmişlər")}</a>
           <Link href="/help">{t("Kömək")}</Link>
-          <Link href="/messages">{t("Mesajlar")}</Link>
+          <Link className="desktopMessagesLink" href="/messages"><NavigationIcon name="message"/>{t("Mesajlar")}{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
         </nav>
         <div className="headerActions">
           <LanguageSelect />

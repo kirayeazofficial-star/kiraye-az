@@ -30,6 +30,18 @@ The user wants account access in the bottom-right mobile navigation, with langua
 
 ## Daimi iş qaydaları — istifadəçinin son göstərişi, 26 oktyabr 2026
 
+Ən yeni davam nöqtəsi `docs/CONTINUATION-LATEST.md`, son məhsul qərarları isə `docs/USER-DECISIONS-2026-10-26.md` faylındadır. Əvvəl bunları oxu. Aşağıdakı yenilənmiş qaydalar əvvəlki ziddiyyətli qaydaları əvəz edir, qalan tapşırıqlar qüvvədədir:
+
+- İlk prioritet istifadəçinin bildirdiyi mesaj çatdırılma nasazlığıdır: əvvəlki idarə olunan sınaq keçsə belə bunu həll olunmuş sayma. İki ayrı brauzer sessiyasında düzgün alıcı, bazaya yazılma, RLS, inbox, yenilənmə və təkrar giriş yoxlansın. Göndərənin ekranındakı mesaj təkbaşına çatdırılma sübutu deyil.
+- Rəhbər admin təyinatı üçün hesabı yalnız dəyişməz RƏQƏMLİ hesab ID-si ilə tapsın. Telefon/e-poçt/UUID ilə həmin təyinat axtarışını qəbul etmə; serverdə də qoru. Məlumat önbaxışı, Rəhbərin qorunması və audit saxlanılsın. Elan admin axtarışında telefonla bütün uyğun elanların tapılması qalsın.
+- Səlahiyyətli hesabın masaüstü hesab menyusunda və mobildə Rəhbər/Admin panelinə birbaşa keçid olsun; adi istifadəçiyə göstərilməsin, server icazəsi də yoxlanılsın. Admin bölmələri ayrı açılsın: elanlar, elan şikayətləri, mesaj şikayətləri, arxiv, moderasiya tarixçəsi, yalnız Rəhbər üçün səlahiyyət idarəsi. Moderasiya auditi pul tarixçəsi deyil. Mövcud elan auditdən açılsın, silinmiş elanda saxlanmış audit göstərilsin; qırıq keçid/gizli elanın adi istifadəçiyə açılması olmasın.
+- Mobil kabinetdə “Hesab bölməsi” select-i ikonlu menyu/kartlarla ƏVƏZ EDİLSİN: Mənim elanlarım, Əməliyyat tarixçəsi, Mənim kartlarım, Limitlər, Profil. Çıxış ayrıca olsun. Bölmələr seçildikdə öz məzmunu açılsın; statuslar üfüqi sürüşən qalsın. Masaüstü də qorunsun.
+- Bir əsas telefon; ad-soyad redaktəsi. Telefon və e-poçt üçün ayrı-ayrı ən çox 3 UĞURLU dəyişiklik server/bazada qorunsun. İlkin qeydiyyat, eyni dəyər, uğursuz/ləğv edilmiş sorğu sayılmasın; email yalnız təsdiqdən sonra sayılsın. Qalan haqq və limitdən sonra dəstək yolu göstərilsin. Yeni elan əsas hesab telefonundan istifadə etsin; köhnə elanları fərqləri araşdırmadan kütləvi dəyişmə. SMS/telefon OTP qoşulmasın, sahibliyin təsdiq olunduğu iddia edilməsin.
+- Qeydiyyat/bərpa əsas axını birbaşa 6 rəqəmli kod sahəsidir; “linki aç” təlimatı olmasın. Vaxt, təkrar istifadə, cəhd/göndəriş limitləri qalsın. Bərpada koddan sonra yeni şifrə. Özbaşına çıxışı session refresh/storage/cookie/domen/redirect baxımından araşdır; girişdə və uyğun qeydiyyatda “Məni yadda saxla” olsun, təhlükəsizlik müddətləri ləğv edilməsin, çıxış həqiqi sessiyanı bitirsin.
+- Masaüstü Mesajlar keçidi və oxunmamış say aydın olsun; ad, rəqəmli ID, aid elan görünsün. Şəxsi telefon/email sızdırılmasın. Mobil/masaüstü şrift və yazı sahəsi rahat olsun; iştirakçı, blok/şikayət/spam qaydaları qalsın.
+- Mobil kartda ürəyin böyük ağ dairəsi/boşluğu, şəkilüstü “Sürətli baxış” və artıq kateqoriya etiketi götürülsün. Kart elan açsın, ürək yalnız seçilmişi dəyişsin, ölçü sabit qalsın. Yuxarı Yeni elan düyməsi qalsın, ortadakı iri təkrar çağırış çıxarılsın; aşağı naviqasiya uyğunlaşdırılsın.
+- Dar ekran, açıq klaviatura, uzun mətn/ad və boş nəticələri yoxla. Bağlanmadan/limitdən əvvəl dəyişmiş faylları, prosesləri, sınaq nəticələrini və qalan işləri saxla. Əvvəlki ödəniş qadağası, backup və Supabase/Vercel üçün son təsdiq tələbi qüvvədədir.
+
 Bu bölmə əvvəlki ziddiyyətli məhsul qeydlərini əvəz edir; qalan təlimatları silmə.
 
 - İstifadəçi ilə sadə Azərbaycan dilində danış. Xəta və konkret təsdiq sorğusunda əməliyyatın nəyi dəyişəcəyini qısa bildir. Əlaqəli təhlükəsiz yoxlamaları birləşdir. Təhlükəsizlik/təsdiq mexanizmlərini zəiflətmə. Yalnız həmin anda lazım olan bir istifadəçi addımını istə; bloklanmayan işlərə davam et.

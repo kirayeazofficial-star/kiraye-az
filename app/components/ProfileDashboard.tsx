@@ -4,6 +4,8 @@ import Link from "next/link";
 import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
+import NavigationIcon from "./NavigationIcon";
+import AccountLimits from "./AccountLimits";
 import BalancePreview from "../components/BalancePreview";
 import PromotionOptions from "../components/PromotionOptions";
 import Header from "../components/Header";
@@ -21,7 +23,7 @@ import {
 const listingTabs = [["", "Hamısı"], ["published", "Yayımlanmış"], ["pending", "Yoxlanılır"], ["rejected", "Rədd edilmiş"], ["draft", "Dərc olunmamış"], ["expired", "Müddəti bitmiş"], ["archived", "Arxiv"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
   const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState("");
-  useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards"].includes(value))setSection(value);},[]);
+  useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards","limits"].includes(value))setSection(value);},[]);
   const [accountPhone,setAccountPhone]=useState("");
   const [views,setViews] = useState<Record<string,number>|null>(null);
   const [identity, setIdentity] = useState(""),
@@ -140,24 +142,23 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ) : (
           <><div className="cabinetLayout">
             <aside className="cabinetSidebar">
-              <div className="mobileCabinetControls"><label>Hesab bölməsi<select aria-label="Hesab bölməsi" value={balanceOnly?"/balance":section==="transactions"?"/profile?section=transactions":section==="cards"?"/profile?section=cards":"/profile"} onChange={event=>{window.location.href=event.target.value;}}><option value="/profile">Elanlarım</option><option value="/account">Profil ayarları</option><option value="/balance">Balans</option><option value="/profile?section=transactions">Əməliyyat tarixçəsi</option><option value="/profile?section=cards">Mənim kartlarım</option><option value="/help">Kömək və qaydalar</option>{admin&&<option value="/admin">Admin paneli</option>}</select></label><button type="button" className="secondary" onClick={logout}>Hesabdan çıx</button></div>
               {!balanceOnly && <BalancePreview compact/>}
-            <nav className="cabinetNav" aria-label="Şəxsi kabinet">
+            <nav className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
               <Link href="/profile" aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
-                Elanlarım
+                <NavigationIcon name="home"/>Mənim elanlarım
               </Link>
-              <Link href="/?favorites=1">Seçilmişlər</Link>
-              <Link href="/account">Profil ayarları</Link>
+              
+              <Link href="/account"><NavigationIcon name="account"/>Profil</Link>
               <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}>Balans</Link>
-              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}>Əməliyyat tarixçəsi</a>
-              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}>Mənim kartlarım</a>
-              <Link href="/help">Kömək və qaydalar</Link>
+              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="search"/>Əməliyyat tarixçəsi</a>
+              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="account"/>Mənim kartlarım</a>
+              <a href="/profile?section=limits" aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="search"/>Limitlər</a>
               {admin && <Link href="/admin">Admin paneli</Link>}
               <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
             </nav>
             </aside>
             <div className="cabinetContent">
-              {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : <>
+              {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : <>
               <div className="stats">
                 <div>
                   <b>{listings.length}</b>

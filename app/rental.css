@@ -1564,6 +1564,26 @@ footer .footerLinks { flex-wrap:wrap; }
 }
 
 /* Private, persistent listing conversations. */
+.header nav .desktopMessagesLink { display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;background:#fff4ee;color:#a44124;font-weight:600; }
+.directAdminLink { font-weight:700;color:#a44124; }
+.adminSections { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px; }
+.adminSections button[aria-pressed=true] { background:#fff4ee;border-color:#d9a58e; }
+.adminDashboard [hidden] { display:none!important; }
+.accountLimits { display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px; }
+.accountLimits article { border:1px solid #dce5df;padding:14px;border-radius:10px; }
+.cabinetCards a { display:flex;align-items:center;gap:8px; }
+.messageHistory article { font-size:16px;line-height:1.65; }
+.conversationList>button { min-height:76px;line-height:1.5; }
+@media(max-width:760px){
+ .accountDashboard .cabinetNav.cabinetCards { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0; }
+ .cabinetCards a { min-width:0;min-height:56px;padding:10px;font-size:14px;line-height:1.4;overflow-wrap:anywhere;background:white;border:1px solid #dce5df;border-radius:10px; }
+ .cabinetCards a[aria-current=page] { background:#fff4ee;border-color:#e5b79e; }
+ .cabinetCards a svg { flex-shrink:0; }
+ .cabinetCards .cabinetLogout { grid-column:1/-1;min-height:44px;text-align:left; }
+ .accountDashboard .compactBalance { margin-bottom:8px; }
+ .listingCard .heart { width:30px;height:30px;min-height:30px;min-width:30px;padding:0;background:transparent;border:0;box-shadow:none;border-radius:0;color:white;text-shadow:0 1px 4px #000;font-size:28px;line-height:30px; }
+ .listingCard .heart.selected { color:#ef623d; }
+}
 .messagesPage { max-width:1100px;margin:24px auto;padding:0 20px 110px; }
 .messagesLayout { display:grid;grid-template-columns:300px minmax(0,1fr);border:1px solid #dce5df;border-radius:12px;background:white;min-height:65vh;overflow:hidden; }
 .conversationList { min-width:0;border-right:1px solid #dce5df;padding:10px;max-height:75vh;overflow-y:auto; }

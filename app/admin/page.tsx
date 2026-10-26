@@ -26,6 +26,7 @@ const statuses = [
   ["", "Hamısı"],
 ];
 export default function Admin() {
+  const [adminSection,setAdminSection]=useState('listings');
   const [dateFrom,setDateFrom]=useState(""),[reviewKind,setReviewKind]=useState("");
   const [staffRole,setStaffRole] = useState(""), [staffAccessReady,setStaffAccessReady] = useState(false);
   const [allowed, setAllowed] = useState(false),
@@ -152,6 +153,7 @@ export default function Admin() {
     }
   }
   function inspect(id: string) {
+    setAdminSection('listings');
     setDateFrom("");setReviewKind("");setFilter(""); setSearch(id); setQuery(id); setPage(1);
     document.getElementById("moderation")?.scrollIntoView({behavior:"smooth"});
   }
@@ -193,12 +195,9 @@ export default function Admin() {
           <>
             <p className="adminRoleLabel">Səlahiyyət: <strong>{staffAccessReady ? staffRoleName(staffRole) : "Admin — rol məlumatı serverdə yenilənməlidir"}</strong></p>
             <nav className="adminSections" aria-label="Admin bölmələri">
-              <a href="#moderation">Elanların yoxlanılması</a>
-              <a href="#reports">Şikayətlər</a>
-              <a href="#moderation-history">Əməliyyat tarixçəsi</a>
-              {staffRole === "leader" && <a href="#staff-management">Adminlər</a>}
+              {[['listings','Elanlar'],['reports','Elan şikayətləri'],['messages','Mesaj şikayətləri'],['archive','Arxiv'],['history','Moderasiya tarixçəsi'],...(staffRole==='leader'?[['staff','Səlahiyyətlər']]:[])].map(([id,label])=><button key={id} type="button" className="secondary" aria-pressed={adminSection===id} onClick={()=>{setAdminSection(id);if(id==='archive'){setFilter('archived');setPage(1);}else if(id==='listings'){setFilter('pending');setPage(1);}}}>{label}</button>)}
             </nav>
-            <section id="moderation" aria-labelledby="moderation-title">
+            <section hidden={!['listings','archive'].includes(adminSection)} id="moderation" aria-labelledby="moderation-title">
               <div className="sectionTitle">
                 <h2 id="moderation-title">Elanların yoxlanılması</h2>
                 <button
@@ -401,10 +400,10 @@ export default function Admin() {
                 </>
               )}
             </section>
-            {staffRole === "leader" && <StaffManagement/>}
-            <ModerationHistory revision={revision} onInspect={inspect}/>
-            <ChatReports/>
-            <div id="reports">
+            {adminSection==='staff'&&staffRole === "leader" && <StaffManagement/>}
+            {adminSection==='history'&&<ModerationHistory revision={revision} onInspect={inspect}/>}
+            {adminSection==='messages'&&<ChatReports/>}
+            <div hidden={adminSection!=='reports'} id="reports">
               <ReportQueue onInspect={inspect} numbered={staffAccessReady} />
             </div>
           </>

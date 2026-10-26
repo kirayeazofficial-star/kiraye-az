@@ -49,7 +49,7 @@ try{
  activated=true;
  if(await exists(join(target,'.next')))await rename(join(target,'.next'),join(privateRoot,stamp+'-previous-build'));
  await cp(join(source,'.next'),join(target,'.next'),{recursive:true,filter:path=>!relative(join(source,'.next'),path).startsWith('cache')});
- for(const path of manifest.files){await mkdir(dirname(join(target,path)),{recursive:true});await copyFile(join(source,path),join(target,path));}
+ for(const path of manifest.files){await mkdir(dirname(join(target,path)),{recursive:true});await copyFile(join(source,path),join(target,path));if(path.startsWith('public/'))await chmod(join(target,path),0o644);}
  await writeFile(join(target,'DEPLOYED-RELEASE.json'),JSON.stringify({commit:manifest.commit,buildId,created_at:stamp},null,2));
  await mkdir(join(target,'tmp'),{recursive:true});await writeFile(join(target,'tmp/restart.txt'),stamp);
  console.log('Source and build installed. Restart requested. Backup:',archive);
@@ -67,3 +67,4 @@ try{
  else console.error('Live application files were not changed.');
  process.exitCode=1;
 }finally{if(locked)await rm(lock,{recursive:true,force:true});}
+

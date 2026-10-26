@@ -1564,6 +1564,8 @@ footer .footerLinks { flex-wrap:wrap; }
 }
 
 /* Private, persistent listing conversations. */
+/* Older iOS receives vh fallbacks before the dynamic viewport declarations. */
+.messageHistory { max-height:50vh; }
 .header nav .desktopMessagesLink { display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;background:#fff4ee;color:#a44124;font-weight:600; }
 .directAdminLink { font-weight:700;color:#a44124; }
 .adminSections { display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px; }
@@ -1622,4 +1624,46 @@ footer .footerLinks { flex-wrap:wrap; }
  .messageHistory { max-height:45dvh; }
  .contactActions { display:flex;flex-wrap:wrap;gap:8px; }
  .contactActions>a,.contactActions>button { min-height:44px;flex:1 1 auto; }
+}
+
+/* Narrow mobile layouts: wrap content instead of shrinking labels or hiding overflow. */
+@media(max-width:760px){
+ .wrap,.messagesPage { box-sizing:border-box;min-width:0; }
+ .cabinetLayout>* ,.cabinetContent,.cabinetSidebar,.listingForm>*,.adminDashboard section { min-width:0; }
+ .accountDashboard .cabinetNav.cabinetCards { overflow:visible;align-items:stretch;padding:0; }
+ .accountDashboard .cabinetNav.cabinetCards a { box-sizing:border-box;flex:initial;white-space:normal;word-break:normal;overflow-wrap:break-word;min-width:0;max-width:100%;min-height:64px;font-size:16px;line-height:1.45;align-items:center;padding:12px 10px; }
+ .accountDashboard .cabinetNav.cabinetCards a span { min-width:0;white-space:normal; }
+ .accountDashboard .cabinetNav.cabinetCards .cabinetLogout { white-space:normal;min-height:48px;font-size:16px;margin-top:6px; }
+ .accountDashboard .accountIdentity,.accountDashboard .accountHeading { overflow-wrap:anywhere; }
+ .wrap h1,.messagesPage h1 { font-size:28px;line-height:1.2;overflow-wrap:break-word; }
+ .wrap h2 { font-size:22px;line-height:1.3;overflow-wrap:break-word; }
+ .wrap p,.wrap label,.messagesPage p { overflow-wrap:break-word; }
+ .wrap input,.wrap select,.wrap textarea,.authCard input,.authCard select { box-sizing:border-box;max-width:100%;min-width:0;font-size:16px; }
+ .wrap button,.wrap .add,.wrap .secondary { white-space:normal;line-height:1.4;min-height:44px; }
+ .accountDashboard .listingStatusStrip button { white-space:nowrap; }
+ .sectionTitle,.accountDashboard .cabinetContent>.sectionTitle { flex-wrap:wrap; }
+ .accountLimits { grid-template-columns:minmax(0,1fr); }
+ .adminSections { display:grid;grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .adminSections button { min-width:0;font-size:16px;padding:10px; }
+ .adminDashboard .adminSearch>div { flex-wrap:wrap; }
+ .adminDashboard .adminSearch input { flex:1 1 180px;width:auto; }
+ .adminDashboard .adminSearch button { flex:1 1 80px; }
+ .adminDashboard .moderationCard,.staffAccount,.walletPanel { min-width:0;overflow-wrap:anywhere; }
+ .conversationList button span,.conversationList button strong { max-width:100%;white-space:normal;overflow-wrap:anywhere; }
+ .conversationList button small { display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5; }
+ .conversationList time { font-size:12px;line-height:1.4;color:#64766d; }
+ .messageComposer { flex-shrink:0;padding-bottom:env(safe-area-inset-bottom); }
+ .messageComposer textarea { font:inherit;font-size:16px;line-height:1.5;min-height:76px; }
+ .messageComposer button { min-height:48px;min-width:100px;font-size:16px; }
+ .messagesPage.isKeyboardOpen { position:fixed;z-index:10000;top:var(--chat-visible-top,0px);left:0;right:0;height:var(--chat-visible-height,100vh);margin:0;padding:6px;background:#f5f8f6; }
+ .messagesPage.isKeyboardOpen>h1 { display:none; }
+ .isKeyboardOpen .messagesLayout,.isKeyboardOpen .conversationBody { height:100%;min-height:0;box-sizing:border-box; }
+ .isKeyboardOpen .conversationHeading { flex-shrink:0;max-height:28%;overflow-y:auto; }
+ .isKeyboardOpen .messageHistory { flex:1 1 auto;min-height:40px;max-height:none; }
+ .isKeyboardOpen .messageComposer textarea { min-height:52px;max-height:90px; }
+}
+@media(max-width:359px){
+ .accountDashboard .cabinetNav.cabinetCards { grid-template-columns:minmax(0,1fr); }
+ .accountDashboard .cabinetNav.cabinetCards a { min-height:52px; }
+ .adminSections { grid-template-columns:minmax(0,1fr); }
 }

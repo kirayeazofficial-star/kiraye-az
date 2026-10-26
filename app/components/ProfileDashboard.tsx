@@ -145,14 +145,14 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               {!balanceOnly && <BalancePreview compact/>}
             <nav className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
               <Link href="/profile" aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
-                <NavigationIcon name="home"/>Mənim elanlarım
-              </Link>
+                <NavigationIcon name="home"/><span>Mənim elanlarım
+              </span></Link>
               
-              <Link href="/account"><NavigationIcon name="account"/>Profil</Link>
+              <Link href="/account"><NavigationIcon name="account"/><span>Profil</span></Link>
               <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}>Balans</Link>
-              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="search"/>Əməliyyat tarixçəsi</a>
-              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="account"/>Mənim kartlarım</a>
-              <a href="/profile?section=limits" aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="search"/>Limitlər</a>
+              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="search"/><span>Əməliyyat tarixçəsi</span></a>
+              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="account"/><span>Mənim kartlarım</span></a>
+              <a href="/profile?section=limits" aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="search"/><span>Limitlər</span></a>
               {admin && <Link href="/admin">Admin paneli</Link>}
               <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
             </nav>

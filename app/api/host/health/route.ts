@@ -8,7 +8,6 @@ interface SchemaRow {users_table:string|null;profiles_table:string|null;listings
 export const dynamic="force-dynamic";
 export async function GET(){
   const mode=hostMode();
-  if(mode==="supabase")return NextResponse.json({status:"disabled",mode},{status:503,headers:{"Cache-Control":"no-store"}});
   try{
     const rows=await hostQuery<HealthRow>("SELECT 1 AS ok");
     if(rows[0]?.ok!==1)throw new Error("Unexpected database response.");

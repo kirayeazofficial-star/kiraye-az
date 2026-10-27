@@ -3,10 +3,7 @@ import {resolve,join} from 'node:path';
 import {createRequire} from 'node:module';
 
 const root=resolve(process.argv[2]||'.');
-if((process.env.KIRAYE_BACKEND||'').trim()!=='host'){
-  console.log('Host migrations skipped: KIRAYE_BACKEND is not host.');
-  process.exit(0);
-}
+if((process.env.KIRAYE_BACKEND||'host').trim()!=='host')throw new Error('KIRAYE_BACKEND must be host.');
 const required=['KIRAYE_DB_HOST','KIRAYE_DB_NAME','KIRAYE_DB_USER','KIRAYE_DB_PASSWORD'];
 if(required.some(name=>!process.env[name]?.trim()))throw new Error('Host migration database configuration is incomplete.');
 const require=createRequire(join(root,'package.json'));

@@ -1,5 +1,13 @@
 # Mövcud cPanel tətbiqini yenilə
 
+## Git deploy (üstün tutulan yol)
+
+Repo cPanel Git Version Control-da `/home/kiraytfg/kirayeal-source` kimi qoşulubsa, “Update from Remote”, sonra “Deploy HEAD Commit” seçmək kifayətdir. `.cpanel.yml` təhlükəsiz deploy skriptini Node.js 22 mühitində özü başladır. Artıq mənbəni `public_html` qovluğuna kor-koranə köçürmür.
+
+GitHub webhook/avtomatik fetch ayrıca cPanel tərəfindən aktivləşdirilibsə, eyni qayda insan müdaxiləsi olmadan işləyir. Bu ayarın mövcudluğu ilk uğurlu avtomatik release və health build ID-si ilə təsdiqlənmədən “tam avtomatik” sayılmır.
+
+Skript `DEPLOY-FILES.json` olmayan cPanel Git checkout-da yalnız Git tərəfindən izlənən runtime fayllarından təhlükəsiz manifest yaradır. `.env`, `.git`, testlər və sənədlər canlı tətbiqə kopyalanmır.
+
 Bu üsul xarici SSH işləməyəndə istifadəçinin cPanel terminalından icra üçündür. Avtomatik canlıya qoşulma deyil. Mənbə ZIP-i production build və ya yeni yerli baza deyil.
 
 1. `kirayeal-update.zip` paketini kompüterə endir.

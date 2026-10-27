@@ -4,7 +4,8 @@ import {access,readFile,writeFile,copyFile,cp,mkdir,rename,rm,symlink,lstat,chmo
 import {dirname,resolve,join,relative,isAbsolute} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
-import {spawn} from 'node:child_process';
+import {spawn,execFile} from 'node:child_process';
+import {promisify} from 'node:util';
 const source=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const target=resolve(process.argv[2]||'/home/kiraytfg/kirayeal');
 const privateRoot=join(dirname(target),'.kirayeal-backups');
@@ -12,12 +13,26 @@ const stamp=new Date().toISOString().replace(/[:.]/g,'-');
 const archive=join(privateRoot,stamp+'.tar.gz');
 const lock=join(privateRoot,'deploy.lock');
 let locked=false,activated=false,backupReady=false;
+const execFileAsync=promisify(execFile);
 function run(command,args,cwd=source,env=process.env){return new Promise((ok,no)=>{const child=spawn(command,args,{cwd,env,stdio:'inherit'});child.on('error',no);child.on('exit',code=>code===0?ok():no(new Error(`${command} failed (${code}).`)));});}
 async function exists(path){try{await access(path);return true;}catch{return false;}}
 try{
  if(source===target||source.startsWith(target+'/'))throw new Error('Extract the update OUTSIDE the live kirayeal directory.');
  if(Number(process.versions.node.split('.')[0])<22)throw new Error('Activate the cPanel Node.js 22 environment first.');
- const manifest=JSON.parse(await readFile(join(source,'DEPLOY-FILES.json'),'utf8'));
+ let manifest;
+ try{manifest=JSON.parse(await readFile(join(source,'DEPLOY-FILES.json'),'utf8'));}
+ catch{
+  // A cPanel-managed Git checkout has no generated package manifest. Build a
+  // strict runtime-only manifest from tracked files; never copy secrets or Git data.
+  const [{stdout:listed},{stdout:commit}]=await Promise.all([
+   execFileAsync('git',['ls-files','-z'],{cwd:source,encoding:'buffer'}),
+   execFileAsync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}),
+  ]);
+  const roots=['app/','lib/','public/','scripts/'];
+  const rootFiles=new Set(['app.js','next.config.mjs','next-env.d.ts','package.json','package-lock.json','tsconfig.json']);
+  const files=listed.toString('utf8').split('\0').filter(path=>path&&(roots.some(root=>path.startsWith(root))||rootFiles.has(path)));
+  manifest={commit:commit.trim(),files};
+ }
  if(!Array.isArray(manifest.files)||!manifest.commit)throw new Error('Source manifest is missing.');
  for(const path of manifest.files){if(isAbsolute(path)||path.split('/').includes('..')||path.startsWith('.env')&&path!=='.env.example'||path.startsWith('.git/')||path==='node_modules'||path.startsWith('node_modules/'))throw new Error('Unsafe package path.');if(!(await lstat(join(source,path))).isFile())throw new Error('Package contains a non-file source entry.');}
  const current=JSON.parse(await readFile(join(target,'package.json'),'utf8'));

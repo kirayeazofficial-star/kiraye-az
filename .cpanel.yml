@@ -1,5 +1,4 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/kiraytfg/public_html
-    - /bin/cp -R * $DEPLOYPATH
+    - /bin/bash -lc 'source /home/kiraytfg/nodevenv/kirayeal/22/bin/activate && node scripts/deploy-cpanel.mjs /home/kiraytfg/kirayeal'

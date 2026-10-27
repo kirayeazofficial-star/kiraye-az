@@ -42,6 +42,7 @@ GitHub-a çıxış işləyir. `.cpanel.yml` yalnız mənbəni public_html-a kö�
 - Boş reklam komponenti və ana səhifədə istifadə olunmayan köhnə sürətli baxış vəziyyəti mənbədən çıxarıldı. Məlumat migration-ları, bərpa vasitələri və hostinq faylları “artıq” sayılıb silinmədi.
 - Production build və TypeScript keçdi. İzolyasiya edilmiş mesaj UI sınağı 320/390/1440, qalereya 320/375/768/1440, ana səhifə 320/390/768/1440 ölçülərində keçdi. Bunlar Chromium fixture sınaqlarıdır; real iPhone Safari və canlı iki-hesab mesaj qəbulu deyil.
 - Köhnə şəkilə həkk edilmiş mərkəzi nişan orijinal olmadan silinmir və ikinci nişan vurulmur. Yeni `branded-v5` şəkillər sol aşağı qaydada qalır.
+- `.cpanel.yml`-in köhnə `public_html` kopiyası təhlükəsiz Node deploy çağırışı ilə əvəzləndi. cPanel Git deploy artıq mövcud tətbiqi əvvəl ehtiyatlayır, real mühitlə ayrıca build edir, uğurdan sonra aktivləşdirib restart istəyir. Webhook/avtomatik fetch ilk real release ilə ayrıca təsdiqlənməlidir.
 
 - Yeni şəkil yükləmələri `branded-v5` prefiksi ilə sol aşağıda daha böyük, 75% ağ nişan alır. Köhnə həkk olunmuş şəkillərə ikinci nişan vurulmur. Brauzerdə JPEG nəticəsinin ölçüsü, mərkəzi məzmunun qorunması və aşağı sol yazının oxunaqlığı yoxlanıb.
 - Qalereya, klaviatura, touch swipe, fokusun geri qayıtması və admin şəkillərinin eyni səhifədə açılması 320/375/768/1440 ölçülərində fixture-lərlə keçib. Son əlavə sınaq kabinetdən pul tarixçəsi → Mənim elanlarım keçidini də yoxlayır.

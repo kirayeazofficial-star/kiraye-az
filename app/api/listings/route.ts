@@ -78,3 +78,12 @@ export async function PATCH(request:NextRequest){
     return rows[0]?reply({id:rows[0].id}):reply({error:'LISTING_NOT_FOUND'},404);
   }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}
 }
+
+export async function DELETE(request:NextRequest){
+  try{
+    const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
+    const id=cleanText((await request.json() as {id?:unknown}).id,36);if(!uuid.test(id))return reply({error:'INVALID_LISTING'},400);
+    const rows=await hostQuery<{id:string}>(`update public.listings set status='archived',updated_at=now() where id=$1 and owner_id=$2 and status<>'archived' returning id`,[id,user.id]);
+    return rows[0]?reply({id}):reply({error:'LISTING_NOT_FOUND'},404);
+  }catch{return reply({error:'LISTING_ARCHIVE_FAILED'},503);}
+}

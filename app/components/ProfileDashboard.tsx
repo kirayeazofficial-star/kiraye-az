@@ -10,8 +10,6 @@ import BalancePreview from "../components/BalancePreview";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { effectiveListingStatus } from "../../lib/listing-lifecycle";
-import { listingPolicyError } from "../../lib/listing-policy";
-import { supabase } from "../../lib/supabase";
 import {
   Listing,
   loadListings,
@@ -34,32 +32,16 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
     [statusFilter, setStatusFilter] = useState("");
-  useEffect(()=>{if(!supabase||!userId)return;const {data}=supabase.auth.onAuthStateChange((_event,session)=>{if((session?.user.id||'')!==userId){setListings([]);setViews(null);setAdmin(false);setIdentity('');setUserId('');window.location.replace(session?'/profile':'/');}});return()=>data.subscription.unsubscribe();},[userId]);
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-    const client = supabase;
-    client.auth
-      .getUser()
-      .then(async ({ data, error }) => {
-        if (error || !data.user) return;
-        setUserId(data.user.id);
-        setIdentity(data.user.user_metadata?.full_name || data.user.email || "Hesab");
-        setAccountPhone(data.user.user_metadata?.contact_phone || data.user.phone || "");
-        const role = await client
-          .from("profiles")
-          .select("*")
-          .eq("id", data.user.id)
-          .maybeSingle();
-        if(role.data?.profile_no)setProfileNumber(String(role.data.profile_no));
-        setAdmin(role.data?.role === "admin");
-        if(role.data?.display_name)setIdentity(role.data.display_name);
-        if(role.data?.phone)setAccountPhone(role.data.phone);
+    fetch('/api/auth/host',{cache:'no-store'})
+      .then(async response => {
+        const data=await response.json();if(!data.user)return;
+        setUserId(data.user.id);setIdentity(data.user.display_name||data.user.email||'Hesab');setAccountPhone(data.user.phone||'');
+        const roleResponse=await fetch('/api/account/profile',{cache:'no-store'}),role=await roleResponse.json(),profile=role.profile;
+        if(profile?.profile_no)setProfileNumber(String(profile.profile_no));
+        setAdmin(profile?.role==='admin'||!!profile?.staff_role);
+        if(profile?.display_name)setIdentity(profile.display_name);if(profile?.phone)setAccountPhone(profile.phone);
         if (!balanceOnly) setListings(await loadListings("mine"));
-        if(!balanceOnly)void (async()=>{try{const result=await client.rpc('own_listing_view_counts').abortSignal(AbortSignal.timeout(2500));if(!result.error && Array.isArray(result.data))setViews(Object.fromEntries(result.data.filter(row=>typeof row.listing_id==='string' && Number.isFinite(Number(row.views))).map(row=>[row.listing_id,Number(row.views)])));}catch{}})();
-
       })
       .catch(() =>
         setError("Məlumatları yükləmək mümkün olmadı. Yenidən yoxlayın."),
@@ -68,20 +50,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   }, [balanceOnly]);
   const [deleteConfirm,setDeleteConfirm]=useState("");
   async function archive(item: Listing) {
-    if (!supabase || busy) return;
+    if (busy) return;
     setBusy(item.id);
     setError("");
     setNotice("");
     try {
-      const { error } = await supabase
-        .from("listings")
-        .update({ status: "archived" })
-        .eq("id", item.id)
-        .eq("owner_id", userId)
-        .eq("status",item.status)
-        .select("id")
-        .single();
-      if (error) throw error;
+      const response=await fetch('/api/listings',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id})});
+      if(!response.ok)throw new Error('archive_failed');
       setListings((current) => current.map((x) =>
         x.id === item.id ? { ...x, status: "archived" } : x,
       ));
@@ -100,9 +75,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   }
   const matchesTab=(item:Listing,status:string)=>!status || (status === "archived" ? ["archived","expired"].includes(effectiveListingStatus(item)) : effectiveListingStatus(item)===status);
   async function logout() {
-    if (!supabase) return;
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    const response=await fetch('/api/auth/host',{method:'DELETE'});
+    if (!response.ok) {
       setError("Hesabdan çıxmaq mümkün olmadı.");
       return;
     }
@@ -132,7 +106,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ) : !userId ? (
           <div className="empty">
             <h2>
-              {!supabase ? "Giriş xidməti hazırlanır" : "Hesabına daxil ol"}
+              Hesabına daxil ol
             </h2>
             <p>Elanlarını və onların vəziyyətini burada görə bilərsən.</p>
             <Link className="add" href={balanceOnly ? "/login?next=/balance" : "/login?next=/profile"}>

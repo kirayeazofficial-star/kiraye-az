@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { supabase } from "../../lib/supabase";
 import { finishWithin } from "../../lib/auth-return";
 import type { Listing } from "../../lib/marketplace";
 import PromotionOptions from "./PromotionOptions";
@@ -13,19 +12,10 @@ export default function OwnedListing({ id }: { id: string }) {
   useEffect(() => {
     let active = true;
     async function load() {
-      if (!supabase) throw new Error("Giriş xidməti hazır deyil.");
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user)
-        throw new Error("Elana baxmaq üçün hesabına daxil ol.");
-      const result = await supabase
-        .from("listings")
-        .select("*")
-        .eq("id", id)
-        .eq("owner_id", data.user.id)
-        .maybeSingle();
-      if (result.error || !result.data)
+      const response=await fetch(`/api/listings?id=${encodeURIComponent(id)}`,{cache:'no-store'}),result=await response.json();
+      if (!response.ok || !result.item)
         throw new Error("Bu elan tapılmadı və ya sənin hesabına aid deyil.");
-      if (active) setItem(result.data as Listing);
+      if (active) setItem(result.item as Listing);
     }
     finishWithin(load(), 20000)
       .catch((error) => {

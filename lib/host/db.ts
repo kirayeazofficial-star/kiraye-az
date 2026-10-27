@@ -1,26 +1,26 @@
 import "server-only";
-import mysql,{type Pool,type PoolConnection,type RowDataPacket} from "mysql2/promise";
+import {Pool,type PoolClient,type QueryResultRow} from "pg";
 import {hostConfig} from "./config";
 
 let pool:Pool|undefined;
 export function hostPool(){
   const config=hostConfig();
   if(!config)throw new Error("Host backend is not enabled.");
-  pool??=mysql.createPool({
+  pool??=new Pool({
     host:config.db.host,port:config.db.port,database:config.db.name,user:config.db.user,password:config.db.password,
-    charset:"utf8mb4",timezone:"Z",connectionLimit:5,maxIdle:2,idleTimeout:30_000,queueLimit:20,
-    enableKeepAlive:true,keepAliveInitialDelay:0,
+    max:5,idleTimeoutMillis:30_000,connectionTimeoutMillis:10_000,
+    keepAlive:true,keepAliveInitialDelayMillis:0,
   });
   return pool;
 }
 
 type SqlValue=string|number|bigint|boolean|Date|null|Buffer|Uint8Array;
-export async function hostQuery<T extends RowDataPacket[]>(sql:string,values:SqlValue[]=[]){
-  const [rows]=await hostPool().execute<T>(sql,values);return rows;
+export async function hostQuery<T extends QueryResultRow=QueryResultRow>(sql:string,values:SqlValue[]=[]){
+  const result=await hostPool().query<T>(sql,values);return result.rows;
 }
 
-export async function hostTransaction<T>(task:(connection:PoolConnection)=>Promise<T>){
-  const connection=await hostPool().getConnection();
-  try{await connection.beginTransaction();const result=await task(connection);await connection.commit();return result;}
-  catch(error){await connection.rollback();throw error;}finally{connection.release();}
+export async function hostTransaction<T>(task:(connection:PoolClient)=>Promise<T>){
+  const connection=await hostPool().connect();
+  try{await connection.query("BEGIN");const result=await task(connection);await connection.query("COMMIT");return result;}
+  catch(error){await connection.query("ROLLBACK");throw error;}finally{connection.release();}
 }

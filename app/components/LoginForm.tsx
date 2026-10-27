@@ -10,7 +10,6 @@ import {
 import {rememberLogin,setRememberLogin} from '../../lib/auth-storage';
 import { rateLimitSeconds } from "../../lib/auth-throttle";
 import GoogleLogin from "../components/GoogleLogin";
-import PhoneLogin from "../components/PhoneLogin";
 import "../login/style.css";
 type Verification = "signup" | "recovery";
 const pendingKey = "kiraye:pending-confirmation";
@@ -369,12 +368,7 @@ export default function Login({
               </button>
             </div>
           )}
-          {method === "phone" ? (
-            <PhoneLogin
-              onSuccess={goToAccount}
-              onEmail={() => setMethod("email")}
-            />
-          ) : (
+          {method === "email" && (
             <>
               {!verification && (
                 <p className="authLead">

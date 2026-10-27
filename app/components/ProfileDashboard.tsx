@@ -21,8 +21,6 @@ import {
 } from "../../lib/marketplace";
 const listingTabs = [["", "Hamısı"], ["published", "Yayımlanmış"], ["pending", "Yoxlanılır"], ["rejected", "Rədd edilmiş"], ["draft", "Dərc olunmamış"], ["expired", "Müddəti bitmiş"], ["archived", "Arxiv"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
-  const [cabinetMenuOpen,setCabinetMenuOpen]=useState(true);
-  useEffect(()=>{if(balanceOnly||new URLSearchParams(window.location.search).has('section'))setCabinetMenuOpen(false);},[balanceOnly]);
   const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState("");
   useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards","limits"].includes(value))setSection(value);},[]);
   const [accountPhone,setAccountPhone]=useState("");
@@ -143,20 +141,19 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
           </div>
         ) : (
           <><div className="cabinetLayout">
-            <aside className={`cabinetSidebar${cabinetMenuOpen?'':' isCollapsed'}`}>
-              <button type="button" className="secondary cabinetMenuToggle" aria-expanded={cabinetMenuOpen} aria-controls="cabinet-menu" onClick={()=>setCabinetMenuOpen(value=>!value)}>Kabinet bölmələri · {cabinetMenuOpen?'Bağla':'Aç'}</button>
+            <aside className="cabinetSidebar">
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
-              <Link href="/profile?section=listings" onClick={()=>{setSection('listings');setCabinetMenuOpen(false);}} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
+              <Link href="/profile?section=listings" onClick={()=>setSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 <NavigationIcon name="home"/><span>Mənim elanlarım
               </span></Link>
               
               <Link href="/account"><NavigationIcon name="account"/><span>Profil</span></Link>
               <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}><NavigationIcon name="wallet"/><span>Balans</span></Link>
-              <a href="/profile?section=transactions" aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></a>
-              <a href="/profile?section=cards" aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></a>
-              <a href="/profile?section=limits" aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></a>
-              {admin && <Link href="/admin">Admin paneli</Link>}
+              <Link href="/profile?section=transactions" onClick={()=>setSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></Link>
+              <Link href="/profile?section=cards" onClick={()=>setSection('cards')} aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></Link>
+              <Link href="/profile?section=limits" onClick={()=>setSection('limits')} aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></Link>
+              {admin && <Link className="cabinetAdminLink" href="/admin"><NavigationIcon name="account"/><span>Admin paneli</span></Link>}
               <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
             </nav>
             </aside>

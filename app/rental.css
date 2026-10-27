@@ -1728,3 +1728,67 @@ footer .footerLinks { flex-wrap:wrap; }
 .photo .photoMark,.galleryStage .photoMark,.ownedPhoto .photoMark,.relatedPhoto .photoMark {
  left:3%;right:auto;top:auto;bottom:3%;transform:none;max-width:94%;font-size:clamp(16px,2.4vw,28px);font-weight:700;color:rgba(255,255,255,.75);text-shadow:0 1px 3px #000a;pointer-events:none;
 }
+
+/* Final marketplace refinement: remove placeholder advertising and keep controls calm. */
+.adSpaces { display:none !important; }
+.photo .photoMark,.galleryStage .photoMark,.ownedPhoto .photoMark,.relatedPhoto .photoMark {
+  left:14px; right:auto; top:auto; bottom:14px; transform:none;
+  padding:0; border:0; background:none; border-radius:0;
+  color:rgba(255,255,255,.78); font-size:clamp(14px,2vw,24px);
+  font-weight:700; letter-spacing:-.35px; text-shadow:0 1px 3px #000b;
+}
+.rentalHome .categories { gap:8px; }
+.rentalHome .categories button { min-height:96px; padding:8px 4px; border-radius:12px; }
+.rentalHome .categories .categoryArtwork,.rentalHome .categories .categoryIcon,.categoryVisual { width:60px; height:60px; flex-basis:60px; }
+.rentalHome .categories strong { font-size:12px; line-height:1.3; }
+.rentalHome .listingCard { border-radius:14px; }
+.rentalHome .cardBody { padding:14px; }
+
+/* Cabinet: visible, compact navigation; there is no open/close state to lose. */
+.cabinetMenuToggle { display:none !important; }
+.accountDashboard .cabinetLayout { grid-template-columns:230px minmax(0,1fr); gap:28px; align-items:start; }
+.accountDashboard .cabinetSidebar { position:sticky; top:94px; }
+.accountDashboard .cabinetNav.cabinetCards { display:flex; flex-direction:column; gap:3px; margin:12px 0 0; padding:7px; border:1px solid #e0e8e3; border-radius:14px; background:#fff; overflow:visible; }
+.accountDashboard .cabinetNav.cabinetCards a,.accountDashboard .cabinetNav.cabinetCards .cabinetLogout {
+  display:flex; align-items:center; gap:10px; width:100%; box-sizing:border-box; min-height:44px; margin:0; padding:10px 11px; border:0; border-radius:9px; background:transparent; color:#29453d; font-size:14px; line-height:1.35; text-align:left; text-decoration:none;
+}
+.accountDashboard .cabinetNav.cabinetCards a:hover { background:#f2f6f4; }
+.accountDashboard .cabinetNav.cabinetCards a[aria-current=page] { background:#eaf4ef; color:#135c4c; font-weight:700; }
+.accountDashboard .cabinetNav.cabinetCards .cabinetLogout { margin-top:5px; border-top:1px solid #edf1ee; border-radius:0; color:#74584d; cursor:pointer; }
+.accountDashboard .cabinetNav.cabinetCards .cabinetLogout:hover { background:#fff7f3; }
+.accountDashboard .cabinetNav.cabinetCards svg { width:20px; height:20px; flex:none; }
+.cabinetAdminLink { color:#9b451e !important; }
+.accountDashboard .compactBalance { padding:15px; margin:0; border-radius:14px; }
+.accountDashboard .compactBalance h2 { font-size:13px; }
+.accountDashboard .compactBalance strong { font-size:22px; }
+
+/* The inbox and admin screen use the same quiet, work-focused hierarchy. */
+.messagesLayout { border-color:#dfe7e3; border-radius:16px; box-shadow:0 8px 28px #163c3210; }
+.conversationList { padding:8px; background:#fbfcfb; }
+.conversationList>button { min-height:72px; padding:12px; border-radius:10px; }
+.conversationList>button:hover,.conversationList>button[aria-pressed=true] { background:#eef6f1; }
+.conversationList>button strong { font-size:14px; color:#1c4037; }
+.conversationList>button span { font-size:12px; color:#557067; }
+.conversationList>button small { font-size:12px; }
+.conversationBody { padding:20px; }
+.messageHistory article { border-radius:12px; padding:10px 12px; }
+.adminDashboard { max-width:1080px; }
+.adminDashboard .sectionTitle { padding-bottom:14px; border-bottom:1px solid #e3ebe7; }
+.adminSections { display:flex; gap:6px; margin:0 0 18px; padding:6px; border:1px solid #e0e8e3; border-radius:12px; background:#fff; }
+.adminSections button { min-height:38px; padding:8px 11px; border:0; border-radius:8px; background:transparent; color:#3f5f55; font-size:13px; }
+.adminSections button:hover,.adminSections button[aria-pressed=true] { background:#eaf4ef; color:#135c4c; }
+.adminDashboard .moderationCard { border:1px solid #e0e8e3; box-shadow:none; }
+
+@media(max-width:760px) {
+  .rentalHome .categories .categoryArtwork,.rentalHome .categories .categoryIcon,.categoryVisual { width:58px; height:58px; flex-basis:58px; }
+  .rentalHome .categories button { flex-basis:78px; min-height:96px; height:96px; }
+  .accountDashboard .cabinetLayout { grid-template-columns:minmax(0,1fr); gap:16px; }
+  .accountDashboard .cabinetSidebar { position:static; }
+  .accountDashboard .cabinetNav.cabinetCards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; padding:0; border:0; background:transparent; }
+  .accountDashboard .cabinetNav.cabinetCards a { min-height:52px; padding:10px; border:1px solid #e0e8e3; border-radius:11px; background:#fff; font-size:13px; }
+  .accountDashboard .cabinetNav.cabinetCards .cabinetLogout { grid-column:1/-1; min-height:44px; padding:10px; border:1px solid #eadbd3; border-radius:11px; background:#fff; }
+  .messagesPage { margin-top:16px; }
+  .conversationBody { padding:14px; }
+  .adminSections { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .adminSections button { min-width:0; font-size:13px; }
+}

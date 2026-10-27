@@ -67,6 +67,18 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.profile_contact_changes (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  phone_changes integer not null default 0 check (phone_changes between 0 and 3),
+  email_changes integer not null default 0 check (email_changes between 0 and 3)
+);
+
+create table if not exists public.profile_change_attempts (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  started_at timestamptz not null default now(),
+  attempts integer not null default 0 check (attempts>=0)
+);
+
 create table if not exists public.listings (
   id uuid primary key,
   owner_id uuid not null references auth.users(id) on delete restrict,
@@ -82,9 +94,18 @@ create table if not exists public.listings (
   contact varchar(32) not null,
   status text not null default 'pending' check (status in ('draft','pending','published','rejected','archived','expired')),
   attributes jsonb,
+  images text[] not null default '{}',
+  rooms smallint,
+  area_m2 integer,
   rejection_reason varchar(500),
   first_published_at timestamptz,
   expires_at timestamptz,
+  available_from date,
+  available_until date,
+  listing_no bigint generated always as identity (start with 10000001) unique,
+  review_kind text not null default 'new' check (review_kind in ('new','edited')),
+  promotion_kind text check (promotion_kind in ('vip','premium')),
+  promotion_until timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -108,19 +129,21 @@ create table if not exists public.chat_threads (
   listing_id uuid not null references public.listings(id) on delete restrict,
   buyer_id uuid not null references auth.users(id) on delete restrict,
   seller_id uuid not null references auth.users(id) on delete restrict,
+  listing_title text not null,
+  listing_image text,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
+  last_message_at timestamptz not null default now(),
   unique (listing_id, buyer_id, seller_id),
   constraint chat_no_self check (buyer_id<>seller_id)
 );
-create index if not exists chat_buyer_idx on public.chat_threads (buyer_id, updated_at desc);
-create index if not exists chat_seller_idx on public.chat_threads (seller_id, updated_at desc);
+create index if not exists chat_buyer_idx on public.chat_threads (buyer_id, last_message_at desc);
+create index if not exists chat_seller_idx on public.chat_threads (seller_id, last_message_at desc);
 
 create table if not exists public.chat_messages (
   id bigint generated always as identity primary key,
   thread_id uuid not null references public.chat_threads(id) on delete cascade,
   author_id uuid not null references auth.users(id) on delete restrict,
-  body varchar(2000) not null check (char_length(btrim(body))>0),
+  body varchar(3000) not null check (char_length(btrim(body))>0),
   created_at timestamptz not null default now()
 );
 create index if not exists chat_messages_page_idx on public.chat_messages (thread_id, id desc);
@@ -128,10 +151,27 @@ create index if not exists chat_messages_page_idx on public.chat_messages (threa
 create table if not exists public.chat_reads (
   thread_id uuid not null references public.chat_threads(id) on delete cascade,
   user_id uuid not null references auth.users(id) on delete cascade,
-  last_read_message_id bigint references public.chat_messages(id) on delete set null,
+  last_message_id bigint not null default 0 check (last_message_id>=0),
   updated_at timestamptz not null default now(),
   primary key (thread_id,user_id)
 );
+
+create table if not exists public.chat_reports (
+  id bigint generated always as identity (start with 40000001) primary key,
+  thread_id uuid not null references public.chat_threads(id) on delete restrict,
+  message_id bigint references public.chat_messages(id) on delete restrict,
+  reporter_id uuid not null references auth.users(id) on delete restrict,
+  reported_id uuid not null references auth.users(id) on delete restrict,
+  reason varchar(1000) not null,
+  status text not null default 'open' check (status in ('open','resolved')),
+  resolved_by uuid references auth.users(id) on delete restrict,
+  resolved_at timestamptz,
+  resolution_note text,
+  created_at timestamptz not null default now(),
+  constraint chat_report_no_self check (reporter_id<>reported_id)
+);
+create unique index if not exists chat_reports_one_open
+  on public.chat_reports(thread_id,reporter_id) where status='open';
 
 create table if not exists public.chat_blocks (
   blocker_id uuid not null references auth.users(id) on delete cascade,
@@ -142,42 +182,91 @@ create table if not exists public.chat_blocks (
 );
 
 create table if not exists public.listing_reports (
-  id bigint generated always as identity primary key,
+  id uuid primary key,
+  report_no bigint generated always as identity (start with 20000001) unique,
   listing_id uuid not null references public.listings(id) on delete restrict,
   reporter_id uuid not null references auth.users(id) on delete restrict,
   reason varchar(500) not null,
-  status text not null default 'open' check (status in ('open','resolved','dismissed')),
-  created_at timestamptz not null default now()
+  message varchar(1000) not null,
+  status text not null default 'open' check (status in ('open','resolved')),
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz,
+  resolved_by uuid references auth.users(id) on delete restrict,
+  unique(listing_id,reporter_id)
 );
 create index if not exists listing_reports_status_idx on public.listing_reports (status,created_at desc);
 
 create table if not exists public.staff_members (
   user_id uuid primary key references auth.users(id) on delete restrict,
   staff_role text not null check (staff_role in ('moderator','leader')),
-  enabled boolean not null default true,
-  assigned_by uuid not null references auth.users(id) on delete restrict,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  assigned_by uuid references auth.users(id) on delete restrict,
+  assigned_at timestamptz not null default now()
+);
+
+create table if not exists public.staff_events (
+  id bigint generated always as identity primary key,
+  actor_id uuid references auth.users(id) on delete restrict,
+  target_id uuid not null references auth.users(id) on delete restrict,
+  action text not null,
+  created_at timestamptz not null default now()
 );
 
 create table if not exists public.moderation_events (
   id bigint generated always as identity primary key,
-  listing_id uuid,
-  actor_id uuid not null references auth.users(id) on delete restrict,
-  action varchar(64) not null,
-  reason varchar(500),
-  snapshot jsonb,
+  listing_id uuid not null,
+  owner_id uuid not null,
+  actor_id uuid,
+  actor_kind text not null check (actor_kind in ('admin','owner','system')),
+  action text not null,
+  old_status text,
+  new_status text,
+  changed_fields text[] not null default '{}',
+  before_values jsonb,
+  after_values jsonb,
+  reason text,
   created_at timestamptz not null default now()
 );
 create index if not exists moderation_events_listing_idx on public.moderation_events (listing_id,id desc);
 
 create table if not exists public.listing_views (
   listing_id uuid not null references public.listings(id) on delete cascade,
-  visitor_hash bytea not null,
-  viewed_on date not null,
+  visitor_hash text not null check (visitor_hash ~ '^[0-9a-f]{64}$'),
+  view_day date not null default (now() at time zone 'UTC')::date,
+  primary key (listing_id,view_day,visitor_hash)
+);
+
+create table if not exists public.listing_category_limits (
+  category text primary key,
+  active_limit integer not null check (active_limit>0),
+  period_limit integer not null check (period_limit>0)
+);
+
+create table if not exists public.listing_cycle_usage (
+  listing_id uuid not null,
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  category text not null,
+  started_at timestamptz not null,
+  primary key(listing_id,started_at)
+);
+
+create table if not exists public.listing_approval_usage (
+  listing_id uuid not null,
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  category text not null,
+  first_approved_at timestamptz not null,
+  primary key(listing_id,category)
+);
+
+create table if not exists public.wallet_entries (
+  id bigint generated always as identity primary key,
+  owner_id uuid not null references auth.users(id) on delete restrict,
+  amount numeric(12,2) not null check(amount<>0),
+  currency text not null default 'AZN' check(currency='AZN'),
+  kind text not null check(kind in ('topup','promotion','refund')),
+  provider_reference text not null unique,
+  memo text,
   created_at timestamptz not null default now(),
-  primary key (listing_id,visitor_hash,viewed_on),
-  constraint visitor_hash_length check (octet_length(visitor_hash)=32)
+  check((kind in ('topup','refund') and amount>0) or (kind='promotion' and amount<0))
 );
 
 commit;

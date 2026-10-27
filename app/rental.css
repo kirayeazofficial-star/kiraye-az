@@ -2092,11 +2092,12 @@ body { background:var(--canvas);color:var(--text); }
 .listingCard:hover .cardPhoto { transform:scale(1.015); }
 .listingCard .heart {
   top:10px;right:10px;width:38px!important;height:38px!important;min-width:38px!important;min-height:38px!important;
-  padding:8px!important;border:1px solid rgba(255,255,255,.65)!important;border-radius:50%!important;
-  background:rgba(20,37,33,.42)!important;backdrop-filter:blur(8px);color:#fff;
+  padding:7px!important;border:0!important;border-radius:8px!important;
+  background:transparent!important;backdrop-filter:none;color:#fff;
 }
-.listingCard .heart:hover { background:rgba(20,37,33,.62)!important; }
-.listingCard .heart.selected { background:#fff!important;color:var(--accent)!important; }
+.listingCard .heart:hover { background:rgba(20,37,33,.18)!important; }
+.listingCard .heart.selected { background:transparent!important;color:var(--accent)!important; }
+.listingCard .heart svg { filter:drop-shadow(0 1px 3px rgba(0,0,0,.7))!important; }
 .listingCard .cardBody { padding:14px 14px 13px; }
 .listingCard .price { color:#152d27;font-size:18px;letter-spacing:-.3px; }
 .listingCard h3 { display:-webkit-box;margin:8px 0 5px;overflow:hidden;font-size:14px;line-height:1.35;-webkit-box-orient:vertical;-webkit-line-clamp:2; }

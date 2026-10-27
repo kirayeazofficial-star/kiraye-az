@@ -51,7 +51,6 @@ export default function Login({
     [verification, setVerification] = useState<Verification | null>(null),
     [unconfirmed, setUnconfirmed] = useState(false),
     [showPassword, setShowPassword] = useState(false),
-    [useCode, setUseCode] = useState(false),
     [cooldown, setCooldown] = useState(0),
     [requestCooldown, setRequestCooldown] = useState(0),
     [requestScope, setRequestScope] = useState("mail");
@@ -87,7 +86,6 @@ export default function Login({
   }
   function pending(type: Verification, email: string, checked = false) {
     setVerification(type);
-    setUseCode(type === "recovery" && checked);
     setCooldown(60);
     setNotice("");
     try {
@@ -149,7 +147,6 @@ export default function Login({
         setMethod("email");
         setEmailAddress(saved.email);
         setVerification(saved.type);
-        setUseCode(saved.type === "recovery" && saved.checked === true);
         setCooldown(
           Math.max(0, Math.ceil((saved.retryAt - Date.now()) / 1000)),
         );
@@ -283,7 +280,7 @@ export default function Login({
       setNotice(
         verification === "recovery"
           ? "E-poçtuna gələn 6 rəqəmli kodu yaz."
-          : "Məktubdakı 6–10 rəqəmli kodu yaz.",
+          : "Məktubdakı 6 rəqəmli kodu yaz.",
       );
       return;
     }
@@ -355,7 +352,6 @@ export default function Login({
   function changeMode(next: "login" | "signup" | "reset") {
     clearPending();
     setVerification(null);
-    setUseCode(false);
     setMode(next);
     setLoginFailed(false);
     setNotice("");
@@ -646,23 +642,7 @@ export default function Login({
                       E-poçtu dəyiş
                     </button>
                   </div>
-                  {verification !== "recovery" && (
-                    <button
-                      className="codeDisclosure"
-                      type="button"
-                      disabled={busy}
-                      aria-expanded={useCode}
-                      onClick={() => {
-                        setUseCode(!useCode);
-                        setNotice("");
-                      }}
-                    >
-                      {useCode
-                        ? "Kod girişini bağla"
-                        : "Məktubda rəqəmli kod var"}
-                    </button>
-                  )}
-                  {verification !== "recovery" && useCode && codeForm()}
+                  {verification !== "recovery" && codeForm()}
                 </div>
               )}
               {unconfirmed && (

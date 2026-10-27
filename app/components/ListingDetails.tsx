@@ -19,7 +19,6 @@ import {
   readFavorites,
 } from "../../lib/marketplace";
 import { normalizePhone, reportReasons } from "../../lib/rental-details";
-import { supabase } from "../../lib/supabase";
 export default function ListingDetails({
   item,
   compact = false,
@@ -29,10 +28,10 @@ export default function ListingDetails({
 }) {
   const [phoneShown,setPhoneShown]=useState(false);
   const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number}|null>(null);
-  useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(!supabase||item.demo||item.status!=="published")return;let active=true;Promise.resolve(supabase.rpc('public_listing_info',{p_listing_id:item.id}).abortSignal(AbortSignal.timeout(3000))).then(({data,error})=>{if(active&&!error&&data&&typeof data==='object'&&!Array.isArray(data))setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
+  useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(item.demo||item.status!=="published")return;let active=true;fetch(`/api/listing-info?id=${encodeURIComponent(item.id)}`,{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active&&data&&typeof data==='object'&&!data.error)setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
   const [isOwner,setIsOwner]=useState(false);
   const [ownerReady,setOwnerReady]=useState(false);
-  useEffect(()=>{if(!supabase){setOwnerReady(true);return;}let active=true,authChanged=false;setOwnerReady(false);const {data}=supabase.auth.onAuthStateChange((_event,session)=>{authChanged=true;if(active){setIsOwner(!!session&&session.user.id===item.owner_id);setOwnerReady(true);}});supabase.auth.getUser().then(({data})=>{if(active&&!authChanged){setIsOwner(!!data.user&&data.user.id===item.owner_id);setOwnerReady(true);}}).catch(()=>{if(active&&!authChanged)setOwnerReady(true);});return()=>{active=false;data.subscription.unsubscribe();};},[item.owner_id]);
+  useEffect(()=>{let active=true;setOwnerReady(false);fetch('/api/auth/host',{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active)setIsOwner(data.user?.id===item.owner_id);}).catch(()=>{}).finally(()=>{if(active)setOwnerReady(true);});return()=>{active=false;};},[item.owner_id]);
   const [image, setImage] = useState(0),
     [favorite, setFavorite] = useState(false),
     [notice, setNotice] = useState(""),
@@ -43,14 +42,12 @@ export default function ListingDetails({
     if(item.demo||item.status!=="published")return;
     let active=true;
     const timer=setTimeout(async()=>{
-      try{const session=await supabase?.auth.getSession();if(!active||session?.data.session?.user.id===item.owner_id)return;
-        const headers:Record<string,string>={'Content-Type':'application/json'};
-        if(session?.data.session?.access_token)headers.Authorization=`Bearer ${session.data.session.access_token}`;
-        await fetch('/api/listing-view',{method:'POST',headers,body:JSON.stringify({id:item.id}),keepalive:true});
+      try{if(!active||isOwner)return;
+        await fetch('/api/listing-view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id}),keepalive:true});
       }catch{/* Statistics never interrupt browsing. */}
     },1500);
     return()=>{active=false;clearTimeout(timer);};
-  },[item.id,item.owner_id,item.status,item.demo]);
+  },[item.id,item.owner_id,item.status,item.demo,isOwner]);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -96,53 +93,23 @@ export default function ListingDetails({
       setNotice("Nümunə elana şikayət göndərilmir.");
       return;
     }
-    if (!supabase) {
-      setNotice("Şikayət xidməti hazır deyil.");
-      return;
-    }
     setBusy(true);
     const form = new FormData(e.currentTarget);
     try {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        setNotice("Şikayət göndərmək üçün hesabınıza daxil olun.");
-        return;
-      }
-      if (data.user.id === item.owner_id) {
-        setNotice(
-          "Öz elanına şikayət göndərə bilməzsən. Dəyişiklik üçün kabinetdə Redaktə et seç.",
-        );
-        return;
-      }
       const message = String(form.get("message") ?? "").trim();
       if (message.length < 10 || message.length > 1000) {
         setNotice("Əlavə məlumat 10–1000 simvol olmalıdır.");
         return;
       }
-      const result = await supabase.from("listing_reports").insert({
-        listing_id: item.id,
-        reporter_id: data.user.id,
-        reason: form.get("reason"),
-        message,
-        status: "open",
-      });
-      if (result.error?.code === "23505") {
-        setReported(true);
-        setNotice("Bu elan üçün şikayətiniz artıq qeydə alınıb.");
-        return;
-      }
-      if (result.error) throw result.error;
+      const response=await fetch('/api/listing-info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id,reason:form.get('reason'),message})}),result=await response.json();
+      if(!response.ok){if(result.error==='SIGN_IN_REQUIRED')throw new Error('SIGN_IN_REQUIRED');if(result.error==='OWN_LISTING')throw new Error('OWN_LISTING');throw new Error(result.error||'REPORT_FAILED');}
       setReported(true);
       setReport(false);
       setNotice("Şikayətiniz qeydə alındı. İdarəçi yoxlayacaq.");
     } catch (error) {
-      const code = (error as { code?: string })?.code;
+      const code = error instanceof Error ? error.message : '';
       setNotice(
-        code === "42501"
-          ? "Bu elan üçün şikayət icazəsi yoxdur. Hesabını və elanın yayımlandığını yoxla."
-          : code === "42P01" || code === "PGRST205"
-            ? "Şikayət xidməti bazada aktivləşdirilməyib. Sayt idarəçisi quraşdırmanı tamamlamalıdır."
-            : "Şikayət göndərilmədi. Bir az sonra yenidən yoxlayın.",
+        code === 'SIGN_IN_REQUIRED' ? 'Şikayət göndərmək üçün hesabına daxil ol.' : code === 'OWN_LISTING' ? 'Öz elanına şikayət göndərə bilməzsən. Elanı kabinetdən redaktə et.' : 'Şikayət göndərilmədi. Bir az sonra yenidən yoxla.',
       );
     } finally {
       setBusy(false);

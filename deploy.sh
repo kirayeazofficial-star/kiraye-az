@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -eo pipefail
 
 SOURCE_DIR="/home/kiraytfg/kirayeal-source"
 APP_DIR="/home/kiraytfg/kirayeal"

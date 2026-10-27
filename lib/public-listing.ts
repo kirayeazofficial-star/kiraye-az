@@ -1,7 +1,7 @@
 import { isListingExpired } from "./listing-lifecycle";
 import { cache } from "react";
-import { publicSupabase as supabase } from "./supabase";
 import { examples, Listing } from "./marketplace";
+import {hostQuery} from "./host/db";
 export const getPublicListing = cache(
   async (
     id: string,
@@ -13,24 +13,9 @@ export const getPublicListing = cache(
       };
     if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id))
       return { item: null, unavailable: false };
-    if (!supabase) return { item: null, unavailable: true };
     try {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("*")
-        .eq("id", id)
-        .eq("status", "published")
-        .maybeSingle();
-      const item = data && data.status === "published" && !isListingExpired(data as Listing) ? data as Listing : null;
-      if (item && !error) {
-        try {
-          const result = await supabase.rpc("public_seller_since", { listing_id: id })
-            .abortSignal(AbortSignal.timeout(1500));
-          if (!result.error && typeof result.data === "string" && Number.isFinite(Date.parse(result.data)))
-            item.seller_since = result.data;
-        } catch { /* Optional account age must never block a published listing. */ }
-      }
-      return { item, unavailable: !!error };
+      const rows=await hostQuery<Listing&{seller_since?:string}>(`select l.*,p.created_at::text seller_since from public.listings l left join public.profiles p on p.id=l.owner_id where l.id=$1 and l.status='published' and (l.expires_at is null or l.expires_at>now()) limit 1`,[id]);
+      const item=rows[0]&&!isListingExpired(rows[0])?rows[0]:null;return {item,unavailable:false};
     } catch {
       return { item: null, unavailable: true };
     }

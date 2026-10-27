@@ -11,7 +11,6 @@ import { rentalCategorySpecs } from "../../lib/rental-category-specs";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { searchCatalog, PAGE_SIZE } from "../../lib/catalog";
-import { supabase } from "../../lib/supabase";
 import { matchesRentalFilters, isProperty } from "../../lib/rental-details";
 import {
   carModels,
@@ -83,14 +82,6 @@ export default function Home() {
   const closeFilters = useCallback(() => setAdvanced(false), []);
   const favoriteIds = onlyFavorites ? favorites.join(",") : "";
   useEffect(() => {
-    if (!supabase) {
-      setDemo(true);
-      setLoading(false);
-      setNotice(
-        "Hazırda nümunə elanlara baxırsınız. Real elanlar xidmət aktivləşdirildikdən sonra görünəcək.",
-      );
-      return;
-    }
     let active = true;
     setLoading(true);
     const timer = setTimeout(() => {

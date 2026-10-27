@@ -1,4 +1,3 @@
-import { supabase } from "./supabase";
 
 export const categories = [
   { id: "property", name: "Ev və mənzil", icon: "⌂" },
@@ -269,31 +268,8 @@ export const examples: Listing[] = [
 export async function loadListings(
   scope: "public" | "mine" | "admin" = "public",
 ) {
-  if (!supabase)
-    throw new Error(
-      "Xidmətə bağlantı hələ tamamlanmayıb. Bir az sonra yenidən yoxlayın.",
-    );
-  if (scope === "mine") {
-    const {data,error}=await supabase.auth.getUser();
-    if(error||!data.user)throw new Error("Əvvəl hesabınıza daxil olun.");
-    const all:Listing[]=[],seen=new Set<string>();
-    for(let offset=0;;offset+=200){
-      const result=await supabase.from("listings").select("*").eq("owner_id",data.user.id).order("created_at",{ascending:false}).order("id",{ascending:false}).range(offset,offset+199).abortSignal(AbortSignal.timeout(15000));
-      if(result.error)throw new Error("Elanları yükləmək mümkün olmadı. Yenidən yoxla.");
-      const rows=result.data as Listing[];let added=0;for(const row of rows){if(!seen.has(row.id)){seen.add(row.id);all.push(row);added++;}}
-      if(rows.length<200)break;
-      if(!added)throw new Error("Elanların növbəti səhifəsi yüklənmədi. Yenidən yoxla.");
-    }
-    return all;
-  }
-  let query = supabase.from("listings").select("*").order("created_at", { ascending: false }).limit(200);
-  if (scope === "public") query = query.eq("status", "published");
-  const { data, error } = await query;
-  if (error)
-    throw new Error(
-      "Elanları yükləmək mümkün olmadı. Bir az sonra yenidən yoxlayın.",
-    );
-  return data as Listing[];
+  const response=await fetch(`/api/listings?scope=${scope}&limit=200`,{cache:'no-store',signal:AbortSignal.timeout(15000)});const result=await response.json();
+  if(!response.ok)throw new Error(response.status===401?"Əvvəl hesabınıza daxil olun.":"Elanları yükləmək mümkün olmadı. Yenidən yoxla.");return result.items as Listing[];
 }
 export function readFavorites(): string[] {
   try {

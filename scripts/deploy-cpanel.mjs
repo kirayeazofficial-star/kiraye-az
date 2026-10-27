@@ -28,7 +28,7 @@ try{
    execFileAsync('git',['ls-files','-z'],{cwd:source,encoding:'buffer'}),
    execFileAsync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}),
   ]);
-  const roots=['app/','lib/','public/','scripts/'];
+  const roots=['app/','lib/','public/','scripts/','host/postgres/'];
   const rootFiles=new Set(['app.js','next.config.mjs','next-env.d.ts','package.json','package-lock.json','tsconfig.json']);
   const files=listed.toString('utf8').split('\0').filter(path=>path&&(roots.some(root=>path.startsWith(root))||rootFiles.has(path)));
   manifest={commit:commit.trim(),files};
@@ -65,6 +65,7 @@ try{
  await run('tar',['-czf',archive,'--exclude=./node_modules','--exclude=./.next/cache','--exclude=./.git','--exclude=./core','--exclude=./core.*','-C',target,'.']);
  await chmod(archive,0o600);backupReady=true;
  await writeFile(join(privateRoot,stamp+'.json'),JSON.stringify({target,commit:manifest.commit,created_at:stamp,archive},null,2),{mode:0o600});
+ await run(process.execPath,['scripts/run-host-migrations.mjs',source],source,env);
  console.log('Building the update separately with one worker...');
  await run('npm',['run','build','--','--webpack'],source,env);
  for(const path of ['.next/standalone/server.js','.next/BUILD_ID','.next/standalone/.next/BUILD_ID','.next/standalone/public','.next/standalone/.next/static'])await access(join(source,path));

@@ -14,7 +14,7 @@ export function hostPool(){
   return pool;
 }
 
-type SqlValue=string|number|bigint|boolean|Date|null|Buffer|Uint8Array;
+type SqlValue=string|number|bigint|boolean|Date|null|Buffer|Uint8Array|string[]|Record<string,unknown>;
 export async function hostQuery<T extends QueryResultRow=QueryResultRow>(sql:string,values:SqlValue[]=[]){
   const result=await hostPool().query<T>(sql,values);return result.rows;
 }

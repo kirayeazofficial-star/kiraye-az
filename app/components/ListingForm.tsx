@@ -1,13 +1,8 @@
 "use client";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
-import { effectiveListingStatus } from "../../lib/listing-lifecycle";
 import { watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import {
-  checkMonthlyListingLimit,
-  listingPolicyError,
-} from "../../lib/listing-policy";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { listingExamples } from "../../lib/listing-form-options";
@@ -19,7 +14,6 @@ import {
   readListingAttributes,
   validateListingAttributes,
 } from "../../lib/listing-attributes";
-import { supabase } from "../../lib/supabase";
 import {
   isProperty,
   normalizePhone,
@@ -151,62 +145,49 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       setLoadError(true);
       setError("Hesab yoxlaması gecikir. Bağlantını yoxlayıb yenidən cəhd et.");
     }, 15000);
-    if (!supabase) {
-      setLoading(false);
-      clearTimeout(timer);
-      return;
-    }
-    supabase.auth
-      .getUser()
-      .then(async ({ data }) => {
+    fetch("/api/auth/host",{cache:"no-store"})
+      .then(async response => {
+        const data=await response.json(),account=data.user;
         if (!active) return;
-        setUser(data.user?.id ?? "");
-        setLoginPhone(data.user?.phone || data.user?.user_metadata?.contact_phone || "");
-        setAccountEmail(data.user?.email || "");
-        if (data.user && supabase) {
-          setContactName(data.user.user_metadata?.full_name || "");
+        setUser(account?.id ?? "");
+        setLoginPhone(account?.phone || "");
+        setAccountEmail(account?.email || "");
+        if (account) {
+          setContactName(account.display_name || "");
           try {
-            const profile = await supabase
-              .from("profiles")
-              .select("display_name,phone,role")
-              .eq("id", data.user.id)
-              .maybeSingle();
+            const profileResponse=await fetch("/api/account/profile",{cache:"no-store"});
+            const profile=await profileResponse.json();
             if (!active) return;
-            setCanModerate(profile.data?.role === "admin");
-            if (profile.data?.display_name)
-              setContactName(profile.data.display_name);
-            setLoginPhone(profile.data?.phone || data.user.phone || data.user.user_metadata?.contact_phone || "");
+            setCanModerate(profile.profile?.role === "admin" || !!profile.profile?.staff_role);
+            if (profile.profile?.display_name)setContactName(profile.profile.display_name);
+            setLoginPhone(profile.profile?.phone || account.phone || "");
           } catch {
             /* Optional contact defaults must not block loading an existing listing. */
           }
         }
         if (!active) return;
-        if (listingId && data.user && supabase) {
-          const result = await supabase
-            .from("listings")
-            .select("*")
-            .eq("id", listingId)
-            .eq("owner_id", data.user.id)
-            .maybeSingle();
+        if (listingId && account) {
+          const listingResponse=await fetch(`/api/listings?id=${encodeURIComponent(listingId)}`,{cache:"no-store"});
+          const result=await listingResponse.json();
           if (!active) return;
-          if (result.error || !result.data) {
+          if (!listingResponse.ok || !result.item) {
             setLoadError(true);
             setError(
               "Bu elanı redaktə etmək mümkün deyil. Elan sizə aid olmaya bilər.",
             );
             return;
           }
-          if(["archived","expired"].includes(effectiveListingStatus(result.data as Listing))){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetindən baxa bilərsən.");return;}
-          setInitial(result.data as Listing);
-          setMinimumUnit(result.data.attributes?.min_rental_unit || "day");
-          setRentalPeriod(result.data.rental_period);
-          setTitle(result.data.title);
-          setCity(result.data.city || "");
-          setPrice(result.data.price == null ? "" : String(result.data.price));
-          setDescriptionText(result.data.description || "");
+          if(["archived","expired"].includes(result.item.status)){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetindən baxa bilərsən.");return;}
+          setInitial(result.item as Listing);
+          setMinimumUnit(result.item.attributes?.min_rental_unit || "day");
+          setRentalPeriod(result.item.rental_period);
+          setTitle(result.item.title);
+          setCity(result.item.city || "");
+          setPrice(result.item.price == null ? "" : String(result.item.price));
+          setDescriptionText(result.item.description || "");
           manualTitle.current = true;
-          setCategory(result.data.category);
-          setExistingImages(result.data.images ?? []);
+          setCategory(result.item.category);
+          setExistingImages(result.item.images ?? []);
         }
       })
       .catch(() => { if (active) { setLoadError(true); setError("Hesabı yoxlamaq mümkün olmadı."); } })
@@ -281,7 +262,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
   }
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!supabase || !user || busy || submitLock.current) return;
+    if (!user || busy || submitLock.current) return;
     if (step < 4) {
       nextStep();
       return;
@@ -352,26 +333,15 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     const paths: string[] = [];
     let saved = false;
     try {
-      if (!listingId || initial?.expires_at) await checkMonthlyListingLimit(user, category, listingId);
-      const profile = await supabase
-        .from("profiles")
-        .upsert({ id: user }, { onConflict: "id", ignoreDuplicates: true });
-      if (profile.error)
-        throw new Error("Hesab məlumatlarını hazırlamaq mümkün olmadı.");
       const images: string[] = [...existingImages];
       for (const file of files) {
         const branded = await watermarkPhoto(file);
-        const path = `${user}/branded-v5-${crypto.randomUUID()}.jpg`;
-        const uploaded = await supabase.storage
-          .from("listing-images")
-          .upload(path, branded, { contentType: branded.type, upsert: false });
-        if (uploaded.error)
+        const uploadForm=new FormData();uploadForm.set("file",branded,"listing.jpg");
+        const uploadResponse=await fetch("/api/uploads",{method:"POST",body:uploadForm});
+        const uploaded=await uploadResponse.json();
+        if (!uploadResponse.ok || !uploaded.path)
           throw new Error("Şəkil yüklənmədi. Bir az sonra yenidən yoxlayın.");
-        paths.push(path);
-        images.push(
-          supabase.storage.from("listing-images").getPublicUrl(path).data
-            .publicUrl,
-        );
+        paths.push(uploaded.path);images.push(uploaded.path);
       }
       const payload = {
         owner_id: user,
@@ -397,16 +367,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             : null,
         attributes,
       };
-      const result = listingId
-        ? await supabase
-            .from("listings")
-            .update(payload)
-            .eq("id", listingId)
-            .eq("owner_id", user)
-            .select("id")
-            .single()
-        : await supabase.from("listings").insert(payload).select("id").single();
-      if (result.error) throw new Error(listingPolicyError(result.error));
+      const resultResponse=await fetch("/api/listings",{method:listingId?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(listingId?{...payload,id:listingId}:payload)});
+      if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd et.");
       saved = true;
       draftDirty.current=false;
       if(!listingId)void clearListingDraft(user);
@@ -414,7 +376,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     } catch (err) {
       if (paths.length && !saved) {
         try {
-          await supabase.storage.from("listing-images").remove(paths);
+          await Promise.all(paths.map(path=>fetch("/api/uploads",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({path})})));
         } catch {
           /* Preserve the original submission error. */
         }
@@ -444,7 +406,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </p>
           </div>
         </div>
-        {!loading && !success && !loadError && supabase && !user && (
+        {!loading && !success && !loadError && !user && (
           <section className="guestPublishPrompt" aria-labelledby="guest-publish-title">
             <div>
               <h2 id="guest-publish-title">Əvvəl hesabına daxil ol</h2>
@@ -482,10 +444,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         ) : loadError ? (
           <div className="error" role="alert">
             {error} <button type="button" className="secondary" onClick={() => window.location.reload()}>Yenidən yoxla</button> <Link href="/profile">Kabinetə qayıt</Link> <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a>
-          </div>
-        ) : !supabase ? (
-          <div className="notice">
-            Elan qəbulu hələ aktivləşdirilməyib. Bir az sonra yenidən yoxlayın.
           </div>
         ) : !user ? null : (
           <div className="formLayout">

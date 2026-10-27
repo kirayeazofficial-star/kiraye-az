@@ -2,15 +2,14 @@ const fail = (message) => {
   console.error(message);
   process.exit(1);
 };
+const backend = process.env.KIRAYE_BACKEND?.trim() || "supabase";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const key =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
-if (!url || !/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url))
+const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+if (backend !== "host" && (!url || !/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url)))
   fail("NEXT_PUBLIC_SUPABASE_URL must be the project's HTTPS Supabase URL.");
-if (!key || !/^(sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_.-]+)$/.test(key))
+if (backend !== "host" && (!key || !/^(sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_.-]+)$/.test(key)))
   fail("A browser-safe Supabase publishable or anon key is required.");
-if (key.startsWith("eyJ")) {
+if (backend !== "host" && key?.startsWith("eyJ")) {
   try {
     if (JSON.parse(Buffer.from(key.split(".")[1], "base64url")).role !== "anon")
       fail("Only an anon JWT is allowed in NEXT_PUBLIC_SUPABASE_ANON_KEY.");

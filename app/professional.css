@@ -1,0 +1,147 @@
+/* Final product shell. Keep page-specific legacy rules in rental.css; this file
+   owns the shared visual language and is intentionally loaded last. */
+:root {
+  --ui-bg:#f5f7f6;
+  --ui-surface:#fff;
+  --ui-ink:#17342d;
+  --ui-muted:#667a72;
+  --ui-brand:#125d4e;
+  --ui-brand-soft:#e9f3ef;
+  --ui-accent:#ef7048;
+  --ui-line:#dfe7e3;
+  --ui-danger:#a44732;
+  --ui-radius:16px;
+  --ui-shadow:0 10px 30px rgba(18,54,45,.065);
+}
+* { box-sizing:border-box; }
+body { margin:0;background:var(--ui-bg);color:var(--ui-ink);font-family:Arial,"Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased; }
+a { color:inherit; }
+button,input,select,textarea { font:inherit; }
+button,a { -webkit-tap-highlight-color:transparent; }
+.wrap { width:min(1180px,100%);margin-inline:auto;padding-inline:24px; }
+.muted { color:var(--ui-muted); }
+.eyebrow { color:var(--ui-brand);font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase; }
+.add,.secondary,.textButton { transition:background .16s,border-color .16s,color .16s,transform .16s; }
+.add { border:0;border-radius:11px;background:var(--ui-accent);color:#fff;box-shadow:none;font-weight:700; }
+.add:hover { background:#de623c; }
+.secondary { border:1px solid var(--ui-line);border-radius:10px;background:#fff;color:#31534a;box-shadow:none; }
+.secondary:hover { border-color:#b9cbc3;background:#f8faf9; }
+.textButton { color:var(--ui-brand); }
+
+/* Listing details */
+.listingDetailPage { padding-top:22px;padding-bottom:80px; }
+.breadcrumb { margin:0 0 16px;color:#778780;font-size:12px; }
+.breadcrumb a { color:var(--ui-brand);text-decoration:none; }
+.listingDetails { display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.85fr);gap:24px;align-items:start; }
+.listingGallery,.listingInfo { min-width:0;border:1px solid var(--ui-line);border-radius:20px;background:var(--ui-surface);box-shadow:var(--ui-shadow);overflow:hidden; }
+.listingGallery { padding:12px; }
+.galleryStage { overflow:hidden;border-radius:14px;background:#edf2ef; }
+.listingMainImage { width:100%;aspect-ratio:4/3;object-fit:contain; }
+.galleryArrow { width:42px;height:42px;border:1px solid #ffffffaa;border-radius:50%;background:#17342d99;color:#fff;backdrop-filter:blur(6px); }
+.galleryCounter { border-radius:999px;background:#17342daa;color:#fff;font-size:11px;backdrop-filter:blur(6px); }
+.thumbnails { gap:8px;padding-top:10px; }
+.thumbnails button { overflow:hidden;border:2px solid transparent;border-radius:9px;background:#eef2f0; }
+.thumbnails button[aria-current=true] { border-color:var(--ui-brand); }
+.listingInfo { padding:24px; }
+.listingInfo h1 { margin:0 0 12px;font-size:clamp(24px,3vw,34px);line-height:1.14;letter-spacing:-.8px; }
+.detailPrice { color:var(--ui-brand);font-size:28px;letter-spacing:-.5px; }
+.publicListingMeta,.detailSpecs,.amenityTags { gap:8px; }
+.detailSpecs>*,.amenityTags>* { border:1px solid #e3ebe7;border-radius:9px;background:#f5f8f6;color:#415f56; }
+.description { color:#3f554e;line-height:1.72;white-space:pre-wrap; }
+.sellerCard { border:1px solid var(--ui-line);border-radius:13px;background:#fbfcfb; }
+.phoneSafety,.safetyNote { border-radius:11px; }
+.contactActions { display:flex;gap:8px;flex-wrap:wrap; }
+.contactActions>* { min-height:44px; }
+
+/* Cabinet */
+.accountDashboard { padding-top:28px;padding-bottom:100px; }
+.accountDashboard .accountHeading { margin-bottom:22px; }
+.accountDashboard .accountHeading h1 { margin:2px 0 7px;font-size:30px;letter-spacing:-.7px; }
+.accountDashboard .cabinetLayout { display:grid;grid-template-columns:236px minmax(0,1fr);gap:24px;align-items:start; }
+.accountDashboard .cabinetSidebar { position:sticky;top:96px; }
+.accountDashboard .cabinetNav.cabinetCards { padding:7px;border:1px solid var(--ui-line);border-radius:15px;background:#fff;box-shadow:var(--ui-shadow); }
+.accountDashboard .cabinetNav.cabinetCards a,.accountDashboard .cabinetLogout { border-radius:9px!important;color:#3e5b52!important; }
+.accountDashboard .cabinetNav.cabinetCards a:hover { background:#f3f7f5; }
+.accountDashboard .cabinetNav.cabinetCards a[aria-current=page] { background:var(--ui-brand-soft);color:var(--ui-brand)!important; }
+.accountDashboard .compactBalance { border:1px solid var(--ui-line);border-radius:15px;background:#fff;box-shadow:var(--ui-shadow); }
+.cabinetContent { min-width:0; }
+.cabinetContent>.sectionTitle { margin-bottom:14px; }
+.cabinetContent>.sectionTitle h2 { margin:0;font-size:23px;letter-spacing:-.4px; }
+.profileTabs { gap:6px; }
+.profileTabs button { min-height:40px;border:1px solid var(--ui-line);border-radius:9px;background:#fff;color:#466158; }
+.profileTabs button[aria-pressed=true] { border-color:#a9cbbf;background:var(--ui-brand-soft);color:var(--ui-brand); }
+.accountListings { gap:12px; }
+.accountListings article { border:1px solid var(--ui-line);border-radius:14px;background:#fff;box-shadow:0 4px 16px rgba(18,54,45,.04);overflow:hidden; }
+.ownedPhoto { overflow:hidden;border-radius:10px;background:#edf2ef; }
+.stats article,.walletPanel,.accountLimits article,.profileSettingsGrid .accountForm { border:1px solid var(--ui-line);border-radius:14px;background:#fff;box-shadow:0 5px 20px rgba(18,54,45,.045); }
+
+/* Inbox */
+.messagesPage { width:min(1180px,100%);margin:0 auto;padding:28px 24px 100px; }
+.messagesTitle { align-items:flex-end;margin-bottom:17px; }
+.messagesTitle h1 { font-size:30px;letter-spacing:-.7px; }
+.messagesLayout { height:min(700px,calc(100vh - 210px));min-height:520px;border:1px solid var(--ui-line);border-radius:18px;background:#fff;box-shadow:var(--ui-shadow);overflow:hidden; }
+.conversationList { border-right:1px solid var(--ui-line);background:#fafcfb; }
+.conversationListTitle { padding:15px 16px;border-bottom:1px solid var(--ui-line); }
+.conversationList>button:not(.loadOlder) { border-bottom:1px solid #edf1ef;border-radius:0; }
+.conversationList>button:not(.loadOlder):hover,.conversationList>button[aria-pressed=true] { background:var(--ui-brand-soft); }
+.conversationAvatar { background:#dcece5;color:var(--ui-brand); }
+.conversationHeading { border-bottom:1px solid var(--ui-line); }
+.messageHistory { background:#f5f8f6; }
+.messageHistory .ownMessage { background:#dceddf; }
+.messageHistory .peerMessage { border:1px solid #e2e8e5;background:#fff; }
+.messageComposer { border-top:1px solid var(--ui-line); }
+.messageComposer textarea { border:1px solid #d6e1dc;border-radius:13px;background:#fafcfb; }
+
+/* Admin */
+.adminDashboard { width:min(1120px,100%);padding-top:28px;padding-bottom:100px; }
+.adminDashboard>.sectionTitle { margin-bottom:14px;padding:20px 22px;border:1px solid var(--ui-line);border-radius:16px;background:#fff;box-shadow:var(--ui-shadow); }
+.adminDashboard>.sectionTitle h1 { margin:2px 0 5px;font-size:29px;letter-spacing:-.6px; }
+.adminRoleLabel { border-radius:999px;background:var(--ui-brand-soft);color:var(--ui-brand); }
+.adminSections { position:sticky;top:8px;z-index:5;display:flex;gap:5px;margin-bottom:18px;padding:6px;border:1px solid var(--ui-line);border-radius:13px;background:#ffffffee;box-shadow:0 6px 22px rgba(18,54,45,.055);backdrop-filter:blur(10px); }
+.adminSections button { min-height:39px;border:0;border-radius:8px;background:transparent;color:#49635b;font-size:13px; }
+.adminSections button:hover,.adminSections button[aria-pressed=true] { background:var(--ui-brand-soft);color:var(--ui-brand); }
+.adminDashboard input,.adminDashboard select,.adminDashboard textarea { border:1px solid #d8e2dd;border-radius:9px;background:#fff; }
+.moderationCard { border:1px solid var(--ui-line);border-radius:15px;background:#fff;box-shadow:0 5px 20px rgba(18,54,45,.045); }
+.moderationMeta { color:var(--ui-muted); }
+.status { border-radius:999px;font-weight:700; }
+.pagination { display:flex;justify-content:center;gap:8px;margin-top:20px; }
+
+@media(max-width:900px) {
+  .listingDetails { grid-template-columns:1fr; }
+  .listingInfo { padding:20px; }
+}
+@media(max-width:760px) {
+  .wrap { padding-inline:12px; }
+  .listingDetailPage { padding-top:12px;padding-bottom:88px; }
+  .listingDetails { gap:12px; }
+  .listingGallery,.listingInfo { border-radius:14px;box-shadow:none; }
+  .listingGallery { padding:7px; }
+  .galleryStage { border-radius:10px; }
+  .listingInfo { padding:16px; }
+  .listingInfo h1 { font-size:23px; }
+  .detailPrice { font-size:24px; }
+  .accountDashboard { padding-top:16px;padding-bottom:88px; }
+  .accountDashboard .accountHeading h1 { font-size:25px; }
+  .accountDashboard .cabinetLayout { grid-template-columns:1fr;gap:14px; }
+  .accountDashboard .cabinetSidebar { position:static; }
+  .accountDashboard .cabinetNav.cabinetCards { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:0;border:0;background:transparent;box-shadow:none; }
+  .accountDashboard .cabinetNav.cabinetCards a { min-height:54px;border:1px solid var(--ui-line);background:#fff; }
+  .accountDashboard .cabinetLogout { grid-column:1/-1;border:1px solid #eadbd4!important;background:#fff!important; }
+  .cabinetContent>.sectionTitle h2 { font-size:21px; }
+  .accountListings article { box-shadow:none; }
+  .messagesPage { padding:14px 0 calc(76px + env(safe-area-inset-bottom)); }
+  .messagesTitle { padding-inline:14px; }
+  .messagesTitle h1 { font-size:25px; }
+  .messagesLayout { height:calc(100dvh - 190px);min-height:420px;border-width:1px 0;border-radius:0;box-shadow:none; }
+  .conversationList { border-right:0; }
+  .adminDashboard { padding-top:14px;padding-inline:12px; }
+  .adminDashboard>.sectionTitle { padding:14px;box-shadow:none; }
+  .adminDashboard>.sectionTitle h1 { font-size:24px; }
+  .adminSections { top:0;margin-inline:-12px;border-inline:0;border-radius:0;overflow-x:auto;box-shadow:0 4px 15px rgba(18,54,45,.045); }
+  .adminSections button { flex:none;white-space:nowrap; }
+  .moderationCard { box-shadow:none; }
+}
+@media(max-width:359px) {
+  .accountDashboard .cabinetNav.cabinetCards { grid-template-columns:1fr; }
+  .accountDashboard .cabinetLogout { grid-column:1; }
+}

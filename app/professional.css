@@ -236,3 +236,49 @@ button,a { -webkit-tap-highlight-color:transparent; }
  .adminStats article { min-height:96px;padding:16px; }
  .adminStats b { font-size:29px; }
 }
+/* Desktop sponsorship rails stay outside the product workspace. */
+.desktopAdRails { display:none; }
+@media(min-width:1780px){
+ .desktopAdRails { display:contents; }
+ .desktopAdRail { position:fixed;top:124px;z-index:3;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;width:145px;height:520px;padding:22px;border-radius:22px;background:linear-gradient(165deg,#eaf7f2 0%,#d5eee4 48%,#fff3ec 100%);box-shadow:0 12px 36px rgba(18,54,45,.1);color:#163f38;overflow:hidden; }
+ .desktopAdRail::before { content:"";position:absolute;inset:18px 18px auto auto;width:72px;height:72px;border-radius:50%;background:#f36d45;opacity:.12; }
+ .desktopAdRail::after { content:"kirayeal.az";position:absolute;top:34px;left:22px;color:#155e50;font-size:18px;font-weight:900;letter-spacing:-.6px; }
+ .desktopAdRailLeft { left:max(14px,calc((100vw - 1510px)/2 - 160px)); }
+ .desktopAdRailRight { right:max(14px,calc((100vw - 1510px)/2 - 160px)); }
+ .desktopAdRail small { margin-bottom:auto;color:#6e847c;font-size:9px;font-weight:800;letter-spacing:.18em; }
+ .desktopAdRail strong { position:relative;font-size:17px;line-height:1.35; }
+ .desktopAdRail span { position:relative;margin-top:18px;padding:10px 12px;border-radius:10px;background:#155e50;color:#fff;font-size:11px;font-weight:750; }
+}
+
+.profileSettings { max-width:1260px;padding-bottom:80px; }
+.profileSettingsHeading { display:flex;align-items:center;gap:15px;margin:4px 0 16px; }
+.profileSettingsHeading>span { display:grid;place-items:center;width:58px;height:58px;border-radius:18px;background:linear-gradient(145deg,#165e50,#2a8b76);color:#fff;font-size:24px;font-weight:850;box-shadow:0 9px 22px rgba(21,94,80,.18); }
+.profileSettingsHeading p { margin:0 0 2px;color:#748a82;font-size:10px;font-weight:850;letter-spacing:.14em; }
+.profileSettingsHeading h1 { margin:0;font-size:28px;letter-spacing:-.6px; }
+.profileSettingsHeading small { color:#6d7f79; }
+.profileAccountId { display:flex;align-items:center;gap:9px;margin:16px 0;padding:11px 14px;border-radius:11px;background:#edf5f1;color:#31584e;font-size:13px; }
+.profileAccountId span { color:#71847e; }
+.profileSettingsGrid { gap:16px; }
+.profileSettingsGrid .accountForm { padding:24px;border:0;border-radius:18px;box-shadow:0 9px 30px rgba(18,54,45,.07); }
+.profileSettingsGrid .accountForm h2 { color:#173f38;font-size:20px; }
+.profileSettingsGrid .accountForm input { min-height:52px;border-radius:12px;background:#fafcfb; }
+.profileSettingsGrid .accountForm .add { min-height:48px;border-radius:12px; }
+
+@media(max-width:720px){
+ .profileSettings { padding:14px 14px 92px; }
+ .profileSettings .breadcrumb { display:none; }
+ .profileSettingsHeading { margin:2px 0 14px; }
+ .profileSettingsHeading>span { width:50px;height:50px;border-radius:15px;font-size:20px; }
+ .profileSettingsHeading h1 { font-size:22px; }
+ .profileSettingsHeading small { display:none; }
+ .profileSettings .accountQuickNav { display:flex;flex-wrap:nowrap;gap:6px;margin:0 -14px 14px;padding:8px 14px;border-inline:0;border-radius:0;overflow-x:auto;scrollbar-width:none; }
+ .profileSettings .accountQuickNav::-webkit-scrollbar { display:none; }
+ .profileSettings .accountQuickNav a { flex:none;min-height:40px;padding:8px 11px;white-space:nowrap; }
+ .profileSettings .accountQuickNav .accountQuickAdmin { margin:0; }
+ .profileAccountId { align-items:flex-start;flex-direction:column;gap:2px;margin:10px 0 13px; }
+ .profileSettingsGrid { gap:12px;margin-top:0; }
+ .profileSettingsGrid .accountForm { padding:17px;border-radius:16px;box-shadow:0 5px 18px rgba(18,54,45,.055); }
+ .profileSettingsGrid .accountForm h2 { font-size:19px; }
+ .profileSettingsGrid .accountForm input { min-height:50px;font-size:16px; }
+ .profileSettingsGrid .accountForm .add { width:100%; }
+}

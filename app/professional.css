@@ -337,3 +337,57 @@ button,a { -webkit-tap-highlight-color:transparent; }
  .rentalHome .cardBody { padding:9px 9px 11px; }
  .rentalHome .cardBody .price { font-size:18px; }
 }
+
+/* Marketplace visual system v2: compact, clear and visibly different. */
+body { background:#f4f6f5; }
+.header { position:sticky;top:0;z-index:1000;width:100%;max-width:none;margin:0;padding-inline:max(24px,calc((100vw - 1220px)/2));border:0;border-bottom:1px solid #e3e9e6;border-radius:0;background:rgba(255,255,255,.96);box-shadow:0 4px 22px rgba(20,58,49,.055);backdrop-filter:blur(14px); }
+.header .logo { font-size:31px;letter-spacing:-1.8px; }
+.header nav>a { font-weight:650; }
+.header .headerPublish { min-height:46px;padding-inline:18px;border-radius:13px;background:#f2653e;box-shadow:0 7px 18px rgba(242,101,62,.2); }
+.rentalHome { padding-top:0;background:#f4f6f5; }
+.rentalHome .catalogIntro { width:min(1220px,calc(100% - 48px));margin:0 auto;padding:38px 0 74px;border-radius:0;background:transparent;box-shadow:none; }
+.rentalHome .catalogIntro h1 { max-width:760px;color:#173a31;font-size:clamp(35px,4vw,51px);line-height:1.03;letter-spacing:-2px; }
+.rentalHome .catalogIntro h1 em { color:#16806a;font-style:normal; }
+.rentalHome .catalogIntro>div>span { max-width:670px;margin-top:12px;color:#63766f;font-size:15px; }
+.rentalHome .searchWrap { width:min(1220px,calc(100% - 48px));margin:-52px auto 0; }
+.rentalHome .searchPanel { min-height:76px;padding:10px 10px 10px 22px;border:1px solid #dfe7e3;border-radius:18px;box-shadow:0 12px 34px rgba(24,61,51,.11); }
+.rentalHome .searchPanel label span { color:#61766e; }
+.rentalHome .searchPanel input { font-size:18px; }
+.rentalHome .searchPanel .add { min-width:176px;border-radius:13px;background:#f2653e; }
+.rentalHome .categorySection,.rentalHome .listingSection { width:min(1220px,100%); }
+.rentalHome .categorySection { padding-top:35px; }
+.rentalHome .categories { display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:12px;overflow:visible; }
+.rentalHome .categories button { width:100%;min-width:0;min-height:128px;padding:12px 8px;border:1px solid #e4ebe7;border-radius:17px;box-shadow:none; }
+.rentalHome .categories button:hover { border-color:#bcd2c9;box-shadow:0 8px 22px rgba(18,54,45,.075); }
+.rentalHome .listingSection { padding-top:34px; }
+.rentalHome .listingCard { border:1px solid #e1e8e4;border-radius:16px;box-shadow:none;transition:transform .17s,box-shadow .17s,border-color .17s; }
+.rentalHome .listingCard:hover { transform:translateY(-3px);border-color:#c7d7d0;box-shadow:0 12px 28px rgba(18,54,45,.09); }
+
+@media(max-width:1050px){
+ .rentalHome .categories { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+@media(max-width:720px){
+ body { background:#fff; }
+ .header { position:sticky;min-height:68px;height:68px;padding:8px 14px;border-bottom-color:#e7ece9;box-shadow:none; }
+ .header .headerBrand { width:auto; }
+ .header .logo { position:absolute;left:50%;transform:translateX(-50%);font-size:27px; }
+ .header .logo small { display:none; }
+ .header .headerPublish { display:grid!important;place-items:center!important;width:46px!important;height:46px!important;padding:0!important;border-radius:50%!important;box-shadow:0 6px 16px rgba(242,101,62,.24); }
+ .header .mobilePublishLabel { display:grid;place-items:center; }
+ .header .mobilePublishLabel>span { display:none; }
+ .rentalHome { padding-top:0;background:#fff; }
+ .rentalHome .catalogIntro { width:100%;padding:24px 16px 66px; }
+ .rentalHome .catalogIntro h1 { max-width:340px;font-size:29px;line-height:1.08;letter-spacing:-1.15px; }
+ .rentalHome .catalogIntro>div>span { max-width:345px;margin-top:8px;font-size:12px;line-height:1.5; }
+ .rentalHome .searchWrap { width:calc(100% - 24px);margin:-51px auto 0; }
+ .rentalHome .searchPanel { min-height:62px;padding:6px 6px 6px 15px;border-radius:16px;box-shadow:0 10px 28px rgba(24,61,51,.12); }
+ .rentalHome .searchPanel input { font-size:16px; }
+ .rentalHome .searchPanel .add { width:48px;min-width:48px;min-height:48px;border-radius:12px; }
+ .rentalHome .categorySection { padding-top:27px; }
+ .rentalHome .categories { display:flex;gap:10px;overflow-x:auto; }
+ .rentalHome .categories button { flex:0 0 92px;min-height:105px;padding:9px 6px;border-radius:15px;background:#f7f9f8; }
+ .rentalHome .listingSection { padding-top:24px; }
+ .mobileNav .mobilePublish { position:relative;top:-12px;align-self:start;width:58px;min-width:58px;height:58px;min-height:58px;margin-inline:auto;border-radius:50%;background:#f2653e!important;color:#fff!important;box-shadow:0 7px 20px rgba(242,101,62,.28); }
+ .mobileNav .mobilePublish>svg { width:28px;height:28px; }
+ .mobileNav .mobilePublish>span { position:absolute;top:62px;color:#8a9691;font-size:9px; }
+}

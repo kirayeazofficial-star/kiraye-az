@@ -1,4 +1,4 @@
 ---
 deployment:
   tasks:
-    - /bin/bash -lc 'source /home/kiraytfg/nodevenv/kirayeal/22/bin/activate && node scripts/deploy-cpanel.mjs /home/kiraytfg/kirayeal'
+    - /bin/bash /home/kiraytfg/kirayeal-source/scripts/cpanel-deploy-launch.sh

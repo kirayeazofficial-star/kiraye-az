@@ -40,7 +40,16 @@ try{
  for(const [name,version] of Object.entries(next.dependencies||{})){if(current.dependencies?.[name]!==version)throw new Error(`Dependency changed (${name}). Separate dependency installation is required; live files were not changed.`);}
  await access(join(target,'app.js'));await access(join(target,'node_modules','next','package.json'));
  await mkdir(privateRoot,{recursive:true,mode:0o700});await chmod(privateRoot,0o700);
- await mkdir(lock);locked=true;
+ try{await mkdir(lock);}
+ catch(error){
+  if(error?.code!=='EEXIST')throw error;
+  let stale=true;
+  try{const pid=Number(await readFile(join(lock,'pid'),'utf8'));if(Number.isInteger(pid)&&pid>1){process.kill(pid,0);stale=false;}}catch{}
+  if(!stale)throw new Error('Another deployment is already running.');
+  await rm(lock,{recursive:true,force:true});
+  await mkdir(lock);
+ }
+ locked=true;await writeFile(join(lock,'pid'),String(process.pid),{mode:0o600});
  await chmod(source,0o700);
  // Load only from the account's existing configuration. Never log values.
  const require=createRequire(join(target,'package.json'));

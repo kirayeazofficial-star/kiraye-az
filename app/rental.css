@@ -1628,6 +1628,223 @@ footer .footerLinks { flex-wrap:wrap; }
  .contactActions>a,.contactActions>button { min-height:44px;flex:1 1 auto; }
 }
 
+/* 27 Oct 2026 — unified marketplace presentation. Keep this final layer together. */
+.srOnly {
+  position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;
+  overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;
+}
+.rentalHome { padding-bottom:40px; }
+.rentalHome .catalogIntro {
+  display:block;max-width:1180px;margin:0 auto;padding:24px 24px 14px;background:transparent;border:0;
+}
+.rentalHome .catalogIntro h1 { margin:0;font-size:clamp(30px,3.2vw,44px);letter-spacing:-1.6px;line-height:1.08; }
+.rentalHome .catalogIntro>div>span { display:block;max-width:660px;margin-top:8px;font-size:14px;line-height:1.55; }
+.rentalHome .searchWrap { max-width:1180px;margin:auto;padding:0 24px; }
+.rentalHome .searchPanel {
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;padding:8px 8px 8px 18px;
+  border:1px solid #dbe5e0;border-radius:15px;background:#fff;box-shadow:0 10px 30px rgba(18,62,51,.07);
+}
+.rentalHome .searchPanel .queryField { grid-column:auto;grid-row:auto;padding:0;border:0; }
+.rentalHome .searchPanel label>span { display:block;margin:0 0 2px;font-size:11px;color:#64786f;font-weight:700; }
+.rentalHome .searchPanel input[type="search"] { width:100%;height:42px;min-height:42px;padding:4px 0;border:0;background:transparent;font-size:17px;box-shadow:none; }
+.rentalHome .searchPanel input[type="search"]:focus { border:0;box-shadow:none;outline:none; }
+.rentalHome .searchPanel .add { grid-column:auto;grid-row:auto;width:auto;height:48px;min-height:48px;padding:0 24px;border-radius:11px; }
+.rentalHome .mobileSearchLabel { display:none; }
+.rentalHome .desktopSearchLabel { display:inline; }
+.rentalHome .categorySection { padding-top:18px;padding-bottom:8px; }
+.rentalHome .categorySection .sectionTitle { margin-bottom:8px; }
+.rentalHome .categorySection h2 { font-size:18px; }
+.rentalHome .categories { display:flex;gap:8px;overflow-x:auto;padding:2px 1px 8px;scrollbar-width:none;scroll-snap-type:x proximity; }
+.rentalHome .categories::-webkit-scrollbar { display:none; }
+.rentalHome .categories button {
+  flex:0 0 82px;min-height:88px;height:88px;padding:7px 4px;border:1px solid transparent;border-radius:12px;background:transparent;scroll-snap-align:start;
+}
+.rentalHome .categories button:hover { transform:none;background:#eef4f1; }
+.rentalHome .categories .categoryArtwork,.rentalHome .categories .categoryIcon,.categoryVisual { width:54px;height:54px;flex-basis:54px; }
+.rentalHome .categories strong { font-size:11px;line-height:1.25; }
+.rentalHome .premiumListings { margin-top:4px;margin-bottom:4px; }
+.rentalHome .listingSection { padding-top:14px; }
+.rentalHome .listingSection>.sectionTitle { margin-bottom:12px; }
+.rentalHome .listingSection>.sectionTitle h2 { font-size:24px; }
+.rentalHome .listingSection>.sectionTitle select { min-height:42px;border-color:#dbe5e0;border-radius:10px;background:#fff; }
+.rentalHome .filterRow { gap:8px;margin:0 0 14px;padding:0;border:0;background:transparent; }
+.rentalHome .filterRow button { min-height:40px;padding:8px 13px;border-radius:10px;font-size:13px; }
+.rentalHome .filterRow .favoritesFilter { display:inline-flex;align-items:center; }
+.rentalHome .grid,.seoCatalog .grid { grid-template-columns:repeat(4,minmax(0,1fr));gap:16px; }
+.listingCard { min-width:0;border:1px solid #dfe7e3!important;border-radius:14px!important;background:#fff;box-shadow:0 5px 18px rgba(22,61,52,.055);transition:transform .18s ease,box-shadow .18s ease; }
+.listingCard:hover { transform:translateY(-2px);box-shadow:0 12px 26px rgba(22,61,52,.1); }
+.listingCard .photo { aspect-ratio:4/3;background:#edf2ef; }
+.listingCard .cardPhoto { width:100%;height:100%;object-fit:cover; }
+.listingCard .heart {
+  top:10px;right:10px;width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;padding:7px!important;
+  border:1px solid rgba(255,255,255,.88)!important;border-radius:50%!important;background:rgba(20,38,33,.52)!important;color:#fff!important;
+  box-shadow:0 3px 12px rgba(0,0,0,.14)!important;backdrop-filter:blur(8px);text-shadow:none!important;
+}
+.listingCard .heart:hover { background:rgba(20,38,33,.7)!important; }
+.listingCard .heart.selected { background:#fff!important;border-color:#fff!important;color:#e4603b!important; }
+.listingCard .heart svg { width:20px!important;height:20px!important;filter:none!important; }
+.listingCard .cardBody { padding:13px 14px 14px; }
+.listingCard .price { font-size:18px;line-height:1.2; }
+.listingCard .price small { font-size:12px;font-weight:600;color:#597066; }
+.listingCard h3 { margin:7px 0 5px;font-size:15px;line-height:1.35; }
+.listingCard .cardBody>p { margin:0;color:#687a72;font-size:12px; }
+.listingCard .cardRentalFacts { gap:5px;margin-top:10px; }
+.listingCard .cardRentalFacts span { padding:4px 7px;border-radius:6px;background:#f2f6f4;font-size:10px; }
+.listingCard .cardMeta { margin-top:10px;padding-top:9px;border-top:1px solid #eef2f0;justify-content:flex-end;font-size:10px; }
+
+.messagesPage { max-width:1160px;margin:0 auto;padding:26px 24px 110px; }
+.messagesTitle { display:flex;align-items:end;justify-content:space-between;margin-bottom:18px; }
+.messagesTitle .eyebrow { margin:0 0 4px;color:#a84a2c;font-size:11px;font-weight:800;letter-spacing:.12em; }
+.messagesTitle h1 { margin:0;font-size:30px;letter-spacing:-.7px; }
+.messagesTitle p:not(.eyebrow) { margin:6px 0 0;color:#64776e;font-size:14px; }
+.messageSignIn { max-width:520px;margin:40px auto;padding:32px;border:1px solid #dfe7e3;border-radius:18px;background:#fff;text-align:center; }
+.messagesLayout { display:grid;grid-template-columns:350px minmax(0,1fr);height:min(690px,calc(100vh - 210px));min-height:520px;border:1px solid #dce5e0;border-radius:18px;background:#fff;box-shadow:0 16px 44px rgba(17,57,48,.08);overflow:hidden; }
+.conversationList { display:flex;flex-direction:column;min-width:0;max-height:none;padding:0;border-right:1px solid #e3eae6;background:#fafcfb;overflow-y:auto; }
+.conversationListTitle { position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:17px 18px;border-bottom:1px solid #e5ebe8;background:rgba(250,252,251,.95);backdrop-filter:blur(10px); }
+.conversationListTitle>strong { font-size:15px; }
+.conversationListTitle>span { min-width:25px;padding:3px 7px;border-radius:999px;background:#eaf3ee;color:#236553;font-size:11px;text-align:center; }
+.conversationList>button:not(.loadOlder) { display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:start;gap:11px;width:100%;min-height:88px;padding:14px 16px;border:0;border-bottom:1px solid #edf1ef;border-radius:0;background:transparent;text-align:left; }
+.conversationList>button:not(.loadOlder):hover,.conversationList>button[aria-pressed=true] { background:#edf5f1; }
+.conversationList>button[aria-pressed=true] { box-shadow:inset 3px 0 #2f7d67; }
+.conversationAvatar { display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:50%;background:linear-gradient(145deg,#d8eee5,#eaf5ef);color:#17614f;font-size:16px;font-weight:800; }
+.conversationSummary { display:flex;flex-direction:column;min-width:0;gap:3px; }
+.conversationSummary>strong { display:flex;align-items:center;gap:6px;min-width:0;color:#183e34;font-size:14px; }
+.conversationSummary>strong small { color:#809088;font-size:10px;font-weight:500; }
+.conversationSummary>span { overflow:hidden;color:#516a60;font-size:12px;text-overflow:ellipsis;white-space:nowrap; }
+.conversationSummary>small { overflow:hidden;color:#7b8882;font-size:12px;text-overflow:ellipsis;white-space:nowrap; }
+.conversationMeta { display:flex;flex-direction:column;align-items:flex-end;gap:8px; }
+.conversationMeta time { white-space:nowrap;color:#87938d;font-size:10px; }
+.conversationMeta b { display:grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#e4633d;color:#fff;font-size:10px; }
+.conversationEmpty { padding:44px 24px;color:#687a72;text-align:center; }
+.conversationEmpty>span,.selectConversation>span { display:block;margin-bottom:12px;font-size:30px;filter:grayscale(1);opacity:.55; }
+.conversationEmpty strong { display:block;margin-bottom:6px;color:#29483f; }
+.conversationEmpty p { margin:0;font-size:13px;line-height:1.55; }
+.conversationBody { display:flex;min-width:0;min-height:0;padding:0;background:#fff; }
+.selectConversation { margin:auto;padding:30px;color:#718078;text-align:center; }
+.selectConversation h2 { margin:0 0 7px;color:#29483f;font-size:20px; }
+.selectConversation p { margin:0;font-size:13px; }
+.conversationHeading { position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,auto) auto;align-items:center;gap:16px;padding:14px 18px;border-bottom:1px solid #e3eae6;background:#fff; }
+.conversationPerson { display:flex;align-items:center;gap:11px;min-width:0; }
+.conversationPerson h2 { margin:0;overflow:hidden;font-size:16px;text-overflow:ellipsis;white-space:nowrap; }
+.conversationPerson small { color:#74847d;font-size:11px; }
+.conversationListing { display:flex;flex-direction:column;min-width:0;margin:0;padding:8px 10px;border-radius:9px;background:#f2f6f4;color:#294d43;font-size:12px;text-decoration:none;overflow:hidden;white-space:nowrap;text-overflow:ellipsis; }
+.conversationListing span { margin-top:2px;color:#287461;font-size:10px; }
+.conversationMenu { position:relative; }
+.conversationMenu summary { display:grid;place-items:center;width:40px;height:40px;border:1px solid #dfe7e3;border-radius:10px;cursor:pointer;list-style:none; }
+.conversationMenu summary::-webkit-details-marker { display:none; }
+.conversationMenu[open] { z-index:5; }
+.conversationMenu[open]::before { content:"";position:fixed;inset:0;z-index:-1; }
+.conversationMenu button { display:block;width:170px;padding:10px 12px;border:0;background:#fff;color:#3c534b;text-align:left; }
+.conversationMenu button:hover { background:#f5f7f6; }
+.conversationMenu>button:first-of-type { position:absolute;right:0;top:46px;border:1px solid #dfe7e3;border-radius:10px 10px 0 0;box-shadow:0 10px 24px rgba(0,0,0,.1); }
+.conversationMenu>button:last-of-type { position:absolute;right:0;top:84px;border:1px solid #dfe7e3;border-top:0;border-radius:0 0 10px 10px;color:#a7462e;box-shadow:0 10px 24px rgba(0,0,0,.1); }
+.messageHistory { flex:1 1 auto;min-height:0;max-height:none;padding:22px;gap:9px;background:#f7f9f8;overflow-y:auto; }
+.messageHistory article { max-width:min(76%,560px);padding:10px 13px;border-radius:15px;font-size:14px;line-height:1.5;box-shadow:0 1px 1px rgba(0,0,0,.04); }
+.messageHistory .ownMessage { border-bottom-right-radius:4px;background:#dff0e8; }
+.messageHistory .peerMessage { border:1px solid #e5eae7;border-bottom-left-radius:4px;background:#fff; }
+.messageHistory article small { display:block;color:#75867e;font-size:10px;text-align:right; }
+.messageComposer { display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:10px;margin:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #e2e9e5;background:#fff; }
+.messageComposer textarea { width:100%;min-height:46px;max-height:130px;padding:12px 14px;border:1px solid #d9e3de;border-radius:13px;background:#f8faf9;font-size:16px;line-height:1.4;resize:none; }
+.messageComposer textarea:focus { outline:2px solid #b7d8ca;border-color:#75a996; }
+.messageComposer button { min-width:92px;min-height:46px;margin:0;border-radius:12px; }
+.conversationBack { display:none; }
+.conversationBlocked { margin:0;padding:14px 18px;border-top:1px solid #eadfd9;background:#fff8f5;color:#8a4a36; }
+.loadOlder,.newMessages { align-self:center;margin:8px auto;padding:8px 12px;border:1px solid #dbe5e0;border-radius:9px;background:#fff;color:#3e6358; }
+.imageViewerClose svg { width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round; }
+.imageViewer .imageViewerClose { border-color:#ffffff40;border-radius:50%;background:#ffffff12; }
+.imageViewer .imageViewerClose:hover { background:#ffffff24; }
+
+.adminDashboard { max-width:1120px;padding-bottom:100px; }
+.adminDashboard>.sectionTitle { align-items:center;margin-bottom:16px;padding:20px 22px;border:1px solid #e0e8e3;border-radius:16px;background:#fff; }
+.adminDashboard>.sectionTitle h1 { margin:2px 0 4px;font-size:28px; }
+.adminDashboard .adminRoleLabel { display:inline-flex;margin:0 0 14px;padding:7px 10px;border-radius:8px;background:#edf4f0;color:#48655c;font-size:12px; }
+.adminDashboard .adminSections { position:sticky;top:0;z-index:4;display:flex;overflow-x:auto;padding:6px;scrollbar-width:none; }
+.adminDashboard .adminSections::-webkit-scrollbar { display:none; }
+.adminDashboard .adminSections button { flex:none;white-space:nowrap; }
+.adminDashboard .moderationCard { border-radius:14px;background:#fff; }
+
+@media(max-width:900px) {
+  .rentalHome .grid,.seoCatalog .grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .messagesLayout { grid-template-columns:310px minmax(0,1fr); }
+}
+@media(max-width:760px) {
+  .rentalHome { padding-bottom:76px; }
+  .rentalHome .catalogIntro { display:block;padding:16px 14px 10px; }
+  .rentalHome .catalogIntro h1 { font-size:27px;letter-spacing:-1px; }
+  .rentalHome .catalogIntro>div>span { margin-top:5px;font-size:12px; }
+  .rentalHome .searchWrap { padding:0 12px; }
+  .rentalHome .searchPanel { grid-template-columns:minmax(0,1fr) 44px;gap:6px;padding:6px 6px 6px 12px;border-radius:12px; }
+  .rentalHome .searchPanel label>span { display:none; }
+  .rentalHome .searchPanel input[type="search"] { height:42px;min-height:42px;font-size:16px; }
+  .rentalHome .searchPanel .add { grid-column:2;grid-row:1;width:44px;height:42px;min-height:42px;padding:0; }
+  .rentalHome .desktopSearchLabel { display:none; }
+  .rentalHome .mobileSearchLabel { display:flex;align-items:center;justify-content:center; }
+  .rentalHome .categorySection,.rentalHome .listingSection { padding-left:12px;padding-right:12px; }
+  .rentalHome .categorySection { padding-top:14px; }
+  .rentalHome .categorySection .sectionTitle h2 { font-size:17px; }
+  .rentalHome .categories { gap:5px; }
+  .rentalHome .categories button { flex-basis:74px;height:83px;min-height:83px;padding:6px 3px; }
+  .rentalHome .categories .categoryArtwork,.rentalHome .categories .categoryIcon,.categoryVisual { display:block;width:50px;height:50px;flex-basis:50px; }
+  .rentalHome .categories strong { min-height:0;font-size:10px;line-height:1.2; }
+  .rentalHome .listingSection { padding-top:8px; }
+  .rentalHome .listingSection>.sectionTitle { align-items:end;flex-wrap:nowrap;gap:8px; }
+  .rentalHome .listingSection>.sectionTitle h2 { font-size:20px; }
+  .rentalHome .listingSection>.sectionTitle select { width:auto;max-width:136px;min-height:38px;padding:7px;font-size:12px!important; }
+  .rentalHome .filterRow { flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:none; }
+  .rentalHome .filterRow button { flex:none;white-space:nowrap;min-height:38px;font-size:12px; }
+  .rentalHome .filterRow .favoritesFilter { display:none; }
+  .rentalHome .grid,.seoCatalog .grid { grid-template-columns:repeat(2,minmax(0,1fr));gap:9px; }
+  .listingCard { border-radius:11px!important; }
+  .listingCard:hover { transform:none; }
+  .listingCard .heart { top:7px;right:7px;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;padding:7px!important; }
+  .listingCard .cardBody { padding:10px; }
+  .listingCard .price { font-size:15px; }
+  .listingCard h3 { margin:6px 0 4px;font-size:13px; }
+  .listingCard .cardBody>p { font-size:11px; }
+  .listingCard .cardRentalFacts { display:none; }
+  .listingCard .cardMeta { margin-top:7px;padding-top:7px;font-size:9px; }
+  .mobileNav { grid-template-columns:repeat(5,minmax(0,1fr));padding:5px 4px calc(5px + env(safe-area-inset-bottom));border-top:1px solid #e6ebe8;background:rgba(255,255,255,.97);box-shadow:0 -6px 24px rgba(23,56,48,.08);backdrop-filter:blur(12px); }
+  .mobileNav a { min-height:52px;padding:4px 1px;border-radius:9px;gap:3px; }
+  .mobileNav a>svg { width:21px;height:21px;stroke-width:1.8; }
+  .mobileNav a>span { max-width:100%;font-size:10px;line-height:1.15;overflow:hidden;text-overflow:ellipsis; }
+  .mobileNav .mobilePublish { color:#cf5835; }
+  .mobileNav a[aria-current="page"] { background:#fff3ee;color:#b94a2d; }
+  .messagesPage { margin:0;padding:14px 0 calc(76px + env(safe-area-inset-bottom)); }
+  .messagesTitle { padding:0 14px;margin-bottom:12px; }
+  .messagesTitle h1 { font-size:25px; }
+  .messagesTitle p:not(.eyebrow) { font-size:12px; }
+  .messagesLayout { display:block;height:calc(100dvh - 190px);min-height:430px;border-width:1px 0;border-radius:0;box-shadow:none; }
+  .conversationList { height:100%;border:0; }
+  .conversationList>button:not(.loadOlder) { min-height:82px;padding:12px 14px; }
+  .conversationBody { height:100%; }
+  .hasConversation .conversationList { display:none; }
+  .hasConversation .conversationBody { display:flex; }
+  .conversationHeading { grid-template-columns:minmax(0,1fr) auto;gap:9px;padding:9px 11px; }
+  .conversationBack { display:inline-flex;grid-column:1/-1;width:max-content;min-height:34px;padding:5px 8px;font-size:12px; }
+  .conversationListing { grid-column:1/2;grid-row:3; }
+  .conversationMenu { grid-column:2;grid-row:2/4; }
+  .conversationPerson h2 { font-size:15px; }
+  .messageHistory { padding:14px 11px; }
+  .messageHistory article { max-width:84%;font-size:14px; }
+  .messageComposer { padding:9px 10px calc(9px + env(safe-area-inset-bottom)); }
+  .messageComposer button { min-width:74px;padding:9px; }
+  .messagesPage.isKeyboardOpen { padding:0; }
+  .isKeyboardOpen .messagesTitle { display:none; }
+  .isKeyboardOpen .messagesLayout { border:0; }
+  .adminDashboard { padding-left:12px;padding-right:12px; }
+  .adminDashboard>.sectionTitle { padding:14px; }
+  .adminDashboard .adminSections { margin-left:-12px;margin-right:-12px;border-left:0;border-right:0;border-radius:0; }
+}
+@media(max-width:359px) {
+  .rentalHome .grid,.seoCatalog .grid { gap:7px; }
+  .listingCard .cardBody { padding:9px 8px; }
+  .listingCard .price { font-size:14px; }
+  .listingCard h3 { font-size:12px; }
+  .mobileNav a>span { font-size:9px; }
+  .conversationAvatar { width:38px;height:38px; }
+  .conversationList>button:not(.loadOlder) { grid-template-columns:38px minmax(0,1fr) auto;padding-left:10px;padding-right:10px; }
+}
+
 /* Narrow mobile layouts: wrap content instead of shrinking labels or hiding overflow. */
 .cabinetMenuToggle { display:none; }
 .profileSettingsGrid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start;margin-top:20px; }
@@ -1791,4 +2008,28 @@ footer .footerLinks { flex-wrap:wrap; }
   .conversationBody { padding:14px; }
   .adminSections { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
   .adminSections button { min-width:0; font-size:13px; }
+}
+
+/* Final cascade guard for the unified layer above. */
+.rentalHome .categories button { flex:0 0 82px;min-height:88px;height:88px;padding:7px 4px; }
+.rentalHome .categories .categoryArtwork,.rentalHome .categories .categoryIcon,.categoryVisual { width:54px;height:54px;flex-basis:54px; }
+.messagesPage .messagesLayout { border-radius:18px; }
+.messagesPage .conversationList { padding:0;background:#fafcfb; }
+.messagesPage .conversationList>button:not(.loadOlder) { display:grid;min-height:88px;padding:14px 16px;border-radius:0; }
+.messagesPage .conversationSummary>strong small { margin-left:auto;white-space:nowrap; }
+.messagesPage .conversationBody { padding:0; }
+.messagesPage .messageHistory article { padding:10px 13px;border-radius:15px; }
+.adminDashboard { max-width:1120px; }
+.adminDashboard>.sectionTitle { padding:20px 22px;border:1px solid #e0e8e3;border-radius:16px; }
+.adminDashboard .adminSections { display:flex;gap:6px;overflow-x:auto; }
+@media(max-width:760px) {
+  .rentalHome .categories button { flex-basis:74px;min-height:83px;height:83px;padding:6px 3px; }
+  .rentalHome .categories .categoryArtwork,.rentalHome .categories .categoryIcon,.categoryVisual { width:50px;height:50px;flex-basis:50px; }
+  .messagesPage { margin-top:0; }
+  .messagesPage .messagesLayout { height:calc(100dvh - 235px);min-height:390px;border-radius:0; }
+  .messagesPage .conversationBody { padding:0; }
+  .messagesPage .conversationList>button:not(.loadOlder) { min-height:82px;padding:12px 14px; }
+  .messagesPage.isKeyboardOpen .messagesLayout { height:100%;min-height:0; }
+  .adminDashboard .adminSections { display:flex; }
+  .adminDashboard>.sectionTitle { padding:14px; }
 }

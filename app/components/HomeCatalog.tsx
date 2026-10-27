@@ -2,7 +2,6 @@
 import NavigationIcon from "./NavigationIcon";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
-import AdSpaces from "./AdSpaces";
 import CatalogFilters from "./CatalogFilters";
 import { useCallback } from "react";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -20,7 +19,6 @@ import {
   bicycleModels,
   equipmentModels,
 } from "../../lib/listing-form-options";
-import ListingDetails from "./ListingDetails";
 import CategoryVisual from "./CategoryVisual";
 import ListingSuggestions from "./ListingSuggestions";
 import Header from "./Header";
@@ -53,7 +51,6 @@ export default function Home() {
     [sort, setSort] = useState("new"),
     [favorites, setFavorites] = useState<string[]>([]),
     [onlyFavorites, setOnlyFavorites] = useState(false),
-    [detail, setDetail] = useState<Listing | null>(null),
     [page, setPage] = useState(1),
     [advanced, setAdvanced] = useState(false),
     [allCategories, setAllCategories] = useState(false),
@@ -186,37 +183,6 @@ export default function Home() {
     from,
     until,
   ]);
-  useEffect(() => {
-    if (!detail) return;
-    const previous = document.activeElement as HTMLElement | null;
-    const before = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setDetail(null);
-      if (e.key === "Tab") {
-        const items = Array.from(
-          document.querySelectorAll<HTMLElement>(
-            "[role=dialog] button:not([disabled]), [role=dialog] a[href], [role=dialog] input:not([disabled]), [role=dialog] select:not([disabled]), [role=dialog] textarea:not([disabled])",
-          ),
-        );
-        const first = items[0],
-          last = items[items.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = before;
-      window.removeEventListener("keydown", onKey);
-      previous?.focus();
-    };
-  }, [detail]);
   const filtered = useMemo(() => {
     if (!demo) return listings;
     const intent = rentalSearchIntent(query);
@@ -414,36 +380,6 @@ export default function Home() {
                 onChange={(e) => setQuery(e.target.value)}
               />
             </label>
-            <label>
-              <span>{t("Harada?")}</span>
-              <select
-                aria-label={t("Şəhər")}
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-              >
-                <option value="">{t("Şəhər")}</option>
-                {cities.map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>{t("Kirayə müddəti")}</span>
-              <select
-                aria-label={t("Kirayə müddəti")}
-                value={period}
-                onChange={(e) => {
-                  setPeriod(e.target.value);
-                  setMin("");
-                  setMax("");
-                }}
-              >
-                <option value="">{t("Müddət")}</option>
-                <option value="daily">{t("Günlük")}</option>
-                <option value="weekly">{t("Həftəlik")}</option>
-                <option value="monthly">{t("Aylıq")}</option>
-              </select>
-            </label>
             <button className="add" aria-label={t("Elanları axtar →")}><span className="desktopSearchLabel">{t("Elanları axtar →")}</span><span className="mobileSearchLabel"><NavigationIcon name="search"/></span></button>
           </form>
           {!!savedSearches.length && <details className="savedSearches"><summary>{t("Saxlanmış axtarışlar")} ({savedSearches.length})</summary><div>{savedSearches.map(item=><div key={item.id}><button type="button" className="textButton" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" className="textButton" aria-label={`${item.label} axtarışını sil`} onClick={()=>setSavedSearches(removeSavedSearch(item.id))}>×</button></div>)}</div></details>}
@@ -625,6 +561,20 @@ export default function Home() {
                   ))}
                 </select>
               </label>
+              <label>
+                {t("Şəhər")}<select aria-label={t("Şəhər")} value={city} onChange={(e) => setCity(e.target.value)}>
+                  <option value="">{t("Bütün şəhərlər")}</option>
+                  {cities.map((name) => <option key={name}>{name}</option>)}
+                </select>
+              </label>
+              <label>
+                {t("Kirayə müddəti")}<select aria-label={t("Kirayə müddəti")} value={period} onChange={(e) => { setPeriod(e.target.value); setMin(""); setMax(""); }}>
+                  <option value="">{t("İstənilən müddət")}</option>
+                  <option value="daily">{t("Günlük")}</option>
+                  <option value="weekly">{t("Həftəlik")}</option>
+                  <option value="monthly">{t("Aylıq")}</option>
+                </select>
+              </label>
               {period && (
                 <>
                   <label>
@@ -753,9 +703,6 @@ export default function Home() {
                   item={x}
                   favorite={favorites.includes(x.id)}
                   onFavorite={() => favorite(x.id)}
-                  onOpen={() => {
-                    setDetail(x);
-                  }}
                 />
               ))}
             </div>
@@ -797,34 +744,8 @@ export default function Home() {
             </nav>
           )}
         </section>
-        <AdSpaces />
       </main>
       <Footer />
-      {detail && (
-        <div
-          className="modalBack"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setDetail(null);
-          }}
-        >
-          <section
-            className="modal detail"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="detail-title"
-          >
-            <button
-              autoFocus
-              className="close"
-              aria-label="Bağla"
-              onClick={() => setDetail(null)}
-            >
-              ×
-            </button>
-            <ListingDetails key={detail.id} item={detail} compact />
-          </section>
-        </div>
-      )}
     </>
   );
 }

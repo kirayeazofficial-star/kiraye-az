@@ -6,8 +6,8 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  await p.goto(base);await p.locator('.mobileNav a[href="/login"]').waitFor();
  const token=Buffer.from('{}').toString('base64url')+'.'+Buffer.from(JSON.stringify({sub:id,aud:'authenticated',role:'authenticated',exp:Math.floor(Date.now()/1000)+3600})).toString('base64url')+'.fixture';
  await p.evaluate(session=>localStorage.setItem('sb-browser-test-auth-token',JSON.stringify(session)),{access_token:token,refresh_token:'fixture',expires_at:Math.floor(Date.now()/1000)+3600,token_type:'bearer',user});
- for(const [route,label] of [['/profile','Hesabım'],['/','Ana səhifə'],['/?favorites=1#elanlar','Seçilmişlər'],['/new','Elan yerləşdir']]){
- await p.goto(base+route);await p.locator('.signedAccountLink').waitFor({state:'attached'});const selected=p.locator('.mobileNav a[aria-current=page]');await selected.waitFor();assert.equal(await selected.count(),1);assert((await selected.innerText()).includes(label));assert.equal(await p.locator('.mobileSignupLink').count(),0);if(route!='/new')assert.equal(await p.locator('.mobilePublish').evaluate(e=>getComputedStyle(e).color),'rgb(101, 117, 109)');assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);console.log('PASS current mobile section and hidden signed-in signup',width,route);
+ for(const [route,label] of [['/profile','Kabinet'],['/','Əsas'],['/?favorites=1#elanlar','Seçilmişlər'],['/new','Yeni elan']]){
+ await p.goto(base+route);await p.locator('.signedAccountLink').waitFor({state:'attached'});const selected=p.locator('.mobileNav a[aria-current=page]');await selected.waitFor();assert.equal(await selected.count(),1);assert((await selected.innerText()).includes(label));assert.equal(await p.locator('.mobileSignupLink').count(),0);assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);console.log('PASS current mobile section and hidden signed-in signup',width,route);
  }
  await p.close();
  }}finally{await b.close()}})().catch(e=>{console.error(e);process.exit(1)});

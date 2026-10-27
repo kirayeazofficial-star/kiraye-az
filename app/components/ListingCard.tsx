@@ -15,12 +15,10 @@ export default function ListingCard({
   item,
   favorite,
   onFavorite,
-  onOpen,
 }: {
   item: Listing;
   favorite: boolean;
   onFavorite: () => void;
-  onOpen: () => void;
 }) {
   const {t} = useLanguage();
   return (
@@ -73,7 +71,6 @@ export default function ListingCard({
           {!!item.area_m2 && <span>{item.area_m2} m²</span>}
         </div>
         <div className="cardMeta">
-          <span>{t(categoryName(item.category))}</span>
           <span>
             {item.demo
               ? "Nümunə elan"

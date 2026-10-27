@@ -38,21 +38,18 @@ const { chromium } = require(
       await page.getByRole("button", { name: "Filtrləri təmizlə" }).click();
     });
     await check("city and price filters", async () => {
+      await page
+        .getByRole("button", { name: "Ətraflı filtrlər", exact: true })
+        .click();
       await page.getByLabel("Şəhər", { exact: true }).selectOption("Sumqayıt");
       assert.equal(await page.locator(".listingCard").count(), 1);
       await page.getByRole("button", { name: "Filtrləri təmizlə" }).click();
       await page
         .getByLabel("Kirayə müddəti", { exact: true })
         .selectOption("daily");
-      await page
-        .getByRole("button", { name: "Ətraflı filtrlər", exact: true })
-        .click();
       await page.getByLabel("Maksimum qiymət").fill("40");
       assert.equal(await page.locator(".listingCard").count(), 2);
       await page.getByRole("button", { name: "Filtrləri təmizlə" }).click();
-      await page
-        .getByRole("button", { name: "Ətraflı filtrlər", exact: true })
-        .click();
     });
     await check(
       "individual filter removal preserves the remaining search",

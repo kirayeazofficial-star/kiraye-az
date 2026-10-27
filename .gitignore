@@ -17,11 +17,3 @@ backup-config*.json
 *.key.age
 Kirayeal-*.zip
 Kirayeal-*.tar.gz.age
-
-# Local Python caches and owner-only backup material.
-__pycache__/
-*.py[cod]
-backup-config*.json
-*.key.age
-Kirayeal-*.zip
-Kirayeal-*.tar.gz.age

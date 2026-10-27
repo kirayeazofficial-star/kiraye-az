@@ -55,7 +55,8 @@ try{
  const require=createRequire(join(target,'package.json'));
  require('@next/env').loadEnvConfig(target,false, {info(){},error(){}});
  for(const name of ['.env','.env.local','.env.production','.env.production.local'])if(await exists(join(target,name))){await copyFile(join(target,name),join(source,name));await chmod(join(source,name),0o600);}
- const env={...process.env,NEXT_PUBLIC_SITE_URL:process.env.NEXT_PUBLIC_SITE_URL||'https://kirayeal.az',KIRAYE_BUILD_WORKERS:'1',UV_THREADPOOL_SIZE:'1',NODE_OPTIONS:((process.env.NODE_OPTIONS||'')+' --v8-pool-size=1').trim()};
+ const inheritedNodeOptions=(process.env.NODE_OPTIONS||'').replace(/--max-old-space-size(?:=|\s+)\d+/g,'').trim();
+ const env={...process.env,NEXT_PUBLIC_SITE_URL:process.env.NEXT_PUBLIC_SITE_URL||'https://kirayeal.az',KIRAYE_BUILD_WORKERS:'1',UV_THREADPOOL_SIZE:'1',NODE_OPTIONS:(inheritedNodeOptions+' --v8-pool-size=1 --max-old-space-size=768').trim()};
  // Refuse an accidental demo deployment over the user's live site.
  await run(process.execPath,['scripts/check-public-env.mjs'],source,env);
  if(await exists(join(source,'node_modules'))){if(await realpath(join(source,'node_modules'))!==await realpath(join(target,'node_modules')))throw new Error('Update folder has unexpected dependencies.');}

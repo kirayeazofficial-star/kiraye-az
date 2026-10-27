@@ -11,12 +11,13 @@ export async function watermarkPhoto(file: File): Promise<File> {
     if (!context) throw new Error("Şəkli hazırlamaq mümkün olmadı.");
     context.fillStyle = "#fff"; context.fillRect(0, 0, canvas.width, canvas.height);
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    const font = Math.max(10, Math.round(canvas.width * 0.05));
+    const font = Math.max(10, Math.round(canvas.width * 0.06));
+    const margin = Math.max(4, Math.round(canvas.width * 0.03));
     context.font = `700 ${font}px Arial, sans-serif`;
-    context.textAlign = "center"; context.textBaseline = "middle";
-    context.fillStyle = "rgba(255,255,255,0.22)";
-    context.shadowColor = "rgba(0,0,0,0.12)"; context.shadowBlur = 1;
-    context.fillText("kirayeal.az", canvas.width / 2, canvas.height / 2);
+    context.textAlign = "left"; context.textBaseline = "bottom";
+    context.fillStyle = "rgba(255,255,255,0.75)";
+    context.shadowColor = "rgba(0,0,0,0.65)"; context.shadowBlur = Math.max(1, font * 0.06);
+    context.fillText("kirayeal.az", margin, canvas.height - margin, Math.max(1, canvas.width - margin * 2));
     const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Şəkli hazırlamaq mümkün olmadı.")), "image/jpeg", 0.9));
     return new File([blob], `branded-${file.name}.jpg`, { type: "image/jpeg" });
   } finally { URL.revokeObjectURL(url); }

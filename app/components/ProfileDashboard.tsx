@@ -147,7 +147,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <button type="button" className="secondary cabinetMenuToggle" aria-expanded={cabinetMenuOpen} aria-controls="cabinet-menu" onClick={()=>setCabinetMenuOpen(value=>!value)}>Kabinet bölmələri · {cabinetMenuOpen?'Bağla':'Aç'}</button>
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
-              <Link href="/profile" aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
+              <Link href="/profile?section=listings" onClick={()=>{setSection('listings');setCabinetMenuOpen(false);}} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 <NavigationIcon name="home"/><span>Mənim elanlarım
               </span></Link>
               

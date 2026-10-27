@@ -1,3 +1,5 @@
+> ƏN YENİ: [CLOUD-CONTINUATION-2026-10-26.md](CLOUD-CONTINUATION-2026-10-26.md). İş bulud sessiyasında davam edir; aşağıdakı “dayan” göstərişi tarixidir. Yeni kod yoxlamasını canlı aktivləşmə sayma.
+
 > ƏN YENİ DAYANMA QEYDİ: docs/FINAL-CONTINUATION-2026-10-26.md əsasdır. Canlı 30667110 / QNmrh09tfW8tkX3waKeW4; son mənbə deb40e33 planşet CSS-i hələ canlı deyil. Profil SQL COMMIT edilib, təkrar işlətmə. Son geniş qəbul 768px daşmasında dayandı, profil API/sessiya testlərinə çatmadı. Main göndərişindən sonra istifadəçinin göstərişi ilə iş dayandırılır. Köhnə aşağıdakı statusları cari nəticə sayma.
 
 # Vahid iş siyahısı — kirayeal.az

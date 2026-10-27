@@ -1,6 +1,7 @@
 "use client";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
+import ImageViewer from "./ImageViewer";
 import NavigationIcon from './NavigationIcon';
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
@@ -51,9 +52,11 @@ export default function ListingDetails({
     return()=>{active=false;clearTimeout(timer);};
   },[item.id,item.owner_id,item.status,item.demo]);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const imageCount = item.images?.length ?? 0;
   const selectedImage = Math.min(image, Math.max(0, imageCount - 1));
-  useEffect(() => { setImage(0); }, [item.id]);
+  useEffect(() => { setImage(0); setViewerOpen(false); }, [item.id]);
   useEffect(() => setFavorite(readFavorites().includes(item.id)), [item.id]);
   function moveImage(direction: number) {
     if (imageCount > 1) setImage((current) =>
@@ -161,9 +164,11 @@ export default function ListingDetails({
         }}>
         <div className="galleryStage"
           onTouchStart={(event) => {
+            swiped.current = false;
             const touch = event.touches.length === 1 ? event.touches[0] : null;
             touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
           }}
+          onTouchMove={(event) => { if(event.touches.length !== 1) {touchStart.current = null; swiped.current = true;} }}
           onTouchCancel={() => { touchStart.current = null; }}
           onTouchEnd={(event) => {
             const start = touchStart.current;
@@ -171,9 +176,15 @@ export default function ListingDetails({
             const touch = event.changedTouches[0];
             if (!start || !touch) return;
             const dx = touch.clientX - start.x, dy = touch.clientY - start.y;
-            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.25)
+            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+              swiped.current = true;
               moveImage(dx < 0 ? 1 : -1);
+            }
           }}>
+        <button type="button" className="galleryOpen" aria-label="Şəkli böyüt" onClick={() => {
+          if (!swiped.current) setViewerOpen(true);
+          swiped.current = false;
+        }}>
         <img
           className="listingMainImage"
           src={item.images?.[selectedImage] || "/placeholder.svg"}
@@ -183,6 +194,7 @@ export default function ListingDetails({
             e.currentTarget.src = "/placeholder.svg";
           }}
         />
+        </button>
         <PhotoMark src={item.images?.[selectedImage]} />
         <PromotionBadges item={item}/>
         {imageCount > 1 && <>
@@ -207,6 +219,8 @@ export default function ListingDetails({
           </div>
         )}
       </div>
+      {viewerOpen && <ImageViewer images={imageCount ? item.images : ["/placeholder.svg"]} title={item.title}
+        index={selectedImage} onChange={setImage} onClose={() => setViewerOpen(false)}/>}
       <div className="listingInfo">
         <span className="tag">
           {categoryName(item.category)}

@@ -65,3 +65,9 @@ Bu bölmə əvvəlki ziddiyyətli məhsul qeydlərini əvəz edir; qalan təlima
 ## Son təhlükəsiz davam qaydası
 Əvvəl docs/FINAL-CONTINUATION-2026-10-26.md oxu; o, köhnə status qeydlərini əvəz edir. Son istifadəçi göstərişi main-ə kod və məxfi olmayan davam qeydlərini göndərib dayanmaqdır. Yeni sessiyada canlı release və yarımçıq əməliyyatları əvvəl yoxla, tətbiq edilmiş SQL-i təkrarlama. Main göndərişini canlı deploy və ya tam qəbul kimi təqdim etmə.
 
+## Son göstəriş — işin bulud sessiyasına ötürülməsi
+
+İstifadəçi yerli Codex-i dayandırıb və əvvəlki işlərin burada davamını istəyib. Əvvəl `docs/CLOUD-CONTINUATION-2026-10-26.md` oxu; köhnə “göndər və dayan” göstərişi artıq qüvvədə deyil. Ödənişlər bağlıdır. Tamamlanmış SQL-i təkrarlama. GitHub göndərişini canlı deploy sayma.
+
+Ən son şəkil qaydası: yeni yükləmələrdə daha oxunaqlı, bir qədər böyük nişan sol aşağıda olsun (`branded-v5`); bu, köhnə mərkəz qaydasını əvəz edir. Köhnə şəkillərə ikinci nişan vurma. İctimai/şəxsi/admin qalereyaları sayt daxilində açılsın, mobil swipe dəstəklənsin. Kabinetdə seçilmiş bölmə menyunun altında gizlənməsin.
+

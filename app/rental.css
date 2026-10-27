@@ -264,7 +264,9 @@ footer .logo {
   gap: 30px;
 }
 .listingGallery {
-  top: 110px;
+  /* Sticky within a grid spanning the suggestions row overlaps those cards. */
+  position: relative;
+  top: auto;
   min-width: 0;
 }
 .listingMainImage {
@@ -1704,4 +1706,25 @@ footer .footerLinks { flex-wrap:wrap; }
  .accountDashboard .accountListings article { grid-template-columns:160px minmax(0,1fr) auto; }
  main input:not([type=checkbox]):not([type=radio]):not([type=hidden]),main select,main textarea { font-size:16px!important; }
  .wrap button,.wrap .add,.wrap .secondary { min-height:44px; }
+}
+
+/* Shared in-site photo viewer: public, owned and moderated listing photos. */
+.galleryOpen { display:block;width:100%;padding:0;border:0;border-radius:20px;background:transparent;cursor:zoom-in; }
+.galleryStage .photoMark { pointer-events:none; }
+.moderationImages>button { flex:0 0 auto;padding:0;border:0;background:transparent;cursor:zoom-in;border-radius:8px; }
+.imageViewer { max-width:none;max-height:none;width:100%;height:100%;height:100dvh;margin:0;padding:0;border:0;background:#101a18f5;color:#fff; }
+.imageViewer::backdrop { background:#101a18ee; }
+.imageViewerContent { display:flex;flex-direction:column;height:100%;max-width:1500px;margin:auto;padding:16px;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));box-sizing:border-box; }
+.imageViewer header { display:flex;align-items:center;justify-content:space-between;gap:16px;flex:none; }
+.imageViewer header span { overflow-wrap:anywhere;min-width:0;font-size:16px; }
+.imageViewer button { display:grid;place-items:center;flex:none;min-width:44px;min-height:44px;padding:6px;border:1px solid #ffffff70;border-radius:12px;color:#fff;background:#ffffff15;cursor:pointer;font-size:24px; }
+.imageViewer button:focus-visible,.galleryOpen:focus-visible,.moderationImages>button:focus-visible { outline:3px solid #f2784b;outline-offset:3px; }
+.imageViewerStage { display:flex;justify-content:center;align-items:center;flex:1;min-height:0;min-width:0;padding:12px 0;touch-action:pan-y pinch-zoom; }
+.imageViewerStage img { display:block;width:100%;height:100%;min-height:0;object-fit:contain; }
+.imageViewer footer { display:flex;justify-content:center;align-items:center;gap:24px;flex:none;min-height:44px; }
+.imageViewer footer span { font-size:16px; }
+
+/* Latest owner decision: legible lower-left mark; baked images are not stamped twice. */
+.photo .photoMark,.galleryStage .photoMark,.ownedPhoto .photoMark,.relatedPhoto .photoMark {
+ left:3%;right:auto;top:auto;bottom:3%;transform:none;max-width:94%;font-size:clamp(16px,2.4vw,28px);font-weight:700;color:rgba(255,255,255,.75);text-shadow:0 1px 3px #000a;pointer-events:none;
 }

@@ -1,4 +1,5 @@
 "use client";
+import ModerationImages from "../components/ModerationImages";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { ModerationReview, ModerationHistory } from "../components/ModerationReview";
@@ -266,18 +267,7 @@ export default function Admin() {
                   )}
                   {items.map((item) => (
                     <article className="moderationCard" key={item.id}>
-                      <div className="moderationImages">
-                        {item.images?.map((src) => (
-                          <a
-                            key={src}
-                            href={src}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <img src={src} alt={item.title} loading="lazy" />
-                          </a>
-                        ))}
-                      </div>
+                      <ModerationImages images={item.images || []} title={item.title}/>
                       <span className={`status ${item.status}`}>
                         {statusName(item.status)}
                       </span>

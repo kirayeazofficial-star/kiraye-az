@@ -38,7 +38,8 @@ export async function GET(request:NextRequest){
     const page=Math.max(1,Math.min(1000,Number(input.get('page'))||1)),limit=Math.max(1,Math.min(200,Number(input.get('limit'))||18)),offset=(page-1)*limit;
     const order=input.get('sort')==='low'?'price asc':input.get('sort')==='high'?'price desc':'created_at desc,id desc';
     const condition=where.length?`where ${where.join(' and ')}`:'';
-    const [rows,total]=await Promise.all([hostQuery(`select * from public.listings ${condition} order by ${order} limit ${limit} offset ${offset}`,values as never[]),hostQuery<{count:string}>(`select count(*)::text count from public.listings ${condition}`,values as never[])]);
+    const fields=scope==='mine'?`*,(select count(*)::int from public.listing_views v where v.listing_id=public.listings.id) views`:'*';
+    const [rows,total]=await Promise.all([hostQuery(`select ${fields} from public.listings ${condition} order by ${order} limit ${limit} offset ${offset}`,values as never[]),hostQuery<{count:string}>(`select count(*)::text count from public.listings ${condition}`,values as never[])]);
     return reply({items:rows,total:Number(total[0]?.count||0)});
   }catch{return reply({error:'LISTINGS_UNAVAILABLE'},503);}
 }

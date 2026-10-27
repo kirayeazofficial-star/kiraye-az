@@ -128,6 +128,7 @@ export type Listing = {
   available_from?: string | null;
   available_until?: string | null;
   rejection_reason?: string | null;
+  views?: number;
   attributes?: {
     [key: string]: string | number | string[] | undefined;
     delivery_method?: string;

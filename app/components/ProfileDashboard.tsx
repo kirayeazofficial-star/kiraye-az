@@ -22,7 +22,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState("");
   useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards","limits"].includes(value))setSection(value);},[]);
   const [accountPhone,setAccountPhone]=useState("");
-  const [views,setViews] = useState<Record<string,number>|null>(null);
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
     [loading, setLoading] = useState(true),
@@ -40,7 +39,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         const roleResponse=await fetch('/api/account/profile',{cache:'no-store'}),role=await roleResponse.json(),profile=role.profile;
         if(profile?.profile_no)setProfileNumber(String(profile.profile_no));
         setAdmin(profile?.role==='admin'||!!profile?.staff_role);
-        if(profile?.display_name)setIdentity(profile.display_name);if(profile?.phone)setAccountPhone(profile.phone);
+        if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);if(profile?.phone)setAccountPhone(profile.phone);
         if (!balanceOnly) setListings(await loadListings("mine"));
       })
       .catch(() =>
@@ -231,7 +230,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         {effectiveListingStatus(x) === "rejected" && x.rejection_reason && (
                           <p className="error">Səbəb: {x.rejection_reason}</p>
                         )}
-                        <p className="listingViews" title="Sayğac aktivləşdirildikdən sonra eyni IP/brauzerdən təkrar baxışlar gündə bir dəfə sayılır.">{views ? `Baxış: ${views[x.id] ?? 0}` : "Baxış statistikası hələ aktiv deyil"}</p>
+                        <p className="listingViews" title="Eyni IP və brauzerdən təkrar baxışlar gündə bir dəfə sayılır.">Baxış: {x.views ?? 0}</p>
                         <small>{new Date(x.created_at).toLocaleDateString("az-AZ")}</small>
                         {x.expires_at && <p className="muted">Bitmə tarixi: {new Date(x.expires_at).toLocaleDateString("az-AZ")}</p>}
                       </div>

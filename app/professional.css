@@ -161,6 +161,18 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .secondary.danger { border-color:#ecc8bd;color:#9c3e2b; }
 .staffList { margin-top:18px; }
 .staffList article { display:grid;grid-template-columns:1fr 1fr auto;gap:14px;padding:13px;border:1px solid var(--ui-line);border-radius:11px; }
+.staffList article>div,.adminUsers article>div { display:grid;gap:3px; }
+.staffList article span,.adminUsers article span { color:var(--ui-muted);font-size:13px; }
+.adminStats { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px; }
+.adminStats article { display:grid;gap:4px;padding:18px;border:1px solid var(--ui-line);border-radius:13px;background:#fafcfb; }
+.adminStats b { color:var(--ui-brand);font-size:27px; }
+.adminStats span { color:var(--ui-muted);font-size:13px; }
+.adminUsers,.adminReports { display:grid;gap:10px;margin-top:16px; }
+.adminUsers article { display:grid;grid-template-columns:minmax(0,1.5fr) minmax(160px,1fr) auto;align-items:center;gap:14px;padding:14px;border:1px solid var(--ui-line);border-radius:12px; }
+.adminReports article { display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px;border:1px solid var(--ui-line);border-radius:12px; }
+.adminReports article>div:last-child { display:flex;gap:8px;flex:none; }
+.conversationLoading { padding:20px;color:var(--ui-muted);text-align:center; }
+.formError { display:flex;align-items:center;justify-content:space-between;gap:12px; }
 .listingForm input[aria-invalid=true],.listingForm select[aria-invalid=true],.listingForm textarea[aria-invalid=true] { border-color:#bd4938!important;background:#fff8f6!important;box-shadow:0 0 0 3px rgba(189,73,56,.12)!important; }
 .listingForm .descriptionCounter { display:block;margin-top:7px;padding:9px 11px;border-radius:9px;background:#eaf5f0;color:#266354;font-size:13px;font-weight:700;line-height:1.35; }
 .listingForm .descriptionCounter.isIncomplete { background:#fff1df;color:#914816; }
@@ -173,4 +185,8 @@ button,a { -webkit-tap-highlight-color:transparent; }
   .adminListingCard>img { width:100%;height:auto;aspect-ratio:16/10; }
   .adminActions>* { flex:1; }
   .staffList article { grid-template-columns:1fr;gap:4px; }
+  .adminStats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .adminUsers article { grid-template-columns:1fr;gap:5px; }
+  .adminReports article { align-items:stretch;flex-direction:column; }
+  .adminReports article>div:last-child>* { flex:1; }
 }

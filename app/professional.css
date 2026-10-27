@@ -173,6 +173,10 @@ button,a { -webkit-tap-highlight-color:transparent; }
 .adminReports article>div:last-child { display:flex;gap:8px;flex:none; }
 .conversationLoading { padding:20px;color:var(--ui-muted);text-align:center; }
 .formError { display:flex;align-items:center;justify-content:space-between;gap:12px; }
+.accountQuickNav { display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;padding:8px;border:1px solid var(--ui-line);border-radius:14px;background:#fff;box-shadow:var(--ui-shadow); }
+.accountQuickNav a { padding:10px 13px;border-radius:9px;color:#3f5d54;font-size:13px;font-weight:650; }
+.accountQuickNav a:hover { background:#f1f6f3; }
+.accountQuickNav .accountQuickAdmin { margin-left:auto;background:var(--ui-brand);color:#fff; }
 .listingForm input[aria-invalid=true],.listingForm select[aria-invalid=true],.listingForm textarea[aria-invalid=true] { border-color:#bd4938!important;background:#fff8f6!important;box-shadow:0 0 0 3px rgba(189,73,56,.12)!important; }
 .listingForm .descriptionCounter { display:block;margin-top:7px;padding:9px 11px;border-radius:9px;background:#eaf5f0;color:#266354;font-size:13px;font-weight:700;line-height:1.35; }
 .listingForm .descriptionCounter.isIncomplete { background:#fff1df;color:#914816; }
@@ -189,4 +193,7 @@ button,a { -webkit-tap-highlight-color:transparent; }
   .adminUsers article { grid-template-columns:1fr;gap:5px; }
   .adminReports article { align-items:stretch;flex-direction:column; }
   .adminReports article>div:last-child>* { flex:1; }
+  .accountQuickNav { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));box-shadow:none; }
+  .accountQuickNav a { min-height:46px;display:flex;align-items:center; }
+  .accountQuickNav .accountQuickAdmin { grid-column:1/-1;margin-left:0;justify-content:center; }
 }

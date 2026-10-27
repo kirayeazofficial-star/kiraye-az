@@ -14,6 +14,7 @@ async function access(){
   if(!user)return null;
   if(user.email.toLowerCase()===ownerEmail){
     await hostTransaction(async db=>{
+      await db.query(`insert into public.profiles(id,display_name,phone) values($1,$2,$3) on conflict(id) do nothing`,[user.id,user.display_name||user.email.split('@')[0],user.phone||'']);
       await db.query(`update public.profiles set role='admin',updated_at=now() where id=$1`,[user.id]);
       await db.query(`insert into public.staff_members(user_id,staff_role,assigned_by) values($1,'leader',$1) on conflict(user_id) do update set staff_role='leader'`,[user.id]);
     });

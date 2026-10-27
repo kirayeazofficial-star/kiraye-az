@@ -7,17 +7,19 @@ import {
   authErrorMessage,
   safeLoginDestination,
 } from "../../lib/auth-messages";
-import { checkRecoveryEmail } from "../../lib/recovery-check";
-import { finishWithin } from "../../lib/auth-return";
 import {rememberLogin,setRememberLogin} from '../../lib/auth-storage';
-import { authCallbackUrl } from "../../lib/auth-flow";
-import { getAuthCapabilities, supabase } from "../../lib/supabase";
 import { rateLimitSeconds } from "../../lib/auth-throttle";
 import GoogleLogin from "../components/GoogleLogin";
 import PhoneLogin from "../components/PhoneLogin";
 import "../login/style.css";
 type Verification = "signup" | "recovery";
 const pendingKey = "kiraye:pending-confirmation";
+async function hostAuth(action:string,payload:Record<string,unknown>={}){
+  const response=await fetch('/api/auth/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});
+  const data=await response.json();
+  if(!response.ok){const error=new Error(data.error||'SERVICE_UNAVAILABLE') as Error&{code?:string;status?:number};error.code=data.error;error.status=response.status;throw error;}
+  return data;
+}
 export default function Login({
   initialMode = "login",
   next = "/profile",
@@ -34,11 +36,7 @@ export default function Login({
   const [loginFailed, setLoginFailed] = useState(false);
   useEffect(() => {
     let active = true;
-    getAuthCapabilities()
-      .then((value) => {
-        if (active) setPhoneEnabled(value.phone);
-      })
-      .catch(() => {});
+    setPhoneEnabled(false);
     return () => {
       active = false;
     };
@@ -153,14 +151,13 @@ export default function Login({
       } else sessionStorage.removeItem(pendingKey);
     } catch {}
     setReady(true);
-    if (!supabase) return;
     let active = true;
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
+    fetch('/api/auth/host',{cache:'no-store'})
+      .then(response=>response.json())
+      .then((data) => {
         if (
           active &&
-          data.session &&
+          data.user &&
           !recoveryPending &&
           initialMode === "login"
         ) {
@@ -197,12 +194,6 @@ export default function Login({
     setRememberLogin(remember);
     e.preventDefault();
     if (!ready || busy || submitBlocked) return;
-    if (!supabase) {
-      setNotice(
-        "Giriş xidməti hələ aktivləşdirilməyib. Bir az sonra yenidən yoxlayın.",
-      );
-      return;
-    }
     const form = new FormData(e.currentTarget),
       email = String(form.get("email")).trim(),
       password = String(form.get("password") || "");
@@ -212,56 +203,18 @@ export default function Login({
     setUnconfirmed(false);
     try {
       if (mode === "reset") {
-        const account = await checkRecoveryEmail(email);
-        if (account === "missing") {
-          setNotice("Bu e-poçtla hesab tapılmadı. Ünvanı yoxla və ya qeydiyyatdan keç.");
-          return;
-        }
-        if (account !== "exists") {
-          setNotice("Hesabı yoxlamaq hazırda mümkün deyil. Kod göndərilmədi. Bir az sonra yenidən yoxla.");
-          return;
-        }
-        const { error } = await finishWithin(supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: authCallbackUrl(window.location.origin, true),
-        }));
-        if (error) throw error;
-        pending("recovery", email, account === "exists");
+        await hostAuth('request_recovery',{email});
+        pending("recovery", email, true);
       } else if (mode === "signup") {
         const fullName=String(form.get('full_name')||'').trim().replace(/\s+/g,' ');
         const contactPhone=normalizePhone(String(form.get('contact_phone')||''));
         if(fullName.length>100 || fullName.split(' ').length<2 || !fullName.split(' ').every(part=>/\p{L}/u.test(part))){setNotice('Ad və soyadını yaz.');return;}
         if(!contactPhone){setNotice('Düzgün Azərbaycan telefon nömrəsi yaz.');return;}
-        const { data, error } = await finishWithin(supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: authCallbackUrl(window.location.origin), data: {full_name:fullName,contact_phone:contactPhone} },
-        }));
-        if (error) throw error;
-        if (data.session) {
-          goToAccount();
-          return;
-        }
-        if (data.user?.identities && data.user.identities.length === 0) {
-          setMode("login");
-          setNotice(
-            "Bu e-poçtla artıq qeydiyyatdan keçmisən. Daxil ol və ya şifrəni yenilə.",
-          );
-          return;
-        }
+        await hostAuth('signup',{email,password,name:fullName,phone:contactPhone});
         pending("signup", email);
       } else {
-        const { error } = await finishWithin(supabase.auth.signInWithPassword({
-          email,
-          password,
-        }));
-        if (error) {
-          if (
-            error.code === "email_not_confirmed" ||
-            /email not confirmed/i.test(error.message)
-          )
-            setUnconfirmed(true);
-          throw error;
-        }
+        try{await hostAuth('login',{email,password,remember});}
+        catch(error){if((error as {code?:string}).code==='EMAIL_NOT_CONFIRMED')setUnconfirmed(true);throw error;}
         goToAccount();
       }
     } catch (error) {
@@ -272,7 +225,7 @@ export default function Login({
   }
   async function verifyCode(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!supabase || !verification || busy || verifyBlocked) return;
+    if (!verification || busy || verifyBlocked) return;
     const token = String(
       new FormData(e.currentTarget).get("code") || "",
     ).trim();
@@ -287,15 +240,9 @@ export default function Login({
     setBusy(true);
     setNotice("");
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: emailAddress,
-        token,
-        type: verification,
-      });
-      if (error) throw error;
-      if (!data.session) throw new Error("Kod təsdiqlənmədi. Yenidən cəhd et.");
+      await hostAuth('verify',{email:emailAddress,code:token,purpose:verification,remember});
       clearPending();
-      if (verification === "recovery") window.location.href = "/reset-password";
+      if (verification === "recovery") {sessionStorage.setItem('kiraye:recovery',JSON.stringify({email:emailAddress,code:token,expiresAt:Date.now()+600000}));window.location.href = "/reset-password";}
       else goToAccount();
     } catch (error) {
       handleAuthError(error, "verify");
@@ -304,42 +251,16 @@ export default function Login({
     }
   }
   async function resend() {
-    if (!supabase || !emailAddress || busy || cooldown > 0 || mailBlocked)
+    if (!emailAddress || busy || cooldown > 0 || mailBlocked)
       return;
     setBusy(true);
     setNotice("");
     try {
-      let checked = false;
-      if (verification === "recovery") {
-        const account = await checkRecoveryEmail(emailAddress);
-        if (account === "missing") {
-          clearPending(); setVerification(null); setMode("reset");
-          setNotice("Bu e-poçtla hesab tapılmadı. Ünvanı yoxla və ya qeydiyyatdan keç.");
-          return;
-        }
-        if (account !== "exists") {
-          setNotice("Hesabı yoxlamaq hazırda mümkün deyil. Kod göndərilmədi. Bir az sonra yenidən yoxla.");
-          return;
-        }
-        checked = true;
-      }
-      const { error } =
-        verification === "recovery"
-          ? await supabase.auth.resetPasswordForEmail(emailAddress, {
-              redirectTo: authCallbackUrl(window.location.origin, true),
-            })
-          : await supabase.auth.resend({
-              type: "signup",
-              email: emailAddress,
-              options: {
-                emailRedirectTo: authCallbackUrl(window.location.origin),
-              },
-            });
-      if (error) throw error;
+      await hostAuth(verification==='recovery'?'request_recovery':'resend_signup',{email:emailAddress});
       pending(
         verification === "recovery" ? "recovery" : "signup",
         emailAddress,
-        checked,
+        verification === "recovery",
       );
       setUnconfirmed(false);
     } catch (error) {
@@ -673,14 +594,6 @@ export default function Login({
                     >
                       Şifrəni yenilə →
                     </button>
-                  )}
-                  {!supabase && (
-                    <a
-                      className="authBack"
-                      href="https://kiraye-az.vercel.app/login"
-                    >
-                      Əsas saytda daxil ol →
-                    </a>
                   )}
                 </div>
               )}

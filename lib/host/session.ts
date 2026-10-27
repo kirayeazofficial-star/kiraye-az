@@ -15,7 +15,7 @@ export async function createSession(userId:string,remember:boolean){
 
 export async function currentUser(){
   const token=(await cookies()).get(sessionCookie)?.value;if(!token)return null;
-  const rows=await hostQuery<{id:string;email:string;email_confirmed_at:string|null}>(`select u.id,u.email,u.email_confirmed_at from auth.sessions s join auth.users u on u.id=s.user_id where s.token_hash=$1 and s.revoked_at is null and s.expires_at>now() and u.disabled_at is null limit 1`,[tokenHash(token)]);
+  const rows=await hostQuery<{id:string;email:string;email_confirmed_at:string|null;display_name:string;phone:string}>(`select u.id,u.email,u.email_confirmed_at,p.display_name,p.phone from auth.sessions s join auth.users u on u.id=s.user_id left join public.profiles p on p.id=u.id where s.token_hash=$1 and s.revoked_at is null and s.expires_at>now() and u.disabled_at is null limit 1`,[tokenHash(token)]);
   return rows[0]||null;
 }
 

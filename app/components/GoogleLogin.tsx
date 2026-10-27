@@ -1,50 +1,16 @@
 "use client";
 import { useEffect, useId, useState } from "react";
-import { getAuthCapabilities, supabase } from "../../lib/supabase";
-import { authCallbackUrl } from "../../lib/auth-flow";
-import {
-  authErrorMessage,
-  safeLoginDestination,
-} from "../../lib/auth-messages";
 export default function GoogleLogin() {
   const statusId = useId();
   const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
-  async function check() {
-    try {
-      setEnabled((await getAuthCapabilities()).google);
-    } catch {
-      setEnabled(false);
-    }
-  }
+  async function check() {setEnabled(false);}
   useEffect(() => {
     void check();
   }, []);
   async function login() {
-    if (!supabase || enabled !== true || busy) return;
-    setBusy(true);
-    setNotice("");
-    try {
-      const next = safeLoginDestination(
-        new URLSearchParams(window.location.search).get("next"),
-      );
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: authCallbackUrl(window.location.origin, false, next),
-          skipBrowserRedirect: true,
-          queryParams: { prompt: "select_account" },
-        },
-      });
-      if (error) throw error;
-      if (!data.url || new URL(data.url).protocol !== "https:")
-        throw new Error("Invalid authorization URL");
-      window.location.assign(data.url);
-    } catch (error) {
-      setNotice(authErrorMessage(error));
-      setBusy(false);
-    }
+    if(enabled!==true||busy)return;setBusy(true);setNotice("");window.location.assign('/api/auth/google');
   }
   return (
     <div className="googleLogin">
@@ -77,7 +43,7 @@ export default function GoogleLogin() {
       </button>
       {enabled !== true && (
         <p id={statusId} className="mailHelp" role="status">
-          Hazırda bu xidmət aktiv deyil.
+          Google girişi hostinqdə quraşdırılır.
         </p>
       )}
       {notice && (

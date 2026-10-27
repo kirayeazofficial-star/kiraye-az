@@ -1,9 +1,6 @@
 "use client";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { supabase } from "../../lib/supabase";
-import { completeEmailAuth } from "../../lib/auth-flow";
-import { authReturnHref, finishWithin } from "../../lib/auth-return";
 import { authErrorMessage } from "../../lib/auth-messages";
 import "../login/style.css";
 export default function ResetPassword() {
@@ -11,47 +8,14 @@ export default function ResetPassword() {
     [checking, setChecking] = useState(true),
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(""),
-    [done, setDone] = useState(false),
-    [attempt, setAttempt] = useState(0);
-  const work = useRef<Promise<string> | null>(null);
+    [done, setDone] = useState(false);
+  const recovery = useRef<{email:string;code:string}|null>(null);
   useEffect(() => {
-    if (!supabase) {
-      setNotice("Giriş xidməti hazır deyil.");
-      setChecking(false);
-      return;
-    }
-    let active = true;
-    setChecking(true);
-    setNotice("");
-    work.current ??= finishWithin(
-      completeEmailAuth(supabase, authReturnHref(window.location.href)),
-    );
-    work.current
-      .then(() => {
-        if (active) {
-          window.history.replaceState(null, "", "/reset-password");
-          setReady(true);
-        }
-      })
-      .catch((err) => {
-        if (active) {
-          window.history.replaceState(null, "", "/reset-password");
-          setReady(false);
-          setNotice(
-            err instanceof Error ? err.message : "Bərpa linkini yenidən yoxla.",
-          );
-        }
-      })
-      .finally(() => {
-        if (active) setChecking(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [attempt]);
+    try{const saved=JSON.parse(sessionStorage.getItem('kiraye:recovery')||'null');if(saved?.email&&/^\d{6}$/.test(saved.code)&&saved.expiresAt>Date.now()){recovery.current=saved;setReady(true);}else setNotice('Bərpa kodunun vaxtı bitib. Yeni kod istə.');}catch{setNotice('Bərpa kodu tapılmadı. Yeni kod istə.');}finally{setChecking(false);}
+  }, []);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!supabase || busy || !ready) return;
+    if (busy || !ready || !recovery.current) return;
     const form = new FormData(e.currentTarget);
     if (form.get("password") !== form.get("confirm")) {
       setNotice("Şifrələr eyni olmalıdır.");
@@ -60,13 +24,12 @@ export default function ResetPassword() {
     setBusy(true);
     setNotice("");
     try {
-      const { error } = await finishWithin(
-        supabase.auth.updateUser({ password: String(form.get("password")) }),
-      );
-      if (error) throw error;
+      const response=await fetch('/api/auth/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset_password',email:recovery.current.email,code:recovery.current.code,password:String(form.get('password'))})});
+      const data=await response.json();if(!response.ok)throw new Error(data.error||'Şifrə yenilənmədi.');
       try {
         sessionStorage.removeItem("kiraye:pending-confirmation");
         sessionStorage.removeItem("kiraye:auth-retry-at");
+        sessionStorage.removeItem("kiraye:recovery");
       } catch {}
       setDone(true);
       setNotice("Şifrən yeniləndi. İndi hesabından istifadə edə bilərsən.");
@@ -131,17 +94,6 @@ export default function ResetPassword() {
             <p className="notice" role="status">
               {notice}
             </p>
-          )}
-          {!checking && !ready && (
-            <button
-              className="link"
-              onClick={() => {
-                work.current = null;
-                setAttempt((x) => x + 1);
-              }}
-            >
-              Yenidən yoxla
-            </button>
           )}
           <Link
             className={done ? "authSubmit authBack" : "authBack"}

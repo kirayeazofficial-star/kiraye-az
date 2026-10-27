@@ -8,7 +8,6 @@ import { useLanguage } from "./LanguageProvider";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { supabase } from "../../lib/supabase";
 export default function Header() {
   const {t} = useLanguage();
   const [accountId,setAccountId]=useState(""),[accountName,setAccountName]=useState(""),[accountPhone,setAccountPhone]=useState("");
@@ -24,20 +23,15 @@ export default function Header() {
   }, [pathname]);
   const accountPage = ["/profile", "/account", "/balance", "/admin"].some(path => pathname === path || pathname?.startsWith(path + "/"));
   useEffect(() => {
-    if (!supabase) { setAuthReady(true); return; }
     let active = true;
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) { setSignedIn(!!session);setAccountId(session?.user.id||"");setAccountName(session?.user.user_metadata?.full_name||"");setAccountPhone(session?.user.user_metadata?.contact_phone||""); setAuthReady(true); }
-    });
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (active) { setSignedIn(!!data.session);setAccountId(data.session?.user.id||"");setAccountName(data.session?.user.user_metadata?.full_name||"");setAccountPhone(data.session?.user.user_metadata?.contact_phone||""); setAuthReady(true); }
+    fetch('/api/auth/host',{cache:'no-store'})
+      .then(response=>response.json())
+      .then((data) => {
+        if (active) { setSignedIn(!!data.user);setAccountId(data.user?.id||"");setAccountName(data.user?.display_name||"");setAccountPhone(data.user?.phone||""); setAuthReady(true); }
       })
       .catch(() => { if (active) setAuthReady(true); });
     return () => {
       active = false;
-      data.subscription.unsubscribe();
     };
   }, []);
   return (

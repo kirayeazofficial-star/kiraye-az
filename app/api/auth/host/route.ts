@@ -45,6 +45,12 @@ export async function POST(request:NextRequest){
       if(users[0])await issueCode(users[0].id,email,"recovery");
       return response({verification:"recovery"});
     }
+    if(action==="resend_signup"){
+      const email=cleanEmail(body.email);if(!email)return response({error:"INVALID_INPUT"},400);
+      const users=await hostQuery<{id:string;email_confirmed_at:string|null}>(`select id,email_confirmed_at from auth.users where lower(email)=lower($1) and disabled_at is null limit 1`,[email]);
+      if(users[0]&&!users[0].email_confirmed_at)await issueCode(users[0].id,email,"signup");
+      return response({verification:"signup"});
+    }
     if(action==="verify"){
       const email=cleanEmail(body.email),purpose=body.purpose==="recovery"?"recovery":"signup",code=String(body.code||"");
       if(!email||!/^\d{6}$/.test(code))return response({error:"INVALID_CODE"},400);

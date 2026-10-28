@@ -26,6 +26,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const openSection=(_name:string)=>{};
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
+    [accountPhone, setAccountPhone] = useState(""),
+    [accountEmail, setAccountEmail] = useState(""),
     [loading, setLoading] = useState(true),
     [listings, setListings] = useState<Listing[]>([]),
     [error, setError] = useState(""),
@@ -37,7 +39,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     fetch('/api/auth/host',{cache:'no-store'})
       .then(async response => {
         const data=await response.json();if(!data.user)return;
-        setUserId(data.user.id);setIdentity(data.user.display_name||data.user.email||'Hesab');
+        setUserId(data.user.id);setIdentity(data.user.display_name||data.user.email||'Hesab');setAccountPhone(data.user.phone||'');setAccountEmail(data.user.email||'');
         const [profileResult,listingsResult]=await Promise.allSettled([
           fetch('/api/account/profile',{cache:'no-store'}).then(result=>result.ok?result.json():Promise.reject()),
           balanceOnly?Promise.resolve(null):loadListings("mine"),
@@ -46,7 +48,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
           const profile=profileResult.value?.profile;
           if(profile?.profile_no)setProfileNumber(String(profile.profile_no));
           setAdmin(profile?.role==='admin'||!!profile?.staff_role);
-          if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);
+          if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);if(profile?.phone)setAccountPhone(profile.phone);
         }
         if(!balanceOnly){
           if(listingsResult.status==='fulfilled'&&Array.isArray(listingsResult.value))setListings(listingsResult.value);

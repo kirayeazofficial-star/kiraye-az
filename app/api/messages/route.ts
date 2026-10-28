@@ -8,6 +8,8 @@ const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 function reply(data:unknown,status=200){return NextResponse.json(data,{status,headers:{"Cache-Control":"no-store"}});}
 async function member(thread:string,user:string){const rows=await hostQuery<{id:string}>(`select id from public.chat_threads where id=$1 and (buyer_id=$2 or seller_id=$2)`,[thread,user]);return !!rows[0];}
 
+async function tooFast(user:string){const rows=await hostQuery<{count:string}>(`select count(*)::text count from public.chat_messages where author_id=$1 and created_at>now()-interval '1 minute'`,[user]);return Number(rows[0]?.count||0)>=15;}
+
 export async function GET(request:NextRequest){
  try{
   const user=await currentUser();if(!user)return reply({error:"SIGN_IN_REQUIRED"},401);
@@ -31,10 +33,12 @@ export async function POST(request:NextRequest){
  try{
   const user=await currentUser();if(!user)return reply({error:"SIGN_IN_REQUIRED"},401);
   const body=await request.json() as Record<string,unknown>,action=String(body.action||""),text=String(body.body||"").trim().slice(0,3000),thread=String(body.thread||"");
+  if((action==="start"||action==="send")&&await tooFast(user.id))return reply({error:"RATE_LIMIT"},429);
   if(action==="start"){
    const listing=String(body.listing||"");if(!uuid.test(listing)||!text)return reply({error:"INVALID_MESSAGE"},400);
    const found=await hostQuery<{id:string;owner_id:string;title:string;image:string|null}>(`select id,owner_id,title,images[1] image from public.listings where id=$1 and status='published' and (expires_at is null or expires_at>now())`,[listing]);const item=found[0];
    if(!item)return reply({error:"LISTING_NOT_FOUND"},404);if(item.owner_id===user.id)return reply({error:"OWN_LISTING"},400);
+   const blockedStart=await hostQuery(`select 1 from public.chat_blocks where (blocker_id=$1 and blocked_id=$2) or (blocker_id=$2 and blocked_id=$1)`,[user.id,item.owner_id]);if(blockedStart[0])return reply({error:"BLOCKED"},403);
    const id=newId();return reply(await hostTransaction(async db=>{const inserted=await db.query<{id:string}>(`insert into public.chat_threads(id,listing_id,buyer_id,seller_id,listing_title,listing_image) values($1,$2,$3,$4,$5,$6) on conflict(listing_id,buyer_id,seller_id) do update set last_message_at=now() returning id`,[id,item.id,user.id,item.owner_id,item.title,item.image]);const threadId=inserted.rows[0].id;await db.query(`insert into public.chat_messages(thread_id,author_id,body) values($1,$2,$3)`,[threadId,user.id,text]);return{thread:threadId};}),201);
   }
   if(!uuid.test(thread)||!await member(thread,user.id))return reply({error:"THREAD_NOT_FOUND"},404);

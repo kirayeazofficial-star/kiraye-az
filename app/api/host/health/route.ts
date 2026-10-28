@@ -4,7 +4,12 @@ import {hostQuery} from "../../../../lib/host/db";
 import nodemailer from "nodemailer";
 
 // Mail check without secrets: names of missing settings or a short error code.
+let cachedMail:{at:number;value:string}|undefined;
 async function mailState(){
+  if(cachedMail&&Date.now()-cachedMail.at<300_000)return cachedMail.value;
+  const value=await mailStateUncached();cachedMail={at:Date.now(),value};return value;
+}
+async function mailStateUncached(){
   const names=["KIRAYE_SMTP_HOST","KIRAYE_SMTP_USER","KIRAYE_SMTP_PASSWORD"];
   const missing=names.filter(name=>!process.env[name]?.trim());
   if(missing.length)return `missing:${missing.join(",")}`;

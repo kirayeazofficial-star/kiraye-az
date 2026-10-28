@@ -349,3 +349,26 @@ svg[stroke-linejoin]{stroke-linejoin:round}
 .cabinetLayout.screen-menu .cabinetNav a[aria-current]{background:transparent!important;color:inherit!important;font-weight:inherit!important}
 .cabinetLayout.screen-menu .cabinetNav a[aria-current] span{font-weight:inherit!important}
 }
+
+/* ---- v10: tap.az-like account menu, cabinet cards, contact buttons ---- */
+.accountMenuPanel{padding:0!important;border-radius:16px!important;box-shadow:0 12px 36px #1b1d2a26!important;border:0!important;min-width:280px;overflow:hidden}
+.accountMenuHead{display:flex;gap:12px;align-items:center;padding:16px 18px 12px}
+.accountMenuAvatar{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#fff1ec;color:#f2653e;flex:0 0 40px}
+.accountMenuHead strong{display:block;color:#f2653e;font-size:17px;font-weight:700}
+.accountMenuHead small{display:block;color:#f2653e;font-size:13px}
+.accountMenuHead .accountMenuEmail{color:#8f94a8!important;word-break:break-all}
+.accountMenuPanel nav{display:flex;flex-direction:column;padding:4px 8px}
+.accountMenuPanel nav a{padding:12px 10px;border-radius:10px;font-size:15px;color:#1f2230;text-decoration:none}
+.accountMenuPanel nav a:hover{background:#f6f6f9}
+.accountMenuPanel>.textButton{display:block;width:calc(100% - 16px);margin:6px 8px 10px;padding:12px 10px;text-align:left;border-top:1px solid #ececf1;border-radius:0;color:#1f2230;font-size:15px}
+.accountDashboard .listingStatusStrip{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
+.accountDashboard .listingStatusStrip button{padding:10px 16px;border-radius:999px;border:0;background:#f4f4f8;color:#1f2230;font-weight:500}
+.accountDashboard .listingStatusStrip button[aria-pressed="true"]{background:#f2653e;color:#fff}
+@media (min-width:761px){
+body:has(.accountDashboard){background:#f6f7fb}
+.accountDashboard .cabinetSidebar>*{background:#fff;border-radius:16px}
+.accountDashboard .cabinetContent{background:#fff;border-radius:20px;padding:26px 28px}
+.accountDashboard .cabinetContent>.sectionTitle h2{font-size:24px}
+}
+.detailSide .add:not(.secondary)[href^="tel:"],.detailSide button.add[aria-label="Nömrəni göstər"]{background:#1fa34a!important;border-color:#1fa34a!important;color:#fff!important}
+.detailSide a.secondary[href^="/messages"]{background:#3d6bf5!important;border-color:#3d6bf5!important;color:#fff!important}

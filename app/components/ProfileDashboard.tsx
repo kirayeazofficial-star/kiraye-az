@@ -17,7 +17,7 @@ import {
   money,
   periodName,
 } from "../../lib/marketplace";
-const listingTabs = [["", "Hamısı"], ["published", "Yayımlanmış"], ["pending", "Yoxlanılır"], ["rejected", "Rədd edilmiş"], ["draft", "Dərc olunmamış"], ["expired", "Müddəti bitmiş"], ["archived", "Arxiv"]];
+const listingTabs = [["published", "Hazırda saytda"], ["payment", "Ödəniş gözləyir"], ["expired", "Müddəti başa çatmış"], ["pending", "Yoxlanışda"], ["draft", "Dərc olunmamış"], ["archived", "Arxiv"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
   const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState(""),[screen,setScreen]=useState<"menu"|"section">(balanceOnly?"section":"menu");
   useEffect(()=>{const read=()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["listings","transactions","cards","limits"].includes(value)){setSection(value);setScreen("section");}else if(!balanceOnly){setSection("listings");setScreen("menu");}};read();window.addEventListener("popstate",read);return()=>window.removeEventListener("popstate",read);},[balanceOnly]);
@@ -32,7 +32,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [admin, setAdmin] = useState(false),
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
-    [statusFilter, setStatusFilter] = useState("");
+    [statusFilter, setStatusFilter] = useState("published");
   useEffect(() => {
     fetch('/api/auth/host',{cache:'no-store'})
       .then(async response => {
@@ -74,7 +74,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     setError("");
     setNotice("Elanı bərpa etmək ödənişli xidmətdir. Hazırda ödənişlər aktiv olmadığından bərpa etmək mümkün deyil. Heç bir məbləğ tutulmadı.");
   }
-  const matchesTab=(item:Listing,status:string)=>!status || (status === "archived" ? ["archived","expired"].includes(effectiveListingStatus(item)) : effectiveListingStatus(item)===status);
+  const matchesTab=(item:Listing,status:string)=>{const current=effectiveListingStatus(item);if(!status)return true;if(status==="payment")return false;if(status==="draft")return ["draft","rejected"].includes(current);return current===status;};
   async function logout() {
     const response=await fetch('/api/auth/host',{method:'DELETE'});
     if (!response.ok) {

@@ -428,3 +428,10 @@ button,.add,.secondary,.textButton{font-weight:500!important;font-size:14px}
 .accountItemActions .promotionOptions{display:inline-block!important;width:auto!important;margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
 .accountItemActions .promotionTrigger{display:inline-flex!important;width:auto!important;margin:0!important;padding:8px 14px!important;white-space:nowrap}
 .accountItemActions .secondary{width:auto!important;margin:0!important}
+.promotionPanel{text-align:left!important;outline:none!important;border:0!important}
+.promotionPanel p{text-align:left!important;font-weight:400!important}
+.promotionPanel .paymentChoices label,.promotionPanel .paymentChoices span{text-align:left!important;font-weight:400!important}
+.promotionPanel .paymentChoices legend{text-align:left!important;font-weight:600!important}
+.promotionPanel.kindOnly>p,.promotionPanel.kindOnly>.textButton{display:none}
+.promotionPanel.kindOnly .promotionPackage>summary{display:none}
+.promotionPanel .promotionModalHeader{display:flex;justify-content:space-between;align-items:center}

@@ -25,7 +25,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
     onToggle={(event) => { setOpened(event.currentTarget.open); if (!event.currentTarget.open) setSelected(null); }}>
     <summary ref={trigger} className="promotionTrigger">{label ?? <><span aria-hidden="true">📣</span> Elanı reklam et</>}</summary>
     <div className="promotionShade" aria-hidden="true" onClick={close} />
-    <div ref={panel} className="promotionPanel" role="dialog" aria-modal="true" aria-label="Elanın reklam paketləri" tabIndex={-1}
+    <div ref={panel} className={`promotionPanel${kind?" kindOnly":""}`} role="dialog" aria-modal="true" aria-label="Elanın reklam paketləri" tabIndex={-1}
       onKeyDown={(event) => {
         if (event.key === "Escape") { event.preventDefault(); close(); }
         if (event.key !== "Tab") return;
@@ -34,7 +34,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
         if (event.shiftKey && (document.activeElement === first || document.activeElement === event.currentTarget)) { event.preventDefault(); last?.focus(); }
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }}>
-      <div className="promotionModalHeader"><h3>Reklam paketləri</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}>×</button></div>
+      <div className="promotionModalHeader"><h3>{kind ? (packages.find(pack => pack.kind === kind)?.title ?? "Reklam") : "Reklam paketləri"}</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}>×</button></div>
       <p>Ödəniş sistemi müvəqqəti işləmir. Paketlərlə tanış ola bilərsən; pul tutulmur və elanın sıralaması dəyişmir.</p>
       {selected && <button type="button" className="textButton" onClick={() => setSelected(null)}>← Başqa xidmət seç</button>}
       {packages.filter(pack => kind ? pack.kind === kind : (pack.kind !== "restore" && (!selected || pack.kind === selected))).map(pack => <details key={pack.kind} className="promotionPackage" open={selected === pack.kind || kind === pack.kind}

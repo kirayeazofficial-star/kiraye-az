@@ -230,3 +230,14 @@ aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary::after{cont
 .accountDashboard .listingStatusStrip::-webkit-scrollbar{display:none}
 .accountDashboard .listingStatusStrip button{flex:0 0 auto;white-space:nowrap;border-radius:999px;min-height:38px;padding:8px 14px}
 .accountDashboard .listingStatusStrip button[aria-pressed="true"]{background:#f2653e;border-color:#f2653e;color:#fff}
+
+/* ---- v5: compact home top on phone, no recent searches strip ---- */
+.catalogIntro{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;padding:0!important;margin:0!important}
+.searchHistory{display:none!important}
+.searchWrap{margin-top:10px!important;padding-top:0!important}
+.savedSearches{margin:6px 0 0!important}
+@media (max-width:760px){
+.rentalHome .searchPanel{padding:0!important;gap:8px!important;min-height:0!important}
+.rentalHome .queryField > span{display:none!important}
+.rentalHome .categorySection{padding-top:6px!important}
+}

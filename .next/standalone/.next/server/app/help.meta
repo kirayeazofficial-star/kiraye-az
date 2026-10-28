@@ -1,0 +1,34 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/help/layout,_N_T_/help/page,_N_T_/help"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/help/__PAGE__"
+  ],
+  "prefetchHints": {
+    "hints": 64,
+    "slots": {
+      "children": {
+        "hints": 96,
+        "slots": {
+          "children": {
+            "hints": 160,
+            "slots": null
+          }
+        }
+      }
+    }
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/062f91e19f80995d609b683fce613d0f64ad13e165aaa2f102eb369aca5c9766/$/help",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/help/page"
+    },
+    "isFallback": false
+  }
+}

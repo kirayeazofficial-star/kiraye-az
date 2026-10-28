@@ -19,8 +19,8 @@ export default function Privacy() {
           Yüklənən şəkillər açıq saxlama ünvanında yerləşir və elan
           təsdiqlənməmişdən əvvəl də həmin ünvanı bilənlərə görünə bilər. Şəxsi
           sənəd, bank kartı və üçüncü şəxslərin razılıqsız məlumatlarını
-          yükləmə. Elanı arxivləşdirmək onu açıq axtarışdan çıxarır; bu
-          əməliyyat bütün saxlanmış şəkilləri və hesab məlumatlarını silmir.
+          yükləmə. Elanı sildikdə o, saytdan və hesabından həmişəlik
+          götürülür; hesab məlumatların silinmir.
         </p>
         <h2>Brauzerdə saxlanan məlumat</h2>
         <p>

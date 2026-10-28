@@ -6,9 +6,7 @@ import SiteContact from "./SiteContact";
 import LanguageSelect from "./LanguageSelect";
 
 const links = [
-  ["/", "Elanlar"], ["/profile", "Şəxsi kabinet"],
-  ["/?favorites=1#elanlar", "Seçilmişlər"], ["/balance", "Balans"],
-  ["/new", "Elan yerləşdir"], ["/help", "Kömək"],
+  ["/help", "Kömək"],
   ["/rules", "Qaydalar və təhlükəsizlik"], ["/privacy", "Məxfilik"],
 ];
 
@@ -54,7 +52,7 @@ export default function SiteMenu() {
           </button>
         </div>
         <nav aria-label="Sayt bölmələri">
-          {links.map(([href, title], index) => <Link className={index === 5 ? "siteMenuGroupStart" : undefined} key={href} href={href} onClick={() => setOpen(false)}>{title}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg></Link>)}
+          {links.map(([href, title], index) => <Link className={undefined} key={href} href={href} onClick={() => setOpen(false)}>{title}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg></Link>)}
         </nav>
         <div className="siteMenuLanguage"><span>Dil</span><LanguageSelect /></div>
         <SiteContact />

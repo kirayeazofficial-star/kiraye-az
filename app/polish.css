@@ -543,3 +543,14 @@ button:active,.add:active,.secondary:active,.categories>button:active{transform:
 .listingCard .cardRentalFacts{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:#5b6070}
 .listingCard .cardRentalFacts .noDeposit{color:#1f9d55;font-weight:500}
 .listingCard .cardRentalFacts:empty{display:none}
+
+/* ---- v19: remove duplicates on phone, tablet categories ---- */
+@media (max-width:760px){
+.siteFooter .siteContact,.siteFooter .footerGroup:not(.footerLinks){display:none!important}
+.siteFooter .footerLinks a[href="/new"],.siteFooter .footerLinks a[href="/profile"]{display:none}
+.siteFooter{padding-top:20px!important;padding-bottom:84px!important}
+}
+@media (min-width:761px) and (max-width:899px){
+.categoryScroller .categories{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:14px 8px!important;overflow:visible!important}
+.categoryScroller .categories>button{flex:none!important;width:auto!important}
+}

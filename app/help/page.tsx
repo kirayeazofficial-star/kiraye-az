@@ -20,7 +20,7 @@ export default function Help() {
             ],
             [
               "Elanımı necə dəyişə bilərəm?",
-              "Şəxsi kabinetdə “Redaktə et” seç. Dəyişikliklər yenidən yoxlamaya göndərilir. Artıq aktual olmayan elanı arxivə keçirə bilərsən.",
+              "Şəxsi kabinetdə “Redaktə et” seç. Elanı gündə bir dəfə redaktə etmək olar, dəyişikliklər yenidən yoxlamaya göndərilir. Artıq aktual olmayan elanı silə bilərsən.",
             ],
             [
               "Kirayəni necə razılaşdırım?",

@@ -243,7 +243,7 @@ export default function ListingDetails({
             aria-pressed={favorite}
             onClick={toggleFavorite}
           >
-            <NavigationIcon name="heart" filled={favorite}/>{favorite ? "Seçilmişlərdə" : "Seçilmişlərə əlavə et"}
+            <NavigationIcon name="heart" filled={favorite}/>{favorite ? "Seçilmişdə" : "Seçilmişlərə"}
           </button>
           <button className="secondary" onClick={share}>
             Keçidi paylaş

@@ -32,7 +32,7 @@ const sections = [
       "Eyni əmlak və ya əşya üçün təkrar aktiv və ya yoxlamada olan elan yaratma. Elanı silib yenidən yerləşdirməklə və ya başqa hesabdan istifadə etməklə limitdən yayınmaq olmaz.",
       "Qiymət, təsvir, şəkil və əlaqə məlumatlarında dəyişiklik üçün mövcud elanın “Redaktə et” seçimini istifadə et. Dəyişikliklər yenidən yoxlamaya göndərilir.",
       "Mövcud elanın məlumatlarını başqa əmlakın və ya əşyanın məlumatları ilə əvəz etmək olmaz. Redaktə elanı avtomatik irəli çəkmir.",
-      "Artıq kirayəyə verilməyən və ya aktual olmayan elanı arxivə keçir. Arxivləşdirmə məlumatları hesabından silmir.",
+      "Artıq kirayəyə verilməyən və ya aktual olmayan elanı sil. Silinən elan geri qaytarılmır, hesab məlumatların qalır.",
     ],
   },
   {
@@ -87,7 +87,7 @@ export default async function Rules() {
         <p><strong>8.1.</strong> Elanın aktivlik müddəti 30 gün olacaq. Müddət başa çatdıqda yayımı dayanacaq və elan silinmədən “Müddəti başa çatmış” bölməsinə keçəcək.</p>
         <p><strong>8.2.</strong> Həm eyni vaxtda aktiv elan sayı, həm də kateqoriya üzrə 30 gün ərzində yerləşdirilən elan sayı nəzərə alınacaq. Kateqoriyalar üzrə saylar ayrıca göstəriləcək.</p>
         <p><strong>8.3.</strong> Limit aşıldıqda istifadəçi növbəti elan üçün limitin imkan verməsini gözləməli və ya ödənişli xidmətlər aktiv olduqda uyğun kateqoriya paketi seçməli olacaq.</p>
-        <p><strong>8.4.</strong> İstifadəçinin sildiyi/arxivə keçirdiyi və ya müddəti bitmiş elanın bərpası ödənişli xidmətdir. Ödəniş sistemi aktivləşənədək bərpa mümkün deyil və heç bir məbləğ tutulmur. Xidmətin qiyməti aktivləşdirilməzdən əvvəl göstəriləcək.</p>
+        <p><strong>8.4.</strong> Müddəti bitmiş elanın bərpası ödənişli xidmətdir. Ödəniş sistemi aktivləşənədək bərpa mümkün deyil və heç bir məbləğ tutulmur. Xidmətin qiyməti aktivləşdirilməzdən əvvəl göstəriləcək.</p>
         <p><strong>8.5.</strong> Ödənişli xidmətin elan müddətini bərpa etməsi və uzatması xidmət aktivləşdiriləndə göstərilən şərtlərlə tənzimlənəcək.</p>
       </section>
       <p><Link href="/help">Suallar və kömək</Link> · <Link href="/new">Elan yerləşdir</Link></p>

@@ -215,3 +215,18 @@ aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary::after{cont
 .accountMenuPanel nav a{padding:9px 10px;border-radius:8px;font-size:14px}
 .accountMenuPanel nav a:hover{background:#f1f5f3}
 .accountMenuPanel>.textButton{display:block;width:100%;margin-top:6px;padding:10px;border-top:1px solid #e7eeea;border-radius:0;text-align:left;color:#b4382a;font-weight:600}
+
+/* ---- v4: cabinet as a tidy list, tap.az-like ---- */
+.accountDashboard .stats{display:none!important}
+.accountDashboard .cabinetNav.cabinetCards{display:flex!important;flex-direction:column;gap:0;padding:6px;background:#fff;border:1px solid #e7eeea;border-radius:16px;margin-top:12px}
+.accountDashboard .cabinetNav.cabinetCards>a{display:flex!important;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 12px!important;border:0!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;font-size:15px;font-weight:500;color:#1e2e29}
+.accountDashboard .cabinetNav.cabinetCards>a svg{width:20px;height:20px;flex:none;color:#51655e}
+.accountDashboard .cabinetNav.cabinetCards>a[aria-current="page"]{background:#eaf3ef!important;color:#0f4b3e;font-weight:600}
+.accountDashboard .cabinetNav.cabinetCards>a:hover{background:#f3f6f4!important}
+.accountDashboard .cabinetNavFoot{display:flex!important;flex-direction:column;gap:0;margin-top:6px;padding-top:6px;border-top:1px solid #e7eeea}
+.accountDashboard .cabinetNavFoot>a,.accountDashboard .cabinetNavFoot>button{display:flex!important;align-items:center;gap:12px;width:100%;min-height:46px;padding:10px 12px;border:0!important;border-radius:10px;background:transparent!important;box-shadow:none!important;font-size:15px;text-align:left;color:#1e2e29}
+.accountDashboard .cabinetNavFoot .cabinetLogout{color:#b4382a;font-weight:600}
+.accountDashboard .listingStatusStrip{display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+.accountDashboard .listingStatusStrip::-webkit-scrollbar{display:none}
+.accountDashboard .listingStatusStrip button{flex:0 0 auto;white-space:nowrap;border-radius:999px;min-height:38px;padding:8px 14px}
+.accountDashboard .listingStatusStrip button[aria-pressed="true"]{background:#f2653e;border-color:#f2653e;color:#fff}

@@ -112,3 +112,34 @@
 .galleryStage{position:relative;isolation:isolate;background:#1b2a26}
 .galleryStage::before{content:"";position:absolute;inset:-24px;z-index:-1;background:var(--bg) center/cover no-repeat;filter:blur(22px) brightness(.85);transform:scale(1.1)}
 .galleryStage img{background:transparent!important}
+
+/* ---- v3: tap.az-style flat catalogue (own colours and brand) ---- */
+.listingCard{border:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;overflow:visible!important}
+.listingCard .photo{aspect-ratio:4/3!important;height:auto!important;border-radius:12px!important;overflow:hidden;background:#eef1ef}
+.listingCard .photo img.cardPhoto{width:100%;height:100%;object-fit:cover}
+.listingCard .cardBody{padding:8px 2px 0!important;gap:2px!important}
+.listingCard .price{font-size:18px!important;font-weight:700!important;color:#13201c!important;line-height:1.2}
+.listingCard .price small{font-size:12px;font-weight:400;color:#6a7872}
+.listingCard h3{font-size:14px!important;font-weight:400!important;line-height:1.35!important;margin:2px 0 0!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#26332f}
+.listingCard .cardBody p{font-size:12px!important;color:#7b8883!important;margin:2px 0 0!important}
+.listingCard .cardRentalFacts{display:flex;flex-wrap:nowrap;overflow:hidden;gap:6px;margin-top:2px}
+.listingCard .cardRentalFacts span{background:none!important;border:0!important;padding:0!important;font-size:12px!important;color:#7b8883!important;white-space:nowrap}
+.listingCard .cardRentalFacts span:not(:first-child){display:none}
+.listingCard .cardMeta{font-size:12px!important;color:#9aa6a1!important;margin-top:2px;border:0!important;padding:0!important;text-align:left!important;justify-content:flex-start!important;display:flex}
+.categoryScroller .categories>button{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;gap:8px!important;min-height:0!important;height:auto!important}
+.categoryScroller .categories>button .categoryArtwork{display:grid;place-items:center;background:#f1f4f2!important;border:0!important;border-radius:16px;width:100%;aspect-ratio:1/1;max-width:96px;margin:0 auto}
+.categoryScroller .categories>button .categoryArtwork img{width:70%!important;height:70%!important;object-fit:contain}
+.categoryScroller .categories>button.active .categoryArtwork{outline:2px solid #f2653e}
+body:has(.rentalHome){background:#fff!important}
+.rentalHome{background:#fff}
+@media (min-width:900px){
+.categoryScroller .categories{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:14px 12px!important}
+.categoryScroller .categories>button{font-size:13px!important}
+.categoryScroller .categories>button .categoryArtwork{max-width:84px}
+.listingSection .grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:20px 14px!important}
+.catalogIntro h1{font-size:26px!important}
+}
+@media (max-width:899px){
+.listingSection .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 12px!important}
+.categoryScroller .categories>button{flex:0 0 76px!important;width:76px!important;font-size:11.5px!important}
+}

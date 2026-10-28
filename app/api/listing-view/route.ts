@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const key=process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   const ip=trustedClientIp(request);
-  if(!url||!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url)||!key||!ip)return reply(503);
+  if(process.env.NEXT_PUBLIC_SUPABASE_ENABLED!=="true"||!url||!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url)||!key||!ip)return reply(503);
   try {
     let viewer:string|null=null;
     const authorization=request.headers.get("authorization");

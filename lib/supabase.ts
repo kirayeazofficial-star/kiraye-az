@@ -1,10 +1,14 @@
 import "./auth-return";
 import {authStorage} from './auth-storage';
 import { createClient } from "@supabase/supabase-js";
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const key =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+// Supabase is OFF unless NEXT_PUBLIC_SUPABASE_ENABLED=true at build time.
+// Old project values left in server settings can never revive a deleted backend.
+const enabled = process.env.NEXT_PUBLIC_SUPABASE_ENABLED === "true";
+const url = enabled ? process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() : undefined;
+const key = enabled
+  ? process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
+  : undefined;
 // Only browser-safe publishable/anon keys belong here. Never use a service-role key.
 export const supabase =
   url &&

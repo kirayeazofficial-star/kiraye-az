@@ -10,7 +10,7 @@ assert.equal((await post(req({email:'a'.repeat(2000)+'@example.invalid'}))).stat
 assert.equal((await post(req({email:'test@example.invalid'},'https://other.invalid'))).status,403);
 const proxyRequest=new Request('http://internal-host/api/auth/recovery-check',{method:'POST',headers:{origin:'https://public.example.invalid',host:'public.example.invalid','x-forwarded-proto':'https'},body:JSON.stringify({email:'test@example.invalid'})});
 assert.equal((await post(proxyRequest)).status,503);
-const env={NEXT_PUBLIC_SUPABASE_URL:'https://browser-test.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'fixture-secret-not-real'};
+const env={NEXT_PUBLIC_SUPABASE_ENABLED:'true',NEXT_PUBLIC_SUPABASE_URL:'https://browser-test.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'fixture-secret-not-real'};
 for(const exists of [true,false]){
 post=load(env,async(url,init)=>{assert(url.endsWith('/rpc/recovery_email_exists'));assert.equal(init.headers.Authorization,'Bearer fixture-secret-not-real');const args=JSON.parse(init.body);assert.equal(args.p_email,'test@example.invalid');assert.equal(args.p_client_key.length,64);assert(!args.p_client_key.includes('192.0.2'));return Response.json(exists)});
 const response=await post(req({email:'TEST@example.invalid'}));const body=await response.text();assert.equal(JSON.parse(body).exists,exists);assert(!body.includes('fixture-secret'));

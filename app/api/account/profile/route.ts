@@ -4,7 +4,7 @@ import {normalizePhone} from '../../../../lib/rental-details';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const reply=(body:object,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
-function config(){const url=process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim()||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();return url&&/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url)&&key?{url,key}:null;}
+function config(){if(process.env.NEXT_PUBLIC_SUPABASE_ENABLED!=='true')return null;const url=process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim()||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();return url&&/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url)&&key?{url,key}:null;}
 const timedFetch:typeof fetch=(input,init)=>fetch(input,{...init,signal:init?.signal?AbortSignal.any([init.signal,AbortSignal.timeout(8000)]):AbortSignal.timeout(8000)});
 const options={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{fetch:timedFetch}};
 async function actor(request:Request){const cfg=config(),authorization=request.headers.get('authorization')||'';if(!cfg)return null;if(!/^Bearer \S+$/i.test(authorization)||authorization.length>8192)return null;const token=authorization.slice(7);const client=createClient(cfg.url,cfg.key,{...options,global:{...options.global,headers:{Authorization:`Bearer ${token}`}}});const {data,error}=await client.auth.getUser(token);return !error&&data.user?{...cfg,user:data.user,client}:null;}

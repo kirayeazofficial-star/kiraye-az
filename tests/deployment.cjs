@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const { spawnSync } = require("node:child_process");
 const valid = {
+  NEXT_PUBLIC_SUPABASE_ENABLED: "true",
   NEXT_PUBLIC_SUPABASE_URL: "https://test.supabase.co",
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test_config",
   NEXT_PUBLIC_SITE_URL: "https://kiraye.az",
@@ -55,6 +56,25 @@ check(
 check(
   "invalid Supabase URL rejected",
   { NEXT_PUBLIC_SUPABASE_URL: "https://invalid.example" },
+  1,
+);
+check(
+  "disabled Supabase needs no database values",
+  {
+    NEXT_PUBLIC_SUPABASE_ENABLED: "",
+    NEXT_PUBLIC_SUPABASE_URL: "",
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "",
+  },
+  0,
+);
+check(
+  "disabled Supabase ignores leftover old project values",
+  { NEXT_PUBLIC_SUPABASE_ENABLED: "", NEXT_PUBLIC_SUPABASE_URL: "https://invalid.example" },
+  0,
+);
+check(
+  "disabled Supabase still requires a valid website origin",
+  { NEXT_PUBLIC_SUPABASE_ENABLED: "", NEXT_PUBLIC_SITE_URL: "http://kiraye.az" },
   1,
 );
 console.log(`${count} deployment checks passed`);

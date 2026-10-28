@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),ts=require('typescript');
 (async()=>{
- let calls=[],rejectUser=false;const env={NEXT_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',NEXT_PUBLIC_SITE_URL:'https://kirayeal.az',SUPABASE_SERVICE_ROLE_KEY:'server-only-test-key',KIRAYE_TRUST_PROXY:'1'};
+ let calls=[],rejectUser=false;const env={NEXT_PUBLIC_SUPABASE_ENABLED:'true',NEXT_PUBLIC_SUPABASE_URL:'https://fixture.supabase.co',NEXT_PUBLIC_SITE_URL:'https://kirayeal.az',SUPABASE_SERVICE_ROLE_KEY:'server-only-test-key',KIRAYE_TRUST_PROXY:'1'};
  const output={};const helpers={};const options={compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}};
  vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/server-request.ts','utf8'),options).outputText,{exports:helpers,require,process:{env},URL});
  const requireModule=name=>name.endsWith('/server-request')?helpers:require(name);

@@ -1,4 +1,8 @@
 // Run from the hosting scheduler with secrets supplied through its private environment.
+if (process.env.NEXT_PUBLIC_SUPABASE_ENABLED !== "true") {
+  console.log("Supabase is disabled; there is no database to expire listings in.");
+  process.exit(0);
+}
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url) || !key) {

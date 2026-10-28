@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   } catch { return reply({code:"invalid_email"},400); }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!url || !/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url) || !serviceKey)
+  if (process.env.NEXT_PUBLIC_SUPABASE_ENABLED !== "true" || !url || !/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url) || !serviceKey)
     return reply({code:"recovery_check_unavailable"},503);
   const ip = trustedClientIp(request);
   if (!ip) return reply({code:"recovery_check_unavailable"},503);

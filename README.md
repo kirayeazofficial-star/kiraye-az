@@ -34,6 +34,8 @@ Create `.env.local` using `.env.example` and supply the project URL and browser-
 
 The site runs as a Node.js standalone app on hostinq.az (cPanel). See [CPANEL.md](docs/CPANEL.md) and [CPANEL-UPDATE.md](docs/CPANEL-UPDATE.md). Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `NEXT_PUBLIC_SITE_URL` in the app's environment, then rebuild: NEXT_PUBLIC values are embedded at build time, so a restart alone is not enough. No secret/service-role key belongs in `NEXT_PUBLIC_*` variables.
 
+**Supabase is OFF by default.** The backend project was deleted, so the code ignores every `NEXT_PUBLIC_SUPABASE_*` value unless `NEXT_PUBLIC_SUPABASE_ENABLED=true` is also set at build time. Without it the site builds and deploys in interface/demo mode: no login, no real listings, only clearly labelled samples. Old Supabase values left in the cPanel environment are harmless. Set the flag (and the URL/key) only after a working project exists. Browser tests that need a configured backend must build with `NEXT_PUBLIC_SUPABASE_ENABLED=true`.
+
 ## Login and deployment fixes
 
 - Login accepts existing shorter passwords; the eight-character minimum applies only to new registration. Invalid credentials, missing confirmation, expired codes and rate limits have separate messages.

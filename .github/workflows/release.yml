@@ -1,5 +1,5 @@
 # Builds the site on GitHub (plenty of memory) and publishes the ready-to-run
-# files to the `release` branch. cPanel deploys that branch without building.
+# files to the `site` branch (history is kept so cPanel can pull normally). cPanel deploys that branch without building.
 name: Build release
 on:
   push:
@@ -35,12 +35,21 @@ jobs:
           cp scripts/install-release.mjs /tmp/release/install-release.mjs
           cp deploy/release.cpanel.yml /tmp/release/.cpanel.yml
           printf '{"commit":"%s","buildId":"%s"}\n' "$GITHUB_SHA" "$(cat .next/BUILD_ID)" > /tmp/release/RELEASE.json
-      - name: Publish release branch
+      - name: Publish site branch
         run: |
-          cd /tmp/release
-          git init -q -b release
+          REMOTE="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          if git ls-remote --exit-code --heads "$REMOTE" site >/dev/null 2>&1; then
+            git clone -q --branch site --single-branch "$REMOTE" /tmp/site
+          else
+            git init -q -b site /tmp/site
+            git -C /tmp/site remote add origin "$REMOTE"
+          fi
+          cd /tmp/site
           git config user.name "kirayeal-release-bot"
           git config user.email "release-bot@users.noreply.github.com"
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/release/. .
           git add -A -f
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
           git commit -q -m "Release ${GITHUB_SHA::7}"
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" release
+          git push origin site

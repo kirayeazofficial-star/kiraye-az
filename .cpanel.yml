@@ -1,4 +1,4 @@
 ---
 deployment:
   tasks:
-    - /bin/echo "Bu budaq (main) quraşdırma üçün deyil. cPanel-də 'release' budağını seçin."
+    - /bin/echo "Bu budaq (main) quraşdırma üçün deyil. cPanel-də 'site' budağını seçin."

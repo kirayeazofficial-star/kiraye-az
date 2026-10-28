@@ -17,10 +17,10 @@ export default function Footer() {
         <strong>{t("Populyar kateqoriyalar")}</strong>
         <a href="/kiraye-ev">{t("Ev və mənzil")}</a>
         <a href="/kiraye-masin">{t("Avtomobil")}</a>
-        <a href="/?category=motorcycle#elanlar">{t("Motosiklet")}</a>
-        <a href="/?category=villa#elanlar">{t("Villa və bağ")}</a>
-        <a href="/?category=equipment#elanlar">{t("Alətlər və texnika")}</a>
-        <a href="/?category=clothing#elanlar">{t("Geyim və aksesuar")}</a>
+        <a href="/kiraye-motosiklet">{t("Motosiklet")}</a>
+        <a href="/kiraye-villa">{t("Villa və bağ")}</a>
+        <a href="/kiraye-aletler">{t("Alətlər və texnika")}</a>
+        <a href="/kiraye-geyim">{t("Geyim və aksesuar")}</a>
       </nav>
       <nav className="footerGroup footerLinks" aria-label={t("Məlumat və kömək")}>
         <strong>{t("Məlumat və kömək")}</strong>

@@ -34,3 +34,4 @@ body:has(.stickyContact){padding-bottom:70px}
 .rentalHome .catalogIntro>div>span{display:none!important}
 .rentalHome .searchWrap{margin-top:-24px!important}
 }
+@media (max-width:760px){.rentalHome .listingSection{padding-top:4px!important;margin-top:0!important}}

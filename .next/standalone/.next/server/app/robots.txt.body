@@ -1,5 +1,14 @@
 User-Agent: *
 Allow: /
+Disallow: /admin
+Disallow: /balance
+Disallow: /profile
+Disallow: /account
+Disallow: /edit/
+Disallow: /new
+Disallow: /login
+Disallow: /auth/
+Disallow: /reset-password
 Disallow: /listings/example-
 
 Sitemap: https://kirayeal.az/sitemap.xml

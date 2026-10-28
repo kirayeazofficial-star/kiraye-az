@@ -23,12 +23,37 @@
   },
   "dynamicRoutes": [
     {
+      "page": "/api/media/[owner]/[file]",
+      "regex": "^/api/media/([^/]+?)/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPowner": "nxtPowner",
+        "nxtPfile": "nxtPfile"
+      },
+      "namedRegex": "^/api/media/(?<nxtPowner>[^/]+?)/(?<nxtPfile>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/edit/[id]",
+      "regex": "^/edit/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/edit/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/listings/[id]",
       "regex": "^/listings/([^/]+?)(?:/)?$",
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/listings/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/profile/listings/[id]",
+      "regex": "^/profile/listings/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/profile/listings/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
       "page": "/[landing]",
@@ -59,10 +84,94 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/account",
+      "regex": "^/account(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/account(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/api/account/profile",
+      "regex": "^/api/account/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/account/profile(?:/)?$"
+    },
+    {
+      "page": "/api/admin",
+      "regex": "^/api/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin(?:/)?$"
+    },
+    {
+      "page": "/api/auth/host",
+      "regex": "^/api/auth/host(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/host(?:/)?$"
+    },
+    {
+      "page": "/api/auth/recovery-check",
+      "regex": "^/api/auth/recovery\\-check(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/recovery\\-check(?:/)?$"
+    },
+    {
       "page": "/api/health",
       "regex": "^/api/health(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/health(?:/)?$"
+    },
+    {
+      "page": "/api/host/health",
+      "regex": "^/api/host/health(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/host/health(?:/)?$"
+    },
+    {
+      "page": "/api/listing-info",
+      "regex": "^/api/listing\\-info(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/listing\\-info(?:/)?$"
+    },
+    {
+      "page": "/api/listing-view",
+      "regex": "^/api/listing\\-view(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/listing\\-view(?:/)?$"
+    },
+    {
+      "page": "/api/listings",
+      "regex": "^/api/listings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/listings(?:/)?$"
+    },
+    {
+      "page": "/api/messages",
+      "regex": "^/api/messages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/messages(?:/)?$"
+    },
+    {
+      "page": "/api/uploads",
+      "regex": "^/api/uploads(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/uploads(?:/)?$"
+    },
+    {
+      "page": "/auth/callback",
+      "regex": "^/auth/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/auth/callback(?:/)?$"
+    },
+    {
+      "page": "/balance",
+      "regex": "^/balance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/balance(?:/)?$"
     },
     {
       "page": "/help",
@@ -77,10 +186,40 @@
       "namedRegex": "^/icon\\.svg(?:/)?$"
     },
     {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/messages",
+      "regex": "^/messages(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/messages(?:/)?$"
+    },
+    {
+      "page": "/new",
+      "regex": "^/new(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/new(?:/)?$"
+    },
+    {
       "page": "/privacy",
       "regex": "^/privacy(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/privacy(?:/)?$"
+    },
+    {
+      "page": "/profile",
+      "regex": "^/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile(?:/)?$"
+    },
+    {
+      "page": "/reset-password",
+      "regex": "^/reset\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/reset\\-password(?:/)?$"
     },
     {
       "page": "/robots.txt",

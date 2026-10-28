@@ -1,0 +1,34 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/balance/layout,_N_T_/balance/page,_N_T_/balance"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/balance/__PAGE__"
+  ],
+  "prefetchHints": {
+    "hints": 64,
+    "slots": {
+      "children": {
+        "hints": 96,
+        "slots": {
+          "children": {
+            "hints": 160,
+            "slots": null
+          }
+        }
+      }
+    }
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/2b6b7612a0487570ebb9476128bdca602ba461b465a2fb8dace34892463ce0d5/$/balance",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/balance/page"
+    },
+    "isFallback": false
+  }
+}

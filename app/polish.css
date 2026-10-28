@@ -461,3 +461,5 @@ button:active,.add:active,.secondary:active,.categories>button:active{transform:
 .categories>button img{transition:transform .2s ease}
 .heartButton:active,.favoriteButton:active{transform:scale(1.2)}
 @media (prefers-reduced-motion:reduce){main{animation:none}*{transition:none!important}}
+.adminSections{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.adminSections button{white-space:nowrap}

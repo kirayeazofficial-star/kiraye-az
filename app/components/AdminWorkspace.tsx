@@ -14,7 +14,7 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi", moderation: "Elanların yoxlanılması", reports: "Şikayətlər", history: "Əməliyyat tarixçəsi", users: "İstifadəçilər", staff: "Adminlər" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyat tarixçəsi", users: "İstifadəçilər", staff: "Adminlər" };
 const statuses: [string, string][] = [["pending", "Yoxlanılır"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Arxiv"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
 
@@ -191,7 +191,7 @@ export default function AdminWorkspace() {
 
   if (allowed === null) return <p role="status">İcazə yoxlanılır…</p>;
   if (allowed === false) return <section className="empty"><h2>Bu bölmə yalnız idarəçilər üçündür</h2><p>Admin icazəsi olan hesabla daxil ol.</p><Link className="add" href="/login?next=/admin">Admin hesabına daxil ol</Link><Link className="secondary" href="/profile">Kabinetə qayıt</Link></section>;
-  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "staff" || role === "leader");
+  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => !["overview", "history"].includes(item) && (item !== "staff" || role === "leader"));
   return <div className="adminWorkspace">
     <nav className="adminSections" aria-label="Admin bölmələri"><p className="adminNavTitle">İdarəetmə</p>{sections.map(item => <button key={item} aria-pressed={section === item} onClick={() => { setSection(item); setError(""); }}><span aria-hidden="true" className={`adminNavIcon adminNavIcon-${item === "moderation" || item === "history" ? "listings" : item}`} />{sectionLabels[item]}</button>)}<Link className="adminBackLink" href="/profile">← Şəxsi kabinet</Link></nav>
     <div>
@@ -200,10 +200,10 @@ export default function AdminWorkspace() {
       {section === "overview" && <section className="adminPanel"><h2>Saytın vəziyyəti</h2><div className="adminStats"><article><b>{counts?.users || 0}</b><span>İstifadəçi</span></article><article><b>{counts?.listings || 0}</b><span>Bütün elanlar</span></article><article><b>{counts?.statuses?.pending || 0}</b><span>Yoxlanılır</span></article><article><b>{counts?.statuses?.published || 0}</b><span>Yayımlanıb</span></article><article><b>{counts?.messages || 0}</b><span>Mesaj</span></article><article><b>{counts?.reports || 0}</b><span>Açıq şikayət</span></article></div></section>}
       {section === "users" && <section className="adminPanel"><form className="adminSearch" onSubmit={event => { event.preventDefault(); }}><input value={userQuery} onChange={event => setUserQuery(event.target.value)} placeholder="Ad, e-poçt və ya hesab nömrəsi" /></form><div className="adminUsers">{users.map(user => <article key={user.id}><div><strong>{user.display_name || "Adsız istifadəçi"}</strong><span>{user.email} · #{user.profile_no}</span></div><span>{user.phone || "Telefon yoxdur"}</span><b>{user.staff_role === "leader" ? "Rəhbər" : user.staff_role === "moderator" ? "Admin" : user.listing_count + " elan"}</b></article>)}</div></section>}
       {section === "staff" && role === "leader" && <StaffManagement />}
-      {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
+      {section === "history" && <><button type="button" className="secondary" onClick={() => setSection("moderation")}>← Elanlara qayıt</button><ModerationHistory revision={revision} onInspect={inspect} /></>}
       {section === "reports" && <div id="reports"><ReportQueue onInspect={inspect} /></div>}
       {section === "moderation" && <section id="moderation" aria-labelledby="moderation-title">
-        <div className="sectionTitle"><h2 id="moderation-title">Elanların yoxlanılması</h2><button className="secondary" disabled={loading || !!busy} onClick={() => setRevision(x => x + 1)}>Siyahını yenilə</button></div>
+        <div className="sectionTitle"><h2 id="moderation-title">Elanların yoxlanılması</h2><div className="contactActions"><button className="secondary" type="button" onClick={() => setSection("history")}>Tarixçə</button><button className="secondary" disabled={loading || !!busy} onClick={() => setRevision(x => x + 1)}>Yenilə</button></div></div>
         <div className="profileTabs" aria-label="Elan vəziyyəti">{statuses.map(([status, label]) => <button key={status} className="secondary" aria-pressed={filter === status} disabled={!!busy} onClick={() => { setFilter(status); setPage(1); }}>{label}</button>)}</div>
         <details className="adminFilters"><summary>Axtarış və filtrlər</summary>
         <form className="adminSearch" onSubmit={find}><label htmlFor="admin-search">Başlıq, telefon, elan nömrəsi və ya ID-si</label><div><input id="admin-search" value={search} onChange={event => setSearch(event.target.value)} maxLength={100} placeholder="Elan axtar..." /><button className="add" disabled={!!busy}>Axtar</button></div></form>

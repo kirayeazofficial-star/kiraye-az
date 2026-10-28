@@ -198,3 +198,7 @@ body:has(.rentalHome){background:#fff!important}
 aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"]{font-size:13px;padding:10px 14px;border-radius:12px}
 aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary{cursor:pointer;list-style:none}
 aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary::after{content:" ▾";color:#7b8883}
+@media (min-width:1000px){
+.catalogIntro{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);padding:0!important;margin:0!important}
+.searchWrap{margin-top:18px!important}
+}

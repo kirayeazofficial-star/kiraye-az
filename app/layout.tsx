@@ -3,6 +3,8 @@ import { publicSiteUrl } from "../lib/site-url";
 import { siteContact } from "../lib/site-contact";
 import { LanguageProvider } from "./components/LanguageProvider";
 import Script from "next/script";
+import { Inter } from "next/font/google";
+const inter = Inter({ subsets: ["latin", "latin-ext"], display: "swap", variable: "--font-ui" });
 import type { Metadata, Viewport } from "next";
 import DesktopAdRails from "./components/DesktopAdRails";
 import "./styles.css";
@@ -28,7 +30,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="az">
+    <html lang="az" className={inter.variable}>
       <body>
         <Script src="/browser-compat.js" strategy="beforeInteractive" />
         <DesktopAdRails />

@@ -296,3 +296,19 @@ h1{font-size:clamp(24px,6.4vw,30px)!important}
 .limitsPanel li{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f1f1f5;font-size:15px}
 .limitsPanel li:last-child{border-bottom:0}
 .limitsPanel li b{color:#f2653e;font-variant-numeric:tabular-nums}
+
+/* ---- v8: modern typeface and solid icons ---- */
+html,body,button,input,select,textarea{font-family:var(--font-ui),"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif!important}
+body{font-size:15px;line-height:1.5;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,.logo{font-weight:700}
+h1{font-weight:800}
+.logo{font-weight:800!important;letter-spacing:-.04em!important}
+strong,b{font-weight:650}
+.price,[class*="price"],.cardPrice{font-variant-numeric:tabular-nums;font-weight:750}
+button,.add,.secondary{font-weight:600;letter-spacing:0}
+.mobileNav a>span,.eyebrow{font-weight:600}
+svg[stroke-linejoin]{stroke-linejoin:round}
+.mobileNav a>svg path{fill:currentColor;fill-opacity:.12;stroke-width:1.7}
+.mobileNav a[aria-current="page"]>svg path{fill-opacity:1;stroke-width:1.7}
+.mobileNav .mobilePublish>svg path{fill:none!important}
+.accountMenu svg,.cabinetNav svg{stroke-width:1.8}

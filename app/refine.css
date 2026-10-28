@@ -1,0 +1,5 @@
+/* Final refinements; loaded after every other stylesheet. */
+.header .logo,footer .logo,.siteMenuHeading .logo,.logo{font-weight:600!important;letter-spacing:-.045em!important}
+.header .logo span,footer .logo span,.logo span{font-weight:600!important}
+.header .logo{letter-spacing:-.9px!important}
+.header .logo small{font-weight:500!important}

@@ -72,6 +72,7 @@ export async function POST(request:NextRequest){
     return response({error:"UNKNOWN_ACTION"},400);
   }catch(error){
     if((error as Error).message==="RATE_LIMIT")return response({error:"RATE_LIMIT"},429);
+    console.error("auth/host failed:",(error as Error).message,(error as {code?:string}).code||"");
     return response({error:"SERVICE_UNAVAILABLE"},503);
   }
 }

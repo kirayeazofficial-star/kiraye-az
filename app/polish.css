@@ -312,3 +312,6 @@ svg[stroke-linejoin]{stroke-linejoin:round}
 .mobileNav a[aria-current="page"]>svg path{fill-opacity:1;stroke-width:1.7}
 .mobileNav .mobilePublish>svg path{fill:none!important}
 .accountMenu svg,.cabinetNav svg{stroke-width:1.8}
+.messagesTitle{padding:14px 16px 6px!important}
+.messagesPage{padding-left:0;padding-right:0}
+.messagesTitle h1{margin:0!important}

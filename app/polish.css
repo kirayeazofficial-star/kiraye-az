@@ -519,3 +519,27 @@ button:active,.add:active,.secondary:active,.categories>button:active{transform:
 .adminPageHeading h1{font-size:24px!important;margin:0!important}
 .adminSecureBadge{display:none!important}
 @media (max-width:760px){.adminPageHeading{display:none!important}}
+
+/* ---- v18: listing page + card structure ---- */
+.detailSide{background:#fff!important;border:1px solid #ececf1;gap:12px!important}
+.detailSide .detailPrice{order:1!important}
+.detailSide .contactActions{order:2;grid-template-columns:1fr 1fr}
+.detailSide .contactActions .add{order:-1;grid-column:1/-1}
+.detailSide .detailTools{order:3;display:grid!important;grid-template-columns:1fr 1fr;gap:8px}
+.detailSide .detailTools>*{width:100%;justify-content:center}
+.detailSide .sellerCard{order:4;background:#f6f6f9!important;margin:0}
+.detailSide .sellerSince{order:5;margin:0!important}
+.detailSide .phoneSafety{order:3}
+.sellerCard strong{font-weight:500;font-size:15px}
+.footMeta{margin-top:14px!important;padding-top:10px;border-top:1px solid #ececf1}
+.detailSpecs{display:block!important;background:transparent!important;border:0!important;padding:0!important;margin-top:8px}
+.detailSpecs>div{display:grid!important;grid-template-columns:minmax(110px,40%) 1fr;gap:12px;padding:11px 0!important;margin:0!important;border:0!important;border-bottom:1px solid #ececf1!important;background:transparent!important;border-radius:0!important}
+.detailSpecs dt{color:#7b8083!important;font-size:13.5px!important;font-weight:400!important;margin:0!important}
+.detailSpecs dd{margin:0!important;font-size:14px!important;font-weight:500!important;color:#1f2230!important;text-align:left;overflow-wrap:anywhere}
+.detailSpecs>div:has(dd:where(:not(:empty))){}
+@media (min-width:900px){.detailSpecs{max-width:620px}}
+.listingCard .cardBody h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;font-weight:500;line-height:1.3;margin:2px 0}
+.listingCard .cardPlace{margin:0 0 2px;font-size:12.5px;color:#7b8083}
+.listingCard .cardRentalFacts{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:#5b6070}
+.listingCard .cardRentalFacts .noDeposit{color:#1f9d55;font-weight:500}
+.listingCard .cardRentalFacts:empty{display:none}

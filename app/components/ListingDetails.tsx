@@ -190,10 +190,10 @@ export default function ListingDetails({
       {viewerOpen && <ImageViewer images={imageCount ? item.images : ["/placeholder.svg"]} title={item.title}
         index={selectedImage} onChange={setImage} onClose={() => setViewerOpen(false)}/>}
       <div className="detailHead">
-        <span className="tag">
+        {(compact||item.demo)&&<span className="tag">
           {categoryName(item.category)}
           {item.demo ? " · Nümunə elan" : ""}
-        </span>
+        </span>}
         {compact ? (
           <h2 id="detail-title">{item.title}</h2>
         ) : (
@@ -204,14 +204,13 @@ export default function ListingDetails({
           {item.district ? `, ${item.district}` : ""} ·{" "}
           {item.demo
             ? "Nümunə"
-            : `Elan tarixi: ${publicDate(item.created_at)}`}
+            : publicDate(item.created_at)}
         </p>
-        {!item.demo && <div className="publicListingMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
       </div>
       <div className="detailSide">
         {!item.demo && item.owner_id && <section className="sellerCard"><strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong><a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>İstifadəçinin bütün elanları</a></section>}
         {!item.demo && item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && (
-          <p className="muted">Elan sahibi {publicMonthYear(item.seller_since)} tarixindən qeydiyyatdadır.</p>
+          <p className="muted sellerSince">{publicMonthYear(item.seller_since)} tarixindən saytdadır</p>
         )}
         <strong className="detailPrice">
           {money(item.price)} ₼{" "}
@@ -259,6 +258,8 @@ export default function ListingDetails({
       <div className="listingInfo">
         <h3>Elan haqqında</h3>
         <p className="description">{item.description}</p>
+        {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
+
         {!!item.attributes?.amenities?.length && (
           <div className="amenityTags">
             {item.attributes.amenities.map((a) => (

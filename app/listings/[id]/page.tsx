@@ -1,3 +1,4 @@
+import { categoryName } from "../../../lib/marketplace";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -37,7 +38,7 @@ export default async function ListingPage({ params }: Props) {
       <Header />
       <main className="wrap listingDetailPage">
         <p className="breadcrumb">
-          <Link href="/">Ana səhifə</Link> / Elan detalları
+          <Link href="/">Ana səhifə</Link>{item ? <> / {categoryName(item.category)}</> : null}
         </p>
         {item ? (
           <ListingDetails item={item} />

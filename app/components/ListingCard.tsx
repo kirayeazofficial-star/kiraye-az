@@ -3,7 +3,7 @@ import { useLanguage } from "./LanguageProvider";
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
 import NavigationIcon from './NavigationIcon';
-import { minimumRentalLabel } from "../../lib/rental-details";
+import { publicDate } from "../../lib/public-date";
 import Link from "next/link";
 import {
   Listing,
@@ -51,31 +51,16 @@ export default function ListingCard({
           <small>/ {t(periodName(item.rental_period))}</small>
         </strong>
         <h3>{item.title}</h3>
-        <p>
-          ⌖ {item.city}
+        <p className="cardPlace">
+          {item.city}
           {item.district ? `, ${item.district}` : ""}
+          {!item.demo && <> · {publicDate(item.created_at)}</>}
         </p>
         <div className="cardRentalFacts">
-          <span>
-            {item.deposit === 0
-              ? t("Depozitsiz")
-              : item.deposit != null
-                ? `Depozit: ${money(item.deposit)} ₼`
-                : t("Depoziti dəqiqləşdir")}
-          </span>
-          {["Çatdırılma","Hər ikisi"].includes(item.attributes?.delivery_method || "") && <span>{t("Çatdırılma")}{item.attributes?.delivery_fee !== undefined && String(item.attributes.delivery_fee).trim() !== "" && Number.isFinite(Number(item.attributes.delivery_fee)) && Number(item.attributes.delivery_fee) >= 0 ? ` +${money(Number(item.attributes.delivery_fee))} ₼` : " · " + t("Razılaşma ilə")}</span>}
-          {(item.min_days ?? 1) > 1 && (
-            <span>Ən azı {minimumRentalLabel(item)}</span>
-          )}
+          {item.deposit === 0 && <span className="noDeposit">{t("Depozitsiz")}</span>}
+          {["Çatdırılma","Hər ikisi"].includes(item.attributes?.delivery_method || "") && <span>{t("Çatdırılma")}</span>}
           {!!item.rooms && <span>{item.rooms} otaq</span>}
           {!!item.area_m2 && <span>{item.area_m2} m²</span>}
-        </div>
-        <div className="cardMeta">
-          <span>
-            {item.demo
-              ? "Nümunə elan"
-              : new Date(item.created_at).toLocaleDateString("az-AZ")}
-          </span>
         </div>
       </Link>
     </article>

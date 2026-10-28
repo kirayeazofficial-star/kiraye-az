@@ -375,3 +375,21 @@ body:has(.accountDashboard){background:#f6f7fb}
 .accountDashboard .listingStatusStrip{gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
 .accountDashboard .listingStatusStrip::-webkit-scrollbar{display:none}
 .accountDashboard .listingStatusStrip button{padding:9px 12px;font-size:13px;white-space:nowrap;flex:0 0 auto}
+.staffManagement form{display:flex;flex-direction:column;gap:10px;align-items:stretch;max-width:520px}
+.staffManagement form label{display:flex;flex-direction:column;gap:6px;font-weight:600}
+.staffManagement form input{width:100%;box-sizing:border-box}
+.staffManagement form .add{align-self:flex-start}
+
+/* ---- v11: promotion / top-up dialogs like tap.az ---- */
+.promotionPanel{background:#f5f6fa!important;border-radius:22px!important;padding:22px!important;box-shadow:0 20px 60px #1b1d2a40!important;max-width:560px!important}
+.promotionModalHeader h3{font-size:22px;font-weight:700}
+.promotionModalHeader button{width:36px;height:36px;border-radius:50%;border:0;background:#fff;font-size:22px;color:#8f94a8}
+.promotionPackage{background:#fff!important;border:0!important;border-radius:16px!important;margin:12px 0!important;padding:4px 0!important}
+.promotionPackage>summary{padding:14px 16px!important}
+.promotionPackage>p{margin:0 16px 8px!important;color:#5b6070;font-size:14px}
+.promotionPackage .paymentChoices{border:0!important;margin:8px 0 0!important;padding:8px 16px!important}
+.paymentChoices legend{font-size:16px;font-weight:600;padding:0 0 8px}
+.paymentChoices label{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:15px;cursor:pointer}
+.paymentChoices input[type="radio"]{width:20px;height:20px;accent-color:#3d6bf5}
+.payButton{display:block;width:calc(100% - 32px);margin:12px 16px 4px;padding:15px;border:0;border-radius:12px;background:#3d6bf5;color:#fff;font-size:16px;font-weight:600;opacity:.45;cursor:not-allowed}
+.payNote{margin:4px 16px 14px;text-align:center;font-size:13px;color:#8f94a8}

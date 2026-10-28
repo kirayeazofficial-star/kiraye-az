@@ -124,7 +124,7 @@ export async function GET(request:NextRequest){
       if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
       const query=param(request,"query").slice(0,254);if(!query)return reply({error:"INVALID_REQUEST"},400);
       const digits=query.replace(/\D/g,"");
-      const rows=await hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name name,p.phone,p.profile_no,coalesce(s.staff_role,'user') role from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where lower(u.email)=lower($1) or u.id::text=$1 or ($2<>'' and (regexp_replace(p.phone,'\\D','','g')=$2 or p.profile_no::text=$2)) limit 5`,[query,digits]);
+      const rows=await hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name name,p.phone,p.profile_no,coalesce(s.staff_role,'user') role from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where lower(u.email)=lower($1::text) or u.id::text=$1::text or ($2::text<>'' and (regexp_replace(coalesce(p.phone,''),'\\D','','g')=$2::text or p.profile_no::text=$2::text)) limit 5`,[query,digits]);
       if(!rows.length)return reply({error:"NOT_FOUND"},404);
       if(rows.length>1)return reply({error:"MULTIPLE"},409);
       return reply({account:rows[0]});

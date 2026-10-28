@@ -56,10 +56,8 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
           <label><input type="radio" name={`${id}-${pack.kind}-method`} value="card" defaultChecked /><span>Bank kartı</span></label>
           <label><input type="radio" name={`${id}-${pack.kind}-method`} value="balance" /><span>Şəxsi hesab (0,00 AZN)</span></label>
         </fieldset>
-        <details className="inactivePayment">
-          <summary>Ödə</summary>
-          <p role="status">Ödəniş sistemi müvəqqəti işləmir. Hesabından pul tutulmadı.</p>
-        </details>
+        <button type="button" className="payButton" disabled aria-disabled="true">Ödə</button>
+        <p className="payNote" role="status">Ödəniş sistemi müvəqqəti işləmir. Hesabından pul tutulmur.</p>
       </details>)}
       {!eligible && <p>İrəlilətmə yalnız yayımlanmış elanlar üçün mümkün olacaq.</p>}
     </div>

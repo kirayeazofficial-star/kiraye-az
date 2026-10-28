@@ -241,3 +241,30 @@ aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary::after{cont
 .rentalHome .queryField > span{display:none!important}
 .rentalHome .categorySection{padding-top:6px!important}
 }
+
+/* ---- v6: phone UI modelled on tap.az (bottom bar, search, tiles) ---- */
+@media (max-width:760px){
+.mobileNav{display:grid!important;grid-template-columns:repeat(5,1fr)!important;align-items:end!important;padding:6px 2px calc(6px + env(safe-area-inset-bottom))!important;background:#fff!important;border-top:1px solid #ececf1!important;box-shadow:none!important;min-height:0!important}
+.mobileNav a{position:relative;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-end!important;gap:3px!important;min-height:48px!important;padding:2px 0!important;background:transparent!important;border-radius:0!important;color:#8f94a8!important}
+.mobileNav a[aria-current="page"]{background:transparent!important;color:#f2653e!important}
+.mobileNav a>svg{width:24px!important;height:24px!important;color:inherit!important}
+.mobileNav a>span{font-size:9.5px!important;font-weight:500!important;letter-spacing:.2px;text-transform:uppercase;color:inherit!important;line-height:1.1!important}
+.mobileNav a[aria-current="page"]>span{font-weight:700!important}
+.mobileNav .mobilePublish{top:0!important;color:#8f94a8!important}
+.mobileNav .mobilePublish>svg{box-sizing:content-box;width:26px!important;height:26px!important;padding:13px;margin-top:-26px;border-radius:50%;background:#f2653e!important;color:#fff!important;box-shadow:0 4px 12px #f2653e55;stroke-width:2.2}
+.mobileNav .mobilePublish>span{position:static!important;color:#8f94a8!important;font-weight:500!important}
+.mobileNav .mobilePublish[aria-current="page"]>span{color:#f2653e!important}
+.header .menuButton,.header button[aria-label*="enyu"],.header .burger{color:#f2653e!important}
+.rentalHome .searchWrap{padding:0 12px!important}
+.rentalHome .queryField{display:block!important;position:relative}
+.rentalHome .queryField input{width:100%!important;height:44px!important;box-sizing:border-box;border:1px solid #e4e4ea!important;border-radius:12px!important;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238f94a8' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 13px center!important;padding:0 14px 0 42px!important;font-size:15px!important;box-shadow:none!important}
+.rentalHome .searchPanel>button.add{display:none!important}
+.categoryScroller .categories>button{min-width:68px!important;gap:6px!important;background:transparent!important;border:0!important;box-shadow:none!important;font-size:11.5px!important;color:#2b2d3a!important}
+.categoryScroller .categories>button img,.categoryScroller .categories>button svg{box-sizing:content-box;width:40px!important;height:40px!important;padding:8px;border-radius:16px;background:#f5f5f8}
+.categoryScroller .categories>button[aria-pressed="true"],.categoryScroller .categories>button.active{color:#f2653e!important}
+.categoryScroller .categories>button[aria-pressed="true"] img{background:#fff1ec}
+.rentalHome .searchPanel{display:block!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
+.mobileNav .mobilePublish>span{font-size:9.5px!important;font-weight:500!important}
+.header .mobileMenuButton{color:#f2653e!important}
+.header .mobileMenuButton svg{color:#f2653e!important}
+}

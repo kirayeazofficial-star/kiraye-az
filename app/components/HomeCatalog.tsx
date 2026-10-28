@@ -329,7 +329,7 @@ export default function Home() {
   return (
     <>
       <Header />
-      <main className="rentalHome">
+      <main className={`rentalHome${onlyFavorites ? " favoritesView" : ""}`}>
         <section className="catalogIntro">
           <div>
             <h1>

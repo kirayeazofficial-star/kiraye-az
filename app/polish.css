@@ -1,6 +1,6 @@
 /* Final polish layer: account cabinet, header actions and listing cards.
    Loaded last, so it only refines spacing/alignment of existing components. */
-:root { --pl-line:#e2e9e6; --pl-ink:#143f3b; --pl-muted:#6b7f77; --pl-soft:#f3f7f5; }
+:root { --pl-line:#e5e5e7; --pl-ink:#143f3b; --pl-muted:#3d4450; --pl-soft:#f5f5f7; }
 
 /* Cabinet footer: admin panel + logout live together at the very bottom. */
 .accountDashboard .cabinetNavFoot { display:flex;flex-direction:column;gap:8px;margin-top:8px;padding-top:10px;border-top:1px solid var(--pl-line); }
@@ -46,7 +46,7 @@
 @media (max-width:760px){
 .adminSections{flex-wrap:nowrap!important;overflow-x:auto;gap:6px!important;padding:6px 2px!important;scrollbar-width:none}
 .adminSections::-webkit-scrollbar{display:none}
-.adminSections button{flex:0 0 auto;white-space:nowrap;min-height:38px;padding:8px 14px!important;border:1px solid #e2e9e6!important;border-radius:999px!important;background:#fff;font-size:13px}
+.adminSections button{flex:0 0 auto;white-space:nowrap;min-height:38px;padding:8px 14px!important;border:1px solid #e5e5e7!important;border-radius:999px!important;background:#fff;font-size:13px}
 }
 .catalogIntro h1{font-size:clamp(26px,3.2vw,34px)!important;line-height:1.15!important;margin:0 0 4px!important}
 @media (min-width:900px){
@@ -73,7 +73,7 @@
 
 /* ---- photos ---- */
 .photoMark{display:none!important}
-.galleryStage{aspect-ratio:16/10;display:grid;place-items:center;background:#eef2ef;border-radius:14px;overflow:hidden}
+.galleryStage{aspect-ratio:16/10;display:grid;place-items:center;background:#f0f0f2;border-radius:14px;overflow:hidden}
 .galleryStage .galleryOpen{position:absolute;inset:0;display:grid;place-items:center;width:100%;height:100%;padding:0;border:0;background:none}
 .galleryStage img{width:100%;height:100%;object-fit:contain;display:block}
 @media (min-width:900px){.galleryStage{aspect-ratio:16/10;max-height:560px}}
@@ -86,48 +86,48 @@
 .adminDashboard .adminSections{gap:4px}
 .adminDashboard .adminNavTitle{margin:4px 10px 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7b8a84}
 @media (min-width:761px){
-.adminDashboard .adminSections button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;border-radius:10px;background:transparent;font-size:14px;font-weight:600;color:#28443d}
-.adminDashboard .adminSections button:hover{background:#f1f5f3}
-.adminDashboard .adminSections button[aria-pressed="true"]{background:#e3f0eb;color:#0f4b3e}
-.adminDashboard .adminBackLink{display:block;margin-top:10px;padding:10px 12px;border-top:1px solid #e7eeea;font-size:13px;color:#4c625b}
+.adminDashboard .adminSections button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;border-radius:10px;background:transparent;font-size:14px;font-weight:600;color:#3d4450}
+.adminDashboard .adminSections button:hover{background:#f3f3f5}
+.adminDashboard .adminSections button[aria-pressed="true"]{background:#eaeaec;color:#212529}
+.adminDashboard .adminBackLink{display:block;margin-top:10px;padding:10px 12px;border-top:1px solid #ebebed;font-size:13px;color:#3d4450}
 }
 .adminDashboard .profileTabs,.adminDashboard .adminExtraFilters{scrollbar-width:none}
 .adminDashboard .profileTabs::-webkit-scrollbar{display:none}
 .adminDashboard .profileTabs{display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap}
 .adminDashboard .profileTabs button{flex:0 0 auto;white-space:nowrap}
-.adminDashboard input,.adminDashboard select{min-height:42px;border:1px solid #d9e3de;border-radius:10px;background:#fff;padding:0 12px;font-size:14px}
+.adminDashboard input,.adminDashboard select{min-height:42px;border:1px solid #dedee0;border-radius:10px;background:#fff;padding:0 12px;font-size:14px}
 .adminDashboard .adminSearch{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
 .adminDashboard .adminSearch input{flex:1 1 220px}
 .adminDashboard .adminExtraFilters{display:flex;gap:12px;flex-wrap:wrap}
-.adminDashboard .adminExtraFilters label{display:grid;gap:4px;font-size:12px;color:#5d7068}
+.adminDashboard .adminExtraFilters label{display:grid;gap:4px;font-size:12px;color:#3d4450}
 @media (max-width:760px){
 .adminDashboard > header p,.adminDashboard .adminSecure{display:none}
 .adminDashboard h1{font-size:22px!important}
 .adminDashboard .adminExtraFilters label{flex:1 1 140px}
 }
 .adminDashboard .adminSearch{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
-.adminDashboard .adminSearch>*:first-child:not(input):not(button){grid-column:1/-1;font-size:12px;color:#5d7068}
+.adminDashboard .adminSearch>*:first-child:not(input):not(button){grid-column:1/-1;font-size:12px;color:#3d4450}
 .adminDashboard .adminSearch input{min-width:0}
 /* tap.az-style photo frame: blurred fill instead of grey bands */
-.galleryStage{position:relative;isolation:isolate;background:#1b2a26}
+.galleryStage{position:relative;isolation:isolate;background:#212529}
 .galleryStage::before{content:"";position:absolute;inset:-24px;z-index:-1;background:var(--bg) center/cover no-repeat;filter:blur(22px) brightness(.85);transform:scale(1.1)}
 .galleryStage img{background:transparent!important}
 
 /* ---- v3: tap.az-style flat catalogue (own colours and brand) ---- */
 .listingCard{border:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;overflow:visible!important}
-.listingCard .photo{aspect-ratio:4/3!important;height:auto!important;border-radius:12px!important;overflow:hidden;background:#eef1ef}
+.listingCard .photo{aspect-ratio:4/3!important;height:auto!important;border-radius:12px!important;overflow:hidden;background:#f0f0f2}
 .listingCard .photo img.cardPhoto{width:100%;height:100%;object-fit:cover}
 .listingCard .cardBody{padding:8px 2px 0!important;gap:2px!important}
-.listingCard .price{font-size:18px!important;font-weight:700!important;color:#13201c!important;line-height:1.2}
+.listingCard .price{font-size:18px!important;font-weight:700!important;color:#212529!important;line-height:1.2}
 .listingCard .price small{font-size:12px;font-weight:400;color:#6a7872}
-.listingCard h3{font-size:14px!important;font-weight:400!important;line-height:1.35!important;margin:2px 0 0!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#26332f}
+.listingCard h3{font-size:14px!important;font-weight:400!important;line-height:1.35!important;margin:2px 0 0!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#212529}
 .listingCard .cardBody p{font-size:12px!important;color:#7b8883!important;margin:2px 0 0!important}
 .listingCard .cardRentalFacts{display:flex;flex-wrap:nowrap;overflow:hidden;gap:6px;margin-top:2px}
 .listingCard .cardRentalFacts span{background:none!important;border:0!important;padding:0!important;font-size:12px!important;color:#7b8883!important;white-space:nowrap}
 .listingCard .cardRentalFacts span:not(:first-child){display:none}
 .listingCard .cardMeta{font-size:12px!important;color:#9aa6a1!important;margin-top:2px;border:0!important;padding:0!important;text-align:left!important;justify-content:flex-start!important;display:flex}
 .categoryScroller .categories>button{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;gap:8px!important;min-height:0!important;height:auto!important}
-.categoryScroller .categories>button .categoryArtwork{display:grid;place-items:center;background:#f1f4f2!important;border:0!important;border-radius:16px;width:100%;aspect-ratio:1/1;max-width:96px;margin:0 auto}
+.categoryScroller .categories>button .categoryArtwork{display:grid;place-items:center;background:#f2f2f4!important;border:0!important;border-radius:16px;width:100%;aspect-ratio:1/1;max-width:96px;margin:0 auto}
 .categoryScroller .categories>button .categoryArtwork img{width:70%!important;height:70%!important;object-fit:contain}
 .categoryScroller .categories>button.active .categoryArtwork{outline:2px solid #f2653e}
 body:has(.rentalHome){background:#fff!important}
@@ -152,11 +152,11 @@ body:has(.rentalHome){background:#fff!important}
 .listingDetails:not(.compactDetails) .listingInfo{grid-area:info}
 .listingDetails:not(.compactDetails) .listingGallery,.listingDetails:not(.compactDetails) .listingInfo{border:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;border-radius:0!important;overflow:visible!important}
 .detailHead .tag{display:block;font-size:12px;color:#7b8883;margin-bottom:4px}
-.detailHead h1,.detailHead h2{margin:0 0 6px!important;font-size:24px!important;line-height:1.2!important;letter-spacing:-.4px!important;color:#13201c!important}
+.detailHead h1,.detailHead h2{margin:0 0 6px!important;font-size:24px!important;line-height:1.2!important;letter-spacing:-.4px!important;color:#212529!important}
 .detailHead .muted{margin:0 0 4px;font-size:13px}
 .detailHead .publicListingMeta{display:flex;gap:14px;font-size:12px;color:#7b8883}
-.detailSide{display:grid;gap:12px;background:#f4f6f5;border-radius:16px;padding:18px}
-.detailSide .detailPrice{font-size:30px!important;line-height:1.1;color:#13201c!important;order:-2}
+.detailSide{display:grid;gap:12px;background:#f5f5f7;border-radius:16px;padding:18px}
+.detailSide .detailPrice{font-size:30px!important;line-height:1.1;color:#212529!important;order:-2}
 .detailSide .detailPrice small{font-size:14px;font-weight:400;color:#6a7872}
 .detailSide .contactActions{display:grid!important;gap:10px;margin:0!important}
 .detailSide .contactActions .add{order:-1}
@@ -213,18 +213,18 @@ aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary::after{cont
 .accountMenuPanel .accountMenuEmail{margin:0 0 2px;color:#6a7872;font-size:13px;word-break:break-all}
 .accountMenuPanel nav{display:grid;gap:2px;margin:8px 0}
 .accountMenuPanel nav a{padding:9px 10px;border-radius:8px;font-size:14px}
-.accountMenuPanel nav a:hover{background:#f1f5f3}
-.accountMenuPanel>.textButton{display:block;width:100%;margin-top:6px;padding:10px;border-top:1px solid #e7eeea;border-radius:0;text-align:left;color:#b4382a;font-weight:600}
+.accountMenuPanel nav a:hover{background:#f3f3f5}
+.accountMenuPanel>.textButton{display:block;width:100%;margin-top:6px;padding:10px;border-top:1px solid #ebebed;border-radius:0;text-align:left;color:#b4382a;font-weight:600}
 
 /* ---- v4: cabinet as a tidy list, tap.az-like ---- */
 .accountDashboard .stats{display:none!important}
-.accountDashboard .cabinetNav.cabinetCards{display:flex!important;flex-direction:column;gap:0;padding:6px;background:#fff;border:1px solid #e7eeea;border-radius:16px;margin-top:12px}
-.accountDashboard .cabinetNav.cabinetCards>a{display:flex!important;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 12px!important;border:0!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;font-size:15px;font-weight:500;color:#1e2e29}
-.accountDashboard .cabinetNav.cabinetCards>a svg{width:20px;height:20px;flex:none;color:#51655e}
-.accountDashboard .cabinetNav.cabinetCards>a[aria-current="page"]{background:#eaf3ef!important;color:#0f4b3e;font-weight:600}
-.accountDashboard .cabinetNav.cabinetCards>a:hover{background:#f3f6f4!important}
-.accountDashboard .cabinetNavFoot{display:flex!important;flex-direction:column;gap:0;margin-top:6px;padding-top:6px;border-top:1px solid #e7eeea}
-.accountDashboard .cabinetNavFoot>a,.accountDashboard .cabinetNavFoot>button{display:flex!important;align-items:center;gap:12px;width:100%;min-height:46px;padding:10px 12px;border:0!important;border-radius:10px;background:transparent!important;box-shadow:none!important;font-size:15px;text-align:left;color:#1e2e29}
+.accountDashboard .cabinetNav.cabinetCards{display:flex!important;flex-direction:column;gap:0;padding:6px;background:#fff;border:1px solid #ebebed;border-radius:16px;margin-top:12px}
+.accountDashboard .cabinetNav.cabinetCards>a{display:flex!important;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 12px!important;border:0!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;font-size:15px;font-weight:500;color:#212529}
+.accountDashboard .cabinetNav.cabinetCards>a svg{width:20px;height:20px;flex:none;color:#3d4450}
+.accountDashboard .cabinetNav.cabinetCards>a[aria-current="page"]{background:#eeeef0!important;color:#212529;font-weight:600}
+.accountDashboard .cabinetNav.cabinetCards>a:hover{background:#f4f4f6!important}
+.accountDashboard .cabinetNavFoot{display:flex!important;flex-direction:column;gap:0;margin-top:6px;padding-top:6px;border-top:1px solid #ebebed}
+.accountDashboard .cabinetNavFoot>a,.accountDashboard .cabinetNavFoot>button{display:flex!important;align-items:center;gap:12px;width:100%;min-height:46px;padding:10px 12px;border:0!important;border-radius:10px;background:transparent!important;box-shadow:none!important;font-size:15px;text-align:left;color:#212529}
 .accountDashboard .cabinetNavFoot .cabinetLogout{color:#b4382a;font-weight:600}
 .accountDashboard .listingStatusStrip{display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
 .accountDashboard .listingStatusStrip::-webkit-scrollbar{display:none}
@@ -370,7 +370,7 @@ body:has(.accountDashboard){background:#f6f7fb}
 .accountDashboard .cabinetContent{background:#fff;border-radius:20px;padding:26px 28px}
 .accountDashboard .cabinetContent>.sectionTitle h2{font-size:24px}
 }
-.detailSide .add:not(.secondary)[href^="tel:"],.detailSide button.add[aria-label="Nömrəni göstər"]{background:#1fa34a!important;border-color:#1fa34a!important;color:#fff!important}
+.detailSide .add:not(.secondary)[href^="tel:"],.detailSide button.add[aria-label="Nömrəni göstər"]{background:#3db460!important;border-color:#3db460!important;color:#fff!important}
 .detailSide a.secondary[href^="/messages"]{background:#3d6bf5!important;border-color:#3d6bf5!important;color:#fff!important}
 .accountDashboard .listingStatusStrip{gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
 .accountDashboard .listingStatusStrip::-webkit-scrollbar{display:none}
@@ -541,7 +541,7 @@ button:active,.add:active,.secondary:active,.categories>button:active{transform:
 .listingCard .cardBody h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;font-weight:500;line-height:1.3;margin:2px 0}
 .listingCard .cardPlace{margin:0 0 2px;font-size:12.5px;color:#7b8083}
 .listingCard .cardRentalFacts{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:#5b6070}
-.listingCard .cardRentalFacts .noDeposit{color:#1f9d55;font-weight:500}
+.listingCard .cardRentalFacts .noDeposit{color:#3db460;font-weight:500}
 .listingCard .cardRentalFacts:empty{display:none}
 
 /* ---- v19: remove duplicates on phone, tablet categories ---- */

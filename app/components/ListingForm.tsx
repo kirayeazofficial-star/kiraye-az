@@ -431,7 +431,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             Hər kateqoriyada 30 gün ərzində 3 pulsuz elan yerləşdirə bilərsən. Limit dolubsa, mövcud elanı redaktə edə və ya limit boşalanda yeni elan yerləşdirə bilərsən.
           </p>
         )}
-        {!success && <details className="safetyNote" aria-label="Təhlükəsiz elan yerləşdirmə"><summary>Təhlükəsizlik qaydası</summary><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></details>}
+        {!success && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></section>}
         {loading ? (
           <section><p role="status">Hesab yoxlanılır...</p>
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>

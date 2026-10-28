@@ -304,3 +304,233 @@ body:has(.accountDashboard){--kz-bg:var(--kz-soft)}
   .kzFooter{display:none!important}
   .kzMain{padding-bottom:24px}
 }
+
+/* ---------- Avatar, balance, account page ---------- */
+.kzUserAvatar{display:inline-flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;border-radius:50%;overflow:hidden;background:#2a2f36;color:#fff}
+.kzUserAvatar img{width:100%;height:100%;object-fit:cover;display:block}
+.kzUserAvatar b{font-size:15px;font-weight:700}
+.kzUserAvatar svg{width:20px;height:20px}
+.kzUserAvatar.large{width:88px;height:88px;background:var(--kz-soft);color:#b9bec7;border:1px solid var(--kz-line)}
+.kzUserAvatar.large b{font-size:34px;color:var(--kz-accent-dark)}
+.kzUserAvatar.large svg{width:48px;height:48px}
+.kzUserAvatar.sellerAvatar{width:48px;height:48px;background:var(--kz-accent-soft);color:var(--kz-accent-dark)}
+.kzHeaderNav .accountMenu>summary>.kzMenuAvatar{width:36px;height:36px}
+.accountMenuPanel .accountMenuAvatar{width:44px!important;height:44px!important;background:var(--kz-accent-soft)!important;color:var(--kz-accent-dark)!important}
+.kzProfileAvatarLink{display:block;margin-bottom:12px;border-radius:50%}
+.kzBalance{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:16px;background:#fff;border-radius:12px}
+.kzBalanceIcon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:var(--kz-soft);color:var(--kz-text)}
+.kzBalance small{display:block;font-size:13px;color:var(--kz-muted)}
+.kzBalance strong{display:block;font-size:20px;font-weight:700;color:var(--kz-ink)}
+.kzBalanceSoon{padding:4px 10px;border-radius:12px;background:var(--kz-soft);color:var(--kz-muted);font-size:12px;font-weight:600}
+.kzBalance p{grid-column:1/-1;margin:4px 0 0;font-size:14px;color:var(--kz-muted)}
+.kzSafety{margin:0 0 20px;padding:14px 16px;border-radius:12px;background:#fff7ed;border:1px solid #fde3c8}
+.kzSafety strong{display:block;margin-bottom:4px;font-size:15px;color:#9a3d0a}
+.kzSafety p{margin:0;font-size:14px;line-height:1.55;color:#6b4a2f}
+.kzPageTitle{margin:0 0 20px;font-size:26px;font-weight:700;letter-spacing:-.3px}
+body:has(.kzAccountPage){--kz-bg:var(--kz-soft)}
+.kzAccountPage{max-width:calc(820px + 2*var(--kz-gutter))!important}
+.kzAccountGrid{display:grid;gap:16px}
+.kzPanel{display:grid;gap:14px;margin:0!important;padding:24px!important;background:#fff!important;border:0!important;border-radius:16px!important;box-shadow:none!important;max-width:none!important}
+.kzPanel h2{margin:0;font-size:19px;font-weight:600}
+.kzPhotoPanel{grid-template-columns:auto 1fr;align-items:center;gap:20px}
+.kzPhotoPanel strong{font-size:18px}
+.kzPhotoPanel p{margin:4px 0 12px;font-size:14px;color:var(--kz-muted)}
+.kzPhotoActions{display:flex;flex-wrap:wrap;gap:10px}
+.kzFacts{display:grid;gap:12px;margin:0}
+.kzFacts>div{display:flex;justify-content:space-between;gap:16px;font-size:15px}
+.kzFacts dt{color:var(--kz-muted)}
+.kzFacts dd{margin:0;text-align:right;word-break:break-all}
+.kzPanel .emailActions{display:flex;gap:10px;flex-wrap:wrap}
+.kzButton:disabled,.kzButtonGhost:disabled{opacity:.6;cursor:default}
+@media (max-width:767px){
+  .kzAccountPage .kzPageTitle{display:none}
+  .kzPanel{padding:18px!important}
+  .kzPhotoPanel{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .kzPhotoActions{justify-content:center}
+}
+@media (min-width:768px){.kzAccountPage .profileBack{display:none!important}}
+.kzPanel>h2{display:block!important}
+.kzPanel.listingForm label{margin:0!important}
+
+/* ---------- Messages ---------- */
+body:has(.kzMessages){--kz-bg:var(--kz-soft)}
+.kzMessages{width:100%;max-width:calc(var(--kz-width) + 2*var(--kz-gutter));margin:0 auto;padding:20px var(--kz-gutter) 32px;box-sizing:border-box}
+.kzMessagesState{display:grid;justify-items:center;gap:10px;padding:56px 16px;background:#fff;border-radius:16px;text-align:center}
+.kzMessagesState h1{margin:0;font-size:24px}
+.kzMessagesState p{margin:0 0 6px;color:var(--kz-muted)}
+.kzChat{display:grid;grid-template-columns:360px minmax(0,1fr);height:calc(100vh - 76px - 52px);height:calc(100dvh - 76px - 52px);min-height:520px;max-height:860px;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--kz-line)}
+.kzChatList{display:flex;flex-direction:column;min-height:0;overflow-y:auto;border-right:1px solid var(--kz-line)}
+.kzChatListHead{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:10px;padding:18px 20px 14px;background:#fff}
+.kzChatListHead h1{margin:0;font-size:22px;font-weight:700}
+.kzChatListHead span{padding:2px 9px;border-radius:10px;background:var(--kz-soft);color:var(--kz-muted);font-size:13px;font-weight:600}
+.kzChatHint{padding:0 20px;color:var(--kz-muted);font-size:14px}
+.kzChatItem{display:flex;align-items:center;gap:12px;width:100%;min-height:0;margin:0;padding:12px 20px;border:0;border-radius:0;background:none;box-shadow:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.kzChatItem:hover{background:#fafafb}
+.kzChatItem[aria-pressed=true]{background:var(--kz-accent-soft)}
+.kzChatThumb{position:relative;flex:none;width:56px;height:56px}
+.kzChatThumb>img{width:56px;height:56px;border-radius:12px;object-fit:cover;display:block}
+.kzChatThumb>.kzUserAvatar:first-child{width:56px;height:56px}
+.kzChatThumb .kzChatPeer{position:absolute;right:-4px;bottom:-4px;width:26px;height:26px;border:2px solid #fff;font-size:11px}
+.kzChatThumb .kzChatPeer b{font-size:11px}
+.kzChatThumb .kzChatPeer svg{width:14px;height:14px}
+.kzChatThumb>.kzUserAvatar:first-child+.kzChatPeer{display:none}
+.kzChatText{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.kzChatTop,.kzChatBottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kzChatTop strong{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kzChatTop time{flex:none;font-size:12px;color:var(--kz-muted)}
+.kzChatListing{font-size:13px;color:var(--kz-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kzChatBottom small{font-size:13px;color:var(--kz-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kzChatBottom b{flex:none;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--kz-accent);color:#fff;font-size:11px;line-height:20px;text-align:center;box-sizing:border-box}
+.kzChatBody{display:flex;flex-direction:column;min-width:0;min-height:0;background:#f7f8fa}
+.kzChatBody>.kzChatEmpty{margin:auto}
+.kzChatEmpty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:40px 24px;text-align:center;color:#c3c8d0}
+.kzChatEmpty strong{color:var(--kz-ink);font-size:17px}
+.kzChatEmpty p{margin:0;font-size:14px;color:var(--kz-muted)}
+.kzChatHead{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid var(--kz-line)}
+.kzChatBack{display:none;align-items:center;justify-content:center;width:36px;height:36px;min-height:0;margin:0 0 0 -8px;padding:0;border:0;background:none;color:var(--kz-ink);box-shadow:none;cursor:pointer}
+.kzChatWho{display:flex;flex-direction:column;min-width:0;flex:1}
+.kzChatWho strong{font-size:16px}
+.kzChatWho a,.kzChatWho span{font-size:13px;color:var(--kz-muted)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none!important}
+.kzChatWho a:hover{color:var(--kz-accent-dark)!important}
+.kzChatListingThumb img{display:block;width:44px;height:44px;border-radius:10px;object-fit:cover}
+.kzChatBlock{flex:none;height:34px;min-height:0;margin:0;padding:0 12px;border:1px solid var(--kz-line);border-radius:8px;background:#fff;color:var(--kz-text);font:inherit;font-size:13px;cursor:pointer;box-shadow:none}
+.kzChatHistory{flex:1;min-height:0;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.kzChatDay{align-self:center;margin:10px auto;padding:3px 12px;border-radius:12px;background:#e9ebef;color:var(--kz-text);font-size:12px;text-align:center;width:max-content}
+.kzChatRow{display:flex;flex-direction:column}
+.kzBubble{position:relative;align-self:flex-start;max-width:min(72%,520px);margin:0;padding:8px 12px 6px;border-radius:16px 16px 16px 4px;background:#fff;box-shadow:0 1px 1px rgba(0,0,0,.05)}
+.kzBubble.own{align-self:flex-end;border-radius:16px 16px 4px 16px;background:var(--kz-accent);color:#fff}
+.kzBubble p{margin:0;font-size:15px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.kzBubble time{display:block;margin-top:2px;text-align:right;font-size:11px;opacity:.65}
+.kzComposer{display:flex;align-items:flex-end;gap:10px;padding:12px 16px;background:#fff;border-top:1px solid var(--kz-line)}
+.kzComposer textarea{flex:1;min-height:44px;max-height:140px;margin:0;padding:11px 16px;border:1px solid var(--kz-line);border-radius:22px;background:var(--kz-soft);font:inherit;font-size:16px;line-height:1.35;resize:none;field-sizing:content;box-shadow:none;outline:0}
+.kzComposer textarea:focus{border-color:#c9cdd3;background:#fff}
+.kzComposer button{flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:0;margin:0;padding:0;border:0;border-radius:50%;background:var(--kz-accent);color:#fff;box-shadow:none;cursor:pointer}
+.kzComposer button:disabled{background:#d5d8de;cursor:default}
+.kzChatBlocked{margin:0;padding:14px;background:#fff;border-top:1px solid var(--kz-line);color:var(--kz-muted);text-align:center;font-size:14px}
+.srOnly{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:767px){
+  body:has(.kzMessages) .kzFooter{display:none}
+  .kzMessages{padding:0 0 12px}
+  .kzMessages>.kzNotice{margin:12px}
+  .kzChat{display:block;height:auto;min-height:0;max-height:none;border:0;border-radius:0}
+  .kzChatList{border:0;overflow:visible}
+  .kzChatListHead{position:static;padding:14px 16px 8px}
+  .kzChatItem{padding:12px 16px}
+  .kzChatBody{display:none}
+  .kzMessages.hasConversation .kzChatList{display:none}
+  .kzMessages.hasConversation .kzChatBody{display:flex;height:100vh;height:100dvh}
+  body:has(.kzMessages.hasConversation){padding-bottom:0}
+  body:has(.kzMessages.hasConversation) .kzHeader,body:has(.kzMessages.hasConversation) .kzTabbar{display:none!important}
+  .kzMessages.hasConversation{padding:0}
+  .kzChat{min-height:calc(100vh - 190px);min-height:calc(100dvh - 190px)}
+  .kzChatHead{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top))}
+  .kzChatBack{display:flex}
+  .kzChatBlock{padding:0 10px}
+  .kzChatListingThumb{display:none}
+  .kzBubble{max-width:82%}
+  .kzComposer{padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+}
+
+/* ---------- Leader / admin panel ---------- */
+body:has(.kzAdmin){--kz-bg:var(--kz-soft)}
+.kzAdminHead{margin:0 0 20px}
+.kzAdminHead h1{margin:0;font-size:26px;font-weight:700;letter-spacing:-.3px;color:var(--kz-ink)}
+.kzAdminHead p{margin:4px 0 0;font-size:14px;color:var(--kz-muted)}
+.kzAdmin .adminWorkspace{grid-template-columns:240px minmax(0,1fr)!important;gap:20px!important}
+.kzAdmin .adminWorkspace>.adminSections{top:92px!important;padding:8px!important;border:0!important;border-radius:16px!important;background:#fff!important;box-shadow:none!important}
+.kzAdmin .adminWorkspace>.adminSections .adminNavTitle{display:none!important}
+.kzAdmin .adminWorkspace>.adminSections button{gap:10px!important;min-height:46px!important;padding:0 12px!important;border:0!important;border-radius:10px!important;background:none!important;color:var(--kz-ink)!important;font-size:15px!important;font-weight:500!important;box-shadow:none!important}
+.kzAdmin .adminWorkspace>.adminSections button::before{display:none!important}
+.kzAdmin .adminWorkspace>.adminSections button:hover{background:var(--kz-soft)!important}
+.kzAdmin .adminWorkspace>.adminSections button[aria-pressed=true]{background:#e9ecf1!important;color:var(--kz-accent-dark)!important}
+.kzAdminNavLabel{flex:1;text-align:left}
+.kzAdminBadge{min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:var(--kz-accent);color:#fff;font-size:12px;line-height:22px;text-align:center;box-sizing:border-box}
+.kzAdmin .adminBackLink{margin:8px 12px 4px!important;color:var(--kz-muted)!important;font-size:14px!important}
+.kzAdmin .adminPanel,.kzAdmin .adminWorkspace>div>section{min-height:0!important;padding:24px!important;border:0!important;border-radius:16px!important;background:#fff!important;box-shadow:none!important}
+.kzAdmin .adminPanel>h2,.kzAdmin .adminWorkspace>div>section>.sectionTitle h2,.kzAdmin .adminWorkspace>div>section>h2{font-size:20px!important;font-weight:600!important;margin:0 0 16px!important}
+.kzAdminTodo{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:0 0 16px}
+.kzAdminTodo button{display:flex;align-items:center;gap:12px;min-height:64px;margin:0;padding:0 18px;border:0;border-radius:12px;background:var(--kz-accent-soft);color:var(--kz-accent-dark);font:inherit;font-size:15px;text-align:left;cursor:pointer;box-shadow:none}
+.kzAdminTodo button.warn{background:#fff4e5;color:#9a5b00}
+.kzAdminTodo b{font-size:26px;font-weight:700}
+.kzAdminTodo span{flex:1}
+.kzAdminTodo em{font-style:normal;font-weight:600}
+.kzAdmin .adminStats{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
+.kzAdmin .adminStats>*{position:relative;display:flex!important;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;min-height:100px!important;margin:0;padding:18px!important;border:1px solid var(--kz-line)!important;border-radius:12px!important;background:#fff!important;box-shadow:none!important;font:inherit;text-align:left;cursor:default}
+.kzAdmin .adminStats>button{cursor:pointer}
+.kzAdmin .adminStats>button:hover{border-color:#c9cdd3!important}
+.kzAdmin .adminStats>*::before{display:none!important}
+.kzAdmin .adminStats b{color:var(--kz-ink)!important;font-size:30px!important;font-weight:700}
+.kzAdmin .adminStats span{color:var(--kz-muted)!important;font-size:14px!important}
+.kzAdmin .profileTabs{display:flex!important;flex-wrap:wrap;gap:8px!important;margin:0 0 14px!important}
+.kzAdmin .profileTabs button{display:inline-flex!important;align-items:center;gap:6px;min-height:38px!important;padding:0 14px!important;border:0!important;border-radius:19px!important;background:var(--kz-soft)!important;color:var(--kz-ink)!important;font-size:14px!important;box-shadow:none!important}
+.kzAdmin .profileTabs button[aria-pressed=true]{background:var(--kz-accent)!important;color:#fff!important}
+.kzAdmin .profileTabs .chipCount{background:rgba(0,0,0,.08)!important;color:inherit!important;border-radius:9px;padding:0 6px;font-size:12px}
+.kzAdmin .moderationCard.kzModCard{display:grid!important;grid-template-columns:132px minmax(0,1fr) auto;grid-template-areas:"thumb main actions" "more more more";gap:6px 16px;margin:0 0 12px!important;padding:14px!important;border:1px solid var(--kz-line)!important;border-radius:12px!important;box-shadow:none!important}
+.kzModThumb{grid-area:thumb;position:relative;display:block;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--kz-soft)}
+.kzModThumb img{width:100%;height:100%;object-fit:cover;display:block}
+.kzModThumb small{position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:6px;background:rgba(0,0,0,.6);color:#fff;font-size:11px}
+.kzModMain{grid-area:main;min-width:0}
+.kzModTop{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:4px}
+.kzModTop .status{margin:0!important}
+.kzModEdited{padding:2px 8px;border-radius:6px;background:#fff4e5;color:#9a5b00;font-size:12px;font-weight:600}
+.kzModCat{font-size:12px;color:var(--kz-muted)}
+.kzModMain h3{margin:0 0 4px!important;font-size:16px!important;font-weight:600;line-height:1.3}
+.kzModPrice{margin:0 0 2px!important;font-size:14px;color:var(--kz-text)}
+.kzModPrice strong{color:var(--kz-ink)}
+.kzModMeta{margin:0!important;font-size:12.5px;color:var(--kz-muted);overflow-wrap:anywhere}
+.kzModReason{margin:6px 0 0!important;font-size:13px;color:#b42318}
+.kzModActions{grid-area:actions;display:flex;flex-direction:column;gap:8px;min-width:140px}
+.kzApprove,.kzReject{min-height:40px;margin:0;padding:0 16px;border-radius:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;box-shadow:none}
+.kzApprove{border:0;background:var(--kz-green);color:#fff}
+.kzReject{border:1px solid #f1c4bd;background:#fff;color:#b42318}
+.kzApprove:disabled,.kzReject:disabled{opacity:.4;cursor:default}
+.kzModMore{grid-area:more;display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.kzModMore .adminMore{margin:0!important;padding:0!important;border:0!important;background:none!important}
+.kzModMore .adminMore>summary{font-size:13px;font-weight:600;color:var(--kz-text);cursor:pointer}
+.kzModMore .adminMore[open]{padding:12px!important;border-radius:10px!important;background:var(--kz-soft)!important}
+.kzModMore .kzReject{align-self:flex-start;margin-top:8px}
+.kzAdmin .adminUsers article{border:1px solid var(--kz-line)!important;border-radius:12px!important;box-shadow:none!important}
+@media (max-width:900px){
+  .kzAdmin .adminWorkspace{grid-template-columns:1fr!important}
+  .kzAdmin .adminWorkspace>.adminSections{position:sticky!important;top:0!important;flex-direction:row!important;overflow-x:auto;margin:0 calc(-1*var(--kz-gutter)) 12px!important;padding:8px var(--kz-gutter)!important;border-radius:0!important}
+  .kzAdmin .adminWorkspace>.adminSections button{flex:none!important;width:auto!important;min-height:38px!important;border:1px solid var(--kz-line)!important;border-radius:19px!important}
+  .kzAdmin .adminBackLink{display:none!important}
+}
+@media (max-width:767px){
+  .kzAdminHead h1{font-size:22px}
+  .kzAdmin .adminPanel,.kzAdmin .adminWorkspace>div>section{padding:16px!important}
+  .kzAdmin .adminStats{grid-template-columns:1fr 1fr!important}
+  .kzAdmin .moderationCard.kzModCard{grid-template-columns:96px minmax(0,1fr);grid-template-areas:"thumb main" "actions actions" "more more"}
+  .kzModActions{flex-direction:row;min-width:0}
+  .kzModActions button{flex:1}
+}
+.kzModMore{flex-direction:row;flex-wrap:wrap;gap:4px 18px}
+.kzModMore .adminMore[open]{flex-basis:100%}
+.kzModMore .adminMore>summary{display:inline-flex!important;align-items:center;gap:4px;min-height:0!important;padding:4px 0!important;border:0!important;background:none!important;box-shadow:none!important;list-style:none;font-size:13px!important;color:var(--kz-accent-dark)!important}
+.kzModMore .adminMore>summary::after{content:"▾";font-size:11px}
+.kzModMore .adminMore>summary::-webkit-details-marker{display:none}
+.kzAdmin .adminFilters{border-radius:12px!important}
+
+/* ---------- Older page styles: one palette ---------- */
+:root{
+  --ds-bg:#fff;--ds-ink:#212529;--ds-muted:#8a919c;--ds-brand:#e84a10;--ds-brand-soft:#fff1ec;--ds-accent:#ff5a1f;--ds-line:#e4e6ea;--ds-shadow:none;
+  --ui-bg:#fff;--ui-ink:#212529;--ui-muted:#8a919c;--ui-brand:#e84a10;--ui-brand-soft:#fff1ec;--ui-accent:#ff5a1f;--ui-line:#e4e6ea;--ui-shadow:none;
+  --ink:#212529;--muted:#8a919c;--line:#e4e6ea;--orange:#ff5a1f;--primary:#ff5a1f;
+  --font-ui:var(--kz-font);
+}
+html,body,button,input,select,textarea{font-family:var(--kz-font)!important}
+body{font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility}
+input,select,textarea{font-size:16px}
+img{max-width:100%}
+.add{background:var(--kz-accent)!important;border-color:var(--kz-accent)!important;color:#fff!important}
+.add:hover{background:var(--kz-accent-dark)!important}
+.breadcrumb a{color:var(--kz-text)!important}
+.status{display:inline-flex;align-items:center;padding:3px 9px!important;border-radius:6px!important;font-size:12px!important;font-weight:600!important;border:0!important}
+.status.published{background:#e8f6ec!important;color:#23803d!important}
+.status.pending{background:#fff4e0!important;color:#9a5b00!important}
+.status.rejected{background:#fdecea!important;color:#b42318!important}
+.status.archived,.status.expired,.status.draft{background:#eef0f3!important;color:#5b6270!important}
+.ownerListingActions{padding:14px!important;border:0!important;border-radius:12px!important;background:var(--kz-soft)!important}
+.ownerListingActions .contactActions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+.ownerListingActions .contactActions>*{min-height:42px!important;font-size:14px!important;white-space:nowrap}
+@media (max-width:360px){.kzTabbar>a{font-size:9px;letter-spacing:0;white-space:nowrap}}

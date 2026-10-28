@@ -14,7 +14,7 @@
 .detailSide .detailTools{display:none!important}
 .stickyContact{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:70;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #ececf1}
 .stickyContact>*{display:flex;align-items:center;justify-content:center;min-height:46px;border:0;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer}
-.stickyContact .add{background:#1f9d55;color:#fff}
+.stickyContact .add{background:#3db460;color:#fff}
 .stickyContact .messageAction{background:#3b5bfd;color:#fff}
 body:has(.stickyContact) .mobileNav{display:none!important}
 body:has(.stickyContact){padding-bottom:70px}
@@ -25,7 +25,7 @@ body:has(.stickyContact){padding-bottom:70px}
 .galleryStage:has(img[src*="/placeholders/"])::before{display:none!important}
 .galleryStage img[src*="/placeholders/"]{object-fit:contain!important}
 .galleryStage:has(img[src*="/placeholders/"]){aspect-ratio:16/10!important;height:auto!important;max-height:none!important}
-.stickyContact .add{background:#1f9d55!important;border-color:#1f9d55!important;color:#fff!important}
+.stickyContact .add{background:#3db460!important;border-color:#3db460!important;color:#fff!important}
 
 /* Phone: compact hero so listings start higher */
 @media (max-width:760px){
@@ -47,17 +47,17 @@ body:has(.stickyContact){padding-bottom:70px}
 }
 
 /* Cabinet: balance section — visual upgrade */
-.balancePreview{display:flex!important;flex-direction:column!important;gap:10px;padding:18px 20px!important;border-radius:16px!important;background:linear-gradient(135deg,#eaf6f1 0%,#f0faf5 50%,#e8f4ee 100%)!important;border:1px solid #cbe5d8!important}
-.balancePreview h2{font-size:13px!important;font-weight:700!important;color:#3d6b5e!important;text-transform:uppercase!important;letter-spacing:.6px!important;margin:0!important}
-.balancePreview strong{font-size:28px!important;font-weight:800!important;color:#145f50!important;letter-spacing:-.5px!important}
+.balancePreview{display:flex!important;flex-direction:column!important;gap:10px;padding:18px 20px!important;border-radius:16px!important;background:linear-gradient(135deg,#f0f0f2 0%,#f5f5f7 50%,#eeeef0 100%)!important;border:1px solid #d8d8dc!important}
+.balancePreview h2{font-size:13px!important;font-weight:700!important;color:#3d4450!important;text-transform:uppercase!important;letter-spacing:.6px!important;margin:0!important}
+.balancePreview strong{font-size:28px!important;font-weight:800!important;color:#e84a10!important;letter-spacing:-.5px!important}
 .balanceTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .balanceIdentity{display:flex!important;align-items:center!important;gap:12px!important}
-.balanceIcon{display:grid;place-items:center;flex-shrink:0;width:38px;height:38px;border-radius:11px;background:rgba(20,95,80,.12);color:#145f50}
+.balanceIcon{display:grid;place-items:center;flex-shrink:0;width:38px;height:38px;border-radius:11px;background:rgba(232,74,16,.12);color:#e84a10}
 .balanceIcon svg{width:19px!important;height:19px!important}
 .compactBalance .balanceIcon{width:34px;height:34px}
-.balanceTopUp{min-height:38px!important;padding:0 16px!important;border:0!important;border-radius:10px!important;background:#145f50!important;color:#fff!important;font-size:13px!important;font-weight:700!important;box-shadow:0 4px 12px rgba(20,95,80,.18)!important;cursor:pointer!important;transition:background .15s!important}
-.balanceTopUp:hover{background:#0f4e42!important}
-.balanceDesc{font-size:12px;color:#5a7d72;margin:0}
+.balanceTopUp{min-height:38px!important;padding:0 16px!important;border:0!important;border-radius:10px!important;background:#e84a10!important;color:#fff!important;font-size:13px!important;font-weight:700!important;box-shadow:0 4px 12px rgba(232,74,16,.18)!important;cursor:pointer!important;transition:background .15s!important}
+.balanceTopUp:hover{background:#212529!important}
+.balanceDesc{font-size:12px;color:#3d4450;margin:0}
 .compactBalance{padding:14px 16px!important}
 .compactBalance .balancePreview strong,.compactBalance strong{font-size:22px!important}
 .compactBalance .balanceNotice{margin:0}
@@ -100,46 +100,46 @@ body:has(.stickyContact){padding-bottom:70px}
 .desktopMessagesLink svg{width:18px!important;height:18px!important}
 
 /* Messages: polish conversation list & chat */
-.conversationAvatar{border-radius:50%!important;box-shadow:0 2px 8px rgba(20,95,80,.10)!important;font-weight:800!important}
+.conversationAvatar{border-radius:50%!important;box-shadow:0 2px 8px rgba(232,74,16,.10)!important;font-weight:800!important}
 .conversationList>button:not(.loadOlder){transition:background .12s!important}
 
 /* Messages: listing photo in list rows and conversation header */
 .conversationListingRow{display:flex!important;align-items:center!important;gap:6px!important}
-.conversationListingThumb{flex-shrink:0;object-fit:cover;background:#e4ece8;border-radius:7px}
+.conversationListingThumb{flex-shrink:0;object-fit:cover;background:#e8e8ea;border-radius:7px}
 .conversationListingThumb.small{width:20px!important;height:20px!important}
 .conversationListing{display:flex!important;flex-direction:row!important;align-items:center!important;gap:10px!important;white-space:normal!important}
 .conversationListing .conversationListingThumb{width:40px!important;height:40px!important;border-radius:9px!important}
 .conversationListingText{display:flex!important;flex-direction:column!important;gap:1px!important;min-width:0!important;overflow:hidden!important}
-.conversationListingText b{font-weight:700!important;font-size:12px!important;color:#1f3d34!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
-.conversationListingText small{font-size:10px!important;color:#287461!important;font-weight:600!important}
+.conversationListingText b{font-weight:700!important;font-size:12px!important;color:#212529!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.conversationListingText small{font-size:10px!important;color:#e84a10!important;font-weight:600!important}
 /* Messages composer: professional send button & textarea */
-.messageComposer{gap:10px!important;padding:12px 16px calc(12px + env(safe-area-inset-bottom))!important;border-top:1px solid #e1e8e5!important;background:#fafcfb!important}
-.messageComposer textarea{min-height:46px!important;padding:12px 16px!important;border:1.5px solid #d4ddd8!important;border-radius:22px!important;background:#fff!important;font-size:15px!important;line-height:1.4!important;resize:none!important;transition:border-color .15s,box-shadow .15s!important}
-.messageComposer textarea:focus{border-color:#145f50!important;box-shadow:0 0 0 3px rgba(20,95,80,.08)!important;outline:none!important}
-.messageComposer .add{min-width:auto!important;min-height:46px!important;padding:0 20px!important;border:0!important;border-radius:22px!important;background:#145f50!important;color:#fff!important;font-size:14px!important;font-weight:600!important;letter-spacing:.2px!important;box-shadow:0 2px 8px rgba(20,95,80,.18)!important;cursor:pointer!important;transition:background .15s,box-shadow .15s!important}
-.messageComposer .add:hover{background:#0f4e42!important;box-shadow:0 4px 14px rgba(20,95,80,.22)!important}
+.messageComposer{gap:10px!important;padding:12px 16px calc(12px + env(safe-area-inset-bottom))!important;border-top:1px solid #e4e4e6!important;background:#fbfbfd!important}
+.messageComposer textarea{min-height:46px!important;padding:12px 16px!important;border:1.5px solid #d9d9dd!important;border-radius:22px!important;background:#fff!important;font-size:15px!important;line-height:1.4!important;resize:none!important;transition:border-color .15s,box-shadow .15s!important}
+.messageComposer textarea:focus{border-color:#e84a10!important;box-shadow:0 0 0 3px rgba(232,74,16,.08)!important;outline:none!important}
+.messageComposer .add{min-width:auto!important;min-height:46px!important;padding:0 20px!important;border:0!important;border-radius:22px!important;background:#e84a10!important;color:#fff!important;font-size:14px!important;font-weight:600!important;letter-spacing:.2px!important;box-shadow:0 2px 8px rgba(232,74,16,.18)!important;cursor:pointer!important;transition:background .15s,box-shadow .15s!important}
+.messageComposer .add:hover{background:#212529!important;box-shadow:0 4px 14px rgba(232,74,16,.22)!important}
 .messageComposer .add:disabled{opacity:.5!important;cursor:not-allowed!important}
 
 /* Profile info card: ID, registration date, contact */
-.profileInfoCard{margin-bottom:20px;padding:18px 20px;border-radius:14px;background:linear-gradient(135deg,#f5f8f7 0%,#edf3f0 100%);border:1px solid #dce8e2}
+.profileInfoCard{margin-bottom:20px;padding:18px 20px;border-radius:14px;background:linear-gradient(135deg,#f6f6f8 0%,#f0f0f2 100%);border:1px solid #e2e2e4}
 .profileInfoGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px 24px;margin:0}
 .profileInfoGrid div{display:flex;flex-direction:column;gap:2px}
-.profileInfoGrid dt{font-size:11px;font-weight:600;color:#7a9a8e;text-transform:uppercase;letter-spacing:.5px}
-.profileInfoGrid dd{margin:0;font-size:14px;font-weight:600;color:#1f3d34}
+.profileInfoGrid dt{font-size:11px;font-weight:600;color:#3d4450;text-transform:uppercase;letter-spacing:.5px}
+.profileInfoGrid dd{margin:0;font-size:14px;font-weight:600;color:#212529}
 @media (max-width:500px){.profileInfoGrid{grid-template-columns:1fr;gap:10px}}
 
 /* Cabinet: reduce empty whitespace around account identity */
 .accountHeading{padding-bottom:12px!important;margin-bottom:6px!important}
 .accountHeading h1{font-size:22px!important;margin:0!important}
-.accountIdentity{font-size:13px!important;color:#5a7d72!important;margin-top:4px!important}
-.accountId{font-weight:700!important;color:#145f50!important}
+.accountIdentity{font-size:13px!important;color:#3d4450!important;margin-top:4px!important}
+.accountId{font-weight:700!important;color:#e84a10!important}
 
 /* Admin: enhanced user cards */
 .adminUserMain{display:flex;flex-direction:column;gap:2px}
 .adminUserMain strong{font-size:14px}
-.adminUserMeta{font-size:12px;color:#5a7d72}
-.adminUserDetails{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:#5a7d72}
-.adminUserRole{color:#145f50;background:#e8f4ee;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.adminUserMeta{font-size:12px;color:#3d4450}
+.adminUserDetails{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:#3d4450}
+.adminUserRole{color:#e84a10;background:#eeeef0;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700}
 .adminUsers article{grid-template-columns:1fr!important;gap:8px!important;padding:14px 16px!important}
 
 /* Cabinet header logo bigger on mobile */
@@ -150,7 +150,7 @@ body:has(.stickyContact){padding-bottom:70px}
 
 /* Mobile: balance card — more prominent, not a thin strip */
 @media (max-width:760px){
-.compactBalance{padding:16px 18px!important;border-radius:18px!important;box-shadow:0 6px 18px rgba(20,95,80,.08)!important}
+.compactBalance{padding:16px 18px!important;border-radius:18px!important;box-shadow:0 6px 18px rgba(232,74,16,.08)!important}
 .compactBalance .balanceIcon{width:42px!important;height:42px!important;border-radius:13px!important}
 .compactBalance .balanceIcon svg{width:22px!important;height:22px!important}
 .compactBalance h2{font-size:12px!important}
@@ -160,14 +160,14 @@ body:has(.stickyContact){padding-bottom:70px}
 
 /* Mobile: bottom nav — consistent icons, raised publish button, legible badge */
 @media (max-width:760px){
-nav.mobileNav{display:grid!important;grid-template-columns:repeat(5,1fr)!important;align-items:stretch!important;gap:0!important;padding:6px 4px calc(6px + env(safe-area-inset-bottom))!important;background:rgba(255,255,255,.98)!important;border-top:1px solid #ececf1!important;box-shadow:0 -6px 20px rgba(18,53,44,.06)!important;backdrop-filter:blur(12px)!important}
+nav.mobileNav{display:grid!important;grid-template-columns:repeat(5,1fr)!important;align-items:stretch!important;gap:0!important;padding:6px 4px calc(6px + env(safe-area-inset-bottom))!important;background:rgba(255,255,255,.98)!important;border-top:1px solid #ececf1!important;box-shadow:0 -6px 20px rgba(232,74,16,.06)!important;backdrop-filter:blur(12px)!important}
 nav.mobileNav a{position:relative!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;min-height:52px!important;padding:4px 0 2px!important;color:#889089!important;text-decoration:none!important}
 nav.mobileNav a svg{width:22px!important;height:22px!important;stroke-width:1.8!important}
 nav.mobileNav a span{font-size:10px!important;font-weight:500!important;line-height:1.1!important;letter-spacing:0!important}
-nav.mobileNav a[aria-current=page]{color:#145f50!important}
+nav.mobileNav a[aria-current=page]{color:#e84a10!important}
 nav.mobileNav a[aria-current=page] span{font-weight:700!important}
-nav.mobileNav a.mobilePublish svg{box-sizing:content-box!important;width:22px!important;height:22px!important;padding:12px!important;margin-top:-28px!important;border-radius:50%!important;background:#145f50!important;color:#fff!important;box-shadow:0 6px 16px rgba(20,95,80,.32)!important;stroke-width:2.1!important}
+nav.mobileNav a.mobilePublish svg{box-sizing:content-box!important;width:22px!important;height:22px!important;padding:12px!important;margin-top:-28px!important;border-radius:50%!important;background:#e84a10!important;color:#fff!important;box-shadow:0 6px 16px rgba(232,74,16,.32)!important;stroke-width:2.1!important}
 nav.mobileNav a.mobilePublish span{color:#889089!important;font-weight:500!important}
-nav.mobileNav a.mobilePublish[aria-current=page] span{color:#145f50!important;font-weight:700!important}
+nav.mobileNav a.mobilePublish[aria-current=page] span{color:#e84a10!important;font-weight:700!important}
 nav.mobileNav .unreadMessages{position:absolute!important;top:1px!important;right:22%!important;min-width:16px!important;height:16px!important;padding:0 4px!important;display:grid!important;place-items:center!important;font-size:9.5px!important;line-height:1!important;border-radius:999px!important}
 }

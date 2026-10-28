@@ -7,6 +7,7 @@ import ImageViewer from "./ImageViewer";
 import NavigationIcon from './NavigationIcon';
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
+import UserAvatar from "./UserAvatar";
 import { formatContact, partiallyHiddenContact } from "../../lib/contact-mask";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
@@ -31,7 +32,7 @@ export default function ListingDetails({
   const [phoneShown,setPhoneShown]=useState(false);
   const [mounted,setMounted]=useState(false);
   useEffect(()=>setMounted(true),[]);
-  const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number;mine?:boolean}|null>(null);
+  const [publicInfo,setPublicInfo]=useState<{seller_name?:string;seller_avatar?:string|null;views?:number;mine?:boolean}|null>(null);
   useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(item.demo||item.status!=="published")return;let active=true;fetch(`/api/listing-info?id=${encodeURIComponent(item.id)}`,{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active&&data&&typeof data==='object'&&!data.error)setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
   const [isOwner,setIsOwner]=useState(false);
   const [ownerReady,setOwnerReady]=useState(false);
@@ -254,7 +255,7 @@ export default function ListingDetails({
           </div>
         )}
         {!item.demo && item.owner_id && <section className="sellerCard">
-          <span className="sellerAvatar" aria-hidden="true">{(publicInfo?.seller_name||item.attributes?.contact_name||'E').trim().charAt(0).toUpperCase()}</span>
+          <UserAvatar src={publicInfo?.seller_avatar} name={publicInfo?.seller_name||item.attributes?.contact_name||'E'} className="sellerAvatar"/>
           <div>
             <strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong>
             {item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && <small>{publicMonthYear(item.seller_since)} tarixindən saytdadır</small>}

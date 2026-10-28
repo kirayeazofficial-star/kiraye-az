@@ -51,12 +51,12 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid #5d9d70;
+  outline: 3px solid #3d4450;
   outline-offset: 3px;
 }
 .topbar {
-  background: #193b2d;
-  color: #dbe4da;
+  background: #212529;
+  color: #dfdfe1;
   font-size: 11px;
 }
 .topbar > div {
@@ -67,7 +67,7 @@ textarea:focus-visible {
   justify-content: space-between;
 }
 .topbar span {
-  color: #bdd2bf;
+  color: #c8c8cc;
 }
 .header,
 .wrap,
@@ -91,7 +91,7 @@ footer {
   white-space: nowrap;
 }
 .logo span {
-  color: #4c8054;
+  color: #3d4450;
 }
 .logo small {
   display: block;
@@ -132,7 +132,7 @@ nav a:hover {
 }
 .add {
   background: var(--orange);
-  color: #213b21;
+  color: #212529;
 }
 .add:hover {
   background: #bae65c;
@@ -159,7 +159,7 @@ nav a:hover {
   font-size: 10px;
   letter-spacing: 1.7px;
   font-weight: 700;
-  color: #57734d;
+  color: #3d4450;
   margin: 0 0 19px;
 }
 h1,
@@ -176,7 +176,7 @@ h1 {
   font-weight: 700;
 }
 h1 span {
-  color: #4f784b;
+  color: #3d4450;
 }
 .lead {
   font-size: 16px;
@@ -186,7 +186,7 @@ h1 span {
 }
 .heroLink {
   font-size: 13px;
-  border-bottom: 1px solid #2c4f32;
+  border-bottom: 1px solid #3d4450;
   padding-bottom: 6px;
   font-weight: 700;
 }
@@ -238,7 +238,7 @@ h1 span {
   height: 108px;
   border-radius: 50%;
   background: #d6ef9e;
-  color: #3c5835;
+  color: #3d4450;
   text-align: center;
   padding-top: 32px;
   font-size: 9px;
@@ -275,7 +275,7 @@ h1 span {
   display: block;
   font-size: 11px;
   font-weight: 700;
-  color: #40503a;
+  color: #3d4450;
   margin-bottom: 8px;
 }
 .searchPanel input,
@@ -317,7 +317,7 @@ h3 {
   border: 0;
   background: none;
   font-size: 12px;
-  color: #567149;
+  color: #3d4450;
   padding: 9px 0;
   font-weight: 700;
 }
@@ -961,8 +961,8 @@ footer > div:last-child {
   color: #a15042;
 }
 .status.published {
-  background: #e7f5e5;
-  color: #4a8542;
+  background: #ededef;
+  color: #e84a10;
 }
 .moderationCard {
   border: 1px solid var(--line);
@@ -1562,8 +1562,8 @@ nav a:hover,
 }
 .categories button:nth-child(4) .categoryIcon,
 .categories button:nth-child(7) .categoryIcon {
-  color: #40999a;
-  background: #e9f7f6;
+  color: #e84a10;
+  background: #f0f0f2;
 }
 .categories small {
   color: #9aa2b6;
@@ -1657,8 +1657,8 @@ footer > div:last-child {
   color: #87809e;
 }
 .status.published {
-  background: #e8f5f2;
-  color: #438a7c;
+  background: #eeeef0;
+  color: #e84a10;
 }
 .mobileNav {
   display: none;

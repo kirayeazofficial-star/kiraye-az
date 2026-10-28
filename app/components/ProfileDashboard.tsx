@@ -9,6 +9,7 @@ import PromotionOptions from "./PromotionOptions";
 import NavigationIcon from "./NavigationIcon";
 import AccountLimits from "./AccountLimits";
 import BalancePreview from "../components/BalancePreview";
+import UserAvatar from "./UserAvatar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { effectiveListingStatus } from "../../lib/listing-lifecycle";
@@ -25,6 +26,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   useEffect(()=>{window.scrollTo(0,0);},[requested]);
   const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər"};
   const openSection=(_name:string)=>{};
+  const [avatar, setAvatar] = useState<string|null>(null);
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
     [accountPhone, setAccountPhone] = useState(""),
@@ -48,7 +50,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ]);
         if(profileResult.status==='fulfilled'){
           const profile=profileResult.value?.profile;
-          if(profile?.profile_no)setProfileNumber(String(profile.profile_no));
+          if(profile?.profile_no)setProfileNumber(String(profile.profile_no));setAvatar(profile?.avatar_url||null);
           setAdmin(profile?.role==='admin'||!!profile?.staff_role);if(profile?.staff_role)setStaffRole(profile.staff_role);
           if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);if(profile?.phone)setAccountPhone(profile.phone);
         }
@@ -118,7 +120,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
           <><div className={`cabinetLayout screen-${screen}`}>
             <aside className="cabinetSidebar">
               <section className="kzProfileCard">
-                <span className="kzProfileAvatar" aria-hidden="true"><NavigationIcon name="account"/></span>
+                <Link href="/account" className="kzProfileAvatarLink" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
                 <h1>{identity||"Profil"}</h1>
                 {profileNumber&&<p>ID: {profileNumber}</p>}
                 {accountPhone ? <p>Tel: {formatContact(accountPhone)}</p> : <Link href="/account">Telefon nömrəni əlavə et</Link>}

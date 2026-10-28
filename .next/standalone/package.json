@@ -14,10 +14,12 @@
     "predev": "node scripts/prepare-browser-compat.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "5.3.0",
     "@types/node": "22.10.2",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
     "bcryptjs": "^3.0.3",
+    "lucide-react": "1.56.0",
     "next": "^16.4.2",
     "nodemailer": "^10.2.1",
     "pg": "^8.23.1",

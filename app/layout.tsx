@@ -4,6 +4,7 @@ import { siteContact } from "../lib/site-contact";
 import { LanguageProvider } from "./components/LanguageProvider";
 import Script from "next/script";
 import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/inter";
 import "./styles.css";
 import "./rental.css";
 import "./professional.css";

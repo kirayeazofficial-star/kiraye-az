@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 /** Uses the dialog top layer, so sticky headers and adverts cannot cover photos. */
@@ -31,7 +32,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose }:
       }
     }}>
     <div className="imageViewerContent">
-      <header><span>{title}</span><button className="imageViewerClose" type="button" onClick={onClose} aria-label="Şəkilləri bağla"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></header>
+      <header><span>{title}</span><button className="imageViewerClose" type="button" onClick={onClose} aria-label="Şəkilləri bağla"><X aria-hidden="true" size={24} strokeWidth={2} /></button></header>
       <div className="imageViewerStage"
         onTouchStart={event => {
           const touch = event.touches.length === 1 ? event.touches[0] : null;

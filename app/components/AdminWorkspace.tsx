@@ -1,6 +1,7 @@
 "use client";
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { Flag, History, LayoutDashboard, List, ShieldCheck, Users, type LucideIcon } from "lucide-react";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
 import { moderationActions, moderationFields, rejectionReasons, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
@@ -19,18 +20,8 @@ const PAGE = 24;
 const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", staff: "Adminlər" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
-const icons: Record<Section, string> = {
-  overview: "M4 13h6V4H4zM14 20h6v-9h-6zM14 4v5h6V4zM4 20h6v-5H4z",
-  moderation: "M4 6h16M4 12h16M4 18h10",
-  reports: "M5 21V4h11l-1.5 4L16 12H5",
-  history: "M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2",
-  users: "M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1M9 10a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M22 19v-1a4 4 0 0 0-3-3.9M16 3.1a3.5 3.5 0 0 1 0 6.8",
-  staff: "M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z",
-};
+const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, staff: ShieldCheck };
 
-function Icon({ path }: { path: string }) {
-  return <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={path} /></svg>;
-}
 async function api(params: Record<string, string | number>) {
   const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
   const data = await response.json().catch(() => ({}));
@@ -203,6 +194,7 @@ function StaffManagement() {
     {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {found && <div className="kzAdFound">{person(found, found.role === "user" ? <button className="kzAdBtn primary" type="button" disabled={busy || !found.confirmed} onClick={() => void change(found, true)}>{found.confirmed ? "Admin təyin et" : "E-poçt təsdiqlənməyib"}</button> : found.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(found, false)}>Səlahiyyəti geri al</button> : undefined)}</div>}
     <h3 className="kzAdSub">Komanda ({members.length})</h3>
+    {!members.some(account => account.role === "moderator") && <p className="kzAdHint">Hələ admin təyin edilməyib. Hesabı axtararaq admin əlavə edə bilərsiniz.</p>}
     <div className="kzAdList">{members.map(account => person(account, account.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(account, false)}>Geri al</button> : undefined))}</div>
     <details className="kzAdMore"><summary>Səlahiyyət əməliyyatları</summary><div className="kzAdMoreBody"><ol className="kzAdTimeline">{events.map(event => <li key={event.id}><div className="kzAdTimelineTop"><strong>{staffActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div><p>{event.actor_email || "Sistem"}{event.target_email ? ` → ${event.target_email}` : ""}</p></li>)}</ol>{cursor && <button type="button" className="kzAdBtn" disabled={busy} onClick={() => void older()}>Daha köhnə qeydlər</button>}</div></details>
   </Panel>;
@@ -224,7 +216,7 @@ export default function AdminWorkspace() {
       const maxPage = Math.max(1, Math.ceil(data.total / PAGE));
       if (page > maxPage) { setPage(maxPage); return; }
       setItems(data.items); setTotal(data.total);
-    }).catch(() => { if (active) setError("Elanları yükləmək mümkün olmadı. Yenidən yoxla."); }).finally(() => { if (active) setLoading(false); });
+    }).catch(() => { if (active) setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin."); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [allowed, section, filter, query, page, revision, dateFrom, reviewKind, owner]);
   useEffect(() => {
@@ -260,7 +252,7 @@ export default function AdminWorkspace() {
 
   return <div className="kzAdm">
     <nav className="kzAdNav" aria-label="Panel bölmələri">
-      {sections.map(item => <button key={item} type="button" aria-pressed={section === item} onClick={() => open(item)}><Icon path={icons[item]} /><span>{sectionLabels[item]}</span>{!!badge(item) && <b>{badge(item)}</b>}</button>)}
+      {sections.map(item => <button key={item} type="button" aria-pressed={section === item} onClick={() => open(item)}>{(() => { const SectionIcon = icons[item]; return <SectionIcon aria-hidden="true" size={20} strokeWidth={1.75} />; })()}<span>{sectionLabels[item]}</span>{!!badge(item) && <b>{badge(item)}</b>}</button>)}
       <Link className="kzAdNavBack" href="/profile">← Şəxsi kabinet</Link>
     </nav>
     <div className="kzAdContent">

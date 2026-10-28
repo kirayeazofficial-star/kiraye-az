@@ -21,7 +21,7 @@
   --kz-radius:8px;
   --kz-width:1200px;
   --kz-gutter:16px;
-  --kz-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --kz-font:"Inter Variable",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
 }
 html,body{background:var(--kz-bg)!important;color:var(--kz-ink)}
 body{font-family:var(--kz-font)}
@@ -816,3 +816,95 @@ main h1,main h2,main h3{color:var(--kz-ink)!important}
 .kzSheetBody .azDateControl input{flex:1 1 auto}
 .kzSheetBody .azDateControl>button{flex:0 0 44px!important;min-height:44px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;box-shadow:none!important}
 .kzSheetBody label{color:var(--kz-ink)!important;font-size:var(--fs-14)!important;font-weight:500!important}
+
+/* ---------- Colour roles: dark = navigation, orange = main action, green = success, red = danger ---------- */
+:root{--kz-brand-hover:#0f302d;--kz-danger:#d92d20;--kz-danger-soft:#fdecea;--kz-success:#23803d;--kz-success-soft:#e8f6ec}
+.kzCatalogButton,.kzSearch button{background:var(--kz-brand)!important}
+.kzCatalogButton:hover,.kzCatalogButton[aria-expanded=true],.kzSearch button:hover{background:var(--kz-brand-hover)!important}
+.kzSearch:focus-within{border-color:var(--kz-brand)}
+.kzPublish{background:var(--kz-accent)!important}
+.kzPublish:hover{background:var(--kz-accent-dark)!important}
+.kzRoundPlus{display:flex;align-items:center;justify-content:center;width:clamp(30px,8.5vw,32px);height:clamp(30px,8.5vw,32px);border-radius:50%;background:var(--kz-accent);color:#fff}
+.kzMobilePublish{color:#fff!important}
+/* Listing page: one main action (orange), the rest outlined. */
+.detailSide .contactActions .add,.stickyContact .add{background:var(--kz-accent)!important;border-color:var(--kz-accent)!important;color:#fff!important}
+.stickyContact .messageAction,.detailSide .contactActions .secondary{background:#fff!important;border:1px solid var(--kz-line)!important;color:var(--kz-ink)!important}
+.kzChipStrong{border-color:var(--kz-brand)!important;color:var(--kz-brand)!important}
+.amenityTags span{display:inline-flex;align-items:center;gap:4px}
+.amenityTags svg{color:var(--kz-success)}
+
+/* ---------- Cabinet listings ---------- */
+.kzOwnHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
+.kzOwnHead h2{display:flex;align-items:center;gap:10px;margin:0!important}
+.kzOwnHead .kzButton{height:40px;padding:0 16px;font-size:var(--fs-14)}
+.kzOwnTabs{display:flex;gap:6px;margin:0 0 14px;padding:3px;border-radius:12px;background:var(--kz-soft);overflow-x:auto;scrollbar-width:none}
+.kzOwnTabs::-webkit-scrollbar{display:none}
+.kzOwnTabs button{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;margin:0;padding:0 14px;border:0;border-radius:10px;background:none;color:var(--kz-text);font:inherit;font-size:var(--fs-14);font-weight:500;white-space:nowrap;cursor:pointer;box-shadow:none}
+.kzOwnTabs button[aria-pressed=true]{background:#fff;color:var(--kz-ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.kzOwnTabs b{min-width:20px;padding:0 6px;border-radius:10px;background:rgba(0,0,0,.06);font-size:var(--fs-12);font-weight:600;line-height:20px}
+.kzOwnTabs button[aria-pressed=true] b{background:var(--kz-accent);color:#fff}
+.kzOwnNotice{margin:0 0 12px;padding:10px 14px;border-radius:10px;background:var(--kz-soft);font-size:var(--fs-14)}
+.kzOwnEmpty{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px;border:1px dashed var(--kz-line);border-radius:12px}
+.kzOwnEmpty p{margin:0;font-size:var(--fs-14);color:var(--kz-text)}
+.kzOwnEmpty .kzButton{height:40px;font-size:var(--fs-14)}
+.kzOwnBody{display:flex;flex-direction:column;gap:2px;min-width:0}
+.kzOwnTop{display:flex;align-items:center;gap:6px}
+.kzOwnPromo{padding:3px 8px;border-radius:6px;font-size:var(--fs-12);font-weight:600;background:#fff1e0;color:#a15c00}
+.kzOwnPromo.vip{background:var(--kz-accent-soft);color:var(--kz-accent-dark)}
+.accountDashboard .accountListings .kzOwnPrice{color:var(--kz-ink)!important;font-weight:500}
+.kzOwnDates{display:flex;flex-wrap:wrap;gap:2px 12px}
+.kzOwnReason{color:var(--kz-danger)!important}
+.kzOwnHint{color:#9a5b00!important}
+.kzOwnRule{margin:14px 0 0;font-size:var(--fs-13);color:var(--kz-muted)}
+.accountDashboard .accountItemActions .kzButton,.accountDashboard .accountItemActions .kzButtonGhost{height:36px!important;min-height:36px!important}
+.kzDangerLink{min-height:32px;margin:0;padding:0 8px;border:0;background:none;color:var(--kz-danger);font:inherit;font-size:var(--fs-13);font-weight:500;cursor:pointer;box-shadow:none}
+.accountDashboard .accountItemActions>.kzDangerLink{width:auto!important;min-height:32px!important;border:0!important;background:none!important;color:var(--kz-danger)!important}
+.kzDangerButton{height:40px;margin:0;padding:0 16px;border:0;border-radius:var(--kz-radius);background:var(--kz-danger);color:#fff;font:inherit;font-size:var(--fs-14);font-weight:600;cursor:pointer}
+.deleteListingConfirm{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;padding:12px;border-radius:10px;background:var(--kz-danger-soft)}
+.deleteListingConfirm p{flex:1 1 100%;margin:0;font-size:var(--fs-14);color:#7a1d14}
+.kzErrorBar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;padding:12px 14px;border-radius:10px;background:var(--kz-danger-soft);color:#7a1d14;font-size:var(--fs-14)}
+.kzErrorBar .kzButtonGhost{height:36px;font-size:var(--fs-14)}
+.kzSpinner{display:inline-block;width:16px;height:16px;border:2px solid var(--kz-line);border-top-color:var(--kz-accent);border-radius:50%;animation:kzSpin .7s linear infinite}
+@keyframes kzSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.kzSpinner{animation-duration:2s}}
+.kzLimitWarning{margin:10px 0 0;padding:10px 14px;border-radius:10px;background:#fff4e0;color:#7a4b00;font-size:var(--fs-14)}
+/* Limits */
+.kzLimits h2{margin:0 0 6px!important}
+.kzLimitsLead{margin:0 0 12px;font-size:var(--fs-14);color:var(--kz-text)}
+.kzLimitTable{display:grid;margin:0 0 12px;border:1px solid var(--kz-line);border-radius:12px;overflow:hidden}
+.kzLimitRow{display:grid;grid-template-columns:minmax(0,2fr) .6fr .9fr .6fr 1.2fr;gap:10px;align-items:center;padding:10px 14px;border-top:1px solid var(--kz-line);font-size:var(--fs-14)}
+.kzLimitRow.head{border-top:0;background:var(--kz-soft);font-size:var(--fs-12);font-weight:600;color:var(--kz-muted);text-transform:uppercase;letter-spacing:.3px}
+.kzLimitRow small{color:var(--kz-muted)}
+.kzLimitRow .ok{color:var(--kz-success);font-weight:600}
+.kzLimitRow .none{color:var(--kz-danger);font-weight:600}
+@media (max-width:767px){
+  .kzLimitRow.head{display:none}
+  .kzLimitRow{grid-template-columns:1fr auto;gap:2px 10px}
+  .kzLimitRow>span:first-child{font-weight:600}
+  .kzLimitRow>span[data-label]{grid-column:1/-1;font-size:var(--fs-13);color:var(--kz-text)}
+  .kzLimitRow>span[data-label]::before{content:attr(data-label) ": ";color:var(--kz-muted)}
+  .kzLimitRow>span[data-label=Limit]{display:none}
+  .kzOwnHead .kzButton{display:none}
+}
+
+/* ---------- Compact spacing ---------- */
+.kzMain{padding-top:16px}
+.kzCategories{margin-bottom:28px}
+.kzSection{margin-bottom:28px}
+.kzAdPanel{padding:20px}
+.kzAdPanelHead{margin-bottom:12px}
+.accountDashboard .cabinetContent{padding:20px 24px}
+.kzPanel{padding:20px!important}
+/* Operations history: compact rows instead of separate cards */
+.kzAdTimeline{gap:0;border:1px solid var(--kz-line);border-radius:12px;overflow:hidden}
+.kzAdTimeline>li{border:0;border-top:1px solid var(--kz-line);border-radius:0;padding:10px 14px}
+.kzAdTimeline>li:first-child{border-top:0}
+@media (min-width:900px){
+  .kzAdTimeline>li{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.5fr) auto;column-gap:16px;align-items:start}
+  .kzAdTimeline>li>.kzAdTimelineTop{display:contents}
+  .kzAdTimeline>li>.kzAdTimelineTop>strong{grid-column:1;grid-row:1}
+  .kzAdTimeline>li>.kzAdTimelineTop>time{grid-column:3;grid-row:1}
+  .kzAdTimeline>li>p{grid-column:2;margin:0}
+  .kzAdTimeline>li>.kzAdTimelineLinks{grid-column:1/3}
+}
+.accountDashboard .accountItemActions .promotionTrigger{display:flex!important;align-items:center;justify-content:center;gap:6px;width:100%!important;max-width:none!important;height:36px!important;min-height:36px!important;border:1px solid var(--kz-line)!important;border-radius:var(--kz-radius)!important;background:#fff!important;color:var(--kz-ink)!important;font-size:var(--fs-13)!important;font-weight:500!important}

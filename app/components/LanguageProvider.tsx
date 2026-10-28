@@ -96,6 +96,11 @@ const patterns: [RegExp, (match: RegExpMatchArray, language: Exclude<Language, "
   [/^\/ (\d+) addım$/, (m, l) => l === "ru" ? `/ ${m[1]} шагов` : `/ ${m[1]} steps`],
   [/^(\d+) dəfə \(8 saatdan bir\) — (.+)$/, (m, l) => l === "ru" ? `${m[1]} раз (каждые 8 часов) — ${m[2]}` : `${m[1]} times (every 8 hours) — ${m[2]}`],
   [/^(\d+) gün — (.+)$/, (m, l) => l === "ru" ? `${m[1]} дн. — ${m[2]}` : `${m[1]} ${m[1] === "1" ? "day" : "days"} — ${m[2]}`],
+  [/^Aktivdir: (.+) tarixinədək$/, (m, l) => l === "ru" ? `Активно до ${m[1]}` : `Live until ${m[1]}`],
+  [/^Müddəti bitib: (.+)$/, (m, l) => l === "ru" ? `Срок истёк: ${m[1]}` : `Expired: ${m[1]}`],
+  [/^(VIP|Premium): (.+) tarixinədək$/, (m, l) => l === "ru" ? `${m[1]} до ${m[2]}` : `${m[1]} until ${m[2]}`],
+  [/^Bu kateqoriya üzrə pulsuz limitiniz bitib\. Növbəti pulsuz yerləşdirmə: (.+)\.$/, (m, l) => l === "ru" ? `Бесплатный лимит в этой категории исчерпан. Следующее бесплатное размещение: ${m[1]}.` : `Your free limit for this category is used up. Next free placement: ${m[1]}.`],
+  [/^Növbəti pulsuz yerləşdirmə: (.+)\.$/, (m, l) => l === "ru" ? `Следующее бесплатное размещение: ${m[1]}.` : `Next free placement: ${m[1]}.`],
   [/^(\d+) elan$/, (m, l) => l === "ru" ? `${m[1]} объявл.` : `${m[1]} ${m[1] === "1" ? "listing" : "listings"}`],
 ];
 function pattern(key: string, language: Language) {

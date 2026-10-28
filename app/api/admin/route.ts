@@ -27,10 +27,15 @@ async function access(){
   return{user,role:rows[0].staff_role};
 }
 
+// Only signed-in staff ever reach the database; they may see a short error code.
+const failure=(error:unknown,staff:boolean)=>{console.error("admin",error);const e=error as {code?:string;message?:string};return reply({error:"ADMIN_UNAVAILABLE",...(staff?{detail:`${e.code||""} ${e.message||""}`.trim().slice(0,300)}:{})},503);};
+
 export async function GET(request:NextRequest){
+  let staff=false;
   try{
     const auth=await access();
     if(!auth)return reply({error:"FORBIDDEN"},403);
+    staff=true;
     const action=param(request,"action")||"overview";
     if(action==="access")return reply({allowed:true,role:auth.role,email:auth.user.email});
 
@@ -125,13 +130,15 @@ export async function GET(request:NextRequest){
       return reply({account:rows[0]});
     }
     return reply({error:"UNKNOWN_ACTION"},400);
-  }catch(error){console.error("admin get",error);return reply({error:"ADMIN_UNAVAILABLE"},503);}
+  }catch(error){return failure(error,staff);}
 }
 
 export async function POST(request:NextRequest){
+  let staff=false;
   try{
     const auth=await access();
     if(!auth)return reply({error:"FORBIDDEN"},403);
+    staff=true;
     const body=await request.json() as Record<string,unknown>,action=String(body.action||"");
 
     if(action==="moderate"){
@@ -181,5 +188,5 @@ export async function POST(request:NextRequest){
       return result==="OK"?reply({ok:true}):reply({error:result},result==="USER_NOT_FOUND"?404:409);
     }
     return reply({error:"UNKNOWN_ACTION"},400);
-  }catch(error){console.error("admin post",error);return reply({error:"ADMIN_UNAVAILABLE"},503);}
+  }catch(error){return failure(error,staff);}
 }

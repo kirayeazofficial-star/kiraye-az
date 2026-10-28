@@ -1,0 +1,46 @@
+# Builds the site on GitHub (plenty of memory) and publishes the ready-to-run
+# files to the `release` branch. cPanel deploys that branch without building.
+name: Build release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: release
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: npm ci || npm install --no-audit --no-fund
+      - name: Build
+        env:
+          NEXT_PUBLIC_SITE_URL: https://kirayeal.az
+        run: |
+          node scripts/check-public-env.mjs
+          npm run build -- --webpack
+      - name: Assemble release
+        run: |
+          mkdir -p /tmp/release/.next
+          cp -rL .next/standalone /tmp/release/.next/standalone
+          cp .next/BUILD_ID /tmp/release/.next/BUILD_ID
+          cp app.js /tmp/release/app.js
+          cp scripts/install-release.mjs /tmp/release/install-release.mjs
+          cp deploy/release.cpanel.yml /tmp/release/.cpanel.yml
+          printf '{"commit":"%s","buildId":"%s"}\n' "$GITHUB_SHA" "$(cat .next/BUILD_ID)" > /tmp/release/RELEASE.json
+      - name: Publish release branch
+        run: |
+          cd /tmp/release
+          git init -q -b release
+          git config user.name "kirayeal-release-bot"
+          git config user.email "release-bot@users.noreply.github.com"
+          git add -A -f
+          git commit -q -m "Release ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" release

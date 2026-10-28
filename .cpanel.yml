@@ -1,4 +1,4 @@
 ---
 deployment:
   tasks:
-    - /bin/bash /home/kiraytfg/kirayeal-source/scripts/cpanel-deploy-launch.sh
+    - /bin/echo "Bu budaq (main) quraşdırma üçün deyil. cPanel-də 'release' budağını seçin."

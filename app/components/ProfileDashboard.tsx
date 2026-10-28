@@ -129,15 +129,15 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
               <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
-                <NavigationIcon name="home"/><span>Mənim elanlarım
+                <span className="kzNavIcon"><NavigationIcon name="home"/></span><span>Mənim elanlarım
               </span></Link>
               
-              <Link href="/account"><NavigationIcon name="account"/><span>Profil</span></Link>
-                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></Link>
-              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></Link>
-              <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></Link>
+              <Link href="/account"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>Profil</span></Link>
+                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="history"/></span><span>Əməliyyat tarixçəsi</span></Link>
+              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="card"/></span><span>Mənim kartlarım</span></Link>
+              <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
-                {admin && <Link className="cabinetAdminLink" href="/admin"><NavigationIcon name="account"/><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span></Link>}
+                {admin && <Link className="cabinetAdminLink" href="/admin"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span></Link>}
                 <button type="button" className="textButton cabinetLogout" onClick={logout}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/></svg><span>Hesabdan çıx</span></button>
               </div>
             </nav>

@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
+import { extraDictionary } from "../../lib/i18n";
 export type Language = "az" | "ru" | "en";
 const dictionary: Record<string, [string, string]> = {
  "Axtarış":["Поиск","Search"],
@@ -67,11 +68,104 @@ const dictionary: Record<string, [string, string]> = {
  "Depozit":["Депозит", "Deposit"],
  "Depoziti dəqiqləşdir":["Уточни депозит", "Confirm deposit"],
 };
+for (const [key, value] of Object.entries(extraDictionary)) dictionary[key] ??= value;
+
+// Texts written directly in components (not through t()) are translated on the page itself:
+// each Azerbaijani text node or placeholder found in the dictionary is swapped, and restored
+// when Azerbaijani is chosen again. Only the node text changes, so React keeps working normally.
+const originals = new WeakMap<Node, string>();
+const attributeOriginals = new WeakMap<Element, Record<string, string>>();
+const translatedAttributes = ["placeholder", "aria-label", "title"];
+function lookup(text: string, language: Language) {
+  const key = text.trim().replace(/\s+/g, " ");
+  if (!key || language === "az") return null;
+  const entry = dictionary[key];
+  const value = entry ? entry[language === "ru" ? 0 : 1] : pattern(key, language);
+  if (value === null) return null;
+  const lead = text.match(/^\s*/)?.[0] || "", tail = text.match(/\s*$/)?.[0] || "";
+  return lead + value + tail;
+}
+// Texts with numbers or times inside them.
+const patterns: [RegExp, (match: RegExpMatchArray, language: Exclude<Language, "az">) => string][] = [
+  [/^Bu gün, (\d{2}:\d{2})$/, (m, l) => `${l === "ru" ? "Сегодня" : "Today"}, ${m[1]}`],
+  [/^Dünən, (\d{2}:\d{2})$/, (m, l) => `${l === "ru" ? "Вчера" : "Yesterday"}, ${m[1]}`],
+  [/^(\d+) gün$/, (m, l) => l === "ru" ? `${m[1]} дн.` : `${m[1]} ${m[1] === "1" ? "day" : "days"}`],
+  [/^(\d+) həftə$/, (m, l) => l === "ru" ? `${m[1]} нед.` : `${m[1]} ${m[1] === "1" ? "week" : "weeks"}`],
+  [/^(\d+) ay$/, (m, l) => l === "ru" ? `${m[1]} мес.` : `${m[1]} ${m[1] === "1" ? "month" : "months"}`],
+  [/^(\d+) otaq$/, (m, l) => l === "ru" ? `${m[1]}-комн.` : `${m[1]} ${m[1] === "1" ? "room" : "rooms"}`],
+  [/^\/ (\d+) addım$/, (m, l) => l === "ru" ? `/ ${m[1]} шагов` : `/ ${m[1]} steps`],
+  [/^(\d+) dəfə \(8 saatdan bir\) — (.+)$/, (m, l) => l === "ru" ? `${m[1]} раз (каждые 8 часов) — ${m[2]}` : `${m[1]} times (every 8 hours) — ${m[2]}`],
+  [/^(\d+) gün — (.+)$/, (m, l) => l === "ru" ? `${m[1]} дн. — ${m[2]}` : `${m[1]} ${m[1] === "1" ? "day" : "days"} — ${m[2]}`],
+  [/^(\d+) elan$/, (m, l) => l === "ru" ? `${m[1]} объявл.` : `${m[1]} ${m[1] === "1" ? "listing" : "listings"}`],
+];
+function pattern(key: string, language: Language) {
+  if (language === "az") return null;
+  for (const [expression, render] of patterns) {
+    const match = key.match(expression);
+    if (match) return render(match, language);
+  }
+  return null;
+}
+
+// True when the current text is the saved original or one of its translations.
+function rendered(original: string | undefined, current: string) {
+  return original !== undefined && (current === original || current === lookup(original, "ru") || current === lookup(original, "en"));
+}
+function skip(node: Node) {
+  const parent = node.parentElement;
+  return !parent || !!parent.closest("script,style,textarea,[translate=no],[contenteditable=true]");
+}
+function translateText(node: Text, language: Language) {
+  if (skip(node)) return;
+  const current = node.nodeValue || "";
+  const original = originals.get(node);
+  // React wrote new text since the last pass: that new text is the original.
+  const source = rendered(original, current) ? original! : current;
+  if (source !== original) originals.set(node, source);
+  const next = lookup(source, language) ?? source;
+  if (next !== current) node.nodeValue = next;
+}
+function translateAttributes(element: Element, language: Language) {
+  for (const name of translatedAttributes) {
+    if (!element.hasAttribute(name)) continue;
+    const saved = attributeOriginals.get(element) || {};
+    const current = element.getAttribute(name) || "";
+    const original = saved[name];
+    const source = rendered(original, current) ? original! : current;
+    saved[name] = source; attributeOriginals.set(element, saved);
+    const next = lookup(source, language) ?? source;
+    if (next !== current) element.setAttribute(name, next);
+  }
+}
+function translateTree(root: Node, language: Language) {
+  if (root.nodeType === Node.TEXT_NODE) { translateText(root as Text, language); return; }
+  if (!(root instanceof Element) && root !== document.body) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  if (root instanceof Element) translateAttributes(root, language);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (node.nodeType === Node.TEXT_NODE) translateText(node as Text, language);
+    else translateAttributes(node as Element, language);
+  }
+}
+
 const Context = createContext<{ language: Language; setLanguage: (value: Language) => void; t: (value: string) => string }>({ language: "az", setLanguage: () => {}, t: value => value });
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
  const [language, setLanguage] = useState<Language>("az");
  useEffect(() => { try { const saved = localStorage.getItem("kirayeal:language"); if (saved === "ru" || saved === "en") setLanguage(saved); } catch {} }, []);
  useEffect(() => { document.documentElement.lang = language; }, [language]);
+ useEffect(() => {
+  translateTree(document.body, language);
+  if (language === "az") return;
+  const observer = new MutationObserver(records => {
+   for (const record of records) {
+    if (record.type === "characterData") translateText(record.target as Text, language);
+    else if (record.type === "attributes") translateAttributes(record.target as Element, language);
+    else record.addedNodes.forEach(node => translateTree(node, language));
+   }
+  });
+  observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: translatedAttributes });
+  return () => observer.disconnect();
+ }, [language]);
  function choose(value: Language) { setLanguage(value); try { localStorage.setItem("kirayeal:language", value); } catch {} }
  function t(value: string) { return language === "az" ? value : dictionary[value]?.[language === "ru" ? 0 : 1] || value; }
  return <Context.Provider value={{ language, setLanguage: choose, t }}>{children}</Context.Provider>;

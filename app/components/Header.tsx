@@ -113,7 +113,7 @@ export default function Header() {
           <NavigationIcon name="heart"/><span>{t("Seçilmişlər")}</span>
         </a>
         <Link className="kzTabbarPublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
-          <NavigationIcon name="plus"/><span>{t("Yeni elan")}</span>
+          <span className="kzTabPlus" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span>{t("Yeni elan")}</span>
         </Link>
         <Link href="/messages" aria-current={pathname === "/messages" ? "page" : undefined}>
           <NavigationIcon name="message"/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}

@@ -83,7 +83,9 @@ export async function PATCH(request:NextRequest){
     const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
     const body=await request.json() as Record<string,unknown>,id=cleanText(body.id,36);if(!uuid.test(id))return reply({error:'INVALID_LISTING'},400);
     const item=listingPayload(body,user.id);if(!item)return reply({error:'INVALID_LISTING'},400);
-    const rows=await hostQuery<{id:string}>(`update public.listings set category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,price=$9,rental_period=$10,images=$11,status='pending',deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil]);
+    const recent=await hostQuery<{id:string}>(`select id from public.listings where id=$1 and owner_id=$2 and last_edited_at>now()-interval '1 day'`,[id,user.id]);
+    if(recent[0])return reply({error:'EDIT_LIMIT'},429);
+    const rows=await hostQuery<{id:string}>(`update public.listings set last_edited_at=now(),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,price=$9,rental_period=$10,images=$11,status='pending',deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil]);
     if(rows[0])await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','resubmitted',null,'pending')`,[id,user.id]);
     return rows[0]?reply({id:rows[0].id}):reply({error:'LISTING_NOT_FOUND'},404);
   }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}
@@ -93,7 +95,7 @@ export async function DELETE(request:NextRequest){
   try{
     const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
     const id=cleanText((await request.json() as {id?:unknown}).id,36);if(!uuid.test(id))return reply({error:'INVALID_LISTING'},400);
-    const rows=await hostQuery<{id:string}>(`update public.listings set status='archived',updated_at=now() where id=$1 and owner_id=$2 and status<>'archived' returning id`,[id,user.id]);
+    const rows=await hostQuery<{id:string}>(`delete from public.listings where id=$1 and owner_id=$2 returning id`,[id,user.id]);
     return rows[0]?reply({id}):reply({error:'LISTING_NOT_FOUND'},404);
   }catch{return reply({error:'LISTING_ARCHIVE_FAILED'},503);}
 }

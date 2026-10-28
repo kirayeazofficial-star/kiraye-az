@@ -374,6 +374,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         attributes,
       };
       const resultResponse=await fetch("/api/listings",{method:listingId?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(listingId?{...payload,id:listingId}:payload)});
+      if(resultResponse.status===429&&listingId)throw new Error("Elanı gündə yalnız bir dəfə redaktə etmək olar. Sabah yenidən cəhd et.");
       if(resultResponse.status===429)throw new Error("Bu kateqoriyada 30 gün ərzində 3 pulsuz elan limitin dolub. Mövcud elanı redaktə edə və ya limit boşalanda yenisini yerləşdirə bilərsən.");
       if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd et.");
       saved = true;

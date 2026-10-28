@@ -463,3 +463,23 @@ button:active,.add:active,.secondary:active,.categories>button:active{transform:
 @media (prefers-reduced-motion:reduce){main{animation:none}*{transition:none!important}}
 .adminSections{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
 .adminSections button{white-space:nowrap}
+
+/* ---- v14: top-up dialog, compact listings, logout ---- */
+.balanceTopUp{opacity:1!important;cursor:pointer!important}
+.miniDialogShade{position:fixed;inset:0;z-index:300;background:#1b1d2a73;display:flex;align-items:center;justify-content:center;padding:16px}
+.miniDialog{position:relative;width:min(340px,100%);padding:26px 22px 22px;border-radius:16px;background:#fff;box-shadow:0 18px 50px #1b1d2a40;text-align:left}
+.miniDialog p{margin:0;font-size:15px;line-height:1.5;color:#1f2230;font-weight:400}
+.miniDialogClose{position:absolute;top:6px;right:8px;width:34px;height:34px;border:0;background:transparent;font-size:24px;line-height:1;color:#6b6f80;cursor:pointer}
+.balancePreview p{display:none}
+.accountDashboard .cabinetNavFoot .cabinetLogout,.accountMenuPanel>.textButton{display:flex!important;align-items:center;gap:10px;color:#6b6f80!important;font-weight:400!important;font-size:14px!important}
+.accountMenuPanel>.textButton{border-top:1px solid #ececf1}
+.editRule{margin:4px 0 10px;font-size:13px}
+.accountListings{display:flex;flex-direction:column;gap:10px}
+.accountListings article{padding:10px!important;gap:4px 12px!important}
+.accountListings article .ownedPhoto{width:84px}
+.accountListings article h3{font-size:15px!important;margin:2px 0!important}
+.accountListings article p,.accountListings article small{font-size:12.5px!important;margin:0 0 2px!important}
+.accountListings article .accountItemActions{display:flex!important;grid-template-columns:none!important;gap:6px!important;margin-top:2px!important}
+.accountListings article .accountItemActions>*{min-height:34px!important;padding:6px 12px!important;font-size:13px!important}
+.promotionPanel:not(.kindOnly) .promotionPackage{margin-bottom:8px}
+@media (max-width:760px){.accountListings article{grid-template-columns:84px 1fr!important}}

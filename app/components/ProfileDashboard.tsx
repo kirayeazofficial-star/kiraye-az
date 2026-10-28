@@ -18,7 +18,7 @@ import {
   money,
   periodName,
 } from "../../lib/marketplace";
-const listingTabs = [["published", "Hazırda saytda"], ["payment", "Ödəniş gözləyir"], ["expired", "Müddəti başa çatmış"], ["pending", "Yoxlanışda"], ["draft", "Dərc olunmamış"], ["archived", "Arxiv"]];
+const listingTabs = [["published", "Hazırda saytda"], ["payment", "Ödəniş gözləyir"], ["expired", "Müddəti başa çatmış"], ["pending", "Yoxlanışda"], ["draft", "Dərc olunmamış"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
   const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState(""),[screen,setScreen]=useState<"menu"|"section">(balanceOnly?"section":"menu");
   useEffect(()=>{const read=()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["listings","transactions","cards","limits"].includes(value)){setSection(value);setScreen("section");}else if(!balanceOnly){setSection("listings");setScreen("menu");}};read();window.addEventListener("popstate",read);return()=>window.removeEventListener("popstate",read);},[balanceOnly]);
@@ -59,11 +59,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     try {
       const response=await fetch('/api/listings',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id})});
       if(!response.ok)throw new Error('archive_failed');
-      setListings((current) => current.map((x) =>
-        x.id === item.id ? { ...x, status: "archived" } : x,
-      ));
+      setListings((current) => current.filter((x) => x.id !== item.id));
       setDeleteConfirm("");
-      setNotice("Elan axtarışdan götürüldü və arxivdə saxlanıldı. Bərpa ödənişli xidmətdir; hazırda ödənişlər aktiv deyil.");
+      setNotice("Elan silindi.");
     } catch {
       setError("Elanı silmək mümkün olmadı. Yenidən cəhd et.");
     } finally {
@@ -75,7 +73,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     setError("");
     setNotice("Elanı bərpa etmək ödənişli xidmətdir. Hazırda ödənişlər aktiv olmadığından bərpa etmək mümkün deyil. Heç bir məbləğ tutulmadı.");
   }
-  const matchesTab=(item:Listing,status:string)=>{const current=effectiveListingStatus(item);if(!status)return true;if(status==="payment")return false;if(status==="draft")return ["draft","rejected"].includes(current);return current===status;};
+  const matchesTab=(item:Listing,status:string)=>{const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);if(!status)return true;if(status==="payment")return false;if(status==="draft")return ["draft","rejected"].includes(current);return current===status;};
   async function logout() {
     const response=await fetch('/api/auth/host',{method:'DELETE'});
     if (!response.ok) {
@@ -187,7 +185,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 !listings.some(
                   (x) => matchesTab(x,statusFilter),
                 ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
-              <details className="listingManagementHelp"><summary>Elanı necə idarə edim?</summary><p>Kirayəyə verilib və ya artıq mövcud deyil? “Elanı sil” seç: elan saytda görünməyəcək, məlumatları arxivdə qalacaq. Bərpa ödənişlidir və ödəniş xidməti açılanadək bağlıdır.</p></details>
+              <p className="muted editRule">Elanı gündə bir dəfə redaktə etmək olar. Redaktədən sonra elan yoxlanışa gedir.</p>
               {notice && <p className="notice" role="status">{notice}</p>}
               <div className="accountListings">
                 {listings
@@ -207,7 +205,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                           src={x.images?.[0] || "/placeholder.svg"}
                           alt={x.title}
                         />
-                        <PhotoMark src={x.images?.[0]} />
+                        
                       </Link>
                       <div>
                         <span className={`status ${effectiveListingStatus(x)}`}>
@@ -238,15 +236,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                       <div className="accountItemActions">
                         {["expired", "archived"].includes(effectiveListingStatus(x)) ? <PromotionOptions kind="restore" label="Elanı bərpa et" /> : <>
                           {effectiveListingStatus(x) === "published" && <>
-                            <PromotionOptions kind="bump" label="İrəli çək" />
-                            <PromotionOptions kind="vip" label="VIP et" />
-                            <PromotionOptions kind="premium" label="Premium et" />
+                            <PromotionOptions label="Reklam et" />
                           </>}
                           <Link className="secondary" href={`/edit/${x.id}`}>Redaktə et</Link>
                           <button className="secondary" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}>{busy === x.id ? "Gözləyin..." : "Elanı sil"}</button>
                         </>}
                       </div>
-                    {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan saytdan götürüləcək və hesabının arxivində saxlanılacaq. Bərpa ödənişlidir; hazırda ödənişlər bağlıdır.</p><button type="button" className="secondary" disabled={!!busy} onClick={()=>archive(x)}>Bəli, elanı sil</button><button type="button" className="textButton" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
+                    {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan həmişəlik silinəcək. Bu əməliyyatı geri qaytarmaq olmur.</p><button type="button" className="secondary" disabled={!!busy} onClick={()=>archive(x)}>Bəli, elanı sil</button><button type="button" className="textButton" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
                     </article>
                   ))}
               </div>

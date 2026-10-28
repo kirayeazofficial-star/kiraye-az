@@ -435,3 +435,29 @@ button,.add,.secondary,.textButton{font-weight:500!important;font-size:14px}
 .promotionPanel.kindOnly>p,.promotionPanel.kindOnly>.textButton{display:none}
 .promotionPanel.kindOnly .promotionPackage>summary{display:none}
 .promotionPanel .promotionModalHeader{display:flex;justify-content:space-between;align-items:center}
+
+/* ---- v13: language lives in the menu, no top-right plus on phone; subtle motion ---- */
+@media (max-width:760px){
+.header .headerActions .languageSelect,.header .headerPublish{display:none!important}
+.header{grid-template-columns:1fr!important}
+.header .headerBrand{justify-content:flex-start!important}
+}
+.siteMenuLanguage{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 20px 0;padding:14px 0;border-top:1px solid #ececf1}
+.siteMenuLanguage>span{font-weight:500;color:#1f2230}
+.siteMenuPanel .languageSelect .mobileLanguageSelect{display:none!important}
+.siteMenuPanel .languageSelect{display:inline-flex!important;gap:6px;margin:0!important}
+.siteMenuPanel .languageSelect button{display:inline-flex!important;padding:8px 14px;border-radius:999px;border:1px solid #e4e4ea;background:#fff;color:#1f2230;font-weight:500}
+.siteMenuPanel .languageSelect button[aria-pressed="true"]{background:#f2653e;border-color:#f2653e;color:#fff}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+main{animation:pageIn .35s ease both}
+a,button,summary,.card,.listingCard,[class*="Card"]{transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,color .18s ease,border-color .18s ease}
+button:active,.add:active,.secondary:active,.categories>button:active{transform:scale(.97)}
+@media (hover:hover){
+.grid > *:hover,.relatedGrid > *:hover{transform:translateY(-3px);box-shadow:0 10px 26px #1b1d2a1a}
+.cardPhoto{transition:transform .35s ease}
+.grid > *:hover .cardPhoto{transform:scale(1.04)}
+.categories>button:hover img{transform:translateY(-2px)}
+}
+.categories>button img{transition:transform .2s ease}
+.heartButton:active,.favoriteButton:active{transform:scale(1.2)}
+@media (prefers-reduced-motion:reduce){main{animation:none}*{transition:none!important}}

@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import SiteContact from "./SiteContact";
+import LanguageSelect from "./LanguageSelect";
 
 const links = [
   ["/", "Elanlar"], ["/profile", "Şəxsi kabinet"],
@@ -55,6 +56,7 @@ export default function SiteMenu() {
         <nav aria-label="Sayt bölmələri">
           {links.map(([href, title], index) => <Link className={index === 5 ? "siteMenuGroupStart" : undefined} key={href} href={href} onClick={() => setOpen(false)}>{title}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg></Link>)}
         </nav>
+        <div className="siteMenuLanguage"><span>Dil</span><LanguageSelect /></div>
         <SiteContact />
       </aside>
     </div>, document.body)}

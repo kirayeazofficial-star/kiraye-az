@@ -372,3 +372,6 @@ body:has(.accountDashboard){background:#f6f7fb}
 }
 .detailSide .add:not(.secondary)[href^="tel:"],.detailSide button.add[aria-label="Nömrəni göstər"]{background:#1fa34a!important;border-color:#1fa34a!important;color:#fff!important}
 .detailSide a.secondary[href^="/messages"]{background:#3d6bf5!important;border-color:#3d6bf5!important;color:#fff!important}
+.accountDashboard .listingStatusStrip{gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.accountDashboard .listingStatusStrip::-webkit-scrollbar{display:none}
+.accountDashboard .listingStatusStrip button{padding:9px 12px;font-size:13px;white-space:nowrap;flex:0 0 auto}

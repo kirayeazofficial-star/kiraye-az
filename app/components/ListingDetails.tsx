@@ -1,4 +1,5 @@
 "use client";
+import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
@@ -28,6 +29,8 @@ export default function ListingDetails({
   compact?: boolean;
 }) {
   const [phoneShown,setPhoneShown]=useState(false);
+  const [mounted,setMounted]=useState(false);
+  useEffect(()=>setMounted(true),[]);
   const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number;mine?:boolean}|null>(null);
   useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(item.demo||item.status!=="published")return;let active=true;fetch(`/api/listing-info?id=${encodeURIComponent(item.id)}`,{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active&&data&&typeof data==='object'&&!data.error)setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
   const [isOwner,setIsOwner]=useState(false);
@@ -392,10 +395,10 @@ export default function ListingDetails({
           </p>
         )}
       </div>
-      {!compact && !effectiveOwner && phone && !item.demo && <div className="stickyContact" role="group" aria-label="Əlaqə">
+      {mounted && !compact && !effectiveOwner && phone && !item.demo && createPortal(<div className="stickyContact" role="group" aria-label="Əlaqə">
         {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}>Nömrəni göstər</button>}
         {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
-      </div>}
+      </div>, document.body)}
       {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}
     </div>
   );

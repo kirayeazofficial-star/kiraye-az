@@ -28,11 +28,12 @@ export default function ListingDetails({
   compact?: boolean;
 }) {
   const [phoneShown,setPhoneShown]=useState(false);
-  const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number}|null>(null);
+  const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number;mine?:boolean}|null>(null);
   useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(item.demo||item.status!=="published")return;let active=true;fetch(`/api/listing-info?id=${encodeURIComponent(item.id)}`,{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active&&data&&typeof data==='object'&&!data.error)setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
   const [isOwner,setIsOwner]=useState(false);
   const [ownerReady,setOwnerReady]=useState(false);
   useEffect(()=>{let active=true;setOwnerReady(false);fetch('/api/auth/host',{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active)setIsOwner(data.user?.id===item.owner_id);}).catch(()=>{}).finally(()=>{if(active)setOwnerReady(true);});return()=>{active=false;};},[item.owner_id]);
+  const effectiveOwner=isOwner||publicInfo?.mine===true;
   const [image, setImage] = useState(0),
     [favorite, setFavorite] = useState(false),
     [notice, setNotice] = useState(""),
@@ -43,12 +44,12 @@ export default function ListingDetails({
     if(item.demo||item.status!=="published")return;
     let active=true;
     const timer=setTimeout(async()=>{
-      try{if(!active||isOwner)return;
+      try{if(!active||effectiveOwner)return;
         await fetch('/api/listing-view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id}),keepalive:true});
       }catch{/* Statistics never interrupt browsing. */}
     },1500);
     return()=>{active=false;clearTimeout(timer);};
-  },[item.id,item.owner_id,item.status,item.demo,isOwner]);
+  },[item.id,item.owner_id,item.status,item.demo,effectiveOwner]);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -216,9 +217,14 @@ export default function ListingDetails({
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
-        {phone && !item.demo ? (
+        {effectiveOwner ? (
+          <div className="ownerListingActions">
+            <p><strong>Bu sizin elanınızdır.</strong><span>Əlaqə və mesaj düymələri yalnız digər istifadəçilərə göstərilir.</span></p>
+            <div className="contactActions"><Link className="add" href={`/edit/${item.id}`}>Elanı redaktə et</Link><Link className="secondary" href={`/profile/listings/${item.id}`}>Elanı idarə et</Link></div>
+          </div>
+        ) : phone && !item.demo ? (
           <div className="contactActions">
-            {ownerReady&&(isOwner?<Link className="secondary" href={`/edit/${item.id}`}>Elanı redaktə et</Link>:<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>)}
+            {ownerReady&&<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
             {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et · {formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər">Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"
@@ -236,15 +242,15 @@ export default function ListingDetails({
               : "Əlaqə nömrəsi düzgün göstərilməyib."}
           </p>
         )}
-        {phoneShown && <p className="phoneSafety" role="status">Diqqət: beh göndərməmişdən əvvəl sövdələşmənin təhlükəsiz olduğundan əmin ol. Kartının PIN/CVV-sini və SMS kodunu paylaşma.</p>}
+        {phoneShown && !effectiveOwner && <p className="phoneSafety" role="status">Diqqət: beh göndərməmişdən əvvəl sövdələşmənin təhlükəsiz olduğundan əmin ol. Kartının PIN/CVV-sini və SMS kodunu paylaşma.</p>}
         <div className="detailTools">
-          <button
+          {!effectiveOwner&&<button
             className="secondary"
             aria-pressed={favorite}
             onClick={toggleFavorite}
           >
             <NavigationIcon name="heart" filled={favorite}/>{favorite ? "Seçilmişdə" : "Seçilmişlərə"}
-          </button>
+          </button>}
           <button className="secondary" onClick={share}>
             Keçidi paylaş
           </button>
@@ -344,7 +350,7 @@ export default function ListingDetails({
           Kirayə götürəcəyin əşyanı, nəqliyyatı və ya əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini
           yazılı razılaşdır. Platforma hazırda ödəniş qəbul etmir.
         </p>
-        {!item.demo && !reported && (
+        {!item.demo && !effectiveOwner && !reported && (
           <button className="textButton" onClick={() => setReport(!report)}>
             {report ? "Şikayəti bağla" : "Bu elandan şikayət et"}
           </button>

@@ -216,10 +216,6 @@ export default function ListingDetails({
         </p>
       </div>
       <div className="detailSide">
-        {!item.demo && item.owner_id && <section className="sellerCard"><strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong><a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>İstifadəçinin bütün elanları</a></section>}
-        {!item.demo && item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && (
-          <p className="muted sellerSince">{publicMonthYear(item.seller_since)} tarixindən saytdadır</p>
-        )}
         <strong className="detailPrice">
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
@@ -250,23 +246,21 @@ export default function ListingDetails({
           </p>
         )}
         {phoneShown && !effectiveOwner && <p className="phoneSafety" role="status">Diqqət: beh göndərməmişdən əvvəl sövdələşmənin təhlükəsiz olduğundan əmin ol. Kartının PIN/CVV-sini və SMS kodunu paylaşma.</p>}
-        <div className="detailTools">
-          {!effectiveOwner&&<button
-            className="secondary"
-            aria-pressed={favorite}
-            onClick={toggleFavorite}
-          >
-            <NavigationIcon name="heart" filled={favorite}/>{favorite ? "Seçilmişdə" : "Seçilmişlərə"}
-          </button>}
-          <button className="secondary" onClick={share}>
-            Keçidi paylaş
-          </button>
-          {compact && (
+        {compact && (
+          <div className="detailTools">
             <Link href={`/listings/${item.id}`} className="secondary">
               Ayrıca səhifədə aç →
             </Link>
-          )}
-        </div>
+          </div>
+        )}
+        {!item.demo && item.owner_id && <section className="sellerCard">
+          <span className="sellerAvatar" aria-hidden="true">{(publicInfo?.seller_name||item.attributes?.contact_name||'E').trim().charAt(0).toUpperCase()}</span>
+          <div>
+            <strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong>
+            {item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && <small>{publicMonthYear(item.seller_since)} tarixindən saytdadır</small>}
+            <a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>Bütün elanları →</a>
+          </div>
+        </section>}
       </div>
       <div className="listingInfo">
         <h3>Elan haqqında</h3>

@@ -8,6 +8,7 @@ const dictionary: Record<string, [string, string]> = {
  "Axtarışı saxla":["Сохранить поиск","Save search"],"Saxlanmış axtarışlar":["Сохранённые поиски","Saved searches"],
  "Elanları göstər":["Показать объявления","Show listings"],
  "Həftəlik":["На неделю","Weekly"],"həftə":["неделя","week"],
+ "Bağla":["Закрыть","Close"],"Kataloq":["Каталог","Catalog"],"Tap":["Найти","Find"],"Əşya, ev, maşın axtarışı":["Поиск вещей, жилья, авто","Search items, homes, cars"],"Son elanlar":["Последние объявления","Latest listings"],"Premium elanlar":["Премиум объявления","Premium listings"],"Bənzər elanlar":["Похожие объявления","Similar listings"],"Filtrlər":["Фильтры","Filters"],"Bütün elanlar":["Все объявления","All listings"],
  "Axtar":["Найти","Search"],
  "Azərbaycanın kirayə platforması":["Платформа аренды Азербайджана","Azerbaijan’s rental marketplace"],
  "Almağa tələsmə. Kirayələ.":["Не спеши покупать. Арендуй.","Don’t rush to buy. Rent."],

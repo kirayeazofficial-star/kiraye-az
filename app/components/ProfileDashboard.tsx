@@ -102,12 +102,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     <>
       <Header />
       <main className="wrap dashboard accountDashboard">
-        <div className="sectionTitle accountHeading">
-          <div>
-            <h1>{identity||"Profil"}</h1>
-            {userId && <p className="accountIdentity">{profileNumber&&<span className="accountId">ID: {profileNumber}</span>}{accountPhone ? <span>{formatContact(accountPhone)}</span> : <Link href="/account">Telefon nömrəni əlavə et</Link>}{accountEmail&&<span>{accountEmail}</span>}</p>}
-          </div>
-        </div>
         {loading ? (
           <p role="status">Yüklənir...</p>
         ) : !userId ? (
@@ -123,6 +117,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ) : (
           <><div className={`cabinetLayout screen-${screen}`}>
             <aside className="cabinetSidebar">
+              <section className="kzProfileCard">
+                <span className="kzProfileAvatar" aria-hidden="true"><NavigationIcon name="account"/></span>
+                <h1>{identity||"Profil"}</h1>
+                {profileNumber&&<p>ID: {profileNumber}</p>}
+                {accountPhone ? <p>Tel: {formatContact(accountPhone)}</p> : <Link href="/account">Telefon nömrəni əlavə et</Link>}
+                {accountEmail&&<p className="kzProfileEmail">{accountEmail}</p>}
+              </section>
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
               <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>

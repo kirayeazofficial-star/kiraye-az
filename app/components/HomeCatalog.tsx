@@ -337,6 +337,10 @@ export default function Home() {
       <Header />
       <main className={`kzMain kzHome${onlyFavorites ? " favoritesView" : ""}`}>
         <section className="kzCategories" aria-label={t("Kateqoriyalar")}>
+          <button type="button" className="kzCategoryCatalog" onClick={() => window.dispatchEvent(new Event("kiraye:catalog"))}>
+            <span className="kzCatalogTile" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1.2"/><rect x="13" y="3" width="8" height="8" rx="1.2"/><rect x="3" y="13" width="8" height="8" rx="1.2"/><rect x="13" y="13" width="8" height="8" rx="1.2"/></svg></span>
+            <span>{t("Kataloq")}</span>
+          </button>
           {categories.map((c) => (
             <button
               key={c.id}

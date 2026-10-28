@@ -44,7 +44,7 @@ export default function GoogleLogin() {
       </button>
       {enabled !== true && (
         <p id={statusId} className="mailHelp" role="status">
-          Google girişi hələ aktiv deyil. E-poçtla davam et.
+          Google ilə giriş müvəqqəti işləmir. E-poçtla davam et.
         </p>
       )}
       {notice && (

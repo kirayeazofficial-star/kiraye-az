@@ -674,14 +674,6 @@ export default function Login({
                       Şifrəni yenilə →
                     </button>
                   )}
-                  {!supabase && (
-                    <a
-                      className="authBack"
-                      href="https://kiraye-az.vercel.app/login"
-                    >
-                      Əsas saytda daxil ol →
-                    </a>
-                  )}
                 </div>
               )}
               <div className="authFooter">

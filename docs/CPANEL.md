@@ -79,7 +79,7 @@ Supabase Authentication → URL Configuration bölməsində Site URL:
 - `https://kirayeal.az/auth/callback?flow=recovery`
 - `https://kirayeal.az/reset-password`
 
-Vercel ünvanlarını köçürmə tam yoxlanana qədər saxla. Digər OAuth provayderləri
+Vercel silinib, callback siyahısında vercel.app ünvanlarına ehtiyac yoxdur. Digər OAuth provayderləri
 aktivdirsə, onların domen ayarlarını da yoxla.
 
 ## Yoxlama
@@ -93,8 +93,8 @@ aktivdirsə, onların domen ayarlarını da yoxla.
 Paneldə `Application created` mesajı yalnız tətbiq yerinin yaradıldığını
 bildirir. Mənbə, dəyişənlər, asılılıqlar və production build olmadan sayt hazır deyil.
 Poçt qutusu/SMTP və onun göndəriş limitləri ayrıca yoxlanılmalıdır; bu quraşdırma
-telefon SMS xidməti yaratmır. Mövcud Vercel/Supabase layihələrini yoxlamalar
-bitməmiş silmə.
+telefon SMS xidməti yaratmır. Vercel və köhnə Supabase layihəsi silinib; yeni
+Supabase layihəsi qurulana və ehtiyatdan bərpa edilənə qədər sayt data göstərmir.
 
 ## CloudLinux yaddaş limiti və hazır paket
 

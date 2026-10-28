@@ -43,7 +43,7 @@ const { authCallbackUrl, completeEmailAuth } = exported;
     ])
       assert.equal(
         authCallbackUrl(origin),
-        "https://kiraye-az.vercel.app/auth/callback",
+        "https://kirayeal.az/auth/callback",
       );
   });
   await check("production host retained for confirmation", () =>
@@ -58,10 +58,10 @@ const { authCallbackUrl, completeEmailAuth } = exported;
       "https://kiraye.az/reset-password",
     ),
   );
-  await check("preview emails return to the stable production hostname", () =>
+  await check("non-local origin is retained when no site URL is configured", () =>
     assert.equal(
-      authCallbackUrl("https://kiraye-preview-aaa-c624.vercel.app"),
-      "https://kiraye-az.vercel.app/auth/callback",
+      authCallbackUrl("https://staging.example.com"),
+      "https://staging.example.com/auth/callback",
     ),
   );
   const session = { access_token: "test-session" };
@@ -214,12 +214,12 @@ const { authCallbackUrl, completeEmailAuth } = exported;
     },
   );
   await check(
-    "configured own-domain origin replaces Vercel for OAuth and recovery",
+    "configured own-domain origin overrides the request origin for OAuth and recovery",
     async () => {
       testEnv.NEXT_PUBLIC_SITE_URL = "https://kiraye.az";
       try {
         assert.equal(
-          authCallbackUrl("https://kiraye-az.vercel.app", false, "/new"),
+          authCallbackUrl("https://staging.example.com", false, "/new"),
           "https://kiraye.az/auth/callback?next=%2Fnew",
         );
         assert.equal(

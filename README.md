@@ -20,25 +20,24 @@ Create `.env.local` using `.env.example` and supply the project URL and browser-
 ## Supabase activation
 
 1. Run `supabase/schema.sql` in the project's SQL Editor. It retains existing tables/data and installs RLS, moderation enforcement and storage policies. Review existing third-party policies separately if this project has other applications.
-2. In Authentication → URL Configuration, replace the default localhost Site URL with `https://kiraye-az.vercel.app` until the custom domain is active. Add these exact Redirect URLs:
-   - `https://kiraye-az.vercel.app/auth/callback`
-   - `https://kiraye-az.vercel.app/auth/callback?flow=recovery`
-   - `https://kiraye-az.vercel.app/profile` (older deployed emails)
-   - `https://kiraye-az.vercel.app/reset-password` (older deployed emails)
-     When kiraye.az is connected, add equivalent URLs for that domain and switch Site URL. Supabase falls back to Site URL when a requested redirect is not allowed; this is why a localhost Site URL sends confirmation emails to a blank local page. Request a NEW confirmation email after saving; old emails retain their original URLs.
+2. In Authentication → URL Configuration, replace the default localhost Site URL with `https://kirayeal.az`. Add these exact Redirect URLs:
+   - `https://kirayeal.az/auth/callback`
+   - `https://kirayeal.az/auth/callback?flow=recovery`
+   - `https://kirayeal.az/reset-password`
+     Supabase falls back to Site URL when a requested redirect is not allowed; this is why a localhost Site URL sends confirmation emails to a blank local page. Request a NEW confirmation email after saving; old emails retain their original URLs.
      New code uses `/auth/callback` for confirmation and `/reset-password` directly for password recovery, validates expired links, supports token-hash and code callbacks, and shows explicit recovery actions. If the configured email template includes a numeric OTP, users can also verify it on the login page. Email templates containing only a confirmation link do not supply a numeric code. Optional `NEXT_PUBLIC_SITE_URL` pins the callback host to the production origin; localhost is never selected for new outbound email redirects.
 3. Enable email/password authentication. Configure a production SMTP provider before public launch; default email delivery has limits.
 4. Register the owner's account (profiles are created automatically by the schema), and designate it as admin using the SQL statement at the bottom of schema.sql. This privileged step must be executed only in the SQL Editor.
 5. Verify sign-up, email confirmation, login, password recovery, photo uploads, pending listing visibility, admin approval, public feed and archive with real accounts.
 
-## Vercel
+## Hosting
 
-Import this GitHub repository, use the Next.js preset, set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in project environment variables, then redeploy. No secret/service-role key is needed. NEXT_PUBLIC values are embedded at build time. Set domain/DNS and Supabase callback URLs for the final hostname. Choose a Vercel plan appropriate for commercial use.
+The site runs as a Node.js standalone app on hostinq.az (cPanel). See [CPANEL.md](docs/CPANEL.md) and [CPANEL-UPDATE.md](docs/CPANEL-UPDATE.md). Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `NEXT_PUBLIC_SITE_URL` in the app's environment, then rebuild: NEXT_PUBLIC values are embedded at build time, so a restart alone is not enough. No secret/service-role key belongs in `NEXT_PUBLIC_*` variables.
 
 ## Login and deployment fixes
 
 - Login accepts existing shorter passwords; the eight-character minimum applies only to new registration. Invalid credentials, missing confirmation, expired codes and rate limits have separate messages.
-- Preview email callbacks use the stable production hostname by default. Only production variables are required on the primary site; enable Preview bindings separately if preview sign-in is needed.
+- Email callbacks from localhost use the production hostname (`https://kirayeal.az`) by default. `NEXT_PUBLIC_SITE_URL` pins the callback host explicitly.
 - Header follows session state; profile has status tabs; logout clears the session.
 - The public catalog runs search/filter/sort/count in Supabase before pagination (18 results/page). Failed live requests show an error and retry action, rather than replacing real results with sample listings. Samples are explicitly labeled only in the unconfigured state.
 - Compact grid/list layouts and real listing links improve navigation. Quick previews remain available separately.
@@ -72,7 +71,7 @@ Responsive category marketplace, city/price/period/search/sort filters, persiste
 - Logged-in visitors can report published listings, one report per person/listing. Report content is visible only to its reporter and admins. Owners cannot report their own listings. Admins have a report queue and must provide a reason when rejecting listings.
 - Room count, area, vehicle brand/gearbox, deposit and date filters are supported. Availability is the owner's stated interval, not a reservation or live booking calendar.
 - `/help` explains how to use the platform; `/privacy` documents current storage behavior. No fictional business address/support contact is published. Business identity, operator contact and a full reviewed privacy/retention policy remain launch requirements.
-- `sitemap.xml` refreshes hourly and includes up to 1000 published listings. `robots.txt` excludes account/admin and example routes. Optional `NEXT_PUBLIC_SITE_URL` sets the canonical origin; otherwise the current primary Vercel hostname is used.
+- `sitemap.xml` refreshes hourly and includes up to 1000 published listings. `robots.txt` excludes account/admin and example routes. Optional `NEXT_PUBLIC_SITE_URL` sets the canonical origin; otherwise `https://kirayeal.az` is used.
 
 **Database upgrade:** Run the updated `supabase/schema.sql` once in the same project's SQL Editor. It adds rental-term columns, report policies and automatic profile creation/backfill without removing listings. Running it twice is covered by the isolated database tests. This file has NOT been executed against the real project from Codex. Until it is applied, new queries/writes can fail. Apply this additive upgrade before deploying the extension.
 

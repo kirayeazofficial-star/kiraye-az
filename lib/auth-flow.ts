@@ -16,11 +16,8 @@ export function authCallbackUrl(
       /* Keep the current site for invalid optional configuration. */
     }
   }
-  if (
-    ["localhost", "127.0.0.1", "0.0.0.0", "[::1]"].includes(base.hostname) ||
-    (!configured && base.hostname.endsWith(".vercel.app"))
-  )
-    base = new URL("https://kiraye-az.vercel.app");
+  if (["localhost", "127.0.0.1", "0.0.0.0", "[::1]"].includes(base.hostname))
+    base = new URL("https://kirayeal.az");
   const callback = new URL(
     recovery ? "/reset-password" : "/auth/callback",
     base.origin,

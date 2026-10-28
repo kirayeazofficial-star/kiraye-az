@@ -126,8 +126,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/profile?section=transactions" onClick={()=>setSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></Link>
               <Link href="/profile?section=cards" onClick={()=>setSection('cards')} aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></Link>
               <Link href="/profile?section=limits" onClick={()=>setSection('limits')} aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></Link>
-              {admin && <Link className="cabinetAdminLink" href="/admin"><NavigationIcon name="account"/><span>Admin paneli</span></Link>}
-              <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
+              <div className="cabinetNavFoot">
+                {admin && <Link className="cabinetAdminLink" href="/admin"><NavigationIcon name="account"/><span>Admin paneli</span></Link>}
+                <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
+              </div>
             </nav>
             </aside>
             <div className="cabinetContent">

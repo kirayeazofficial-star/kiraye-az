@@ -8,6 +8,7 @@ import DesktopAdRails from "./components/DesktopAdRails";
 import "./styles.css";
 import "./rental.css";
 import "./professional.css";
+import "./polish.css";
 
 export const viewport: Viewport = {
   width: "device-width",

@@ -6,6 +6,16 @@ export function authErrorMessage(error: unknown) {
   };
   const code = typeof e?.code === "string" ? e.code : "";
   const message = e?.message ?? "";
+  const hostMessages: Record<string, string> = {
+    ACCOUNT_EXISTS: "Bu e-poçtla hesab artıq var. “Daxil ol” bölməsindən giriş et, şifrəni unutmusansa “Şifrəni unutdum” seç.",
+    INVALID_CREDENTIALS: "E-poçt və ya şifrə düzgün deyil.",
+    EMAIL_NOT_CONFIRMED: "E-poçtun hələ təsdiqlənməyib. Aşağıdan yeni təsdiq kodu istə.",
+    INVALID_CODE: "Kod düzgün deyil və ya vaxtı bitib. Yeni kod istə.",
+    INVALID_INPUT: "Məlumatları yoxla: ad və soyad, düzgün e-poçt, telefon və ən azı 8 simvolluq şifrə yaz.",
+    RATE_LIMIT: "Çox sayda kod istənilib. Bir saat gözləyib yenidən yoxla.",
+    SERVICE_UNAVAILABLE: "Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən yoxla.",
+  };
+  if (code && hostMessages[code]) return hostMessages[code];
   if (code === "email_not_confirmed" || /email not confirmed/i.test(message))
     return "E-poçtun hələ təsdiqlənməyib. Aşağıdan yeni təsdiq məktubu istəyə bilərsən.";
   if (

@@ -5,8 +5,9 @@ export default function GoogleLogin() {
   const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
-  async function check() {setEnabled(false);}
+  async function check() {try{const r=await fetch('/api/auth/google/status',{cache:'no-store'});const d=await r.json();setEnabled(d.enabled===true);}catch{setEnabled(false);}}
   useEffect(() => {
+    if(new URLSearchParams(window.location.search).get('google')==='error')setNotice('Google ilə giriş alınmadı. Yenidən cəhd et və ya e-poçtla davam et.');
     void check();
   }, []);
   async function login() {
@@ -43,7 +44,7 @@ export default function GoogleLogin() {
       </button>
       {enabled !== true && (
         <p id={statusId} className="mailHelp" role="status">
-          Google girişi hostinqdə quraşdırılır.
+          Google girişi hələ aktiv deyil. E-poçtla davam et.
         </p>
       )}
       {notice && (

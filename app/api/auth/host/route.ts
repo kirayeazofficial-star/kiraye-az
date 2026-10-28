@@ -38,7 +38,14 @@ export async function POST(request:NextRequest){
       if(!email||password.length<8||name.length<3||name.length>100||phone.length<9||phone.length>32)return response({error:"INVALID_INPUT"},400);
       const hash=await passwordHash(password),id=newId();
       try{await hostTransaction(async client=>{await client.query(`insert into auth.users(id,email,password_hash) values($1,$2,$3)`,[id,email,hash]);await client.query(`insert into public.profiles(id,display_name,phone) values($1,$2,$3)`,[id,name,phone]);});}
-      catch(error){if((error as {code?:string}).code==="23505")return response({error:"ACCOUNT_EXISTS"},409);throw error;}
+      catch(error){
+        if((error as {code?:string}).code!=="23505")throw error;
+        const old=await hostQuery<{id:string;email_confirmed_at:string|null}>(`select id,email_confirmed_at from auth.users where lower(email)=lower($1) limit 1`,[email]);
+        if(!old[0]||old[0].email_confirmed_at)return response({error:"ACCOUNT_EXISTS"},409);
+        await hostTransaction(async client=>{await client.query(`update auth.users set password_hash=$1,updated_at=now() where id=$2`,[hash,old[0].id]);await client.query(`insert into public.profiles(id,display_name,phone) values($1,$2,$3) on conflict(id) do update set display_name=excluded.display_name,phone=excluded.phone`,[old[0].id,name,phone]);});
+        await issueCode(old[0].id,email,"signup");
+        return response({verification:"signup"},201);
+      }
       try{await issueCode(id,email,"signup");}catch(error){await hostQuery(`delete from auth.users where id=$1 and email_confirmed_at is null`,[id]);throw error;}
       return response({verification:"signup"},201);
     }

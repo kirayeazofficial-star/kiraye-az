@@ -345,3 +345,7 @@ svg[stroke-linejoin]{stroke-linejoin:round}
 .moderationCard .adminItemId{font-size:12px;color:#8f94a8;margin:6px 0}
 .moderationCard .adminItemId small{display:none}
 .moderationCard .moderationImages img{border-radius:10px}
+@media (max-width:760px){
+.cabinetLayout.screen-menu .cabinetNav a[aria-current]{background:transparent!important;color:inherit!important;font-weight:inherit!important}
+.cabinetLayout.screen-menu .cabinetNav a[aria-current] span{font-weight:inherit!important}
+}

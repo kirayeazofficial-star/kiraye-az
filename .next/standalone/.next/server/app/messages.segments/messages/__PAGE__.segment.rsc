@@ -1,5 +1,5 @@
 1:"$Sreact.fragment"
-2:"static/chunks/app/layout-870f62ff08e089d0.js"
+2:"static/chunks/app/layout-5f9bdfe4d8338d0f.js"
 3:I[2593,["7177","$2"],""]
 4:"LanguageProvider"
 5:I[2148,["7177","$2"],"$4"]
@@ -8,11 +8,11 @@
 8:I[7460,["8039","$7"],"default"]
 9:I[4581,[],""]
 a:"static/chunks/8500-92b711f085ef12e5.js"
-b:"static/chunks/9587-c6ddbf7a5f8b7a30.js"
+b:"static/chunks/9587-a87aefa76fc02995.js"
 c:"static/chunks/app/not-found-c58c7ced97eb5d99.js"
 d:I[9587,["8500","$a","9587","$b","4345","$c"],"default"]
 e:I[8500,["8500","$a","9587","$b","4345","$c"],""]
-15:"static/chunks/app/messages/page-24130657a111a2f1.js"
+15:"static/chunks/app/messages/page-651d409d07b2604c.js"
 16:I[8865,["8500","$a","9587","$b","9451","$15"],"default"]
 17:I[484,[],"OutletBoundary"]
 18:"$Sreact.suspense"
@@ -20,27 +20,23 @@ e:I[8500,["8500","$a","9587","$b","4345","$c"],""]
 1c:I[484,[],"$1b"]
 1d:"MetadataBoundary"
 1e:I[484,[],"$1d"]
+1f:I[6869,[],"IconMark"]
 :HL["/_next/static/css/00eba28f20f61e0a.css","style"]
 :HL["/_next/static/css/f0b84e6318a1e7c3.css","style"]
 :HL["/_next/static/css/516edea9b131dc06.css","style"]
-:HL["/_next/static/css/8db822e233444680.css","style"]
+:HL["/_next/static/css/ade33e63383b0ed2.css","style"]
 10:X
 13:X
 13:C
 14:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[["$","$L16",null,{}],null,["$","$L17",null,{"children":["$","$18",null,{"name":"Next.MetadataOutlet","children":"$@19"}]}]]}],"p":"$@1a","v":null,"s":"$10"}}]]
 11:[["children",{"s":"messages","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L6",null,{"parallelRouterKey":"children","template":["$","$L9",null,{}]}]]}],"p":"$@12","v":"$13","s":"$10"},"c":"$Q14"}]]
-0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/00eba28f20f61e0a.css","precedence":"next"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/f0b84e6318a1e7c3.css","precedence":"next"}],["$","link","2",{"rel":"stylesheet","href":"/_next/static/css/516edea9b131dc06.css","precedence":"next"}],["$","link","3",{"rel":"stylesheet","href":"/_next/static/css/8db822e233444680.css","precedence":"next"}]],["$","html",null,{"lang":"az","children":["$","body",null,{"children":[["$","$L3",null,{"src":"/browser-compat.js","strategy":"beforeInteractive"}],["$","aside",null,{"className":"desktopAdRails","aria-label":"Reklam sahələri","children":[["$","a",null,{"className":"desktopAdRail desktopAdRailLeft","href":"mailto:kirayeal.az@gmail.com?subject=kirayeal.az%20%E2%80%94%20reklam%20yerl%C9%99%C5%9Fdirm%C9%99k","children":[["$","small",null,{"children":"REKLAM"}],["$","strong",null,{"children":"Brendiniz kirayə axtaranların qarşısında olsun"}],["$","span",null,{"children":"Reklam yerləşdir →"}]]}],["$","a",null,{"className":"desktopAdRail desktopAdRailRight","href":"mailto:kirayeal.az@gmail.com?subject=kirayeal.az%20%E2%80%94%20reklam%20yerl%C9%99%C5%9Fdirm%C9%99k","children":[["$","small",null,{"children":"REKLAM"}],["$","strong",null,{"children":"Biznesinizi doğru auditoriyaya göstərin"}],["$","span",null,{"children":"Əlaqə saxla →"}]]}]]}],["$","$L5",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","error":"$8","errorStyles":[],"errorScripts":null,"template":["$","$L9",null,{}],"notFound":[[["$","$Ld",null,{}],["$","main",null,{"className":"wrap","children":["$","section",null,{"className":"empty","children":[["$","p",null,{"className":"eyebrow","children":"404 · SƏHİFƏ TAPILMADI"}],["$","h1",null,{"children":"Bu ünvanda elan yoxdur"}],["$","p",null,{"children":"Keçid dəyişmiş və ya səhifə silinmiş ola bilər."}],["$","$Le",null,{"className":"add","href":"/","children":"Elanlara qayıt"}]]}]}]],[]]}]}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Organization\",\"@id\":\"https://kirayeal.az/#organization\",\"name\":\"kirayeal.az\",\"url\":\"https://kirayeal.az\",\"logo\":\"https://kirayeal.az/icon-192.png\",\"email\":\"kirayeal.az@gmail.com\",\"telephone\":\"+994502191145\",\"sameAs\":[\"https://www.instagram.com/kirayeal.az/\",\"https://www.tiktok.com/@kirayeal.az\"]},{\"@type\":\"WebSite\",\"@id\":\"https://kirayeal.az/#website\",\"name\":\"kirayeal.az\",\"url\":\"https://kirayeal.az\",\"inLanguage\":\"az-AZ\",\"publisher\":{\"@id\":\"https://kirayeal.az/#organization\"}}]}"}}]]}]}]]}],"p":"$@f","v":null,"s":"$10"},"c":"$Q11"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1c",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#143f3b"}]]}],["$","$L1e",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$18",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Mesajlar | kirayeal.az"}],["$","meta","1",{"name":"description","content":"Ev, avtomobil və motosiklet kirayəsi üçün elan platforması."}],["$","meta","2",{"name":"robots","content":"noindex, nofollow"}],["$","meta","3",{"property":"og:title","content":"Mesajlar | kirayeal.az"}],["$","meta","4",{"property":"og:description","content":"Ev, avtomobil və motosiklet kirayəsi üçün elan platforması."}],["$","meta","5",{"property":"og:site_name","content":"kirayeal.az"}],["$","meta","6",{"property":"og:locale","content":"az_AZ"}],["$","meta","7",{"property":"og:image","content":"https://kirayeal.az/og-default.jpg"}],["$","meta","8",{"property":"og:image:width","content":"1200"}],["$","meta","9",{"property":"og:image:height","content":"630"}],["$","meta","10",{"property":"og:image:alt","content":"kirayeal.az — Kirayə üçün bir ünvan"}],["$","meta","11",{"property":"og:type","content":"website"}],["$","meta","12",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","13",{"name":"twitter:title","content":"Mesajlar | kirayeal.az"}],["$","meta","14",{"name":"twitter:description","content":"Ev, avtomobil və motosiklet kirayəsi üçün elan platforması."}],["$","meta","15",{"name":"twitter:image","content":"https://kirayeal.az/og-default.jpg"}],"$L1f","$L20","$L21","$L22"]}]}],null]}],null]}],"p":"$@23","v":null,"s":"$10"}},"a":"$@24","u":"$@25","b":"wynOicOpmunRH03Fhumxq"}
-26:I[6869,[],"IconMark"]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/00eba28f20f61e0a.css","precedence":"next"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/f0b84e6318a1e7c3.css","precedence":"next"}],["$","link","2",{"rel":"stylesheet","href":"/_next/static/css/516edea9b131dc06.css","precedence":"next"}],["$","link","3",{"rel":"stylesheet","href":"/_next/static/css/ade33e63383b0ed2.css","precedence":"next"}]],["$","html",null,{"lang":"az","children":["$","body",null,{"children":[["$","$L3",null,{"src":"/browser-compat.js","strategy":"beforeInteractive"}],["$","$L5",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","error":"$8","errorStyles":[],"errorScripts":null,"template":["$","$L9",null,{}],"notFound":[[["$","$Ld",null,{}],["$","main",null,{"className":"wrap","children":["$","section",null,{"className":"empty","children":[["$","p",null,{"className":"eyebrow","children":"404 · SƏHİFƏ TAPILMADI"}],["$","h1",null,{"children":"Bu ünvanda elan yoxdur"}],["$","p",null,{"children":"Keçid dəyişmiş və ya səhifə silinmiş ola bilər."}],["$","$Le",null,{"className":"add","href":"/","children":"Elanlara qayıt"}]]}]}]],[]]}]}],["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@graph\":[{\"@type\":\"Organization\",\"@id\":\"https://kirayeal.az/#organization\",\"name\":\"kirayeal.az\",\"url\":\"https://kirayeal.az\",\"logo\":\"https://kirayeal.az/icon-192.png\",\"email\":\"kirayeal.az@gmail.com\",\"telephone\":\"+994502191145\",\"sameAs\":[\"https://www.instagram.com/kirayeal.az/\",\"https://www.tiktok.com/@kirayeal.az\"]},{\"@type\":\"WebSite\",\"@id\":\"https://kirayeal.az/#website\",\"name\":\"kirayeal.az\",\"url\":\"https://kirayeal.az\",\"inLanguage\":\"az-AZ\",\"publisher\":{\"@id\":\"https://kirayeal.az/#organization\"}}]}"}}]]}]}]]}],"p":"$@f","v":null,"s":"$10"},"c":"$Q11"},"h":{"r":["$","$1","h",{"children":[null,["$","$L1c",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#ffffff"}]]}],["$","$L1e",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$18",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Mesajlar | kirayeal.az"}],["$","meta","1",{"name":"description","content":"Ev, avtomobil və motosiklet kirayəsi üçün elan platforması."}],["$","meta","2",{"name":"robots","content":"noindex, nofollow"}],["$","meta","3",{"property":"og:title","content":"Mesajlar | kirayeal.az"}],["$","meta","4",{"property":"og:description","content":"Ev, avtomobil və motosiklet kirayəsi üçün elan platforması."}],["$","meta","5",{"property":"og:site_name","content":"kirayeal.az"}],["$","meta","6",{"property":"og:locale","content":"az_AZ"}],["$","meta","7",{"property":"og:image","content":"https://kirayeal.az/og-default.jpg"}],["$","meta","8",{"property":"og:image:width","content":"1200"}],["$","meta","9",{"property":"og:image:height","content":"630"}],["$","meta","10",{"property":"og:image:alt","content":"kirayeal.az — Kirayə üçün bir ünvan"}],["$","meta","11",{"property":"og:type","content":"website"}],["$","meta","12",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","13",{"name":"twitter:title","content":"Mesajlar | kirayeal.az"}],["$","meta","14",{"name":"twitter:description","content":"Ev, avtomobil və motosiklet kirayəsi üçün elan platforması."}],["$","meta","15",{"name":"twitter:image","content":"https://kirayeal.az/og-default.jpg"}],["$","link","16",{"rel":"icon","href":"/icon.svg","type":"image/svg+xml"}],["$","link","17",{"rel":"icon","href":"/favicon-48.png","sizes":"48x48","type":"image/png"}],["$","link","18",{"rel":"apple-touch-icon","href":"/icon-192.png","sizes":"192x192"}],["$","$L1f","19",{}]]}]}],null]}],null]}],"p":"$@20","v":null,"s":"$10"}},"a":"$@21","u":"$@22","b":"jgmlHCWVnrBuNxT82u2BF"}
 19:null
-1f:["$","link","16",{"rel":"icon","href":"/icon.svg","type":"image/svg+xml"}]
-20:["$","link","17",{"rel":"icon","href":"/favicon-48.png","sizes":"48x48","type":"image/png"}]
-21:["$","link","18",{"rel":"apple-touch-icon","href":"/icon-192.png","sizes":"192x192"}]
-22:["$","$L26","19",{}]
 10:300
-25:true
+22:true
 10:C
-24:0
+21:0
 12:"$undefined"
 f:"$undefined"
-23:"$undefined"
+20:"$undefined"
 1a:"$undefined"

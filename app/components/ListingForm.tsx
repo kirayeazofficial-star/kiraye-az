@@ -426,11 +426,11 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         )}
         {!listingId && user && !canModerate && !loading && (
           <p className="notice">
-            Elan yerləşdirmə kateqoriya üzrə limitlə tənzimlənir. Təkrar elan yaratmaq əvəzinə mövcud elanını redaktə et.
+            Hər kateqoriyada müəyyən sayda pulsuz elan yerləşdirə bilərsən. Limit dolubsa, mövcud elanı redaktə edə və ya limit boşalanda yeni elan yerləşdirə bilərsən.
           </p>
         )}
         {!success && <aside className="notice" aria-label="Təhlükəsiz elan yerləşdirmə">
-          <details><summary><strong>Təhlükəsizliyinə diqqət et</strong></summary> Pul almaq üçün kartının PIN/CVV-sini, SMS kodunu və hesab şifrəsini heç kimə vermə. Naməlum şəxslərin göndərdiyi ödəniş keçidlərini açma. Yalnız sənə məxsus və ya yerləşdirməyə icazən olan əşyanın düzgün məlumatlarını və şəkillərini paylaş.</details>
+          <strong>Təhlükəsizliyinə diqqət et:</strong> Pul almaq üçün kartının PIN/CVV-sini, SMS kodunu və hesab şifrəsini heç kimə vermə. Naməlum şəxslərin göndərdiyi ödəniş keçidlərini açma. Yalnız sənə məxsus və ya yerləşdirməyə icazən olan əşyanın düzgün məlumatlarını və şəkillərini paylaş.
         </aside>}
         {loading ? (
           <section><p role="status">Hesab yoxlanılır...</p>

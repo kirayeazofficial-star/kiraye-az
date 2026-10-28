@@ -27,6 +27,7 @@ export async function GET(){
     const schema=await hostQuery<SchemaRow>(`select to_regclass('auth.users')::text users_table,to_regclass('auth.sessions')::text sessions_table,to_regclass('public.profiles')::text profiles_table,to_regclass('public.listings')::text listings_table,exists(select 1 from information_schema.columns where table_schema='public' and table_name='profiles' and column_name='profile_no') profile_no,exists(select 1 from information_schema.columns where table_schema='public' and table_name='profiles' and column_name='display_name') display_name,exists(select 1 from information_schema.columns where table_schema='public' and table_name='profiles' and column_name='phone') phone`);
     const tablesReady=Object.values(schema[0]||{}).every(Boolean);
     const mail=await mailState();
-    return NextResponse.json({status:tablesReady?"ok":"schema_missing",mode,tablesReady,mail},{status:tablesReady?200:503,headers:{"Cache-Control":"no-store"}});
+    const counts=await hostQuery<{status:string;count:string}>(`select status,count(*)::text count from public.listings group by status`);
+    return NextResponse.json({status:tablesReady?"ok":"schema_missing",mode,tablesReady,mail,listings:Object.fromEntries(counts.map(row=>[row.status,Number(row.count)]))},{status:tablesReady?200:503,headers:{"Cache-Control":"no-store"}});
   }catch{return NextResponse.json({status:"error",mode},{status:503,headers:{"Cache-Control":"no-store"}});}
 }

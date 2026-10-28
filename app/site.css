@@ -10,7 +10,7 @@
   --kz-surface:#fff;
   --kz-ink:#212529;
   --kz-text:#3d4450;
-  --kz-muted:#8a919c;
+  --kz-muted:#6b7280;
   --kz-line:#e4e6ea;
   --kz-brand:#143f3b;
   --kz-accent:#ff5a1f;
@@ -740,3 +740,79 @@ main h1,main h2,main h3{color:var(--kz-ink)!important}
 /* ---------- Wallet sections: no card inside card ---------- */
 .accountDashboard .cabinetContent section:not(.kzBalance){border:0!important;box-shadow:none!important;padding:0!important;background:none!important}
 @media (max-width:767px){.accountDashboard .cabinetContent>.cabinetBack+section>h2,.accountDashboard .cabinetContent>.cabinetBack+div>h2{display:none!important}}
+
+/* ---------- Leader panel: overview, filters, tables ---------- */
+.kzAdSub.first{margin-top:0!important}
+.kzAdActive{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-4px 0 14px;font-size:var(--fs-13);color:var(--kz-text)}
+.kzAdActive>span{font-weight:600}
+.kzAdActive>button:not(.kzAdLink){display:inline-flex;align-items:center;gap:6px;min-height:30px;margin:0;padding:0 10px;border:0;border-radius:15px;background:var(--kz-accent-soft);color:var(--kz-accent-dark);font:inherit;font-size:var(--fs-13);font-weight:500;cursor:pointer;box-shadow:none}
+.kzAdActive b{font-size:var(--fs-16);line-height:1}
+.kzAdBtn.small{min-height:32px;padding:0 12px;font-size:var(--fs-13)}
+.kzAdNum{font-variant-numeric:tabular-nums}
+.kzAdPill.strong{background:var(--kz-ink);color:#fff}
+.kzAdOff{font-size:var(--fs-18)!important;color:var(--kz-muted)}
+.kzAdTable button.kzAdLink{justify-self:start}
+.kzAdUsers .kzAdTableHead,.kzAdUsers .kzAdTableRow{grid-template-columns:minmax(0,1.6fr) minmax(0,1.8fr) .5fr .9fr .8fr auto}
+.kzAdContact{display:grid;min-width:0}
+.kzAdContact>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kzAdContact small{font-size:var(--fs-12);color:var(--kz-muted)}
+.kzAdRowEnd{display:flex;justify-content:flex-end}
+.kzAdPeriods .kzAdTableHead,.kzAdPeriods .kzAdTableRow{grid-template-columns:1.4fr 1fr 1fr 1fr}
+.kzAdPeriods .kzAdTableRow>span:first-child{font-weight:500}
+.kzAdActivity{margin:0;padding:0;list-style:none;display:grid}
+.kzAdActivity li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid var(--kz-line)}
+.kzAdActivity li:first-child{border-top:0;padding-top:0}
+.kzAdActivity p{margin:0;font-size:var(--fs-14)}
+.kzAdActivity time{font-size:var(--fs-12);color:var(--kz-muted);white-space:nowrap}
+.kzAdDot{width:10px;height:10px;margin-top:5px;border-radius:50%;background:var(--kz-line)}
+.kzAdDot.published{background:var(--kz-green)}
+.kzAdDot.rejected{background:#d92d20}
+.kzAdDot.pending{background:#e9a514}
+@media (max-width:767px){
+  .kzAdFilters.kzAdInline{flex-wrap:nowrap}
+  .kzAdFilters.kzAdInline input{flex:1 1 auto!important;min-width:0}
+  .kzAdUsers .kzAdTableRow{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:12px}
+  .kzAdUsers .kzAdTableRow>.kzAdPerson{grid-column:1}
+  .kzAdUsers .kzAdTableRow>.kzAdContact{grid-column:1/-1;padding-left:46px}
+  .kzAdUsers .kzAdTableRow>span[data-label]{display:none}
+  .kzAdUsers .kzAdTableRow>span:nth-child(5){grid-column:2;grid-row:1;justify-self:end}
+  .kzAdUsers .kzAdTableRow>.kzAdRowEnd{grid-column:1/-1;justify-content:flex-start;padding-left:46px}
+  .kzAdPeriods .kzAdTableHead{display:grid;font-size:var(--fs-11)}
+  .kzAdPeriods .kzAdTableRow{grid-template-columns:1.4fr 1fr 1fr 1fr;gap:8px}
+  .kzAdPeriods .kzAdTableRow>span[data-label]::before{content:none}
+  .kzAdActivity li{grid-template-columns:auto minmax(0,1fr)}
+  .kzAdActivity time{grid-column:2}
+}
+
+/* ---------- Filter sheet ---------- */
+.kzSheetLayer{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:24px}
+.kzSheetShade{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;background:rgba(17,24,39,.45);cursor:pointer;box-shadow:none}
+.kzSheet{position:relative;display:flex;flex-direction:column;width:min(640px,100%);max-height:min(86vh,760px);background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);outline:0;overflow:hidden}
+.kzSheetHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--kz-line)}
+.kzSheetHead h2{margin:0!important;font-size:var(--fs-18)!important;color:var(--kz-ink)!important}
+.kzSheetHead button{display:flex;align-items:center;justify-content:center;width:36px;height:36px;min-height:0;margin:0 -8px 0 0;padding:0;border:0;border-radius:50%;background:var(--kz-soft);color:var(--kz-ink);font-size:24px;line-height:1;cursor:pointer;box-shadow:none}
+.kzSheetBody{flex:1;min-height:0;overflow-y:auto;padding:16px 20px;-webkit-overflow-scrolling:touch}
+.kzSheetBody .advancedFilters{display:grid!important;grid-template-columns:1fr 1fr;gap:14px 16px!important;margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+.kzSheetBody .advancedFilters>label{display:grid!important;gap:6px;margin:0!important;font-size:var(--fs-14)!important;font-weight:500!important;color:var(--kz-ink)!important}
+.kzSheetBody .advancedFilters select,.kzSheetBody .advancedFilters input:not([type=checkbox]){width:100%;min-height:44px!important;padding:0 12px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;font-size:16px!important;box-shadow:none!important;box-sizing:border-box}
+.kzSheetBody .advancedFilters .checkLabel{display:flex!important;align-items:center;gap:10px;grid-column:1/-1}
+.kzSheetBody .advancedFilters input[type=checkbox]{width:20px;height:20px;accent-color:var(--kz-accent)}
+.kzSheetBody .advancedFilters>button{grid-column:1/-1;justify-self:start;min-height:40px!important;padding:0 14px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;color:var(--kz-ink)!important;font-size:var(--fs-14)!important;box-shadow:none!important}
+.kzSheetBody .advancedFilters .homeHelp{grid-column:1/-1;margin:0;font-size:var(--fs-13);color:var(--kz-muted)}
+.kzSheetBody .advancedFilters>*:has(.azDateControl),.kzSheetBody .advancedFilters>.azDateField{min-width:0}
+.kzSheetFoot{padding:12px 20px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--kz-line)}
+.kzSheetFoot .kzButton{width:100%;height:48px}
+@media (max-width:767px){
+  .kzSheetLayer{align-items:flex-end;padding:0}
+  .kzSheet{width:100%;max-height:92vh;max-height:92dvh;border-radius:18px 18px 0 0}
+  .kzSheetBody .advancedFilters{grid-template-columns:1fr}
+  .kzHeaderCompact .kzSearch{display:none!important}
+  .kzHeaderCompact .kzHeaderInner{padding-bottom:8px}
+}
+.kzSheetBody .advancedFilters>*{width:100%!important;max-width:none!important;min-width:0}
+.kzSheetBody .advancedFilters select,.kzSheetBody .advancedFilters input:not([type=checkbox]){width:100%!important;max-width:none!important}
+.kzSheetBody .azDateField,.kzSheetBody .azDateField>label,.kzSheetBody .azDateField>span{display:grid!important;gap:6px;font-size:var(--fs-14)!important;font-weight:500!important;color:var(--kz-ink)!important}
+.kzSheetBody .azDateControl{display:flex!important;gap:8px;width:100%}
+.kzSheetBody .azDateControl input{flex:1 1 auto}
+.kzSheetBody .azDateControl>button{flex:0 0 44px!important;min-height:44px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;box-shadow:none!important}
+.kzSheetBody label{color:var(--kz-ink)!important;font-size:var(--fs-14)!important;font-weight:500!important}

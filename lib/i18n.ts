@@ -650,4 +650,5 @@ export const extraDictionary: Record<string, [string, string]> = {
   "“Daxil ol” bölməsində qeydiyyatdan keçdiyin e-poçt ünvanını və şifrəni yaz. Hesabın yoxdursa, “Qeydiyyatdan keç” seç. Şifrəni unutmusansa, “Şifrəni unutdum” ilə bərpa et.": ["В разделе «Войти» введи почту и пароль. Нет аккаунта — нажми «Регистрация». Забыл пароль — восстанови его.", "On “Sign in” enter your email and password. No account? Choose “Sign up”. Forgot your password? Reset it."],
   "Təsdiq məktubu gəlmir?": ["Не приходит письмо?", "Confirmation email not arriving?"],
   "Spam qovluğunu yoxla. Giriş səhifəsində yeni təsdiq məktubu istə. Yalnız ən son link və ya məktubdakı koddan istifadə et.": ["Проверь «Спам». Запроси новое письмо на странице входа. Используй только последнюю ссылку или код.", "Check spam. Request a new email on the sign-in page. Use only the latest link or code."],
+  "Gözləmədə": ["На проверке", "Pending"],
 };

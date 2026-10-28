@@ -47,7 +47,15 @@ export async function GET(request:NextRequest){
         hostQuery<{count:string}>(`select count(*)::text count from public.listing_reports where status='open'`),
         hostQuery<{status:string;count:string}>(`select status,count(*)::text count from public.listings group by status`),
       ]);
-      return reply({role:auth.role,counts:{users:Number(users[0]?.count||0),listings:Number(listings[0]?.count||0),messages:Number(messages[0]?.count||0),reports:Number(reports[0]?.count||0),statuses:Object.fromEntries(statusRows.map(row=>[row.status,Number(row.count)]))}});
+      // New accounts and listings for today (Baku time), the last 7 and 30 days.
+      const periods=`(created_at>=date_trunc('day',now() at time zone 'Asia/Baku') at time zone 'Asia/Baku')::int d1,(created_at>=now()-interval '7 days')::int d7,(created_at>=now()-interval '30 days')::int d30`;
+      const [userPeriods,listingPeriods,activity]=await Promise.all([
+        hostQuery<{today:string;week:string;month:string}>(`select coalesce(sum(d1),0)::text as today,coalesce(sum(d7),0)::text as week,coalesce(sum(d30),0)::text as month from (select ${periods} from auth.users where created_at>=now()-interval '30 days') x`),
+        hostQuery<{today:string;week:string;month:string}>(`select coalesce(sum(d1),0)::text as today,coalesce(sum(d7),0)::text as week,coalesce(sum(d30),0)::text as month from (select ${periods} from public.listings where created_at>=now()-interval '30 days') x`),
+        hostQuery(`select e.id,e.listing_id,e.action,e.actor_kind,e.new_status,e.reason,e.created_at,p.display_name actor_name,l.title from public.moderation_events e left join public.profiles p on p.id=e.actor_id left join public.listings l on l.id=e.listing_id where e.actor_kind='admin' order by e.id desc limit 8`),
+      ]);
+      const period=(rows:{today:string;week:string;month:string}[])=>({today:Number(rows[0]?.today||0),week:Number(rows[0]?.week||0),month:Number(rows[0]?.month||0)});
+      return reply({role:auth.role,periods:{users:period(userPeriods),listings:period(listingPeriods)},activity,counts:{users:Number(users[0]?.count||0),listings:Number(listings[0]?.count||0),messages:Number(messages[0]?.count||0),reports:Number(reports[0]?.count||0),statuses:Object.fromEntries(statusRows.map(row=>[row.status,Number(row.count)]))}});
     }
 
     if(action==="listings"){
@@ -63,6 +71,7 @@ export async function GET(request:NextRequest){
         else{values.push(`%${search}%`);where.push(`(l.title ilike $${values.length} or l.contact ilike $${values.length})`);}
       }
       if(kind==="new"||kind==="edited")add("l.review_kind=?",kind);
+      const owner=param(request,"owner");if(uuid.test(owner))add("l.owner_id=?",owner);
       if(day.test(from)&&Number.isFinite(Date.parse(from))){values.push(`${from}T00:00:00+04:00`);where.push(`l.created_at>=$${values.length}::timestamptz`);values.push(`${from}T23:59:59.999999+04:00`);where.push(`l.created_at<=$${values.length}::timestamptz`);}
       const condition=where.length?`where ${where.join(" and ")}`:"";
       const [items,total]=await Promise.all([
@@ -106,7 +115,7 @@ export async function GET(request:NextRequest){
 
     if(action==="users"){
       const query=param(request,"query").replace(/[%_]/g,"").slice(0,100);
-      const items=await hostQuery(`select u.id,u.email,u.email_confirmed_at,u.created_at,p.display_name,p.phone,p.profile_no,p.role,s.staff_role,(select count(*)::int from public.listings l where l.owner_id=u.id) listing_count from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where ($1='' or u.email ilike '%'||$1||'%' or p.display_name ilike '%'||$1||'%' or p.profile_no::text ilike '%'||$1||'%') order by u.created_at desc limit 100`,[query]);
+      const items=await hostQuery(`select u.id,u.email,u.email_confirmed_at,u.created_at,p.display_name,p.phone,p.profile_no,p.role,s.staff_role,(select count(*)::int from public.listings l where l.owner_id=u.id) listing_count from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where ($1='' or u.email ilike '%'||$1||'%' or p.display_name ilike '%'||$1||'%' or p.profile_no::text ilike '%'||$1||'%' or regexp_replace(p.phone,'\D','','g') ilike '%'||regexp_replace($1,'\D','','g')||'%' and regexp_replace($1,'\D','','g')<>'') order by u.created_at desc limit 100`,[query]);
       return reply({items,role:auth.role});
     }
 

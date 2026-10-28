@@ -20,7 +20,7 @@ import {
   money,
   periodName,
 } from "../../lib/marketplace";
-const listingTabs = [["published", "Hazırda saytda"], ["payment", "Ödəniş gözləyir"], ["expired", "Müddəti başa çatmış"], ["pending", "Yoxlanışda"], ["draft", "Dərc olunmamış"]];
+const listingTabs = [["published", "Hazırda saytda"], ["payment", "Ödəniş gözləyir"], ["expired", "Müddəti bitib"], ["pending", "Gözləmədə"], ["draft", "Dərc olunmamış"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
   const params=useSearchParams(),requested=params.get("section"),section=requested&&["listings","transactions","cards","limits"].includes(requested)?requested:"listings",screen:"menu"|"section"=balanceOnly||requested&&["listings","transactions","cards","limits"].includes(requested)?"section":"menu",[profileNumber,setProfileNumber]=useState("");
   useEffect(()=>{window.scrollTo(0,0);},[requested]);
@@ -158,7 +158,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 </div>
                 <div>
                   <b>{listings.filter((x) => effectiveListingStatus(x) === "pending").length}</b>
-                  <span>Yoxlanılır</span>
+                  <span>Gözləmədə</span>
                 </div>
               </div>
               <div className="sectionTitle">

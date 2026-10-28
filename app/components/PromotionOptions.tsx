@@ -34,7 +34,7 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }}>
       <div className="promotionModalHeader"><h3>Reklam paketləri</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}>×</button></div>
-      <p>Hazırda xidmətlər aktiv deyil. Paket və ödəniş üsulunu seçərək önbaxış edə bilərsən; pul tutulmur.</p>
+      <p>Ödəniş sistemi müvəqqəti işləmir. Paketlərlə tanış ola bilərsən; pul tutulmur və elanın sıralaması dəyişmir.</p>
       {selected && <button type="button" className="textButton" onClick={() => setSelected(null)}>← Başqa xidmət seç</button>}
       {packages.filter(pack => !selected || pack.kind === selected).map(pack => <details key={pack.kind} className="promotionPackage" open={selected === pack.kind}
         onToggle={(event) => {
@@ -58,7 +58,7 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
         </fieldset>
         <details className="inactivePayment">
           <summary>Ödə</summary>
-          <p role="status">Təəssüf ki, hazırda ödəniş etmək mümkün deyil. Texniki işlər aparılır. Hesabından pul tutulmadı.</p>
+          <p role="status">Ödəniş sistemi müvəqqəti işləmir. Hesabından pul tutulmadı.</p>
         </details>
       </details>)}
       {!eligible && <p>İrəlilətmə yalnız yayımlanmış elanlar üçün mümkün olacaq.</p>}

@@ -430,7 +430,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           </p>
         )}
         {!success && <aside className="notice" aria-label="Təhlükəsiz elan yerləşdirmə">
-          <strong>Təhlükəsizliyinə diqqət et.</strong> Pul almaq üçün kartının PIN/CVV-sini, SMS kodunu və hesab şifrəsini heç kimə vermə. Naməlum şəxslərin göndərdiyi ödəniş keçidlərini açma. Yalnız sənə məxsus və ya yerləşdirməyə icazən olan əşyanın düzgün məlumatlarını və şəkillərini paylaş.
+          <details><summary><strong>Təhlükəsizliyinə diqqət et</strong></summary> Pul almaq üçün kartının PIN/CVV-sini, SMS kodunu və hesab şifrəsini heç kimə vermə. Naməlum şəxslərin göndərdiyi ödəniş keçidlərini açma. Yalnız sənə məxsus və ya yerləşdirməyə icazən olan əşyanın düzgün məlumatlarını və şəkillərini paylaş.</details>
         </aside>}
         {loading ? (
           <section><p role="status">Hesab yoxlanılır...</p>

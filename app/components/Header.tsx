@@ -41,6 +41,10 @@ export default function Header() {
           kirayeal<span>.az</span>
           <small>{t("KİRAYƏ ÜÇÜN BİR ÜNVAN")}</small>
         </a></div>
+        <form className="headerSearch" action="/" method="get" role="search" aria-label="Axtarış">
+          <input name="q" type="search" maxLength={120} placeholder={t("Elan axtar")} aria-label={t("Elan axtar")} autoComplete="off" />
+          <button type="submit" aria-label={t("Axtar")}><NavigationIcon name="search"/></button>
+        </form>
         <nav aria-label="Əsas menyu">
           <a href="/#elanlar">{t("Elanlar")}</a>
           <a href="/?favorites=1#elanlar"><NavigationIcon name="heart"/>{t("Seçilmişlər")}</a>

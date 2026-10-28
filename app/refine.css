@@ -24,3 +24,5 @@ body:has(.stickyContact){padding-bottom:70px}
 .galleryStage:has(img[src*="/placeholders/"]){background:#ffeadf!important}
 .galleryStage:has(img[src*="/placeholders/"])::before{display:none!important}
 .galleryStage img[src*="/placeholders/"]{object-fit:contain!important}
+.galleryStage:has(img[src*="/placeholders/"]){aspect-ratio:16/10!important;height:auto!important;max-height:none!important}
+.stickyContact .add{background:#1f9d55!important;border-color:#1f9d55!important;color:#fff!important}

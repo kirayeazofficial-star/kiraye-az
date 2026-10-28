@@ -86,8 +86,8 @@ export default function Header() {
             window.dispatchEvent(new CustomEvent("kiraye:search", {detail: value}));
           }}>
             <NavigationIcon name="search"/>
-            <input name="q" type="search" maxLength={120} value={query} onChange={event=>setQuery(event.target.value)} placeholder={t("Əşya, ev, maşın axtarışı")} aria-label={t("Elan axtar")} autoComplete="off" enterKeyHint="search" />
-            <button type="submit">{t("Tap")}</button>
+            <input name="q" type="search" maxLength={120} value={query} onChange={event=>setQuery(event.target.value)} placeholder={t("Ev, maşın, avadanlıq axtar")} aria-label={t("Elan axtar")} autoComplete="off" enterKeyHint="search" />
+            <button type="submit">{t("Axtar")}</button>
           </form>
           <nav className="kzHeaderNav" aria-label="Əsas menyu">
             <a href="/?favorites=1#elanlar" aria-current={favoritesPage?"page":undefined} title={t("Seçilmişlər")} aria-label={t("Seçilmişlər")}><NavigationIcon name="heart"/></a>

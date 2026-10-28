@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return item
     ? {
         title: `${item.title} — ${money(item.price)} ₼/${periodName(item.rental_period)} | kirayeal.az`,
-        description: `${item.city}. ${item.description.slice(0, 150)}`,
+        description: `${categoryName(item.category)} kirayəsi, ${item.city}: ${item.title}. ${money(item.price)} ₼/${periodName(item.rental_period)}. ${item.description.replace(/\s+/g, " ").slice(0, 110)}`.slice(0, 300),
         alternates: { canonical: `${publicSiteUrl()}/listings/${item.id}` },
         robots: item.demo ? { index: false, follow: false } : undefined,
         openGraph: {
@@ -24,7 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           description: `${money(item.price)} ₼/${periodName(item.rental_period)} · ${item.city}`,
           images: item.images?.[0]?.startsWith("https://")
             ? [item.images[0]]
-            : [],
+            : item.images?.[0]?.startsWith("/api/media/")
+              ? [`${publicSiteUrl()}${item.images[0]}`]
+              : [`${publicSiteUrl()}/og-default.jpg`],
         },
       }
     : { title: "Elan | kirayeal.az", robots: { index: false } };

@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   icons: { icon: [{url:"/icon.svg",type:"image/svg+xml"},{url:"/favicon-48.png",sizes:"48x48",type:"image/png"}], apple: [{url:"/icon-192.png",sizes:"192x192"}] },
   title: "kirayeal.az — Kirayə elanları",
   description: "Ev, avtomobil və motosiklet kirayəsi üçün elan platforması.",
+  openGraph: { siteName: "kirayeal.az", locale: "az_AZ", type: "website", images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "kirayeal.az — Kirayə üçün bir ünvan" }] },
+  twitter: { card: "summary_large_image", images: ["/og-default.jpg"] },
 };
 
 export default function RootLayout({

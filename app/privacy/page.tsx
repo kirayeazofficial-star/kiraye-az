@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "Məxfilik siyasəti | kirayeal.az", description: "Kirayeal.az şəxsi məlumatları necə toplayır, saxlayır və qoruyur.", alternates: { canonical: "/privacy" } };
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 export default function Privacy() {

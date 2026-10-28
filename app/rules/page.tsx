@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 export const metadata: Metadata = {
   title: "Elan yerləşdirmə qaydaları | kirayeal.az",
   description: "Kirayeal.az-da elan yerləşdirmə, müddət, limit, redaktə və təhlükəsizlik qaydaları.",
+  alternates: { canonical: "/rules" },
 };
 
 const sections = [

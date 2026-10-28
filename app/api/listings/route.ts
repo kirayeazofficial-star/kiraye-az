@@ -54,7 +54,7 @@ function numberOrNull(value:unknown){if(value===null||value===''||value===undefi
 function validImages(value:unknown,userId:string){
   if(!Array.isArray(value)||value.length<1||value.length>6)return null;
   const prefix=`/api/media/${userId}/`;
-  const images=value.filter((item):item is string=>typeof item==='string'&&item.startsWith(prefix)&&/^\/api\/media\/[0-9a-f-]{36}\/(?:branded-v3-)?[0-9a-f-]{36}\.jpg$/i.test(item));
+  const images=value.filter((item):item is string=>typeof item==='string'&&((item.startsWith(prefix)&&/^\/api\/media\/[0-9a-f-]{36}\/(?:branded-v3-)?[0-9a-f-]{36}\.jpg$/i.test(item))||/^\/placeholders\/[a-z]+\.svg$/.test(item)));
   return images.length===value.length?images:null;
 }
 function listingPayload(body:Record<string,unknown>,userId:string){

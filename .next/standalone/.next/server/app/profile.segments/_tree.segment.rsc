@@ -2,7 +2,7 @@
 :HL["/_next/static/media/e4af272ccee01ff0-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/_next/static/css/4ab69b26c7530411.css","style"]
 :HL["/_next/static/css/f0b84e6318a1e7c3.css","style"]
-:HL["/_next/static/css/be5a390020c15c07.css","style"]
+:HL["/_next/static/css/9946d43ec81b3bc5.css","style"]
 2:[["children",{"s":"__PAGE__","h":160}]]
 1:[["children",{"s":"profile","h":96,"c":"$Q2"}]]
-0:{"b":"Kw1tXsr3yZocrE8fxJ81S","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
+0:{"b":"-XrOhMZxDbKkfSIlzn9Wc","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

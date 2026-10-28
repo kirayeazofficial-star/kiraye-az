@@ -38,6 +38,17 @@ if (await exists(join(source, "host/postgres"))) {
   console.log((run.stdout || "").trim());
   if (run.status !== 0)
     console.error("DATABASE NOT PREPARED (the site still updates):", (run.stderr || "").split("\n").filter(Boolean).slice(-2).join(" "));
+  else if (await exists(join(dirname(target), "kirayeal-import"))) {
+    // Old private data (not in git) waiting in ~/kirayeal-import is loaded once.
+    const imported = spawnSync(
+      process.execPath,
+      [join(source, "import-legacy.mjs"), join(dirname(target), "kirayeal-import"), join(source, ".next/standalone")],
+      { env: { ...process.env, ...settings }, encoding: "utf8" },
+    );
+    console.log((imported.stdout || "").trim());
+    if (imported.status !== 0)
+      console.error("LEGACY IMPORT FAILED (the site still updates):", (imported.stderr || "").split("\n").filter(Boolean).slice(-2).join(" "));
+  }
 }
 
 const fresh = join(target, ".next.new");

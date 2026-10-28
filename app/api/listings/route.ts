@@ -36,7 +36,11 @@ export async function GET(request:NextRequest){
     const favorites=(input.get('favorites')||'').split(',').filter(id=>uuid.test(id)).slice(0,200);if(input.has('favorites')){if(!favorites.length)return reply({items:[],total:0});values.push(favorites);where.push(`id=any($${values.length}::uuid[])`);}
     const query=(input.get('query')||'').trim().slice(0,120);for(const token of query.split(/\s+/).filter(Boolean).slice(0,8)){values.push(`%${token.replace(/[%_]/g,'')}%`);where.push(`(title ilike $${values.length} or city ilike $${values.length} or coalesce(district,'') ilike $${values.length} or coalesce(attributes->>'brand','') ilike $${values.length} or coalesce(attributes->>'model','') ilike $${values.length})`);}
     const page=Math.max(1,Math.min(1000,Number(input.get('page'))||1)),limit=Math.max(1,Math.min(200,Number(input.get('limit'))||18)),offset=(page-1)*limit;
-    const order=input.get('sort')==='low'?'price asc':input.get('sort')==='high'?'price desc':'created_at desc,id desc';
+    const promoted=`(promotion_until>now() and promotion_kind is not null)`;
+    const bumped=`greatest(created_at,case when bump_count>0 and bump_started<=now() then bump_started+interval '8 hours'*least(bump_count-1,floor(extract(epoch from now()-bump_started)/28800)) end)`;
+    const promotion=input.get('promotion')||'';if(promotion==='vip'||promotion==='premium')where.push(`${promoted} and promotion_kind='${promotion}'`);
+    const promotedFirst=scope==='public'?`case when ${promoted} and promotion_kind='premium' then 0 when ${promoted} then 1 else 2 end,`:'';
+    const order=input.get('sort')==='low'?`${promotedFirst}price asc`:input.get('sort')==='high'?`${promotedFirst}price desc`:`${promotedFirst}${bumped} desc,id desc`;
     const condition=where.length?`where ${where.join(' and ')}`:'';
     const fields=scope==='mine'?`*,(select count(*)::int from public.listing_views v where v.listing_id=public.listings.id) views`:'*';
     const [rows,total]=await Promise.all([hostQuery(`select ${fields} from public.listings ${condition} order by ${order} limit ${limit} offset ${offset}`,values as never[]),hostQuery<{count:string}>(`select count(*)::text count from public.listings ${condition}`,values as never[])]);

@@ -63,8 +63,8 @@ const sections = [
   {
     title: "Reklam xidmətləri və ödənişlər",
     rules: [
-      "VIP, Premium, irəli çəkmə və balans artırılması hazırda aktiv deyil. Paket və ödəniş üsulu seçimləri önbaxışdır; pul tutulmur və elanın sıralaması dəyişmir.",
-      "Ödənişli xidmətlər aktivləşdirildikdə qiymət, müddət, tətbiq və geri qaytarma şərtləri ödənişdən əvvəl göstəriləcək. Reklam xidməti elan qaydalarını və yerləşdirmə limitlərini aradan qaldırmır.",
+      "VIP, Premium və “İrəli çək” xidmətləri şəxsi hesabın balansından ödənilir və yalnız yayımlanmış elanlara tətbiq olunur. Bank kartı ilə onlayn balans artırımı hələ qoşulmayıb; balans idarəçi tərəfindən artırılır.",
+      "Xidmətin qiyməti və müddəti ödənişdən əvvəl göstərilir; alınmış xidmət geri qaytarılmır. Reklam xidməti elan qaydalarını və yerləşdirmə limitlərini aradan qaldırmır.",
       "Kirayə razılaşması hazırda tərəflər arasında bağlanır. Əşyanı və qarşı tərəfi yoxlamadan beh göndərmə; qiymət, depozit, müddət, zərər və qaytarılma şərtlərini əvvəlcədən yazılı razılaşdır.",
     ],
   },

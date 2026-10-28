@@ -1,17 +1,32 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
+import { PROMOTION_PLANS, formatAzn } from "../../lib/promotions";
 const packages = [
-  { title: "İrəli çək", icon: "⬆️", kind: "bump", description: "Elan seçdiyin sayda, hər 8 saatdan bir irəli çəkiləcək.", plans: ["3 dəfə (8 saatdan bir) — 1,50 AZN", "9 dəfə (8 saatdan bir) — 2 AZN", "15 dəfə (8 saatdan bir) — 3 AZN", "30 dəfə (8 saatdan bir) — 5 AZN"] },
-  { title: "VIP", icon: "💎", kind: "vip", description: "Xüsusi VIP bölməsində, öz kateqoriyasının VIP elanları arasında növbəli göstərilmə və hər gün irəli çəkmə.", plans: ["1 gün — 3 AZN", "5 gün — 6 AZN", "15 gün — 15 AZN", "30 gün — 25 AZN"] },
-  { title: "Premium", icon: "👑", kind: "premium", description: "VIP üstünlükləri, hər gün irəli çəkmə və xidmət müddətində əsas səhifənin Premium bölməsində göstərilmə.", plans: ["1 gün — 5 AZN", "5 gün — 15 AZN", "15 gün — 30 AZN", "30 gün — 50 AZN"] },
+  { title: "İrəli çək", icon: "⬆️", kind: "bump", description: "Elan seçdiyin sayda, hər 8 saatdan bir irəli çəkiləcək." },
+  { title: "VIP", icon: "💎", kind: "vip", description: "Öz kateqoriyasında adi elanlardan yuxarıda, VIP nişanı ilə göstərilir." },
+  { title: "Premium", icon: "👑", kind: "premium", description: "Bütün elanların ən yuxarısında, Premium nişanı ilə göstərilir." },
 ];
-export default function PromotionOptions({ eligible = true }: { eligible?: boolean }) {
+export default function PromotionOptions({ eligible = true, listingId = "" }: { eligible?: boolean; listingId?: string }) {
   const id = useId();
   const root = useRef<HTMLDetailsElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLElement>(null);
   const [opened, setOpened] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
+  const [plan, setPlan] = useState<Record<string, string>>({});
+  const [balance, setBalance] = useState<number | null>(null);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { if (!opened) return; fetch("/api/wallet", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => { if (d) setBalance(d.balance); }).catch(() => {}); }, [opened]);
+  async function buy(kind: string) {
+    const planId = plan[kind] || PROMOTION_PLANS.find(p => p.kind === kind)!.id;
+    setBusy(true); setMessage("");
+    try {
+      const response = await fetch("/api/wallet", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ listingId, planId }) }), data = await response.json();
+      if (response.ok) { setBalance(data.balance); setMessage("Xidmət aktivləşdirildi. Elan sıralamada irəli çıxacaq."); }
+      else setMessage(data.error === "INSUFFICIENT_BALANCE" ? "Balansda kifayət qədər vəsait yoxdur. Balansı artırmaq üçün idarəçi ilə əlaqə saxla." : data.error === "LISTING_NOT_ELIGIBLE" ? "Yalnız yayımlanmış elanlar üçün mümkündür." : "Əməliyyat tamamlanmadı. Bir az sonra yenidən yoxla.");
+    } catch { setMessage("Əməliyyat tamamlanmadı. Bir az sonra yenidən yoxla."); } finally { setBusy(false); }
+  }
   function close() { if (root.current) root.current.open = false; }
   useEffect(() => {
     if (!opened) return;
@@ -34,7 +49,7 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }}>
       <div className="promotionModalHeader"><h3>Reklam paketləri</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}>×</button></div>
-      <p>Hazırda xidmətlər aktiv deyil. Paket və ödəniş üsulunu seçərək önbaxış edə bilərsən; pul tutulmur.</p>
+      <p>Xidmət şəxsi hesabın balansından ödənilir{balance !== null ? <> · Balans: <strong>{formatAzn(balance)}</strong></> : null}.</p>{message && <p role="status">{message}</p>}
       {selected && <button type="button" className="textButton" onClick={() => setSelected(null)}>← Başqa xidmət seç</button>}
       {packages.filter(pack => !selected || pack.kind === selected).map(pack => <details key={pack.kind} className="promotionPackage" open={selected === pack.kind}
         onToggle={(event) => {
@@ -47,19 +62,12 @@ export default function PromotionOptions({ eligible = true }: { eligible?: boole
         </summary>
         <p>{pack.description}</p>
         <fieldset className="paymentChoices"><legend>Xidmətin müddəti</legend>
-          {pack.plans.map((plan, index) => <label key={plan}>
-            <input type="radio" name={`${id}-${pack.kind}-plan`} value={plan} defaultChecked={index === 0} />
-            <span>{plan}</span>
+          {PROMOTION_PLANS.filter(p => p.kind === pack.kind).map((p, index) => <label key={p.id}>
+            <input type="radio" name={`${id}-${pack.kind}-plan`} value={p.id} checked={(plan[pack.kind] || (index === 0 ? p.id : "")) === p.id} onChange={() => setPlan(current => ({ ...current, [pack.kind]: p.id }))} />
+            <span>{p.label} — {formatAzn(p.price)}</span>
           </label>)}
         </fieldset>
-        <fieldset className="paymentChoices"><legend>Ödəniş üsulu</legend>
-          <label><input type="radio" name={`${id}-${pack.kind}-method`} value="card" defaultChecked /><span>Bank kartı</span></label>
-          <label><input type="radio" name={`${id}-${pack.kind}-method`} value="balance" /><span>Şəxsi hesab (0,00 AZN)</span></label>
-        </fieldset>
-        <details className="inactivePayment">
-          <summary>Ödə</summary>
-          <p role="status">Təəssüf ki, hazırda ödəniş etmək mümkün deyil. Texniki işlər aparılır. Hesabından pul tutulmadı.</p>
-        </details>
+        <button type="button" className="add" disabled={busy || !eligible || !listingId} onClick={() => buy(pack.kind)}>{busy ? "Gözlə…" : "Balansdan ödə"}</button>
       </details>)}
       {!eligible && <p>İrəlilətmə yalnız yayımlanmış elanlar üçün mümkün olacaq.</p>}
     </div>

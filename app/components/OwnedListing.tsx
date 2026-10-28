@@ -38,7 +38,7 @@ export default function OwnedListing({ id }: { id: string }) {
         yayımlanmış elanlar hamıya göstərilir.
       </p>
       <ListingDetails item={item} />
-      <PromotionOptions eligible={item.status === "published"} />
+      <PromotionOptions eligible={item.status === "published"} listingId={item.id} />
     </>
   ) : (
     <section className="empty">

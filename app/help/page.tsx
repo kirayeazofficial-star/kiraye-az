@@ -34,7 +34,7 @@ export default function Help() {
             ],
             [
               "Saytda ödəniş edə bilərəm?",
-              "Hazırda platforma ödəniş və rezervasiya qəbul etmir. Elan sahibi ilə birbaşa razılaşırsan. Əmlakı görmədən beh göndərmə.",
+              "Kirayə ödənişi saytda edilmir, elan sahibi ilə birbaşa razılaşırsan. Əmlakı görmədən beh göndərmə. Yalnız reklam xidmətləri (VIP, Premium, İrəli çək) şəxsi hesabın balansından ödənilir.",
             ],
             [
               "Şübhəli elanı necə bildirim?",

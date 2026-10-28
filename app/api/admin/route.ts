@@ -1,5 +1,6 @@
 import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../lib/host/db";
+import {randomUUID} from "node:crypto";
 import {currentUser} from "../../../lib/host/session";
 
 export const dynamic="force-dynamic";
@@ -48,7 +49,7 @@ export async function GET(request:NextRequest){
     }
     if(action==="users"){
       const query=(request.nextUrl.searchParams.get("query")||"").trim().replace(/[%_]/g,"").slice(0,100);
-      const items=await hostQuery(`select u.id,u.email,u.email_confirmed_at,u.created_at,p.display_name,p.phone,p.profile_no,p.role,s.staff_role,(select count(*)::int from public.listings l where l.owner_id=u.id) listing_count from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where ($1='' or u.email ilike '%'||$1||'%' or p.display_name ilike '%'||$1||'%' or p.profile_no::text ilike '%'||$1||'%') order by u.created_at desc limit 100`,[query]);
+      const items=await hostQuery(`select u.id,u.email,u.email_confirmed_at,u.created_at,p.display_name,p.phone,p.profile_no,p.role,s.staff_role,(select count(*)::int from public.listings l where l.owner_id=u.id) listing_count,(select coalesce(sum(amount),0)::float from public.wallet_entries w where w.owner_id=u.id) balance from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where ($1='' or u.email ilike '%'||$1||'%' or p.display_name ilike '%'||$1||'%' or p.profile_no::text ilike '%'||$1||'%') order by u.created_at desc limit 100`,[query]);
       return reply({items,role:auth.role});
     }
     if(action==="reports"){
@@ -74,6 +75,14 @@ export async function POST(request:NextRequest){
       const rows=await hostQuery<{id:string}>(`update public.listings set status=$2,rejection_reason=$3,first_published_at=case when $2='published' then coalesce(first_published_at,now()) else first_published_at end,expires_at=case when $2='published' then now()+interval '30 days' else expires_at end,updated_at=now() where id=$1 and status='pending' returning id`,[id,status,reason||null]);
       if(!rows[0])return reply({error:"NOT_FOUND"},404);
       await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status,reason) select id,owner_id,$2,'admin',$3,'pending',$3,$4 from public.listings where id=$1`,[id,auth.user.id,status,reason||null]);
+      return reply({ok:true});
+    }
+    if(action==="topup"){
+      const email=String(body.email||"").trim().toLowerCase(),amount=Number(body.amount),memo=String(body.memo||"").trim().slice(0,200);
+      if(!email||!Number.isFinite(amount)||amount<=0||amount>10000)return reply({error:"INVALID_REQUEST"},400);
+      const target=await hostQuery<{id:string}>(`select u.id from auth.users u join public.profiles p on p.id=u.id where lower(u.email)=$1`,[email]);
+      if(!target[0])return reply({error:"USER_NOT_FOUND"},404);
+      await hostQuery(`insert into public.wallet_entries(owner_id,amount,kind,provider_reference,memo) values($1,$2,'topup',$3,$4)`,[target[0].id,Math.round(amount*100)/100,`admin-${randomUUID()}`,memo||`Admin tərəfindən (${auth.user.email})`]);
       return reply({ok:true});
     }
     if(action==="staff"){

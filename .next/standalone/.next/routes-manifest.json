@@ -162,12 +162,6 @@
       "namedRegex": "^/api/uploads(?:/)?$"
     },
     {
-      "page": "/api/wallet",
-      "regex": "^/api/wallet(?:/)?$",
-      "routeKeys": {},
-      "namedRegex": "^/api/wallet(?:/)?$"
-    },
-    {
       "page": "/auth/callback",
       "regex": "^/auth/callback(?:/)?$",
       "routeKeys": {},

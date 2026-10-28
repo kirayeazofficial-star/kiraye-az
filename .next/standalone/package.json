@@ -1,0 +1,32 @@
+{
+  "name": "kiraye-az",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "node scripts/start-server.mjs",
+    "lint": "tsc --noEmit --incremental false",
+    "test:ui": "node tests/marketplace.cjs",
+    "postbuild": "node scripts/prepare-standalone.mjs",
+    "package:hosting": "node scripts/package-hosting.mjs",
+    "prebuild": "node scripts/prepare-browser-compat.mjs",
+    "predev": "node scripts/prepare-browser-compat.mjs"
+  },
+  "dependencies": {
+    "@types/node": "22.10.2",
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
+    "next": "^16.4.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "typescript": "5.7.2"
+  },
+  "browserslist": [
+    "Chrome >= 80",
+    "Edge >= 80",
+    "Firefox >= 78",
+    "Safari >= 15",
+    "iOS >= 15"
+  ]
+}

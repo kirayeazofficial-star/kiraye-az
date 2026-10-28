@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+Disallow: /listings/example-
+
+Sitemap: https://kirayeal.az/sitemap.xml

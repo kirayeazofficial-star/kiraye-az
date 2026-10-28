@@ -42,7 +42,7 @@ export async function GET(request:NextRequest){
     const promotedFirst=scope==='public'?`case when ${promoted} and promotion_kind='premium' then 0 when ${promoted} then 1 else 2 end,`:'';
     const order=input.get('sort')==='low'?`${promotedFirst}price asc`:input.get('sort')==='high'?`${promotedFirst}price desc`:`${promotedFirst}${bumped} desc,id desc`;
     const condition=where.length?`where ${where.join(' and ')}`:'';
-    const fields=scope==='mine'?`*,(select count(*)::int from public.listing_views v where v.listing_id=public.listings.id) views`:'*';
+    const fields=scope==='mine'?`*,(select count(*)::int from public.listing_views v where v.listing_id=public.listings.id) as views`:'*';
     const [rows,total]=await Promise.all([hostQuery(`select ${fields} from public.listings ${condition} order by ${order} limit ${limit} offset ${offset}`,values as never[]),hostQuery<{count:string}>(`select count(*)::text count from public.listings ${condition}`,values as never[])]);
     return reply({items:rows,total:Number(total[0]?.count||0)});
   }catch{return reply({error:'LISTINGS_UNAVAILABLE'},503);}

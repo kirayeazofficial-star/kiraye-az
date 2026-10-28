@@ -36,13 +36,31 @@ button,input,select,textarea{font-family:inherit}
 .error,.notice,.formError{border-radius:12px!important}
 
 /* Catalogue */
-.rentalHome .searchPanel{border:1px solid var(--ds-line)!important;border-radius:16px!important;box-shadow:0 12px 32px rgba(20,55,46,.08)!important}
-.rentalHome .categorySection,.rentalHome .listingSection{max-width:1180px!important}
-.rentalHome .categorySection{padding-top:28px!important}
-.categoryScroller .categories{gap:14px 10px!important}
+.rentalHome{padding:26px 0 72px!important;background:linear-gradient(180deg,#f4f7f5 0,#fff 560px)!important}
+.rentalHome .catalogIntro{position:relative!important;display:block!important;clip:auto!important;width:min(1180px,calc(100% - 32px))!important;height:auto!important;min-height:218px!important;margin:0 auto!important;padding:42px 48px 78px!important;overflow:hidden!important;border-radius:26px!important;background:linear-gradient(125deg,#103f35 0%,#176a58 62%,#218571 100%)!important;box-shadow:0 22px 54px rgba(15,65,53,.18)!important}
+.rentalHome .catalogIntro::before,.rentalHome .catalogIntro::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.rentalHome .catalogIntro::before{width:330px;height:330px;right:-70px;top:-160px;background:rgba(255,255,255,.08)}
+.rentalHome .catalogIntro::after{width:210px;height:210px;right:190px;bottom:-150px;background:rgba(255,255,255,.055)}
+.rentalHome .catalogIntro>div{position:relative;z-index:1;max-width:710px!important}
+.rentalHome .catalogIntro h1{margin:0!important;color:#fff!important;font-size:clamp(38px,4vw,54px)!important;line-height:1.02!important;letter-spacing:-2.2px!important}
+.rentalHome .catalogIntro h1 em{color:#ff9879!important;font-style:normal!important}
+.rentalHome .catalogIntro>div>span{display:block!important;max-width:650px!important;margin-top:14px!important;color:#d9ebe5!important;font-size:15px!important;line-height:1.55!important}
+.rentalHome .searchWrap{position:relative!important;z-index:4!important;width:min(1080px,calc(100% - 64px))!important;margin:-40px auto 0!important;padding:0!important;transform:none!important}
+.rentalHome .searchPanel{min-height:80px!important;padding:10px 10px 10px 22px!important;border:1px solid rgba(255,255,255,.72)!important;border-radius:18px!important;background:#fff!important;box-shadow:0 18px 42px rgba(20,55,46,.14)!important}
+.rentalHome .searchPanel input{font-size:18px!important}
+.rentalHome .searchPanel .add{min-width:178px!important;border-radius:13px!important}
+.rentalHome .categorySection,.rentalHome .listingSection{width:min(1180px,calc(100% - 32px))!important;max-width:1180px!important}
+.rentalHome .categorySection{margin-top:24px!important;padding:26px 28px 24px!important;border:1px solid var(--ds-line)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 10px 35px rgba(18,53,44,.055)!important}
+.rentalHome .categorySection .sectionTitle h2{font-size:22px!important;letter-spacing:-.4px!important}
+.categoryScroller .categories{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:18px 12px!important;overflow:visible!important}
+.categoryScroller .categories>button{width:100%!important;min-height:122px!important;padding:8px!important;border-radius:16px!important;background:transparent!important}
 .categoryScroller .categories>button .categoryArtwork{background:#f4f7f5!important;border:1px solid #edf1ef!important;border-radius:16px!important;transition:transform .16s,border-color .16s,box-shadow .16s!important}
+.categoryScroller .categories>button .categoryArtwork{min-height:78px!important}
+.categoryScroller .categories>button strong{font-size:12px!important;line-height:1.3!important}
 .categoryScroller .categories>button:hover .categoryArtwork{transform:translateY(-2px);border-color:#cbdad4!important;box-shadow:0 9px 20px rgba(21,61,51,.07)!important}
-.listingSection>.sectionTitle{margin-bottom:16px!important;padding-bottom:12px!important;border-bottom:1px solid var(--ds-line)!important}
+.rentalHome .listingSection{margin-top:22px!important;padding:26px 28px!important;border:1px solid var(--ds-line)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 10px 35px rgba(18,53,44,.045)!important}
+.listingSection>.sectionTitle{margin-bottom:16px!important;padding-bottom:14px!important;border-bottom:1px solid var(--ds-line)!important}
+.rentalHome .empty{border:1px dashed #cad8d2!important;background:#f8faf9!important}
 .listingCard .photo{border:1px solid #e8eeeb!important;border-radius:14px!important;background:#eef2f0!important}
 .listingCard:hover .photo{box-shadow:0 10px 24px rgba(18,52,44,.1)!important}
 .listingCard .cardBody{padding-top:9px!important}
@@ -147,6 +165,7 @@ button,input,select,textarea{font-family:inherit}
   .adminWorkspace>.adminSections .adminNavTitle,.adminBackLink{display:none!important}
   .adminWorkspace>.adminSections button{flex:none!important;width:auto!important;min-height:40px!important;padding:8px 13px!important;border:1px solid var(--ds-line)!important;border-radius:999px!important;white-space:nowrap!important}
   .adminWorkspace>.adminSections button::before{display:none!important}
+  .categoryScroller .categories{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 }
 
 @media(max-width:760px){
@@ -157,14 +176,27 @@ button,input,select,textarea{font-family:inherit}
   .mobileNav a{color:#71827b!important}
   .mobileNav a[aria-current=page]{color:var(--ds-brand)!important}
   .mobileNav .mobilePublish{color:var(--ds-accent)!important}
-  .rentalHome{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
+  .rentalHome{padding:12px 0 calc(104px + env(safe-area-inset-bottom))!important;background:linear-gradient(180deg,#f4f8f6 0,#fff 430px)!important}
+  .rentalHome .catalogIntro{width:calc(100% - 24px)!important;min-height:174px!important;padding:24px 20px 52px!important;border-radius:20px!important;box-shadow:0 15px 34px rgba(15,65,53,.16)!important}
+  .rentalHome .catalogIntro h1{max-width:330px!important;font-size:31px!important;line-height:1.05!important;letter-spacing:-1.25px!important}
+  .rentalHome .catalogIntro>div>span{margin-top:9px!important;font-size:12.5px!important;line-height:1.45!important}
+  .rentalHome .searchWrap{width:calc(100% - 40px)!important;margin:-30px auto 0!important}
+  .rentalHome .searchPanel{grid-template-columns:minmax(0,1fr) 48px!important;min-height:62px!important;padding:6px 6px 6px 14px!important;border-radius:15px!important;box-shadow:0 13px 30px rgba(20,55,46,.14)!important}
+  .rentalHome .searchPanel label>span{display:none!important}
+  .rentalHome .searchPanel input{font-size:16px!important}
+  .rentalHome .searchPanel .add{width:48px!important;min-width:48px!important;min-height:48px!important;padding:0!important}
+  .rentalHome .categorySection{width:100%!important;margin-top:16px!important;padding:18px 12px 15px!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+  .rentalHome .categorySection .sectionTitle h2{font-size:19px!important}
+  .categoryScroller .categories{display:flex!important;gap:10px!important;margin-inline:-12px!important;padding:2px 12px 8px!important;overflow-x:auto!important;scroll-snap-type:x proximity!important}
+  .categoryScroller .categories>button{flex:0 0 92px!important;min-height:110px!important;padding:6px!important;scroll-snap-align:start!important}
+  .categoryScroller .categories>button .categoryArtwork{min-height:68px!important}
+  .rentalHome .listingSection{width:calc(100% - 24px)!important;margin:6px auto 0!important;padding:18px 0 0!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+  .rentalHome .listingSection>.sectionTitle{padding-inline:0!important}
   .rentalHome .empty{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px 10px!important;align-items:center!important;margin-bottom:18px!important;padding:16px 14px!important}
   .rentalHome .empty>span,.rentalHome .empty>h3,.rentalHome .empty>p{grid-column:1/-1!important;margin-block:0!important}
   .rentalHome .empty>span{font-size:30px!important}
   .rentalHome .empty .add{width:100%!important;min-height:44px!important;margin:2px 0 0!important;padding:10px 8px!important;text-align:center!important}
-  .siteFooter{gap:18px!important;padding:24px 16px calc(88px + env(safe-area-inset-bottom))!important}
-  .siteFooter .footerBrand p{margin-bottom:0!important}
-  .siteFooter .footerCopyright{margin-top:0!important}
+  .siteFooter{display:none!important}
   .accountDashboard{padding:16px 12px 92px!important}
   .accountDashboard .accountHeading h1{font-size:24px!important}
   .accountDashboard .cabinetLayout{grid-template-columns:1fr!important;gap:13px!important}

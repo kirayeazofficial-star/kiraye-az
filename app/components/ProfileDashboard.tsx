@@ -105,7 +105,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         <div className="sectionTitle accountHeading">
           <div>
             <h1>{identity||"Profil"}</h1>
-            {userId && <p className="accountIdentity">{accountPhone ? <span>{formatContact(accountPhone)}</span> : <Link href="/account">Telefon nömrəni əlavə et</Link>}{accountEmail&&<span>{accountEmail}</span>}</p>}
+            {userId && <p className="accountIdentity">{profileNumber&&<span className="accountId">ID: {profileNumber}</span>}{accountPhone ? <span>{formatContact(accountPhone)}</span> : <Link href="/account">Telefon nömrəni əlavə et</Link>}{accountEmail&&<span>{accountEmail}</span>}</p>}
           </div>
         </div>
         {loading ? (

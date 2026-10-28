@@ -27,7 +27,7 @@ export async function GET(request:NextRequest){
     const owner=input.get('owner')||'';if(uuid.test(owner))add('owner_id=?',owner);
     const city=(input.get('city')||'').slice(0,80);if(city)add('city=?',city);
     const period=input.get('period')||'';if(periods.has(period))add('rental_period=?',period);
-    for(const [key,op] of [['min','>='],['max','<=']] as const){const number=Number(input.get(key));if(Number.isFinite(number)&&number>=0)add(`price${op}?`,number);}
+    for(const [key,op] of [['min','>='],['max','<=']] as const){const raw=(input.get(key)||'').trim();const number=Number(raw);if(raw&&Number.isFinite(number)&&number>=0)add(`price${op}?`,number);}
     const rooms=input.get('rooms')||'';if(rooms==='4+')add('rooms>=?',4);else if(/^\d+$/.test(rooms))add('rooms=?',Number(rooms));
     const area=Number(input.get('area'));if(Number.isFinite(area)&&area>0)add('area_m2>=?',area);
     const brand=(input.get('brand')||'').replace(/[%_]/g,'').slice(0,40);if(brand)add(`attributes->>'brand' ilike ?`,`%${brand}%`);

@@ -2,7 +2,7 @@ import {readFile} from "node:fs/promises";
 import path from "node:path";
 import {NextResponse} from "next/server";
 
-const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i,fileName=/^[0-9a-f-]{36}\.jpg$/i;
+const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i,fileName=/^(?:branded-v3-)?[0-9a-f-]{36}\.jpg$/i;
 export async function GET(_request:Request,{params}:{params:Promise<{owner:string;file:string}>}){
   try{
     const {owner,file}=await params,root=process.env.KIRAYE_STORAGE_ROOT||"";

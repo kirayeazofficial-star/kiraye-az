@@ -59,7 +59,7 @@ export default function Header() {
   }, []);
   return (
     <>
-      <header className="kzHeader">
+      <header className={`kzHeader${["/profile","/account","/balance","/admin","/messages","/new","/edit"].some(path => pathname === path || pathname?.startsWith(path + "/")) ? " kzHeaderCompact" : ""}`}>
         <div className="kzHeaderInner">
           <SiteMenu />
           <a className="kzLogo" href="/" aria-label="kirayeal.az — ana səhifə">kirayeal<span>.az</span></a>

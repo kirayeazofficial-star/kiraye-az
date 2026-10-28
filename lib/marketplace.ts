@@ -171,10 +171,10 @@ export const categoryName = (id: string) =>
 export const periodName = (id: string) => (id === "monthly" ? "ay" : id === "weekly" ? "həftə" : "gün");
 export const statusName = (id: string) =>
   ({
-    pending: "Yoxlanılır",
+    pending: "Gözləmədə",
     published: "Yayımlanıb",
-    rejected: "Qəbul edilməyib",
-    archived: "Arxivdə",
+    rejected: "Rədd edilib",
+    archived: "Müddəti bitib",
     expired: "Müddəti bitib",
     draft: "Qaralama",
   })[id] ?? id;

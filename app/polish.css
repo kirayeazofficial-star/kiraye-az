@@ -80,3 +80,35 @@
 .imageViewer .imageViewerClose:focus,.imageViewer .imageViewerClose:focus-visible{outline:none!important;box-shadow:0 0 0 2px #ffffff55}
 .imageViewerStage img{max-width:100%;max-height:100%;width:auto;height:auto;margin:auto}
 .photo img,.relatedPhoto img{width:100%;height:100%;object-fit:cover}
+
+/* ---- admin / leader panel: simpler, calmer ---- */
+.adminDashboard .adminNavIcon{display:none!important}
+.adminDashboard .adminSections{gap:4px}
+.adminDashboard .adminNavTitle{margin:4px 10px 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7b8a84}
+@media (min-width:761px){
+.adminDashboard .adminSections button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;border-radius:10px;background:transparent;font-size:14px;font-weight:600;color:#28443d}
+.adminDashboard .adminSections button:hover{background:#f1f5f3}
+.adminDashboard .adminSections button[aria-pressed="true"]{background:#e3f0eb;color:#0f4b3e}
+.adminDashboard .adminBackLink{display:block;margin-top:10px;padding:10px 12px;border-top:1px solid #e7eeea;font-size:13px;color:#4c625b}
+}
+.adminDashboard .profileTabs,.adminDashboard .adminExtraFilters{scrollbar-width:none}
+.adminDashboard .profileTabs::-webkit-scrollbar{display:none}
+.adminDashboard .profileTabs{display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap}
+.adminDashboard .profileTabs button{flex:0 0 auto;white-space:nowrap}
+.adminDashboard input,.adminDashboard select{min-height:42px;border:1px solid #d9e3de;border-radius:10px;background:#fff;padding:0 12px;font-size:14px}
+.adminDashboard .adminSearch{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.adminDashboard .adminSearch input{flex:1 1 220px}
+.adminDashboard .adminExtraFilters{display:flex;gap:12px;flex-wrap:wrap}
+.adminDashboard .adminExtraFilters label{display:grid;gap:4px;font-size:12px;color:#5d7068}
+@media (max-width:760px){
+.adminDashboard > header p,.adminDashboard .adminSecure{display:none}
+.adminDashboard h1{font-size:22px!important}
+.adminDashboard .adminExtraFilters label{flex:1 1 140px}
+}
+.adminDashboard .adminSearch{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.adminDashboard .adminSearch>*:first-child:not(input):not(button){grid-column:1/-1;font-size:12px;color:#5d7068}
+.adminDashboard .adminSearch input{min-width:0}
+/* tap.az-style photo frame: blurred fill instead of grey bands */
+.galleryStage{position:relative;isolation:isolate;background:#1b2a26}
+.galleryStage::before{content:"";position:absolute;inset:-24px;z-index:-1;background:var(--bg) center/cover no-repeat;filter:blur(22px) brightness(.85);transform:scale(1.1)}
+.galleryStage img{background:transparent!important}

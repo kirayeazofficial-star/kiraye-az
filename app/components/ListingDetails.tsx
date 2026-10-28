@@ -1,4 +1,5 @@
 "use client";
+import type { CSSProperties } from "react";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
 import ImageViewer from "./ImageViewer";
@@ -129,7 +130,7 @@ export default function ListingDetails({
             moveImage(event.key === "ArrowLeft" ? -1 : 1);
           }
         }}>
-        <div className="galleryStage"
+        <div className="galleryStage" style={{["--bg" as string]:`url("${item.images?.[selectedImage]||"/placeholder.svg"}")`} as CSSProperties}
           onTouchStart={(event) => {
             swiped.current = false;
             const touch = event.touches.length === 1 ? event.touches[0] : null;

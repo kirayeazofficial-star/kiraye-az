@@ -1,4 +1,4 @@
 import { isListingExpired } from "../../lib/listing-lifecycle";
 import type { Listing } from '../../lib/marketplace';
 export function activePromotion(item:Listing){return !item.demo&&!isListingExpired(item)&&item.status==='published'&&item.promotion_until&&Date.parse(item.promotion_until)>Date.now()?item.promotion_kind:null;}
-export default function PromotionBadges({item}:{item:Listing}){const kind=activePromotion(item);return kind?<span className="promotionBadges" aria-label={kind==='premium'?'Premium elan':'VIP elan'}>{kind==='premium'&&<svg width="17" height="17" viewBox="0 0 24 24" fill="#edaa23" aria-hidden="true"><path d="m2 5 5 5 5-8 5 8 5-5-3 15H5Z"/></svg>}<svg width="17" height="17" viewBox="0 0 24 24" fill="#f36d42" aria-hidden="true"><path d="m1 8 5-6h12l5 6-11 15Z"/></svg></span>:null;}
+export default function PromotionBadges({item}:{item:Listing}){const kind=activePromotion(item);return kind?<span className={`kzBadge kzBadge-${kind}`}>{kind==='premium'?'Premium':'VIP'}</span>:null;}

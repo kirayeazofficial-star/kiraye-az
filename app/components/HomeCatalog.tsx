@@ -1,12 +1,10 @@
 "use client";
-import NavigationIcon from "./NavigationIcon";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
 import { useCallback } from "react";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { useLanguage } from "./LanguageProvider";
-import { readSearchHistory, rememberSearch, clearSearchHistory } from "../../lib/search-history";
 import { rentalCategorySpecs } from "../../lib/rental-category-specs";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -40,7 +38,6 @@ export default function Home() {
     [notice, setNotice] = useState(""),
     [demo, setDemo] = useState(false);
   const [savedSearches,setSavedSearches] = useState<SavedSearch[]>([]);
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [category, setCategory] = useState(""),
     [query, setQuery] = useState(""),
     [city, setCity] = useState(""),
@@ -52,7 +49,6 @@ export default function Home() {
     [onlyFavorites, setOnlyFavorites] = useState(false),
     [page, setPage] = useState(1),
     [advanced, setAdvanced] = useState(false),
-    [allCategories, setAllCategories] = useState(false),
     [rooms, setRooms] = useState(""),
     [area, setArea] = useState(""),
     [brand, setBrand] = useState(""),
@@ -67,7 +63,6 @@ export default function Home() {
     const initialCategory=params.get("category");if(categories.some(item=>item.id===initialCategory))setCategory(initialCategory!);
     const owner=params.get("owner");if(owner && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(owner))setOwnerFilter(owner);
     const initialQuery=params.get("q");if(initialQuery)setQuery(initialQuery.slice(0,120));
-    setSearchHistory(readSearchHistory());
     setSavedSearches(readSavedSearches());
     setFavorites(readFavorites());
     setOnlyFavorites(
@@ -78,7 +73,18 @@ export default function Home() {
     return () => window.removeEventListener("kiraye:favorites", syncFavorites);
   }, []);
   const [ownerFilter,setOwnerFilter]=useState("");
-  const [moreCategories, setMoreCategories] = useState(true);
+  useEffect(() => {
+    const search = (event: Event) => {
+      const value = String((event as CustomEvent<string>).detail || "").slice(0, 120);
+      const intent = rentalSearchIntent(value);
+      if (intent.categories.length === 1) changeCategory(intent.categories[0]);
+      setQuery(value);
+      setOnlyFavorites(false);
+      requestAnimationFrame(() => document.getElementById("elanlar")?.scrollIntoView({ behavior: "smooth" }));
+    };
+    window.addEventListener("kiraye:search", search);
+    return () => window.removeEventListener("kiraye:search", search);
+  }, []);
   const closeFilters = useCallback(() => setAdvanced(false), []);
   const favoriteIds = onlyFavorites ? favorites.join(",") : "";
   useEffect(() => {
@@ -278,7 +284,6 @@ export default function Home() {
     const v=item.values;setQuery(v.query);changeCategory(v.category);setCity(v.city);setPeriod(v.period);setMin(v.min);setMax(v.max);setSort(v.sort);setRooms(v.rooms);setArea(v.area);setBrand(v.brand);setGearbox(v.gearbox);setFrom(v.from);setUntil(v.until);setNoDeposit(v.noDeposit);setPage(1);setAdvanced(false);
   }
   function reset() {
-    setAllCategories(false);
     setCategory("");
     setCity("");
     setPeriod("");
@@ -326,162 +331,47 @@ export default function Home() {
   ].filter(
     (filter): filter is { label: string; clear: () => void } => !!filter,
   );
+  const browsing = !ownerFilter && !onlyFavorites && !category && !query;
   return (
     <>
       <Header />
-      <main className={`rentalHome${onlyFavorites ? " favoritesView" : ""}`}>
-        <section className="catalogIntro">
-          <div>
-            <h1>
-              {t("Almağa tələsmə.")}{" "}
-              <em>{t("Kirayələ.")}</em>
-            </h1>
-            <span>
-              {t("Ev, nəqliyyat, avadanlıq — ehtiyacına uyğun olanı tap, sahibi ilə birbaşa danış.")}</span>
-          </div>
-        </section>
-        <div className="searchWrap" id="kiraye-axtaris">
-          <form
-            className="searchPanel"
-            onSubmit={(e) => {
-              e.preventDefault();
-              // Release the mobile keyboard before scrolling to results.
-              if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-              const intent = rentalSearchIntent(query);
-              if (intent.categories.length && !intent.categories.includes(category)) {
-                changeCategory(intent.categories.length === 1 ? intent.categories[0] : "");
-              }
-              setSearchHistory(rememberSearch(query));
-              requestAnimationFrame(() => document
-                .getElementById("elanlar")
-                ?.scrollIntoView({ behavior: "smooth" }));
-            }}
-          >
-            <label className="queryField">
-              <span>{t("Nə axtarırsan?")}</span>
-              <input
-                type="search"
-                enterKeyHint="search"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                aria-label={t("Elan axtar")}
-                placeholder={t("Axtarış")}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </label>
-            <button className="add" aria-label={t("Elanları axtar →")}><span className="desktopSearchLabel">{t("Elanları axtar →")}</span><span className="mobileSearchLabel"><NavigationIcon name="search"/></span></button>
-          </form>
-          {!!savedSearches.length && <details className="savedSearches"><summary>{t("Saxlanmış axtarışlar")} ({savedSearches.length})</summary><div>{savedSearches.map(item=><div key={item.id}><button type="button" className="textButton" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" className="textButton" aria-label={`${item.label} axtarışını sil`} onClick={()=>setSavedSearches(removeSavedSearch(item.id))}>×</button></div>)}</div></details>}
-          {!!searchHistory.length && <details className="searchHistory">
-            <summary>{t("Son axtarışların")}</summary>
-            <div className="searchHistoryItems">
-              {searchHistory.map(value => <button key={value} type="button" className="secondary" onClick={() => { setQuery(value); setPage(1); setSearchHistory(rememberSearch(value)); }}>{value}</button>)}
-              <button type="button" className="textButton" onClick={() => { clearSearchHistory(); setSearchHistory([]); }}>{t("Tarixçəni təmizlə")}</button>
-            </div>
-          </details>}
-        </div>
-        <section className="wrap categorySection">
-          <div className="sectionTitle">
-            <div>
-              <h2><span className="desktopCategoryTitle">{t("Nə kirayələmək istəyirsən?")}</span><span className="mobileCategoryTitle">{t("Kateqoriyalar")}</span></h2>
-            </div>
+      <main className={`kzMain kzHome${onlyFavorites ? " favoritesView" : ""}`}>
+        <section className="kzCategories" aria-label={t("Kateqoriyalar")}>
+          {categories.map((c) => (
             <button
-              className="textButton"
-              aria-expanded={allCategories}
-              aria-controls="all-categories"
+              key={c.id}
+              type="button"
+              className={category === c.id ? "active" : ""}
+              aria-pressed={category === c.id}
               onClick={() => {
-                changeCategory("");
-                setAllCategories(!allCategories);
+                changeCategory(c.id === category ? "" : c.id);
+                document.getElementById("elanlar")?.scrollIntoView({ behavior: "smooth" });
               }}
             >
-              {allCategories
-                ? t("Kateqoriyaları bağla ×")
-                : t("Bütün kateqoriyalar →")}
+              <CategoryVisual id={c.id} />
+              <span>{t(c.name)}</span>
             </button>
-          </div>
-          {allCategories && (
-            <div
-              className="allCategories"
-              id="all-categories"
-              aria-label={t("Bütün kateqoriyalar")}
-            >
-              <button
-                type="button"
-                className="secondary"
-                onClick={() => {
-                  changeCategory("");
-                  setAllCategories(false);
-                  document
-                    .getElementById("elanlar")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                {t("Bütün elanlara bax")}</button>
-              {categories.map((item) => (
-                <button
-                  type="button"
-                  className="secondary"
-                  key={item.id}
-                  onClick={() => {
-                    changeCategory(item.id);
-                    setAllCategories(false);
-                    document
-                      .getElementById("kiraye-axtaris")
-                      ?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  {item.name}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className={`categoryScroller${moreCategories ? " hasMoreCategories" : ""}`}>
-          <div className="categories" onScroll={event => {
-            const rail = event.currentTarget;
-            setMoreCategories(rail.scrollLeft + rail.clientWidth < rail.scrollWidth - 2);
-          }}>
-            {categories.map((c) => (
-              <button
-                key={c.id}
-                aria-label={`${t(c.name)} elanlarına bax`}
-                className={category === c.id ? "active" : ""}
-                aria-pressed={category === c.id}
-                onClick={() => {
-                  changeCategory(c.id === category ? "" : c.id);
-                  document
-                    .getElementById("kiraye-axtaris")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                <span className="categoryArtwork">
-                  <CategoryVisual id={c.id} />
-                </span>
-                <strong>{t(c.name)}</strong>
-              </button>
-            ))}
-          </div>
-          </div>
+          ))}
         </section>
-        {!ownerFilter&&<ListingSuggestions premiumOnly/>}
-        <section className="wrap listingSection" id="elanlar">
-          <div className="sectionTitle">
+        {browsing && <ListingSuggestions premiumOnly/>}
+        <section className="kzSection" id="elanlar">
+          <div className="kzSectionHead">
             <div>
               <h2>
                 {onlyFavorites
                   ? t("Seçilmiş elanlar")
                   : category
                     ? t(categoryName(category))
-                    : t(ownerFilter ? "İstifadəçinin elanları" : "Kirayə elanları")}
+                    : t(ownerFilter ? "İstifadəçinin elanları" : browsing ? "Son elanlar" : "Kirayə elanları")}
               </h2>
-              <p className="muted" role="status" aria-live="polite">
+              <p className="kzMuted" role="status" aria-live="polite">
                 {loading
                   ? t("Elanlar yüklənir...")
                   : `${demo ? filtered.length : total} ${demo ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
               </p>
             </div>
             <select
+              className="kzSort"
               aria-label={t("Sıralama")}
               value={sort}
               onChange={(e) => setSort(e.target.value)}
@@ -491,42 +381,41 @@ export default function Home() {
               <option value="high">{t("Əvvəlcə bahalı")}</option>
             </select>
           </div>
-          <div className="filterRow" aria-label="Kirayə filtrləri">
+          <div className="kzToolbar" aria-label="Kirayə filtrləri">
             <button
-              className={`pill ${noDeposit ? "active" : ""}`}
-              aria-pressed={noDeposit}
-              onClick={() => setNoDeposit(!noDeposit)}
-            >
-              {t("Depozitsiz kirayə")}</button>
-            <button
-              className={`pill favoritesFilter ${onlyFavorites ? "active" : ""}`}
-              aria-pressed={onlyFavorites}
-              onClick={() => setOnlyFavorites(!onlyFavorites)}
-            >
-              ♡ {t("Seçilmişlər")} ({favorites.length})
-            </button>
-            <button
-              className="filterToggleButton"
+              type="button"
+              className="kzChip kzChipStrong"
               aria-expanded={advanced}
               onClick={() => setAdvanced(!advanced)}
             >
-              {t("Ətraflı filtrlər")}</button>
-            {activeFilters.length > 0 && <button className="textButton" onClick={reset}>
-              {t("Filtrləri təmizlə")}</button>}
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+              {t("Filtrlər")}{activeFilters.length > 0 && <b>{activeFilters.length}</b>}
+            </button>
+            {(["daily", "monthly"] as const).map(value => <button
+              key={value}
+              type="button"
+              className={`kzChip${period === value ? " active" : ""}`}
+              aria-pressed={period === value}
+              onClick={() => { setPeriod(period === value ? "" : value); setMin(""); setMax(""); }}
+            >
+              {t(value === "daily" ? "Günlük" : "Aylıq")}
+            </button>)}
+            <button
+              type="button"
+              className={`kzChip${noDeposit ? " active" : ""}`}
+              aria-pressed={noDeposit}
+              onClick={() => setNoDeposit(!noDeposit)}
+            >
+              {t("Depozitsiz")}
+            </button>
+            {savedSearches.map(item=><span className="kzChip kzSaved" key={item.id}><button type="button" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" aria-label={`${item.label} axtarışını sil`} onClick={()=>setSavedSearches(removeSavedSearch(item.id))}>×</button></span>)}
           </div>
-          {period && <p className="rentalSearchHint">
-            {period === "daily"
-              ? "Qiymətlər bir günlük kirayə üçündür."
-              : period === "weekly" ? "Qiymətlər bir həftəlik kirayə üçündür." : period === "monthly"
-                ? "Qiymətlər bir aylıq kirayə üçündür."
-                : t("Günlük və aylıq qiymətləri ayrıca müqayisə etmək üçün kirayə müddətini seç.")}
-          </p>}
           {activeFilters.length > 0 && (
-            <div className="activeFilters" aria-label="Seçilmiş filtrlər">
+            <div className="kzActiveFilters" aria-label="Seçilmiş filtrlər">
               {activeFilters.map((filter) => (
                 <button
+                  type="button"
                   key={filter.label}
-                  className="filterChip"
                   onClick={filter.clear}
                   aria-label={`${filter.label} filtrini sil`}
                 >
@@ -534,8 +423,14 @@ export default function Home() {
                   <span aria-hidden="true">×</span>
                 </button>
               ))}
+              <button type="button" className="kzLinkButton" onClick={reset}>{t("Filtrləri təmizlə")}</button>
             </div>
           )}
+          {period && <p className="kzHint">
+            {period === "daily"
+              ? "Qiymətlər bir günlük kirayə üçündür."
+              : period === "weekly" ? "Qiymətlər bir həftəlik kirayə üçündür." : "Qiymətlər bir aylıq kirayə üçündür."}
+          </p>}
           {advanced && (
             <CatalogFilters onClose={closeFilters} title={t("Ətraflı filtrlər")} done={t("Elanları göstər")}><div className="advancedFilters">
               <label>
@@ -669,7 +564,7 @@ export default function Home() {
             </div></CatalogFilters>
           )}
           {notice && (
-            <p className="notice" role="status">
+            <p className="kzNotice" role="status">
               {notice}
               {!demo && (
                 <button
@@ -681,13 +576,13 @@ export default function Home() {
             </p>
           )}
           {loading ? (
-            <div className="grid">
-              {Array.from({ length: 8 }, (_, i) => i).map((i) => (
-                <div className="skeleton" key={i} />
+            <div className="kzGrid">
+              {Array.from({ length: 12 }, (_, i) => i).map((i) => (
+                <div className="kzSkeleton" key={i} />
               ))}
             </div>
           ) : (
-            <div className="grid">
+            <div className="kzGrid">
               {filtered.map((x) => (
                 <ListingCard
                   key={x.id}
@@ -699,20 +594,18 @@ export default function Home() {
             </div>
           )}
           {!loading && !filtered.length && (
-            <div className="empty">
-              <span>⌕</span>
+            <div className="kzEmpty">
               <h3>{t("Uyğun elan tapılmadı")}</h3>
               <p>{t("Başqa sözlə axtar və ya öz kirayə elanını yerləşdir.")}</p>
-              <Link className="add" href="/new">
+              <Link className="kzButton" href="/new">
                 {t("+ Elan yerləşdir")}</Link>
-              <button className="add" onClick={reset}>
+              <button className="kzButtonGhost" onClick={reset}>
                 {t("Bütün elanlara bax")}</button>
             </div>
           )}
           {!demo && total > PAGE_SIZE && (
-            <nav className="pagination" aria-label="Elan səhifələri">
+            <nav className="kzPagination" aria-label="Elan səhifələri">
               <button
-                className="secondary"
                 disabled={page === 1 || loading}
                 onClick={() => {
                   setPage(page - 1);
@@ -724,7 +617,6 @@ export default function Home() {
                 {page} / {Math.ceil(total / PAGE_SIZE)}
               </span>
               <button
-                className="secondary"
                 disabled={page * PAGE_SIZE >= total || loading}
                 onClick={() => {
                   setPage(page + 1);

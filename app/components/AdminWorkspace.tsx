@@ -193,7 +193,7 @@ export default function AdminWorkspace() {
   if (allowed === false) return <section className="empty"><h2>Bu bölmə yalnız idarəçilər üçündür</h2><p>Admin icazəsi olan hesabla daxil ol.</p><Link className="add" href="/login?next=/admin">Admin hesabına daxil ol</Link><Link className="secondary" href="/profile">Kabinetə qayıt</Link></section>;
   const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "staff" || role === "leader");
   return <div className="adminWorkspace">
-    <nav className="adminSections" aria-label="Admin bölmələri"><p className="adminNavTitle">İdarəetmə</p>{sections.map(item => <button key={item} aria-pressed={section === item} onClick={() => { setSection(item); setError(""); }}><span aria-hidden="true" className={`adminNavIcon adminNavIcon-${item === "moderation" || item === "history" ? "listings" : item}`} />{sectionLabels[item]}{item === "moderation" && !!counts?.statuses?.pending && <em className="adminBadge">{counts.statuses.pending}</em>}{item === "reports" && !!counts?.reports && <em className="adminBadge">{counts.reports}</em>}</button>)}<Link className="adminBackLink" href="/profile">← Şəxsi kabinet</Link></nav>
+    <nav className="adminSections" aria-label="Admin bölmələri"><p className="adminNavTitle">İdarəetmə</p>{sections.map(item => <button key={item} aria-pressed={section === item} onClick={() => { setSection(item); setError(""); }}><span aria-hidden="true" className={`adminNavIcon adminNavIcon-${item === "moderation" || item === "history" ? "listings" : item}`} />{sectionLabels[item]}</button>)}<Link className="adminBackLink" href="/profile">← Şəxsi kabinet</Link></nav>
     <div>
       
       {error && <p className="error" role="alert">{error}</p>}

@@ -14,6 +14,8 @@ const dictionary: Record<string, [string, string]> = {
  "KİRAYƏ ÜÇÜN BİR ÜNVAN":["ВСЁ ДЛЯ АРЕНДЫ","ONE PLACE FOR RENTALS"],
  "Elanlar":["Объявления","Listings"],"♡ Seçilmişlər":["♡ Избранное","♡ Favorites"],"Seçilmişlər":["Избранное","Favorites"],
  "Kömək":["Помощь","Help"],"Hesabım":["Мой кабинет","My account"],"Hesab":["Аккаунт","Account"],"Daxil ol":["Войти","Sign in"],"Qeydiyyatdan keç":["Регистрация","Sign up"],"+ Elan yerləşdir":["+ Разместить","+ Post a listing"],"Elan yerləşdir":["Разместить","Post a listing"],"Ana səhifə":["Главная","Home"],
+ "Mesajlar":["Сообщения","Messages"],"Yeni elan":["Новое объявление","New listing"],"Əsas":["Главная","Home"],"Kabinet":["Кабинет","Account"],
+ "Dil":["Язык","Language"],"Bizimlə əlaqə":["Связаться с нами","Contact us"],"Menyunu aç":["Открыть меню","Open menu"],"Menyunu bağla":["Закрыть меню","Close menu"],"Sayt menyusu":["Меню сайта","Site menu"],"Sayt bölmələri":["Разделы сайта","Site sections"],
  "Günlük və aylıq kirayə":["Аренда на день и на месяц","Daily and monthly rentals"],"Almağa tələsmə.":["Не спеши покупать.","Don’t rush to buy."],"Kirayələ.":["Арендуй.","Rent."],
  "Ev, nəqliyyat, avadanlıq — ehtiyacına uyğun olanı tap, sahibi ilə birbaşa danış.":["Жильё, транспорт, оборудование — найди нужное и свяжись с владельцем.","Homes, vehicles, equipment — find what you need and contact the owner."],
  "Bir ünvan. Çox seçim.":["Один сайт. Большой выбор.","One place. More choice."],"Şəhəri seç, qiymətləri müqayisə et,":["Выбери город, сравни цены,","Choose a city, compare prices,"],"kirayəni birbaşa razılaşdır.":["договорись об аренде напрямую.","arrange your rental directly."],

@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
 import PromotionOptions from "./PromotionOptions";
@@ -25,7 +24,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   useEffect(()=>{window.scrollTo(0,0);},[requested]);
   const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər"};
   const openSection=(_name:string)=>{};
-  const [accountPhone,setAccountPhone]=useState(""),[accountEmail,setAccountEmail]=useState("");
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
     [loading, setLoading] = useState(true),
@@ -39,12 +37,21 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     fetch('/api/auth/host',{cache:'no-store'})
       .then(async response => {
         const data=await response.json();if(!data.user)return;
-        setUserId(data.user.id);setIdentity(data.user.display_name||data.user.email||'Hesab');setAccountPhone(data.user.phone||'');setAccountEmail(data.user.email||'');
-        const roleResponse=await fetch('/api/account/profile',{cache:'no-store'}),role=await roleResponse.json(),profile=role.profile;
-        if(profile?.profile_no)setProfileNumber(String(profile.profile_no));
-        setAdmin(profile?.role==='admin'||!!profile?.staff_role);
-        if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);if(profile?.phone)setAccountPhone(profile.phone);
-        if (!balanceOnly) setListings(await loadListings("mine"));
+        setUserId(data.user.id);setIdentity(data.user.display_name||data.user.email||'Hesab');
+        const [profileResult,listingsResult]=await Promise.allSettled([
+          fetch('/api/account/profile',{cache:'no-store'}).then(result=>result.ok?result.json():Promise.reject()),
+          balanceOnly?Promise.resolve(null):loadListings("mine"),
+        ]);
+        if(profileResult.status==='fulfilled'){
+          const profile=profileResult.value?.profile;
+          if(profile?.profile_no)setProfileNumber(String(profile.profile_no));
+          setAdmin(profile?.role==='admin'||!!profile?.staff_role);
+          if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);
+        }
+        if(!balanceOnly){
+          if(listingsResult.status==='fulfilled'&&Array.isArray(listingsResult.value))setListings(listingsResult.value);
+          else setError("Elanlarınızı yükləmək mümkün olmadı. Yenidən yoxlayın.");
+        }
       })
       .catch(() =>
         setError("Məlumatları yükləmək mümkün olmadı. Yenidən yoxlayın."),
@@ -94,7 +101,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         <div className="sectionTitle accountHeading">
           <div>
             <h1>{identity||"Profil"}</h1>
-            {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>}{accountEmail&&<span> · {accountEmail}</span>}</p>}
+            {userId && <p className="accountIdentity">Hesab ID: <strong>{profileNumber||userId}</strong></p>}
           </div>
         </div>
         {loading ? (
@@ -250,11 +257,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             </div>
           </div></>
         )}
-        {error && (
-          <p className="error" role="alert">
-            {error}
-          </p>
-        )}
+        {error && <div className="formError" role="alert"><span>{error}</span><button type="button" className="textButton" onClick={()=>window.location.reload()}>Yenidən yoxla</button></div>}
       </main>
       <Footer />
     </>

@@ -18,7 +18,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
     if (!opened) return;
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    panel.current?.focus();
+    if(panel.current){panel.current.scrollTop=0;panel.current.focus();}
     return () => { document.body.style.overflow = previous; trigger.current?.focus(); };
   }, [opened]);
   return <details ref={root} className="promotionOptions" aria-label="Elanın irəlilədilməsi"

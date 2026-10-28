@@ -2,7 +2,8 @@ import {sameOrigin} from '../../../../lib/server-request';
 import {normalizePhone} from '../../../../lib/rental-details';
 import {hostQuery} from '../../../../lib/host/db';
 import {currentUser} from '../../../../lib/host/session';
-import {passwordMatches} from '../../../../lib/host/security';
+import {passwordMatches,newEmailCode,emailCodeHash,safeEqual} from '../../../../lib/host/security';
+import {sendVerificationCode} from '../../../../lib/host/mailer';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 const reply=(body:object,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function status(id:string){
@@ -26,13 +27,34 @@ export async function GET(){
 export async function POST(request:Request){
  if(!sameOrigin(request))return reply({code:'forbidden'},403);
  try{
-  const input=await request.json();if(!input||!['profile','email'].includes(input.action))return reply({code:'invalid_request'},400);
+  const input=await request.json();if(!input||!['profile','email','email_confirm'].includes(input.action))return reply({code:'invalid_request'},400);
   const user=await currentUser();if(!user)return reply({code:'sign_in_required'},401);
   await ensureProfile(user);
   const attempts=await hostQuery<{attempts:number}>(`insert into public.profile_change_attempts(user_id,attempts) values($1,1) on conflict(user_id) do update set attempts=case when profile_change_attempts.started_at<now()-interval '15 minutes' then 1 else profile_change_attempts.attempts+1 end,started_at=case when profile_change_attempts.started_at<now()-interval '15 minutes' then now() else profile_change_attempts.started_at end returning attempts`,[user.id]);if(attempts[0].attempts>8)return reply({code:'rate_limited'},429);
+  const cleanNew=String(input.email||'').trim().toLowerCase();
+  if(input.action==='email_confirm'){
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanNew))return reply({code:'invalid_email'},400);
+   const code=String(input.code||'').trim();
+   const rows=await hostQuery<{id:number;code_hash:Buffer;attempts:number}>(`select id,code_hash,attempts from auth.verification_codes where user_id=$1 and lower(email)=$2 and purpose='email_change' and consumed_at is null and expires_at>now() order by id desc limit 1`,[user.id,cleanNew]);
+   const item=rows[0];
+   if(!item||item.attempts>=6||!/^\d{6}$/.test(code)||!safeEqual(item.code_hash,emailCodeHash(cleanNew,'email_change',code))){if(item)await hostQuery(`update auth.verification_codes set attempts=attempts+1 where id=$1`,[item.id]);return reply({code:'invalid_code'},400);}
+   const taken=await hostQuery(`select 1 from auth.users where lower(email)=$1 and id<>$2`,[cleanNew,user.id]);if(taken[0])return reply({code:'email_taken'},409);
+   await hostQuery(`update auth.verification_codes set consumed_at=now() where id=$1`,[item.id]);
+   await hostQuery(`update auth.users set email=$1,updated_at=now() where id=$2`,[cleanNew,user.id]);
+   return reply({profile:await status(user.id),email_changed:true});
+  }
   const password=String(input.password||'');const auth=await hostQuery<{password_hash:string|null}>(`select password_hash from auth.users where id=$1`,[user.id]);
   if(!password||!auth[0]?.password_hash||!await passwordMatches(password,auth[0].password_hash))return reply({code:'reauth_failed'},401);
-  if(input.action==='email')return reply({code:'email_change_not_started'},503);
+  if(input.action==='email'){
+   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanNew)||cleanNew.length>254)return reply({code:'invalid_email'},400);
+   if(cleanNew===user.email.toLowerCase())return reply({code:'same_email'},400);
+   const taken=await hostQuery(`select 1 from auth.users where lower(email)=$1`,[cleanNew]);if(taken[0])return reply({code:'email_taken'},409);
+   const recent=await hostQuery<{count:string}>(`select count(*)::text count from auth.verification_codes where user_id=$1 and purpose='email_change' and created_at>now()-interval '1 hour'`,[user.id]);if(Number(recent[0]?.count||0)>=5)return reply({code:'rate_limited'},429);
+   const code=newEmailCode();
+   await hostQuery(`insert into auth.verification_codes(user_id,email,purpose,code_hash,expires_at) values($1,$2,'email_change',$3,now()+interval '10 minutes')`,[user.id,cleanNew,emailCodeHash(cleanNew,'email_change',code)]);
+   try{await sendVerificationCode(user.email,code,'email_change');}catch{return reply({code:'mail_delivery_failed'},503);}
+   return reply({code_sent:true});
+  }
   const name=String(input.name||'').trim().replace(/\s+/g,' '),phone=normalizePhone(String(input.phone||''));if(name.length>100||!/^\S+\s+\S/.test(name)||!phone)return reply({code:'invalid_profile'},400);
   const current=await status(user.id);if(!current)return reply({code:'profile_unavailable'},503);const changed=normalizePhone(current.phone)!==phone;if(changed&&current.phone_remaining<=0)return reply({code:'phone_limit_reached'},409);
   await hostQuery(`update public.profiles set display_name=$1,phone=$2,updated_at=now() where id=$3`,[name,phone,user.id]);

@@ -483,3 +483,15 @@ button:active,.add:active,.secondary:active,.categories>button:active{transform:
 .accountListings article .accountItemActions>*{min-height:34px!important;padding:6px 12px!important;font-size:13px!important}
 .promotionPanel:not(.kindOnly) .promotionPackage{margin-bottom:8px}
 @media (max-width:760px){.accountListings article{grid-template-columns:84px 1fr!important}}
+
+/* ---- v15: profile page ---- */
+.profileSettings .cabinetBack{display:flex!important;position:static;margin:0 0 14px;padding:4px 0;background:transparent;border:0}
+.profileSettings .cabinetBack a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;font-size:28px;line-height:1;color:#1f2230}
+.profileSettings .cabinetBack strong{font-size:18px;font-weight:500}
+.profileSettingsGrid{display:grid;gap:14px;max-width:520px;grid-template-columns:1fr!important}
+.profileSettings .accountForm{padding:18px;border:1px solid #ececf1;border-radius:14px;background:#fff;display:grid;gap:12px}
+.profileSettings .accountForm h2,.profileSettings .profileSettingsHeading{display:none}
+.profileSettings .accountForm form{display:grid;gap:12px}
+.profileSettings .emailBox input[readonly]{background:#f6f6f9;color:#5b6070}
+.profileSettings .emailActions{display:flex;gap:10px;align-items:center}
+.profileSettings .notice{max-width:520px}

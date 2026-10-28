@@ -33,6 +33,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [listings, setListings] = useState<Listing[]>([]),
     [error, setError] = useState(""),
     [admin, setAdmin] = useState(false),
+    [staffRole, setStaffRole] = useState(""),
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
     [statusFilter, setStatusFilter] = useState("published");
@@ -48,7 +49,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         if(profileResult.status==='fulfilled'){
           const profile=profileResult.value?.profile;
           if(profile?.profile_no)setProfileNumber(String(profile.profile_no));
-          setAdmin(profile?.role==='admin'||!!profile?.staff_role);
+          setAdmin(profile?.role==='admin'||!!profile?.staff_role);if(profile?.staff_role)setStaffRole(profile.staff_role);
           if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);if(profile?.phone)setAccountPhone(profile.phone);
         }
         if(!balanceOnly){
@@ -104,7 +105,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         <div className="sectionTitle accountHeading">
           <div>
             <h1>{identity||"Profil"}</h1>
-            {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>}{accountEmail&&<span> · {accountEmail}</span>}</p>}
+            {userId && <p className="accountIdentity">{accountPhone ? <span>{formatContact(accountPhone)}</span> : <Link href="/account">Telefon nömrəni əlavə et</Link>}{accountEmail&&<span>{accountEmail}</span>}</p>}
           </div>
         </div>
         {loading ? (
@@ -133,7 +134,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></Link>
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
-                {admin && <Link className="cabinetAdminLink" href="/admin"><NavigationIcon name="account"/><span>Admin paneli</span></Link>}
+                {admin && <Link className="cabinetAdminLink" href="/admin"><NavigationIcon name="account"/><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span></Link>}
                 <button type="button" className="textButton cabinetLogout" onClick={logout}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/></svg><span>Hesabdan çıx</span></button>
               </div>
             </nav>

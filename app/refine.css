@@ -35,3 +35,25 @@ body:has(.stickyContact){padding-bottom:70px}
 .rentalHome .searchWrap{margin-top:-24px!important}
 }
 @media (max-width:760px){.rentalHome .listingSection{padding-top:4px!important;margin-top:0!important}}
+
+/* Menu: language bar right after heading */
+.siteMenuLanguage{margin:0 20px!important;padding:12px 0!important;border-top:0!important;border-bottom:1px solid #ececf1!important}
+
+/* Cabinet: account info stacked on mobile */
+@media (max-width:760px){
+.accountHeading .accountIdentity{display:flex!important;flex-direction:column;gap:2px;margin:4px 0 0}
+.accountHeading .accountIdentity span{display:block}
+.accountHeading .accountIdentity span::before{content:none!important}
+}
+
+/* Cabinet: balance layout clean */
+.balancePreview{display:flex!important;flex-direction:column!important;gap:8px}
+.balanceTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.balanceDesc{font-size:12px;color:#6b7a76;margin:0}
+.compactBalance .balanceNotice{margin:0}
+.compactBalance .balanceDesc{display:none}
+
+/* Cabinet header logo bigger on mobile */
+@media (max-width:760px){
+.accountDashboard .header .logo{font-size:20px!important}
+}

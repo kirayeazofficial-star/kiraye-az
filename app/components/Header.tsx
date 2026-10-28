@@ -47,7 +47,7 @@ export default function Header() {
         </form>
         <nav aria-label="Əsas menyu">
           <a href="/#elanlar">{t("Elanlar")}</a>
-          <a href={favoritesPage?"/":"/?favorites=1#elanlar"}><NavigationIcon name="heart"/>{t("Seçilmişlər")}</a>
+          <a href="/?favorites=1#elanlar" aria-current={favoritesPage?"page":undefined}><NavigationIcon name="heart"/>{t("Seçilmişlər")}</a>
           <Link href="/help">{t("Kömək")}</Link>
           <Link className="desktopMessagesLink" href="/messages"><NavigationIcon name="message"/>{t("Mesajlar")}{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
         </nav>
@@ -67,7 +67,7 @@ export default function Header() {
         <a href="/" aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
           <NavigationIcon name="home"/><span>{t("Əsas")}</span>
         </a>
-        <a href={favoritesPage?"/":"/?favorites=1#elanlar"} aria-current={favoritesPage ? "page" : undefined}>
+        <a href="/?favorites=1#elanlar" aria-current={favoritesPage ? "page" : undefined}>
           <NavigationIcon name="heart"/><span>{t("Seçilmişlər")}</span>
         </a>
         <Link className="mobilePublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>

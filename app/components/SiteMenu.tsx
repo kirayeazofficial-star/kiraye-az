@@ -60,13 +60,13 @@ export default function SiteMenu() {
             <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="m6 6 12 12M18 6 6 18" /></svg>
           </button>
         </div>
+        <div className="siteMenuLanguage"><span>{t("Dil")}</span><LanguageSelect /></div>
         <nav aria-label={t("Sayt bölmələri")}>
           {primaryLinks.map(([href, title]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{t(title)}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg></Link>)}
         </nav>
         <nav className="siteMenuHelp" aria-label={t("Məlumat və kömək")}>
           {helpLinks.map(([href, title]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{t(title)}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg></Link>)}
         </nav>
-        <div className="siteMenuLanguage"><span>{t("Dil")}</span><LanguageSelect /></div>
         <SiteContact />
       </aside>
     </div>, document.body)}

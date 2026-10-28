@@ -171,6 +171,10 @@ export default function ListingDetails({
           <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}>›</button>
           <span className="galleryCounter" aria-live="polite" aria-atomic="true">{selectedImage + 1} / {imageCount}</span>
         </>}
+        <div className="galleryActions">
+          {!effectiveOwner&&<button type="button" aria-label={favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"} aria-pressed={favorite} onClick={toggleFavorite}><NavigationIcon name="heart" filled={favorite}/></button>}
+          <button type="button" aria-label="Elanı paylaş" onClick={share}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button>
+        </div>
         </div>
         {imageCount > 1 && (
           <div className="thumbnails">
@@ -388,6 +392,10 @@ export default function ListingDetails({
           </p>
         )}
       </div>
+      {!compact && !effectiveOwner && phone && !item.demo && <div className="stickyContact" role="group" aria-label="Əlaqə">
+        {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}>Nömrəni göstər</button>}
+        {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
+      </div>}
       {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}
     </div>
   );

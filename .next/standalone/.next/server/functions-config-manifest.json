@@ -1,6 +1,7 @@
 {
   "version": 1,
   "functions": {
+    "/api/account/avatar": {},
     "/api/account/profile": {},
     "/api/auth/recovery-check": {},
     "/api/listing-view": {}

@@ -96,6 +96,12 @@
       "namedRegex": "^/admin(?:/)?$"
     },
     {
+      "page": "/api/account/avatar",
+      "regex": "^/api/account/avatar(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/account/avatar(?:/)?$"
+    },
+    {
       "page": "/api/account/profile",
       "regex": "^/api/account/profile(?:/)?$",
       "routeKeys": {},

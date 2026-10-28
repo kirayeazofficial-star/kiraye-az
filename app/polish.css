@@ -39,3 +39,25 @@
   .accountListings article .accountItemActions { grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px; }
   .accountItemActions > * { padding:8px 6px;text-align:center;justify-content:center; }
 }
+
+/* ---- v2: header, home, cabinet, admin tabs ---- */
+@media (max-width:520px){.header .headerBrand .logo{font-size:23px!important;letter-spacing:-1.3px!important}}
+.accountDashboard .cabinetNavFoot .cabinetLogout{grid-column:auto!important}
+@media (max-width:760px){
+.adminSections{flex-wrap:nowrap!important;overflow-x:auto;gap:6px!important;padding:6px 2px!important;scrollbar-width:none}
+.adminSections::-webkit-scrollbar{display:none}
+.adminSections button{flex:0 0 auto;white-space:nowrap;min-height:38px;padding:8px 14px!important;border:1px solid #e2e9e6!important;border-radius:999px!important;background:#fff;font-size:13px}
+}
+.catalogIntro h1{font-size:clamp(26px,3.2vw,34px)!important;line-height:1.15!important;margin:0 0 4px!important}
+@media (min-width:900px){
+.catalogIntro{padding:24px 0 10px!important;min-height:0!important;height:auto!important}
+.catalogIntro > div{max-width:none!important}
+.catalogIntro h1{font-size:32px!important;line-height:1.15!important;margin:0 0 6px!important}
+.catalogIntro span{font-size:14px!important}
+.searchWrap{margin-top:0!important;transform:none!important}
+.categoryScroller .categories{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:8px!important}
+.categoryScroller .categories > button{height:auto!important;min-height:92px!important;padding:8px 4px!important;gap:6px!important;border-radius:12px!important;font-size:11.5px!important;line-height:1.2!important}
+.categoryScroller .categories > button img,.categoryScroller .categories > button svg{width:34px!important;height:34px!important}
+.categorySection .sectionTitle h2{font-size:20px!important}
+.listingSection .grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:14px!important}
+}

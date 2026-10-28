@@ -4,6 +4,7 @@ import Link from "next/link";
 import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
+import PromotionOptions from "./PromotionOptions";
 import NavigationIcon from "./NavigationIcon";
 import AccountLimits from "./AccountLimits";
 import BalancePreview from "../components/BalancePreview";
@@ -235,27 +236,15 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         {x.expires_at && <p className="muted">Bitmə tarixi: {new Date(x.expires_at).toLocaleDateString("az-AZ")}</p>}
                       </div>
                       <div className="accountItemActions">
-                        {["expired", "archived"].includes(effectiveListingStatus(x)) && <button type="button" className="secondary" disabled={!!busy} onClick={() => renew(x)}>{busy === x.id ? "Gözləyin..." : "Bərpa et"}</button>}
-                        {!["archived","expired"].includes(effectiveListingStatus(x)) && <Link className="secondary" href={`/edit/${x.id}`}>Redaktə et</Link>}
-                        <Link
-                          className="secondary"
-                          href={
-                            effectiveListingStatus(x) === "published"
-                              ? `/listings/${x.id}`
-                              : `/profile/listings/${x.id}`
-                          }
-                        >
-                          Elana bax
-                        </Link>
-                        {!["archived","expired"].includes(effectiveListingStatus(x)) && (
-                          <button
-                            className="secondary"
-                            disabled={!!busy}
-                            onClick={() => setDeleteConfirm(x.id)}
-                          >
-                            {busy === x.id ? "Gözləyin..." : "Elanı sil"}
-                          </button>
-                        )}
+                        {["expired", "archived"].includes(effectiveListingStatus(x)) ? <PromotionOptions kind="restore" label="Elanı bərpa et" /> : <>
+                          {effectiveListingStatus(x) === "published" && <>
+                            <PromotionOptions kind="bump" label="İrəli çək" />
+                            <PromotionOptions kind="vip" label="VIP et" />
+                            <PromotionOptions kind="premium" label="Premium et" />
+                          </>}
+                          <Link className="secondary" href={`/edit/${x.id}`}>Redaktə et</Link>
+                          <button className="secondary" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}>{busy === x.id ? "Gözləyin..." : "Elanı sil"}</button>
+                        </>}
                       </div>
                     {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan saytdan götürüləcək və hesabının arxivində saxlanılacaq. Bərpa ödənişlidir; hazırda ödənişlər bağlıdır.</p><button type="button" className="secondary" disabled={!!busy} onClick={()=>archive(x)}>Bəli, elanı sil</button><button type="button" className="textButton" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
                     </article>

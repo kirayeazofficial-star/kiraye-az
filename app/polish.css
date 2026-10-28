@@ -393,3 +393,34 @@ body:has(.accountDashboard){background:#f6f7fb}
 .paymentChoices input[type="radio"]{width:20px;height:20px;accent-color:#3d6bf5}
 .payButton{display:block;width:calc(100% - 32px);margin:12px 16px 4px;padding:15px;border:0;border-radius:12px;background:#3d6bf5;color:#fff;font-size:16px;font-weight:600;opacity:.45;cursor:not-allowed}
 .payNote{margin:4px 16px 14px;text-align:center;font-size:13px;color:#8f94a8}
+
+/* ---- v12: lighter, finer type (tap.az-like) ---- */
+body{font-weight:400;color:#1f2230;font-size:15px}
+h1,h2,h3{font-weight:600!important;letter-spacing:0!important;color:#1f2230}
+h1{font-size:clamp(21px,5.2vw,26px)!important;line-height:1.3!important}
+h2{font-size:clamp(17px,4.4vw,21px)!important}
+h3{font-size:16px!important}
+strong,b{font-weight:600}
+.eyebrow{font-weight:500!important;letter-spacing:.06em!important;color:#8f94a8!important}
+button,.add,.secondary,.textButton{font-weight:500!important;font-size:14px}
+.logo{font-weight:800!important}
+.mobileNav a>span{font-weight:500!important;font-size:9.5px!important;letter-spacing:.1px}
+.mobileNav a[aria-current="page"]>span{font-weight:600!important}
+.cardTitle,.listingCard h3,.card h3{font-weight:400!important;font-size:14.5px!important;line-height:1.35}
+.price,[class*="price"]{font-weight:700}
+.sectionTitle h2,.categorySection .sectionTitle h2{font-weight:600!important}
+.status{font-weight:500!important}
+.muted,small{color:#6b7080}
+.detailHead h1,.detailHead h2{font-size:22px!important;font-weight:600!important;letter-spacing:0!important;color:#1f2230!important}
+.cabinetNav a,.accountMenuPanel nav a{font-weight:400!important}
+.cabinetNav a span{font-weight:400!important}
+.accountMenuHead strong{font-weight:600}
+.accountDashboard .listingStatusStrip button{font-weight:400!important}
+.accountDashboard .listingStatusStrip button[aria-pressed="true"]{font-weight:500!important}
+/* my listings: compact tap.az-like cards */
+.accountItemActions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.accountItemActions .secondary,.accountItemActions .promotionTrigger{padding:8px 14px;border-radius:10px;border:1px solid #e4e4ea;background:#fff;color:#1f2230;font-size:13.5px;font-weight:500;cursor:pointer;list-style:none}
+.accountItemActions .promotionOptions{display:inline-block}
+.accountItemActions .promotionTrigger{color:#f2653e;border-color:#f6c6b6;background:#fff7f3}
+.accountItemActions summary::-webkit-details-marker{display:none}
+.ownedPhoto{cursor:pointer}

@@ -108,6 +108,24 @@
       "namedRegex": "^/api/admin(?:/)?$"
     },
     {
+      "page": "/api/auth/google",
+      "regex": "^/api/auth/google(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/google(?:/)?$"
+    },
+    {
+      "page": "/api/auth/google/callback",
+      "regex": "^/api/auth/google/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/google/callback(?:/)?$"
+    },
+    {
+      "page": "/api/auth/google/status",
+      "regex": "^/api/auth/google/status(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/google/status(?:/)?$"
+    },
+    {
       "page": "/api/auth/host",
       "regex": "^/api/auth/host(?:/)?$",
       "routeKeys": {},

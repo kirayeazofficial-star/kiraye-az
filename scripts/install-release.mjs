@@ -1,6 +1,7 @@
 // Installs a prebuilt release (built by GitHub) into the live cPanel app folder.
 // The previous build is kept in .kirayeal-backups so it can be restored.
 import { access, cp, mkdir, readFile, rename, rm, writeFile, copyFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 
 const target = resolve(process.argv[2] || "");
@@ -16,6 +17,28 @@ for (const p of [".next/standalone/server.js", ".next/standalone/.next/static", 
   await access(join(source, p));
 await access(join(target, "app.js"));
 await mkdir(backups, { recursive: true, mode: 0o700 });
+
+// Server settings (database, mail) live in .env files of the app folder. Used
+// only to prepare the database; values are never printed.
+const settings = {};
+for (const name of [".env", ".env.production", ".env.local", ".env.production.local"]) {
+  const text = await readFile(join(target, name), "utf8").catch(() => "");
+  for (const line of text.split(/\r?\n/)) {
+    const match = line.match(/^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/);
+    if (!match || line.trim().startsWith("#")) continue;
+    settings[match[1]] = /^(["']).*\1$/.test(match[2]) ? match[2].slice(1, -1) : match[2];
+  }
+}
+if (await exists(join(source, "host/postgres"))) {
+  const run = spawnSync(
+    process.execPath,
+    [join(source, "run-host-migrations.mjs"), source, join(source, ".next/standalone")],
+    { env: { ...process.env, ...settings }, encoding: "utf8" },
+  );
+  console.log((run.stdout || "").trim());
+  if (run.status !== 0)
+    console.error("DATABASE NOT PREPARED (the site still updates):", (run.stderr || "").split("\n").filter(Boolean).slice(-2).join(" "));
+}
 
 const fresh = join(target, ".next.new");
 const previous = join(backups, `${stamp}-previous-build`);

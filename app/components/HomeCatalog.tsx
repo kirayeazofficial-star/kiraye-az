@@ -1,6 +1,6 @@
 "use client";
 import NavigationIcon from "./NavigationIcon";
-import { rentalSearchIntent } from "../../lib/search-query";
+import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
 import { useCallback } from "react";
@@ -9,10 +9,9 @@ import { useLanguage } from "./LanguageProvider";
 import { readSearchHistory, rememberSearch, clearSearchHistory } from "../../lib/search-history";
 import { rentalCategorySpecs } from "../../lib/rental-category-specs";
 import { useEffect, useMemo, useState } from "react";
-import { filterListings, PAGE_SIZE } from "../../lib/catalog";
-import { listings as allListings } from "../../data/listings";
-import { siteContact } from "../../lib/site-contact";
-import { isProperty } from "../../lib/rental-details";
+import Link from "next/link";
+import { searchCatalog, PAGE_SIZE } from "../../lib/catalog";
+import { matchesRentalFilters, isProperty } from "../../lib/rental-details";
 import {
   carModels,
   motorcycleModels,
@@ -20,12 +19,15 @@ import {
   equipmentModels,
 } from "../../lib/listing-form-options";
 import CategoryVisual from "./CategoryVisual";
+import ListingSuggestions from "./ListingSuggestions";
 import Header from "./Header";
 import Footer from "./Footer";
 import ListingCard from "./ListingCard";
 import {
   categories,
   cities,
+  Listing,
+  examples,
   readFavorites,
   categoryName,
   periodName,
@@ -33,7 +35,10 @@ import {
 
 export default function Home() {
   const {t} = useLanguage();
-  const [notice, setNotice] = useState("");
+  const [listings, setListings] = useState<Listing[]>([]),
+    [loading, setLoading] = useState(true),
+    [notice, setNotice] = useState(""),
+    [demo, setDemo] = useState(false);
   const [savedSearches,setSavedSearches] = useState<SavedSearch[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [category, setCategory] = useState(""),
@@ -54,10 +59,13 @@ export default function Home() {
     [gearbox, setGearbox] = useState(""),
     [noDeposit, setNoDeposit] = useState(false),
     [from, setFrom] = useState(""),
-    [until, setUntil] = useState("");
+    [until, setUntil] = useState(""),
+    [total, setTotal] = useState(0),
+    [retry, setRetry] = useState(0);
   useEffect(() => {
     const params=new URLSearchParams(window.location.search);
     const initialCategory=params.get("category");if(categories.some(item=>item.id===initialCategory))setCategory(initialCategory!);
+    const owner=params.get("owner");if(owner && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(owner))setOwnerFilter(owner);
     const initialQuery=params.get("q");if(initialQuery)setQuery(initialQuery.slice(0,120));
     setSearchHistory(readSearchHistory());
     setSavedSearches(readSavedSearches());
@@ -69,8 +77,84 @@ export default function Home() {
     window.addEventListener("kiraye:favorites", syncFavorites);
     return () => window.removeEventListener("kiraye:favorites", syncFavorites);
   }, []);
+  const [ownerFilter,setOwnerFilter]=useState("");
   const [moreCategories, setMoreCategories] = useState(true);
   const closeFilters = useCallback(() => setAdvanced(false), []);
+  const favoriteIds = onlyFavorites ? favorites.join(",") : "";
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    const timer = setTimeout(() => {
+      searchCatalog({
+        owner:ownerFilter,
+        category,
+        city,
+        period,
+        query,
+        min,
+        max,
+        sort,
+        page,
+        rooms,
+        area,
+        brand,
+        gearbox,
+        noDeposit,
+        from,
+        until,
+        favorites: onlyFavorites
+          ? favoriteIds
+            ? favoriteIds.split(",")
+            : []
+          : null,
+      })
+        .then(({ items, total }) => {
+          if (active) {
+            setListings(items);
+            setTotal(total);
+            setDemo(false);
+            setNotice("");
+          }
+        })
+        .catch(() => {
+          if (active) {
+            setListings([]);
+            setTotal(0);
+            setDemo(false);
+            setNotice(
+              "Elanları yükləmək mümkün olmadı. Bağlantını yoxlayıb yenidən cəhd et.",
+            );
+          }
+        })
+        .finally(() => {
+          if (active) setLoading(false);
+        });
+    }, 250);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [
+    category,
+    ownerFilter,
+    city,
+    period,
+    query,
+    min,
+    max,
+    sort,
+    page,
+    rooms,
+    area,
+    brand,
+    gearbox,
+    noDeposit,
+    from,
+    until,
+    onlyFavorites,
+    favoriteIds,
+    retry,
+  ]);
   useEffect(() => {
     setPage(1);
   }, [
@@ -90,17 +174,59 @@ export default function Home() {
     from,
     until,
   ]);
-  const filtered = useMemo(
-    () =>
-      filterListings(allListings, {
-        category, city, period, query, min, max, sort,
-        rooms, area, brand, gearbox, noDeposit, from, until,
-        favorites: onlyFavorites ? favorites : null,
-      }),
-    [category, city, period, query, min, max, sort, rooms, area, brand, gearbox, noDeposit, from, until, onlyFavorites, favorites],
-  );
-  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const sampleOnly = allListings.every((x) => x.demo);
+  const filtered = useMemo(() => {
+    if (!demo) return listings;
+    const intent = rentalSearchIntent(query);
+    return examples
+      .filter(
+        (x) =>
+          (!category || x.category === category) &&
+          (!ownerFilter || x.owner_id === ownerFilter) &&
+          (!intent.categories.length || intent.categories.includes(x.category)) &&
+          (!(city || intent.city) || x.city === (city || intent.city)) &&
+          (!period || x.rental_period === period) &&
+          (!min || x.price >= Number(min)) &&
+          (!max || x.price <= Number(max)) &&
+          (!onlyFavorites || favorites.includes(x.id)) &&
+          matchesRentalFilters(x, {
+            rooms,
+            area,
+            brand,
+            gearbox,
+            noDeposit,
+            from,
+            until,
+          }) &&
+          matchesSearch(`${x.title} ${x.city} ${x.district ?? ""} ${x.attributes?.brand || ""} ${x.attributes?.model || ""}`, intent.query),
+      )
+      .sort((a, b) =>
+        sort === "low"
+          ? a.price - b.price
+          : sort === "high"
+            ? b.price - a.price
+            : Date.parse(b.created_at) - Date.parse(a.created_at),
+      );
+  }, [
+    demo,
+    listings,
+    category,
+    ownerFilter,
+    city,
+    period,
+    min,
+    max,
+    onlyFavorites,
+    favorites,
+    query,
+    sort,
+    rooms,
+    area,
+    brand,
+    gearbox,
+    noDeposit,
+    from,
+    until,
+  ]);
   function favorite(id: string) {
     const next = favorites.includes(id)
       ? favorites.filter((x) => x !== id)
@@ -173,6 +299,7 @@ export default function Home() {
       label: t(categoryName(category)),
       clear: () => changeCategory(""),
     },
+    ownerFilter && {label:"Elan sahibinin təklifləri",clear:()=>setOwnerFilter("")},
     query && { label: `Axtarış: ${query}`, clear: () => setQuery("") },
     city && { label: city, clear: () => setCity("") },
     period && {
@@ -337,6 +464,7 @@ export default function Home() {
           </div>
           </div>
         </section>
+        {!ownerFilter&&<ListingSuggestions premiumOnly/>}
         <section className="wrap listingSection" id="elanlar">
           <div className="sectionTitle">
             <div>
@@ -345,10 +473,12 @@ export default function Home() {
                   ? t("Seçilmiş elanlar")
                   : category
                     ? t(categoryName(category))
-                    : t("Kirayə elanları")}
+                    : t(ownerFilter ? "İstifadəçinin elanları" : "Kirayə elanları")}
               </h2>
               <p className="muted" role="status" aria-live="polite">
-                {`${filtered.length} ${sampleOnly ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
+                {loading
+                  ? t("Elanlar yüklənir...")
+                  : `${demo ? filtered.length : total} ${demo ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
               </p>
             </div>
             <select
@@ -538,42 +668,52 @@ export default function Home() {
                 {t("Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdir.")}</p>
             </div></CatalogFilters>
           )}
-          {sampleOnly && (
-            <p className="notice" role="status">
-              Hazırda nümunə elanlara baxırsınız. Real elanlar əlavə olunduqca burada görünəcək.
-            </p>
-          )}
           {notice && (
             <p className="notice" role="status">
               {notice}
+              {!demo && (
+                <button
+                  className="textButton"
+                  onClick={() => setRetry(retry + 1)}
+                >
+                  {t("Yenidən yoxla")}</button>
+              )}
             </p>
           )}
-          <div className="grid">
-            {pageItems.map((x) => (
-              <ListingCard
-                key={x.id}
-                item={x}
-                favorite={favorites.includes(x.id)}
-                onFavorite={() => favorite(x.id)}
-              />
-            ))}
-          </div>
-          {!filtered.length && (
+          {loading ? (
+            <div className="grid">
+              {Array.from({ length: 8 }, (_, i) => i).map((i) => (
+                <div className="skeleton" key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid">
+              {filtered.map((x) => (
+                <ListingCard
+                  key={x.id}
+                  item={x}
+                  favorite={favorites.includes(x.id)}
+                  onFavorite={() => favorite(x.id)}
+                />
+              ))}
+            </div>
+          )}
+          {!loading && !filtered.length && (
             <div className="empty">
               <span>⌕</span>
               <h3>{t("Uyğun elan tapılmadı")}</h3>
               <p>{t("Başqa sözlə axtar və ya öz kirayə elanını yerləşdir.")}</p>
-              <a className="add" href={siteContact.whatsappHref} target="_blank" rel="noopener noreferrer">
-                {t("+ Elan yerləşdir")}</a>
+              <Link className="add" href="/new">
+                {t("+ Elan yerləşdir")}</Link>
               <button className="add" onClick={reset}>
                 {t("Bütün elanlara bax")}</button>
             </div>
           )}
-          {filtered.length > PAGE_SIZE && (
+          {!demo && total > PAGE_SIZE && (
             <nav className="pagination" aria-label="Elan səhifələri">
               <button
                 className="secondary"
-                disabled={page === 1}
+                disabled={page === 1 || loading}
                 onClick={() => {
                   setPage(page - 1);
                   document.getElementById("elanlar")?.scrollIntoView();
@@ -581,11 +721,11 @@ export default function Home() {
               >
                 {t("← Əvvəlki")}</button>
               <span>
-                {page} / {Math.ceil(filtered.length / PAGE_SIZE)}
+                {page} / {Math.ceil(total / PAGE_SIZE)}
               </span>
               <button
                 className="secondary"
-                disabled={page * PAGE_SIZE >= filtered.length}
+                disabled={page * PAGE_SIZE >= total || loading}
                 onClick={() => {
                   setPage(page + 1);
                   document.getElementById("elanlar")?.scrollIntoView();

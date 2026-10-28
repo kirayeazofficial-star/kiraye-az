@@ -1,5 +1,6 @@
 "use client";
 import { useLanguage } from "./LanguageProvider";
+import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
 import NavigationIcon from './NavigationIcon';
 import { minimumRentalLabel } from "../../lib/rental-details";
@@ -31,6 +32,7 @@ export default function ListingCard({
           aria-label={`${item.title} — ətraflı bax`}
         />
         <PhotoMark src={item.images?.[0]} />
+        <PromotionBadges item={item}/>
         {item.demo&&<span className="badge">{t("Nümunə")}</span>}
         <button
           className={`heart ${favorite ? "selected" : ""}`}

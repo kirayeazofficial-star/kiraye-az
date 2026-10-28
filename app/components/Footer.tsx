@@ -1,7 +1,6 @@
 "use client";
 import { useLanguage } from "./LanguageProvider";
 import SiteContact from "./SiteContact";
-import { siteContact } from "../../lib/site-contact";
 import Link from "next/link";
 export default function Footer() {
   const {t} = useLanguage();
@@ -25,7 +24,8 @@ export default function Footer() {
       </nav>
       <nav className="footerGroup footerLinks" aria-label={t("Məlumat və kömək")}>
         <strong>{t("Məlumat və kömək")}</strong>
-        <a href={siteContact.whatsappHref} target="_blank" rel="noopener noreferrer">{t("Elan yerləşdir")}</a>
+        <Link href="/new">{t("Elan yerləşdir")}</Link>
+        <Link href="/profile">{t("Şəxsi kabinet")}</Link>
         <Link href="/rules">{t("Qaydalar və təhlükəsizlik")}</Link>
         <Link href="/help">{t("Kömək")}</Link>
         <Link href="/privacy">{t("Məxfilik")}</Link>

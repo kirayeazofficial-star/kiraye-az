@@ -3,14 +3,13 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import SiteContact from "./SiteContact";
-import { siteContact } from "../../lib/site-contact";
 
 const links = [
-  ["/", "Elanlar"], ["/?favorites=1#elanlar", "Seçilmişlər"],
-  [siteContact.whatsappHref, "Elan yerləşdir"], ["/help", "Kömək"],
+  ["/", "Elanlar"], ["/profile", "Şəxsi kabinet"],
+  ["/?favorites=1#elanlar", "Seçilmişlər"], ["/balance", "Balans"],
+  ["/new", "Elan yerləşdir"], ["/help", "Kömək"],
   ["/rules", "Qaydalar və təhlükəsizlik"], ["/privacy", "Məxfilik"],
 ];
-const arrow = <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg>;
 
 export default function SiteMenu() {
   const [open, setOpen] = useState(false);
@@ -54,9 +53,7 @@ export default function SiteMenu() {
           </button>
         </div>
         <nav aria-label="Sayt bölmələri">
-          {links.map(([href, title], index) => href.startsWith("http")
-            ? <a className={index === 3 ? "siteMenuGroupStart" : undefined} key={href} href={href} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)}>{title}{arrow}</a>
-            : <Link className={index === 3 ? "siteMenuGroupStart" : undefined} key={href} href={href} onClick={() => setOpen(false)}>{title}{arrow}</Link>)}
+          {links.map(([href, title], index) => <Link className={index === 5 ? "siteMenuGroupStart" : undefined} key={href} href={href} onClick={() => setOpen(false)}>{title}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg></Link>)}
         </nav>
         <SiteContact />
       </aside>

@@ -17,7 +17,10 @@
     "@types/node": "22.10.2",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
+    "bcryptjs": "^3.0.3",
     "next": "^16.4.2",
+    "nodemailer": "^10.2.1",
+    "pg": "^8.23.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "typescript": "5.7.2"

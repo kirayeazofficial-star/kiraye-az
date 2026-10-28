@@ -1,34 +1,23 @@
 # kirayeal.az
 
-Kirayə elanları saytı. Next.js 16 + React 19 + TypeScript. Verilənlər bazası və ya xarici xidmət yoxdur — hər şey bu repodadır, istənilən Node 22 hostinqə köçürülə bilər.
+Kirayə elanları saytı (Next.js 16, React 19, TypeScript). Hostinq.az cPanel-də işləyir. Verilənlər bazası: hostinqdəki PostgreSQL.
 
-## Elanları dəyişmək
+## Necə yenilənir
 
-Bütün elanlar `data/listings.ts` faylındadır (faylın başındakı izaha bax). Şəkilləri `public/` qovluğuna qoy, elanda `/ad.jpg` kimi yaz. `status: "hidden"` elanı gizlədir. `demo: true` olan elanlar "Nümunə" kimi göstərilir və axtarış sisteminə (sitemap) düşmür.
+1. Kod `main` budağına göndərilir.
+2. GitHub Actions saytı build edir və hazır faylları `site` budağına qoyur (təxminən 2 dəqiqə).
+3. cPanel → Git Version Control → `site` budağı → **Update from Remote** → **Deploy HEAD Commit**. Deploy bazanın yeni sxem fayllarını (`host/postgres`) avtomatik tətbiq edir.
+4. `https://kirayeal.az/api/health` yeni `buildId` göstərməlidir.
+
+## Server ayarları (yalnız serverdə, `.env.production.local`)
+
+`KIRAYE_DB_HOST`, `KIRAYE_DB_PORT`, `KIRAYE_DB_NAME`, `KIRAYE_DB_USER`, `KIRAYE_DB_PASSWORD`, `KIRAYE_SESSION_SECRET` (32+ simvol), `KIRAYE_STORAGE_ROOT` (şəkillər üçün qovluq), `KIRAYE_SMTP_HOST`, `KIRAYE_SMTP_PORT`, `KIRAYE_SMTP_USER`, `KIRAYE_SMTP_PASSWORD`. Bu dəyərləri heç vaxt GitHub-a yükləmə.
 
 ## Lokal işə salmaq
 
 ```
 npm ci
-cp .env.example .env.local
 npm run dev
 ```
 
-Yoxlama: `npm run lint`, `npm run build`. Testlər: `node tests/<fayl>.cjs`.
-
-## Mühit dəyişənləri
-
-Yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`). Dəyişəndə yenidən build lazımdır. Docker üçün əlavə `SITE_HOST`.
-
-## cPanel-ə yerləşdirmə (hostinq.az)
-
-1. Node.js App: Node 22, startup file `app.js`, `NEXT_PUBLIC_SITE_URL` əlavə et.
-2. Git Version Control: repo `https://github.com/kirayeazofficial-star/kiraye-az`, branch `main`.
-3. Dəyişiklikdən sonra: **Update from Remote** → **Deploy HEAD Commit**.
-4. Nəticədə `HTTP verified` yazısına və `https://kirayeal.az/api/health` cavabına bax.
-
-Build uğursuz olsa canlı sayt toxunulmaz qalır. Hər deploydan əvvəl `.kirayeal-backups` qovluğunda ehtiyat saxlanır.
-
-## Başqa hostinqə köçürmək
-
-Repo fayllarını köçür, Node 22 + `NEXT_PUBLIC_SITE_URL` təyin et, `npm ci && npm run build && npm start`. Docker: `compose.yaml`.
+Build zamanı yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`) lazımdır.

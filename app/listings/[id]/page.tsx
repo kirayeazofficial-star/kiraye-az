@@ -5,17 +5,13 @@ import StructuredData from "../../components/StructuredData";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import ListingDetails from "../../components/ListingDetails";
-import { listings } from "../../../data/listings";
 import { getPublicListing } from "../../../lib/public-listing";
 import { publicSiteUrl } from "../../../lib/site-url";
 import { money, periodName } from "../../../lib/marketplace";
 type Props = { params: Promise<{ id: string }> };
-export function generateStaticParams() {
-  return listings.map((item) => ({ id: item.id }));
-}
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const item = getPublicListing(id);
+  const { item } = await getPublicListing(id);
   return item
     ? {
         title: `${item.title} — ${money(item.price)} ₼/${periodName(item.rental_period)} | kirayeal.az`,
@@ -34,8 +30,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 export default async function ListingPage({ params }: Props) {
   const { id } = await params;
-  const item = getPublicListing(id);
-  if (!item) notFound();
+  const { item, unavailable } = await getPublicListing(id);
+  if (!item && !unavailable) notFound();
   return (
     <>
       <Header />
@@ -43,11 +39,21 @@ export default async function ListingPage({ params }: Props) {
         <p className="breadcrumb">
           <Link href="/">Ana səhifə</Link> / Elan detalları
         </p>
-        <ListingDetails item={item} />
+        {item ? (
+          <ListingDetails item={item} />
+        ) : (
+          <section className="empty">
+            <h1>Elanı yükləmək mümkün olmadı</h1>
+            <p>Bağlantını yoxlayıb səhifəni yenilə.</p>
+            <Link className="add" href="/">
+              Elanlara qayıt
+            </Link>
+          </section>
+        )}
       </main>
       <Footer />
-      <StructuredData data={{"@context":"https://schema.org","@type":"WebPage",name:item.title,description:item.description.slice(0,300),url:`${publicSiteUrl()}/listings/${item.id}`,inLanguage:"az-AZ",...(item.images?.[0]?.startsWith('https://')?{primaryImageOfPage:{"@type":"ImageObject",url:item.images[0]}}:{})}}/>
-      <StructuredData data={{"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"kirayeal.az",item:publicSiteUrl()},{"@type":"ListItem",position:2,name:item.title,item:`${publicSiteUrl()}/listings/${item.id}`}]}}/>
+      {item && <StructuredData data={{"@context":"https://schema.org","@type":"WebPage",name:item.title,description:item.description.slice(0,300),url:`${publicSiteUrl()}/listings/${item.id}`,inLanguage:"az-AZ",...(item.images?.[0]?.startsWith('https://')?{primaryImageOfPage:{"@type":"ImageObject",url:item.images[0]}}:{})}}/>}
+      {item && <StructuredData data={{"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"kirayeal.az",item:publicSiteUrl()},{"@type":"ListItem",position:2,name:item.title,item:`${publicSiteUrl()}/listings/${item.id}`}]}}/>}
     </>
   );
 }

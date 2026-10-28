@@ -10,9 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Layihə qaydaları (kirayeal.az)
 
-- Sayt tam müstəqildir: verilənlər bazası, giriş, hesab, admin, mesajlaşma, xarici xidmət YOXDUR. Bütün elanlar `data/listings.ts` faylındadır. Yeni xarici xidmət/asılılıq əlavə etmə (cPanel deploy yeni asılılığı qəbul etmir).
-- Elan əlavə/dəyişmə: yalnız `data/listings.ts` və şəkillər `public/` qovluğunda. "Elan yerləşdir" düymələri WhatsApp-a (`lib/site-contact.ts`) aparır.
-- Dizaynı (`app/globals.css`, komponentlər) istifadəçi istəmədən dəyişmə.
-- Domen: `kirayeal.az`. Hosting: cPanel (Node 22, Passenger, `app.js`). Deploy: cPanel Git Version Control → Update from Remote → Deploy HEAD Commit (`.cpanel.yml`).
-- Bu mühitdə `npm` işləməyə bilər; build yoxlaması deploy zamanı olur. Uğursuz build canlı saytı dəyişmir.
+- Sayt hostinqdəki **PostgreSQL** (`kiraytfg_kirayeal`) ilə işləyir: hesablar, elanlar, mesajlar, admin. Supabase/Vercel YOXDUR və əlavə edilməməlidir. Bazanın sxemi `host/postgres/*.sql` fayllarındadır; deploy zamanı yeni fayllar avtomatik tətbiq olunur (köhnələr təkrarlanmır).
+- Server ayarları (parol, SMTP, baza) yalnız serverdəki `.env.production.local` faylında olur. Onları GitHub-a, söhbətə və loga yazma.
+- Deploy: kod `main`-ə göndərilir → GitHub Actions saytı build edib hazır faylları `site` budağına qoyur → cPanel Git Version Control `site` budağı: Update from Remote → Deploy HEAD Commit. Serverdə build olmur (yaddaş limiti).
+- Dizayn (`app/*.css`, komponentlər) istifadəçi istəmədən dəyişdirilməsin. Ödəniş/balans/reklam xidmətləri bağlı qalır.
 - İstifadəçi ilə sadə Azərbaycan dilində danış.

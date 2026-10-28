@@ -1,13 +1,14 @@
 "use client";
-import { publicDate } from "../../lib/public-date";
+import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
 import ImageViewer from "./ImageViewer";
 import NavigationIcon from './NavigationIcon';
+import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
 import { formatContact, partiallyHiddenContact } from "../../lib/contact-mask";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import RentalEstimator from "./RentalEstimator";
 import {
@@ -17,7 +18,7 @@ import {
   periodName,
   readFavorites,
 } from "../../lib/marketplace";
-import { normalizePhone } from "../../lib/rental-details";
+import { normalizePhone, reportReasons } from "../../lib/rental-details";
 export default function ListingDetails({
   item,
   compact = false,
@@ -26,10 +27,27 @@ export default function ListingDetails({
   compact?: boolean;
 }) {
   const [phoneShown,setPhoneShown]=useState(false);
-  useEffect(() => setPhoneShown(false), [item.id]);
+  const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number}|null>(null);
+  useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(item.demo||item.status!=="published")return;let active=true;fetch(`/api/listing-info?id=${encodeURIComponent(item.id)}`,{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active&&data&&typeof data==='object'&&!data.error)setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
+  const [isOwner,setIsOwner]=useState(false);
+  const [ownerReady,setOwnerReady]=useState(false);
+  useEffect(()=>{let active=true;setOwnerReady(false);fetch('/api/auth/host',{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active)setIsOwner(data.user?.id===item.owner_id);}).catch(()=>{}).finally(()=>{if(active)setOwnerReady(true);});return()=>{active=false;};},[item.owner_id]);
   const [image, setImage] = useState(0),
     [favorite, setFavorite] = useState(false),
-    [notice, setNotice] = useState("");
+    [notice, setNotice] = useState(""),
+    [report, setReport] = useState(false),
+    [busy, setBusy] = useState(false),
+    [reported, setReported] = useState(false);
+  useEffect(()=>{
+    if(item.demo||item.status!=="published")return;
+    let active=true;
+    const timer=setTimeout(async()=>{
+      try{if(!active||isOwner)return;
+        await fetch('/api/listing-view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id}),keepalive:true});
+      }catch{/* Statistics never interrupt browsing. */}
+    },1500);
+    return()=>{active=false;clearTimeout(timer);};
+  },[item.id,item.owner_id,item.status,item.demo,isOwner]);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -66,6 +84,35 @@ export default function ListingDetails({
     } catch (err) {
       if (!(err instanceof Error && err.name === "AbortError"))
         setNotice(`Elanın ünvanı: ${url}`);
+    }
+  }
+  async function sendReport(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (busy) return;
+    if (item.demo) {
+      setNotice("Nümunə elana şikayət göndərilmir.");
+      return;
+    }
+    setBusy(true);
+    const form = new FormData(e.currentTarget);
+    try {
+      const message = String(form.get("message") ?? "").trim();
+      if (message.length < 10 || message.length > 1000) {
+        setNotice("Əlavə məlumat 10–1000 simvol olmalıdır.");
+        return;
+      }
+      const response=await fetch('/api/listing-info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id,reason:form.get('reason'),message})}),result=await response.json();
+      if(!response.ok){if(result.error==='SIGN_IN_REQUIRED')throw new Error('SIGN_IN_REQUIRED');if(result.error==='OWN_LISTING')throw new Error('OWN_LISTING');throw new Error(result.error||'REPORT_FAILED');}
+      setReported(true);
+      setReport(false);
+      setNotice("Şikayətiniz qeydə alındı. İdarəçi yoxlayacaq.");
+    } catch (error) {
+      const code = error instanceof Error ? error.message : '';
+      setNotice(
+        code === 'SIGN_IN_REQUIRED' ? 'Şikayət göndərmək üçün hesabına daxil ol.' : code === 'OWN_LISTING' ? 'Öz elanına şikayət göndərə bilməzsən. Elanı kabinetdən redaktə et.' : 'Şikayət göndərilmədi. Bir az sonra yenidən yoxla.',
+      );
+    } finally {
+      setBusy(false);
     }
   }
   const phone = normalizePhone(item.contact || "");
@@ -116,6 +163,7 @@ export default function ListingDetails({
         />
         </button>
         <PhotoMark src={item.images?.[selectedImage]} />
+        <PromotionBadges item={item}/>
         {imageCount > 1 && <>
           <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}>‹</button>
           <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}>›</button>
@@ -157,13 +205,18 @@ export default function ListingDetails({
             ? "Nümunə"
             : `Elan tarixi: ${publicDate(item.created_at)}`}
         </p>
-        {!item.demo && item.listing_no && <div className="publicListingMeta"><span>Elan № {item.listing_no}</span></div>}
+        {!item.demo && <div className="publicListingMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
+        {!item.demo && item.owner_id && <section className="sellerCard"><strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong><a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>İstifadəçinin bütün elanları</a></section>}
+        {!item.demo && item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && (
+          <p className="muted">Elan sahibi {publicMonthYear(item.seller_since)} tarixindən qeydiyyatdadır.</p>
+        )}
         <strong className="detailPrice">
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
         {phone && !item.demo ? (
           <div className="contactActions">
+            {ownerReady&&(isOwner?<Link className="secondary" href={`/edit/${item.id}`}>Elanı redaktə et</Link>:<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>)}
             {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et · {formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər">Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"
@@ -285,6 +338,38 @@ export default function ListingDetails({
           Kirayə götürəcəyin əşyanı, nəqliyyatı və ya əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini
           yazılı razılaşdır. Platforma hazırda ödəniş qəbul etmir.
         </p>
+        {!item.demo && !reported && (
+          <button className="textButton" onClick={() => setReport(!report)}>
+            {report ? "Şikayəti bağla" : "Bu elandan şikayət et"}
+          </button>
+        )}
+        {report && !reported && (
+          <form className="reportForm" onSubmit={sendReport}>
+            <h3>Şikayət göndər</h3>
+            <label>
+              Səbəb
+              <select name="reason">
+                {reportReasons.map((reason) => (
+                  <option key={reason}>{reason}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Əlavə məlumat
+              <textarea
+                name="message"
+                minLength={10}
+                maxLength={1000}
+                required
+                rows={3}
+                placeholder="Problemi qısa təsvir et. Şəxsi məlumat yazma."
+              />
+            </label>
+            <button className="secondary" disabled={busy}>
+              {busy ? "Göndərilir..." : "Şikayəti göndər"}
+            </button>
+          </form>
+        )}
         {notice && (
           <p className="notice" role="status">
             {notice}

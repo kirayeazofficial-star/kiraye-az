@@ -268,3 +268,31 @@ aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary::after{cont
 .header .mobileMenuButton{color:#f2653e!important}
 .header .mobileMenuButton svg{color:#f2653e!important}
 }
+
+/* ---- v7: typography, icons, header (all widths) ---- */
+h1,h2,h3{letter-spacing:-.01em!important;line-height:1.25!important}
+.eyebrow{letter-spacing:.08em!important;font-size:11px!important;margin:0 0 8px!important}
+.prose h1,.wrap > h1{margin-bottom:14px!important}
+.pinIcon{vertical-align:-2px;color:#f2653e;margin-right:2px}
+.siteContact{display:flex!important;flex-direction:column;gap:6px;margin:0 0 20px!important;padding:14px 16px!important;border:1px solid #ececf1;border-radius:14px;background:#fafafc}
+.siteContact strong{font-size:15px;margin-bottom:2px}
+.helpGrid{display:grid!important;gap:12px!important}
+.helpCard{padding:16px 18px!important;min-height:0!important;border:1px solid #ececf1!important;border-radius:14px!important;box-shadow:none!important;background:#fff!important}
+.helpCard h2{font-size:17px!important;margin:0 0 6px!important}
+.helpCard p{margin:0!important;font-size:14px;line-height:1.55;color:#5b6070}
+@media (min-width:761px){.helpGrid{grid-template-columns:repeat(2,1fr)!important}}
+@media (max-width:760px){
+h1{font-size:clamp(24px,6.4vw,30px)!important}
+.header .headerPublish{display:inline-flex!important;width:34px!important;height:34px!important;min-width:34px!important;padding:0!important;border-radius:50%!important;background:#f2653e!important;color:#fff!important;align-items:center;justify-content:center;box-shadow:none!important}
+.header .headerPublish .desktopPublishLabel,.header .headerPublish .mobilePublishLabel>span{display:none!important}
+.header .headerPublish .mobilePublishLabel{display:flex!important}
+.header .headerPublish svg{width:20px!important;height:20px!important;stroke-width:2.4!important;color:#fff}
+.mobileNav a>svg path{fill:currentColor;fill-opacity:.14;stroke-width:1.9}
+.mobileNav a[aria-current="page"]>svg path{fill-opacity:.28}
+.mobileNav .mobilePublish>svg path{fill:none}
+.mobileNav .mobilePublish>svg{stroke-width:2.4}
+}
+.limitsPanel ul{list-style:none;margin:12px 0;padding:0;border:1px solid #ececf1;border-radius:14px;overflow:hidden}
+.limitsPanel li{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f1f1f5;font-size:15px}
+.limitsPanel li:last-child{border-bottom:0}
+.limitsPanel li b{color:#f2653e;font-variant-numeric:tabular-nums}

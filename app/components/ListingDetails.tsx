@@ -200,7 +200,7 @@ export default function ListingDetails({
           <h1>{item.title}</h1>
         )}
         <p className="muted">
-          ⌖ {item.city}
+          <svg className="pinIcon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg> {item.city}
           {item.district ? `, ${item.district}` : ""} ·{" "}
           {item.demo
             ? "Nümunə"

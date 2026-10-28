@@ -374,6 +374,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         attributes,
       };
       const resultResponse=await fetch("/api/listings",{method:listingId?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(listingId?{...payload,id:listingId}:payload)});
+      if(resultResponse.status===429)throw new Error("Bu kateqoriyada 30 gün ərzində 3 pulsuz elan limitin dolub. Mövcud elanı redaktə edə və ya limit boşalanda yenisini yerləşdirə bilərsən.");
       if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd et.");
       saved = true;
       draftDirty.current=false;
@@ -426,7 +427,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         )}
         {!listingId && user && !canModerate && !loading && (
           <p className="notice">
-            Hər kateqoriyada müəyyən sayda pulsuz elan yerləşdirə bilərsən. Limit dolubsa, mövcud elanı redaktə edə və ya limit boşalanda yeni elan yerləşdirə bilərsən.
+            Hər kateqoriyada 30 gün ərzində 3 pulsuz elan yerləşdirə bilərsən. Limit dolubsa, mövcud elanı redaktə edə və ya limit boşalanda yeni elan yerləşdirə bilərsən.
           </p>
         )}
         {!success && <aside className="notice" aria-label="Təhlükəsiz elan yerləşdirmə">

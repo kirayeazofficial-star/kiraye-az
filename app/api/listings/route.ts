@@ -1,4 +1,5 @@
 import {NextRequest,NextResponse} from "next/server";
+import {FREE_LISTING_LIMIT,LIMIT_WINDOW_DAYS} from "../../../lib/listing-limit";
 import {hostQuery} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
 import {newId} from "../../../lib/host/security";
@@ -68,6 +69,8 @@ export async function POST(request:NextRequest){
   try{
     const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
     const body=await request.json() as Record<string,unknown>,item=listingPayload(body,user.id);if(!item)return reply({error:'INVALID_LISTING'},400);
+    const used=await hostQuery<{count:string}>(`select count(*)::text count from public.listings where owner_id=$1 and category=$2 and created_at>now()-make_interval(days=>$3::int) and status in('pending','published','expired')`,[user.id,item.category,LIMIT_WINDOW_DAYS]);
+    if(Number(used[0]?.count||0)>=FREE_LISTING_LIMIT)return reply({error:'LIMIT_REACHED'},429);
     const id=newId();
     await hostQuery(`insert into public.listings(id,owner_id,category,title,description,contact,city,district,price,rental_period,images,status,deposit,min_days,rooms,area_m2,attributes,available_from,available_until) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'pending',$12,$13,$14,$15,$16,$17,$18)`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil]);
     await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','submitted',null,'pending')`,[id,user.id]);

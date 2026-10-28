@@ -19,3 +19,8 @@
 body:has(.stickyContact) .mobileNav{display:none!important}
 body:has(.stickyContact){padding-bottom:70px}
 }
+
+/* Placeholder photos: show the whole picture on a matching background */
+.galleryStage:has(img[src*="/placeholders/"]){background:#ffeadf!important}
+.galleryStage:has(img[src*="/placeholders/"])::before{display:none!important}
+.galleryStage img[src*="/placeholders/"]{object-fit:contain!important}

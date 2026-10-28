@@ -1,0 +1,207 @@
+/* Final interface layer. It is intentionally loaded last and only changes presentation. */
+:root{
+  --font-ui:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --ds-bg:#f6f8f7;
+  --ds-surface:#fff;
+  --ds-ink:#172b26;
+  --ds-muted:#6a7b75;
+  --ds-brand:#145f50;
+  --ds-brand-soft:#eaf4f0;
+  --ds-accent:#f26843;
+  --ds-line:#e1e8e5;
+  --ds-shadow:0 12px 34px rgba(18,53,44,.07);
+}
+html{font-family:var(--font-ui);background:var(--ds-bg)}
+body{font-family:var(--font-ui);color:var(--ds-ink);background:var(--ds-bg)}
+button,input,select,textarea{font-family:inherit}
+
+/* Shared shell */
+.header{
+  width:min(1240px,calc(100% - 32px))!important;height:72px!important;min-height:72px!important;
+  margin:14px auto 0!important;padding:9px 12px 9px 18px!important;border:1px solid var(--ds-line)!important;
+  border-radius:18px!important;background:rgba(255,255,255,.96)!important;box-shadow:var(--ds-shadow)!important;
+}
+.header .logo{font-size:30px!important;letter-spacing:-1.7px!important}
+.header .logo small{margin-top:6px!important;color:#87958f!important;font-size:7.5px!important;letter-spacing:1.65px!important}
+.header nav{gap:2px!important}
+.header nav>a{min-height:40px!important;padding:8px 11px!important;border-radius:10px!important;color:#39534b!important;font-size:13px!important;font-weight:600!important}
+.header nav>a:hover{background:var(--ds-brand-soft)!important;color:var(--ds-brand)!important}
+.headerSearch{height:42px!important;border:1px solid #dce5e1!important;border-radius:11px!important;background:#f8faf9!important}
+.headerSearch:focus-within{border-color:#8eb7aa!important;box-shadow:0 0 0 3px rgba(20,95,80,.09)!important}
+.headerSearch button{width:48px!important;background:var(--ds-brand)!important}
+.header .headerPublish{min-height:46px!important;padding:0 17px!important;border-radius:12px!important;background:var(--ds-accent)!important;box-shadow:0 7px 18px rgba(242,104,67,.18)!important}
+.wrap{width:min(1180px,100%)!important}
+.add{background:var(--ds-accent)!important;border-radius:11px!important}
+.secondary{border-color:var(--ds-line)!important;border-radius:10px!important}
+.error,.notice,.formError{border-radius:12px!important}
+
+/* Catalogue */
+.rentalHome .searchPanel{border:1px solid var(--ds-line)!important;border-radius:16px!important;box-shadow:0 12px 32px rgba(20,55,46,.08)!important}
+.rentalHome .categorySection,.rentalHome .listingSection{max-width:1180px!important}
+.rentalHome .categorySection{padding-top:28px!important}
+.categoryScroller .categories{gap:14px 10px!important}
+.categoryScroller .categories>button .categoryArtwork{background:#f4f7f5!important;border:1px solid #edf1ef!important;border-radius:16px!important;transition:transform .16s,border-color .16s,box-shadow .16s!important}
+.categoryScroller .categories>button:hover .categoryArtwork{transform:translateY(-2px);border-color:#cbdad4!important;box-shadow:0 9px 20px rgba(21,61,51,.07)!important}
+.listingSection>.sectionTitle{margin-bottom:16px!important;padding-bottom:12px!important;border-bottom:1px solid var(--ds-line)!important}
+.listingCard .photo{border:1px solid #e8eeeb!important;border-radius:14px!important;background:#eef2f0!important}
+.listingCard:hover .photo{box-shadow:0 10px 24px rgba(18,52,44,.1)!important}
+.listingCard .cardBody{padding-top:9px!important}
+.listingCard .price{font-size:17px!important;letter-spacing:-.2px!important}
+.listingCard h3{color:#293b36!important;font-size:14px!important}
+
+/* Cabinet */
+.accountDashboard{padding-top:28px!important;padding-bottom:110px!important}
+.accountDashboard .accountHeading{margin-bottom:20px!important;padding:0 2px!important}
+.accountDashboard .accountHeading h1{margin:0 0 6px!important;font-size:29px!important;letter-spacing:-.7px!important}
+.accountDashboard .accountIdentity{margin:0!important;color:var(--ds-muted)!important;font-size:13px!important}
+.accountDashboard .cabinetLayout{grid-template-columns:238px minmax(0,1fr)!important;gap:24px!important}
+.accountDashboard .cabinetSidebar{top:96px!important}
+.accountDashboard .compactBalance,.accountDashboard .cabinetNav.cabinetCards{
+  border:1px solid var(--ds-line)!important;border-radius:16px!important;background:#fff!important;box-shadow:0 7px 24px rgba(18,53,44,.045)!important;
+}
+.accountDashboard .cabinetNav.cabinetCards{padding:7px!important}
+.accountDashboard .cabinetNav.cabinetCards>a{min-height:46px!important;padding:10px 11px!important;border:0!important;border-radius:10px!important;background:transparent!important;font-size:13px!important}
+.accountDashboard .cabinetNav.cabinetCards>a:hover{background:#f3f7f5!important}
+.accountDashboard .cabinetNav.cabinetCards>a[aria-current=page]{background:var(--ds-brand-soft)!important;color:var(--ds-brand)!important;font-weight:700!important}
+.accountDashboard .cabinetNavFoot{gap:6px!important}
+.accountDashboard .cabinetNavFoot>*{min-height:42px!important;border-radius:9px!important;font-size:12px!important}
+.cabinetContent{padding:22px!important;border:1px solid var(--ds-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:var(--ds-shadow)!important}
+.cabinetBack{margin-bottom:18px!important;padding-bottom:14px!important;border-bottom:1px solid var(--ds-line)!important}
+.cabinetBack strong{font-size:21px!important;letter-spacing:-.35px!important}
+.listingStatusStrip{gap:7px!important;margin:14px 0!important;padding:0 0 8px!important}
+.listingStatusStrip button{min-height:39px!important;padding:8px 12px!important;border-radius:999px!important;font-size:12px!important}
+.listingStatusStrip button[aria-pressed=true]{border-color:#b8d2c8!important;background:var(--ds-brand-soft)!important;color:var(--ds-brand)!important}
+.accountListings{gap:12px!important}
+.accountListings article{grid-template-columns:130px minmax(0,1fr) auto!important;padding:12px!important;border:1px solid var(--ds-line)!important;border-radius:14px!important;background:#fff!important;box-shadow:none!important}
+.accountListings .ownedPhoto{width:130px!important;border-radius:11px!important}
+.accountListings .accountItemActions{justify-content:flex-end!important}
+
+/* Leader workspace */
+.adminDashboard{max-width:1240px!important;padding-top:28px!important;padding-bottom:110px!important}
+.adminDashboard>.adminPageHeading{display:flex!important;align-items:center!important;justify-content:space-between!important;margin-bottom:16px!important;padding:20px 23px!important;border:1px solid var(--ds-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:var(--ds-shadow)!important}
+.adminPageHeading .eyebrow{margin:0 0 5px!important;color:var(--ds-brand)!important;font-size:10px!important;letter-spacing:.13em!important}
+.adminDashboard>.adminPageHeading h1{margin:0 0 5px!important;font-size:28px!important;letter-spacing:-.7px!important}
+.adminPageHeading .muted{margin:0!important;font-size:13px!important}
+.adminSecureBadge{display:inline-flex!important;align-items:center!important;gap:7px!important;padding:8px 11px!important;border-radius:999px!important;background:#edf7f2!important;color:#27725e!important;font-size:11px!important;font-weight:750!important}
+.adminSecureBadge::before{content:"";width:7px;height:7px;border-radius:50%;background:#36a378}
+.adminWorkspace{display:grid!important;grid-template-columns:220px minmax(0,1fr)!important;gap:16px!important;align-items:start!important}
+.adminWorkspace>.adminSections{position:sticky!important;top:12px!important;display:flex!important;flex-direction:column!important;gap:3px!important;margin:0!important;padding:8px!important;border:1px solid var(--ds-line)!important;border-radius:16px!important;background:#fff!important;box-shadow:0 8px 26px rgba(18,53,44,.05)!important;overflow:visible!important}
+.adminWorkspace>.adminSections .adminNavTitle{margin:7px 10px 9px!important;color:#8a9893!important;font-size:10px!important;font-weight:800!important;letter-spacing:.12em!important}
+.adminWorkspace>.adminSections button{position:relative!important;display:flex!important;align-items:center!important;width:100%!important;min-height:43px!important;padding:9px 11px 9px 29px!important;border:0!important;border-radius:9px!important;background:transparent!important;color:#3d574f!important;font-size:13px!important;font-weight:650!important;text-align:left!important;white-space:normal!important}
+.adminWorkspace>.adminSections button::before{content:"";position:absolute;left:12px;width:7px;height:7px;border-radius:50%;background:#b9c7c1}
+.adminWorkspace>.adminSections button:hover{background:#f4f7f6!important}
+.adminWorkspace>.adminSections button[aria-pressed=true]{background:var(--ds-brand-soft)!important;color:var(--ds-brand)!important}
+.adminWorkspace>.adminSections button[aria-pressed=true]::before{background:var(--ds-brand)!important;box-shadow:0 0 0 4px rgba(20,95,80,.1)}
+.adminBadge{margin-left:auto!important;padding:2px 6px!important;border-radius:999px!important;background:#fbe5de!important;color:#a74327!important;font-size:10px!important;font-style:normal!important}
+.adminBackLink{margin-top:8px!important;padding:12px 10px 6px!important;border-top:1px solid var(--ds-line)!important;color:#677a73!important;font-size:12px!important}
+.adminWorkspace>div{min-width:0!important}
+.adminPanel,.adminWorkspace>div>section{padding:22px!important;border:1px solid var(--ds-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:var(--ds-shadow)!important}
+.adminPanel>h2,.adminWorkspace>div>section>.sectionTitle h2{font-size:21px!important;letter-spacing:-.35px!important}
+.adminStats{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:11px!important}
+.adminStats article{min-height:105px!important;padding:17px!important;border:1px solid #e8eeeb!important;border-radius:14px!important;background:#f8faf9!important}
+.adminStats b{color:var(--ds-brand)!important;font-size:30px!important}
+.adminStats span{color:var(--ds-muted)!important;font-size:12px!important}
+.adminDashboard .moderationCard{padding:18px!important;border:1px solid var(--ds-line)!important;border-radius:15px!important;background:#fff!important;box-shadow:0 5px 18px rgba(18,53,44,.04)!important}
+.adminDashboard .profileTabs{gap:7px!important;margin-bottom:12px!important;padding:0!important;background:transparent!important}
+.adminDashboard .profileTabs button{border-radius:999px!important}
+.adminFilters{margin:12px 0 16px!important;padding:12px 14px!important;border:1px solid var(--ds-line)!important;border-radius:12px!important;background:#f8faf9!important}
+.adminFilters>summary{cursor:pointer;font-size:13px;font-weight:700!important}
+
+/* Messages */
+.messagesPage{width:min(1180px,100%)!important;margin:0 auto!important;padding:28px 24px 110px!important}
+.messagesTitle{margin-bottom:15px!important;padding:0 2px!important}
+.messagesTitle .eyebrow{margin:0 0 5px!important;color:var(--ds-brand)!important;font-size:10px!important;letter-spacing:.14em!important}
+.messagesTitle h1{margin:0!important;font-size:29px!important;letter-spacing:-.7px!important}
+.messagesTitle p:not(.eyebrow){margin:5px 0 0!important;color:var(--ds-muted)!important;font-size:13px!important}
+.messagesLayout{grid-template-columns:340px minmax(0,1fr)!important;height:min(700px,calc(100vh - 215px))!important;min-height:520px!important;border:1px solid var(--ds-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:var(--ds-shadow)!important;overflow:hidden!important}
+.conversationList{padding:0!important;border-right:1px solid var(--ds-line)!important;background:#fafcfb!important}
+.conversationListTitle{padding:16px 17px!important;background:#fafcfb!important}
+.conversationList>button:not(.loadOlder){min-height:86px!important;padding:13px 15px!important;border-bottom:1px solid #edf1ef!important}
+.conversationList>button[aria-pressed=true]{background:var(--ds-brand-soft)!important;box-shadow:inset 3px 0 var(--ds-brand)!important}
+.conversationAvatar{display:grid!important;place-items:center!important;width:42px!important;height:42px!important;border-radius:13px!important;background:#dfeee8!important;color:var(--ds-brand)!important;font-weight:800!important}
+.conversationBody{padding:0!important;background:#f6f8f7!important}
+.conversationHeading{min-height:76px!important;padding:12px 16px!important;border-bottom:1px solid var(--ds-line)!important;background:#fff!important}
+.conversationPerson h2{font-size:16px!important}
+.conversationListing{background:#f3f6f5!important}
+.messageHistory{padding:20px!important;background:#f6f8f7!important}
+.messageHistory article{max-width:min(76%,560px)!important;padding:10px 13px!important;border-radius:15px!important;box-shadow:0 2px 7px rgba(18,53,44,.035)!important}
+.messageHistory .ownMessage{background:#ddefe7!important}
+.messageHistory .peerMessage{border:1px solid #e3e9e6!important;background:#fff!important}
+.messageComposer{gap:9px!important;padding:12px 14px!important;border-top:1px solid var(--ds-line)!important;background:#fff!important}
+.messageComposer textarea{min-height:48px!important;max-height:130px!important;padding:12px 14px!important;border:1px solid #d8e2de!important;border-radius:13px!important;background:#fafcfb!important;resize:none!important}
+.messageComposer textarea:focus{outline:none!important;border-color:#8eb7aa!important;box-shadow:0 0 0 3px rgba(20,95,80,.09)!important}
+.messageComposer .add{min-width:96px!important}
+.selectConversation{color:var(--ds-muted)!important}
+
+/* Forms and detail pages */
+.formPage .listingForm,.profileSettingsGrid .accountForm,.authCard{border:1px solid var(--ds-line)!important;border-radius:18px!important;background:#fff!important;box-shadow:var(--ds-shadow)!important}
+.listingForm input,.listingForm select,.listingForm textarea,.accountForm input{border-color:#d9e3df!important;border-radius:11px!important;background:#fbfcfb!important}
+.listingForm input:focus,.listingForm select:focus,.listingForm textarea:focus,.accountForm input:focus{outline:none!important;border-color:#83ad9f!important;box-shadow:0 0 0 3px rgba(20,95,80,.09)!important}
+.listingDetails:not(.compactDetails) .detailSide{border:1px solid var(--ds-line)!important;background:#fff!important;box-shadow:var(--ds-shadow)!important}
+
+@media(max-width:900px){
+  .header{width:100%!important;margin:0!important;border-width:0 0 1px!important;border-radius:0!important;box-shadow:0 3px 16px rgba(18,53,44,.05)!important}
+  .adminWorkspace{grid-template-columns:1fr!important}
+  .adminWorkspace>.adminSections{position:sticky!important;top:0!important;z-index:20!important;flex-direction:row!important;margin:0 -12px 12px!important;padding:7px 12px!important;border-inline:0!important;border-radius:0!important;overflow-x:auto!important;box-shadow:0 4px 16px rgba(18,53,44,.05)!important;scrollbar-width:none!important}
+  .adminWorkspace>.adminSections::-webkit-scrollbar{display:none}
+  .adminWorkspace>.adminSections .adminNavTitle,.adminBackLink{display:none!important}
+  .adminWorkspace>.adminSections button{flex:none!important;width:auto!important;min-height:40px!important;padding:8px 13px!important;border:1px solid var(--ds-line)!important;border-radius:999px!important;white-space:nowrap!important}
+  .adminWorkspace>.adminSections button::before{display:none!important}
+}
+
+@media(max-width:760px){
+  body{background:#fff!important}
+  .header{height:66px!important;min-height:66px!important;padding:8px 12px!important}
+  .header .logo{font-size:24px!important}
+  .mobileNav{border-top:1px solid var(--ds-line)!important;background:rgba(255,255,255,.97)!important;box-shadow:0 -6px 22px rgba(18,53,44,.06)!important;backdrop-filter:blur(12px)!important}
+  .mobileNav a{color:#71827b!important}
+  .mobileNav a[aria-current=page]{color:var(--ds-brand)!important}
+  .mobileNav .mobilePublish{color:var(--ds-accent)!important}
+  .rentalHome{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
+  .rentalHome .empty{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px 10px!important;align-items:center!important;margin-bottom:18px!important;padding:16px 14px!important}
+  .rentalHome .empty>span,.rentalHome .empty>h3,.rentalHome .empty>p{grid-column:1/-1!important;margin-block:0!important}
+  .rentalHome .empty>span{font-size:30px!important}
+  .rentalHome .empty .add{width:100%!important;min-height:44px!important;margin:2px 0 0!important;padding:10px 8px!important;text-align:center!important}
+  .siteFooter{gap:18px!important;padding:24px 16px calc(88px + env(safe-area-inset-bottom))!important}
+  .siteFooter .footerBrand p{margin-bottom:0!important}
+  .siteFooter .footerCopyright{margin-top:0!important}
+  .accountDashboard{padding:16px 12px 92px!important}
+  .accountDashboard .accountHeading h1{font-size:24px!important}
+  .accountDashboard .cabinetLayout{grid-template-columns:1fr!important;gap:13px!important}
+  .accountDashboard .cabinetSidebar{position:static!important}
+  .accountDashboard .cabinetNav.cabinetCards{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+  .accountDashboard .cabinetNav.cabinetCards>a{min-height:54px!important;padding:10px!important;border:1px solid var(--ds-line)!important;background:#fff!important;font-size:13px!important}
+  .accountDashboard .cabinetNavFoot{grid-column:1/-1!important;display:grid!important;grid-template-columns:1fr 1fr!important;margin-top:0!important;padding-top:0!important;border:0!important}
+  .cabinetContent{padding:14px!important;border-radius:15px!important;box-shadow:none!important}
+  .cabinetBack strong{font-size:19px!important}
+  .accountListings article{grid-template-columns:92px minmax(0,1fr)!important;gap:8px 11px!important;padding:10px!important}
+  .accountListings .ownedPhoto{width:92px!important}
+  .accountListings .accountItemActions{grid-column:1/-1!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .adminDashboard{padding:14px 12px 92px!important}
+  .adminDashboard>.adminPageHeading{align-items:flex-start!important;padding:15px!important;border-radius:15px!important;box-shadow:none!important}
+  .adminDashboard>.adminPageHeading h1{font-size:23px!important}
+  .adminPageHeading .muted,.adminSecureBadge{display:none!important}
+  .adminPanel,.adminWorkspace>div>section{padding:14px!important;border-radius:14px!important;box-shadow:none!important}
+  .adminStats{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .adminStats article{min-height:91px!important;padding:14px!important}
+  .messagesPage{padding:14px 0 calc(78px + env(safe-area-inset-bottom))!important}
+  .messagesTitle{padding:0 14px!important}
+  .messagesTitle h1{font-size:24px!important}
+  .messagesLayout{display:block!important;height:calc(100dvh - 180px)!important;min-height:400px!important;border-inline:0!important;border-radius:0!important;box-shadow:none!important}
+  .conversationList{height:100%!important;border:0!important}
+  .conversationBody{height:100%!important}
+  .hasConversation .conversationList{display:none!important}
+  .hasConversation .conversationBody{display:flex!important}
+  .conversationHeading{grid-template-columns:minmax(0,1fr) auto!important;padding:9px 11px!important}
+  .conversationListing{grid-column:1/-1!important}
+  .messageHistory{padding:13px!important}
+  .messageHistory article{max-width:86%!important}
+  .messageComposer{padding:9px 10px calc(9px + env(safe-area-inset-bottom))!important}
+  .messageComposer .add{min-width:74px!important;padding-inline:10px!important}
+}
+
+@media(max-width:360px){
+  .accountDashboard .cabinetNav.cabinetCards{grid-template-columns:1fr!important}
+  .accountDashboard .cabinetNavFoot{grid-template-columns:1fr!important}
+  .adminStats{grid-template-columns:1fr!important}
+}

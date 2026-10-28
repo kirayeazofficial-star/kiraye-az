@@ -22,7 +22,9 @@ const previous = join(backups, `${stamp}-previous-build`);
 await rm(fresh, { recursive: true, force: true });
 let swapped = false;
 try {
-  await cp(join(source, ".next"), fresh, { recursive: true });
+  await mkdir(fresh, { recursive: true });
+  await cp(join(source, ".next/standalone"), join(fresh, "standalone"), { recursive: true });
+  await copyFile(join(source, ".next/BUILD_ID"), join(fresh, "BUILD_ID"));
   if (await exists(join(target, ".next"))) await rename(join(target, ".next"), previous);
   swapped = true;
   await rename(fresh, join(target, ".next"));

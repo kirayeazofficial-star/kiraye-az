@@ -143,3 +143,34 @@ body:has(.rentalHome){background:#fff!important}
 .listingSection .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 12px!important}
 .categoryScroller .categories>button{flex:0 0 76px!important;width:76px!important;font-size:11.5px!important}
 }
+
+/* ---- v3: listing page, tap.az-style layout ---- */
+.listingDetails:not(.compactDetails){display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "gallery" "side" "info";gap:14px;align-items:start}
+.listingDetails:not(.compactDetails) .detailHead{grid-area:head}
+.listingDetails:not(.compactDetails) .listingGallery{grid-area:gallery}
+.listingDetails:not(.compactDetails) .detailSide{grid-area:side}
+.listingDetails:not(.compactDetails) .listingInfo{grid-area:info}
+.listingDetails:not(.compactDetails) .listingGallery,.listingDetails:not(.compactDetails) .listingInfo{border:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;border-radius:0!important;overflow:visible!important}
+.detailHead .tag{display:block;font-size:12px;color:#7b8883;margin-bottom:4px}
+.detailHead h1,.detailHead h2{margin:0 0 6px!important;font-size:24px!important;line-height:1.2!important;letter-spacing:-.4px!important;color:#13201c!important}
+.detailHead .muted{margin:0 0 4px;font-size:13px}
+.detailHead .publicListingMeta{display:flex;gap:14px;font-size:12px;color:#7b8883}
+.detailSide{display:grid;gap:12px;background:#f4f6f5;border-radius:16px;padding:18px}
+.detailSide .detailPrice{font-size:30px!important;line-height:1.1;color:#13201c!important;order:-2}
+.detailSide .detailPrice small{font-size:14px;font-weight:400;color:#6a7872}
+.detailSide .contactActions{display:grid!important;gap:10px;margin:0!important}
+.detailSide .contactActions .add{order:-1}
+.detailSide .contactActions a,.detailSide .contactActions button{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;border-radius:12px;font-size:15px;font-weight:600}
+.detailSide .sellerCard{background:#fff;border:0;border-radius:12px;padding:12px 14px}
+.detailSide .detailTools{display:flex;flex-wrap:wrap;gap:8px}
+.detailSide .detailTools button,.detailSide .detailTools a{min-height:40px;border-radius:10px;font-size:13px}
+.listingGallery .thumbnails{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.listingGallery .thumbnails button{flex:0 0 72px;width:72px;height:56px;padding:0;border:2px solid transparent;border-radius:10px;overflow:hidden}
+.listingGallery .thumbnails button[aria-pressed="true"]{border-color:#f2653e}
+.listingGallery .thumbnails img{width:100%;height:100%;object-fit:cover}
+.listingInfo h3{font-size:18px;margin:6px 0}
+@media (min-width:900px){
+.listingDetails:not(.compactDetails){grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"head side" "gallery side" "info side";gap:6px 32px}
+.listingDetails:not(.compactDetails) .detailSide{position:sticky;top:84px}
+.detailHead h1{font-size:28px!important}
+}

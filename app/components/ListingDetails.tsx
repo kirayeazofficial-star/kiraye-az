@@ -189,7 +189,7 @@ export default function ListingDetails({
       </div>
       {viewerOpen && <ImageViewer images={imageCount ? item.images : ["/placeholder.svg"]} title={item.title}
         index={selectedImage} onChange={setImage} onClose={() => setViewerOpen(false)}/>}
-      <div className="listingInfo">
+      <div className="detailHead">
         <span className="tag">
           {categoryName(item.category)}
           {item.demo ? " · Nümunə elan" : ""}
@@ -207,6 +207,8 @@ export default function ListingDetails({
             : `Elan tarixi: ${publicDate(item.created_at)}`}
         </p>
         {!item.demo && <div className="publicListingMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
+      </div>
+      <div className="detailSide">
         {!item.demo && item.owner_id && <section className="sellerCard"><strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong><a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>İstifadəçinin bütün elanları</a></section>}
         {!item.demo && item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && (
           <p className="muted">Elan sahibi {publicMonthYear(item.seller_since)} tarixindən qeydiyyatdadır.</p>
@@ -253,6 +255,8 @@ export default function ListingDetails({
             </Link>
           )}
         </div>
+      </div>
+      <div className="listingInfo">
         <h3>Elan haqqında</h3>
         <p className="description">{item.description}</p>
         {!!item.attributes?.amenities?.length && (

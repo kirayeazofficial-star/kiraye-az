@@ -46,14 +46,43 @@ body:has(.stickyContact){padding-bottom:70px}
 .accountHeading .accountIdentity span::before{content:none!important}
 }
 
-/* Cabinet: balance layout clean */
-.balancePreview{display:flex!important;flex-direction:column!important;gap:8px}
+/* Cabinet: balance section — visual upgrade */
+.balancePreview{display:flex!important;flex-direction:column!important;gap:10px;padding:18px 20px!important;border-radius:16px!important;background:linear-gradient(135deg,#eaf6f1 0%,#f0faf5 50%,#e8f4ee 100%)!important;border:1px solid #cbe5d8!important}
+.balancePreview h2{font-size:13px!important;font-weight:700!important;color:#3d6b5e!important;text-transform:uppercase!important;letter-spacing:.6px!important;margin:0!important}
+.balancePreview strong{font-size:28px!important;font-weight:800!important;color:#145f50!important;letter-spacing:-.5px!important}
 .balanceTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.balanceDesc{font-size:12px;color:#6b7a76;margin:0}
+.balanceTopUp{min-height:38px!important;padding:0 16px!important;border:0!important;border-radius:10px!important;background:#145f50!important;color:#fff!important;font-size:13px!important;font-weight:700!important;box-shadow:0 4px 12px rgba(20,95,80,.18)!important;cursor:pointer!important;transition:background .15s!important}
+.balanceTopUp:hover{background:#0f4e42!important}
+.balanceDesc{font-size:12px;color:#5a7d72;margin:0}
+.compactBalance{padding:14px 16px!important}
+.compactBalance .balancePreview strong,.compactBalance strong{font-size:22px!important}
 .compactBalance .balanceNotice{margin:0}
 .compactBalance .balanceDesc{display:none}
+.balanceNotice{padding:10px 14px!important;border-radius:10px!important;background:#fff!important;border:1px solid #dce8e2!important}
+
+/* Homepage header logo bigger */
+.header .logo{font-size:34px!important}
+
+/* Close buttons: consistent circles everywhere */
+.catalogFilterHeading button{width:40px!important;height:40px!important;border-radius:50%!important;display:grid!important;place-items:center!important;font-size:22px!important;line-height:1!important;padding:0!important}
+.azCalendarHeading button:last-child{width:32px!important;height:32px!important;border-radius:50%!important;display:grid!important;place-items:center!important;font-size:18px!important;line-height:1!important;padding:0!important}
+
+/* Icon sizes: normalize nav & header icons */
+.header nav svg,.headerActions svg,.mobileNav svg{width:20px!important;height:20px!important}
+.cabinetNav svg,.cabinetNav .navIcon{width:20px!important;height:20px!important}
+.desktopMessagesLink svg{width:18px!important;height:18px!important}
+
+/* Messages: polish conversation list & chat */
+.conversationAvatar{border-radius:50%!important;box-shadow:0 2px 8px rgba(20,95,80,.10)!important}
+.messagesPage .threadList button{border-radius:12px!important;transition:background .12s!important}
+.messagesPage .threadList button:hover{background:#f4f8f6!important}
+.messagesPage .threadList button[aria-current=true]{background:#eaf4f0!important;border-color:#c2ddd3!important}
+.chatComposer{border-radius:14px!important;border-color:#d4e3dc!important}
+.chatComposer:focus-within{border-color:#8eb7aa!important;box-shadow:0 0 0 3px rgba(20,95,80,.09)!important}
+.chatBubble{border-radius:14px!important}
 
 /* Cabinet header logo bigger on mobile */
 @media (max-width:760px){
-.accountDashboard .header .logo{font-size:20px!important}
+.accountDashboard .header .logo{font-size:22px!important}
+.header .logo{font-size:26px!important}
 }

@@ -701,3 +701,42 @@ body:has(.kzAdmin){--kz-bg:var(--kz-soft)}
   .kzCategories .categoryVisual,.kzCatalogTile{width:clamp(70px,22vw,88px)!important;height:clamp(70px,22vw,88px)!important}
   .kzCatalogTile svg{width:clamp(36px,11vw,44px);height:clamp(36px,11vw,44px)}
 }
+
+/* ---------- Headings stay dark everywhere ---------- */
+main h1,main h2,main h3{color:var(--kz-ink)!important}
+.publishSteps button{color:var(--kz-muted)!important}
+.publishSteps button[aria-current=step]{color:var(--kz-accent-dark)!important;font-weight:600}
+.publishSteps button[aria-current=step] span{background:var(--kz-accent)!important;color:#fff!important;box-shadow:0 0 0 4px var(--kz-accent-soft)!important}
+.publishSteps button:not([disabled]):not([aria-current]) span{background:#e8f6ec!important;color:#23803d!important}
+
+/* ---------- Sign in / sign up ---------- */
+.loginPage{background:var(--kz-soft)!important;color:var(--kz-ink)!important;font-size:var(--fs-15)!important}
+.loginPage .authHeader{max-width:none!important;height:64px!important;margin:0!important;padding:0 max(var(--kz-gutter),calc((100vw - var(--kz-width))/2))!important;background:#fff;border-bottom:1px solid var(--kz-line)!important;box-sizing:border-box}
+.loginPage .authHeader .logo{font-size:var(--fs-24)!important;font-weight:800!important;letter-spacing:-.8px!important;color:var(--kz-brand)!important;text-decoration:none!important}
+.loginPage .authHeader .logo span{color:var(--kz-accent)!important}
+.loginPage .authHeader>a:last-child:not(.logo){font-size:var(--fs-14)!important;color:var(--kz-text)!important}
+.loginPage .authShell{padding:32px var(--kz-gutter)!important}
+.loginPage section{width:min(100%,420px)!important;padding:28px!important;border:0!important;border-radius:16px!important;box-shadow:none!important}
+.loginPage .authModeLinks,.loginPage .authMethods{display:grid!important;grid-template-columns:1fr 1fr!important;gap:0!important;margin:0 0 20px!important;padding:3px!important;border:0!important;border-radius:12px!important;background:var(--kz-soft)!important}
+.loginPage .authModeLinks a,.loginPage .authMethods button{display:flex!important;align-items:center;justify-content:center;min-height:40px!important;margin:0!important;padding:0 8px!important;border:0!important;border-radius:10px!important;background:none!important;color:var(--kz-text)!important;font-size:var(--fs-14)!important;font-weight:500!important;text-decoration:none!important;box-shadow:none!important}
+.loginPage .authModeLinks a[aria-current=page],.loginPage .authMethods button[aria-pressed=true]{background:#fff!important;color:var(--kz-ink)!important;font-weight:600!important;box-shadow:0 1px 3px rgba(0,0,0,.08)!important}
+.loginPage h1{margin:0 0 16px!important;font-size:var(--fs-24)!important;font-weight:600!important;color:var(--kz-ink)!important}
+.loginPage .googleButton{display:flex!important;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px!important;border:1px solid var(--kz-line)!important;border-radius:12px!important;background:#fff!important;color:var(--kz-ink)!important;font-size:var(--fs-15)!important;font-weight:500!important;box-shadow:none!important}
+.loginPage .googleButton:disabled{opacity:.6}
+.loginPage .mailHelp,.loginPage .authLead,.loginPage .passwordHint{font-size:var(--fs-13)!important;color:var(--kz-muted)!important;line-height:1.45}
+.loginPage .authDivider{margin:16px 0!important;color:var(--kz-muted)!important;font-size:var(--fs-13)!important}
+.loginPage label{font-size:var(--fs-14)!important;font-weight:500!important;color:var(--kz-ink)!important}
+.loginPage input[type=email],.loginPage input[type=text],.loginPage input[type=password],.loginPage input[type=tel],.loginPage input:not([type]),.loginPage input[inputmode]{min-height:48px!important;padding:0 14px!important;border:1px solid var(--kz-line)!important;border-radius:12px!important;background:#fff!important;font-size:16px!important;box-shadow:none!important}
+.loginPage input:focus{border-color:var(--kz-accent)!important;outline:0!important;box-shadow:0 0 0 3px var(--kz-accent-soft)!important}
+.loginPage .passwordToggle{min-height:48px!important;border:1px solid var(--kz-line)!important;border-radius:12px!important;background:#fff!important;color:var(--kz-text)!important;font-size:var(--fs-13)!important;box-shadow:none!important}
+.loginPage .authSubmit{width:100%;min-height:50px!important;border:0!important;border-radius:12px!important;background:var(--kz-accent)!important;color:#fff!important;font-size:var(--fs-16)!important;font-weight:600!important;box-shadow:none!important}
+.loginPage .authSubmit:disabled{opacity:.6}
+.loginPage .forgotPassword,.loginPage .link,.loginPage .authFooter a{color:var(--kz-accent-dark)!important;font-size:var(--fs-14)!important}
+.loginPage .rememberLogin{display:flex!important;align-items:center;gap:10px}
+.loginPage input[type=checkbox]{width:20px;height:20px;accent-color:var(--kz-accent)}
+.loginPage .authBack{color:var(--kz-muted)!important;font-size:var(--fs-14)!important}
+@media (max-width:767px){.loginPage .authShell{padding:16px var(--kz-gutter)!important}.loginPage section{padding:20px!important}}
+
+/* ---------- Wallet sections: no card inside card ---------- */
+.accountDashboard .cabinetContent section:not(.kzBalance){border:0!important;box-shadow:none!important;padding:0!important;background:none!important}
+@media (max-width:767px){.accountDashboard .cabinetContent>.cabinetBack+section>h2,.accountDashboard .cabinetContent>.cabinetBack+div>h2{display:none!important}}

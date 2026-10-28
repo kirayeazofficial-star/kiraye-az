@@ -1,4 +1,5 @@
 "use client";
+import { CirclePlus, LayoutGrid, Plus } from "lucide-react";
 import AccountMenu from "./AccountMenu";
 import NavigationIcon from "./NavigationIcon";
 import UnreadMessages from "./UnreadMessages";
@@ -44,6 +45,14 @@ export default function Header() {
     window.addEventListener("popstate", sync);
     return () => window.removeEventListener("popstate", sync);
   }, [pathname]);
+  // Tapping the section you're already on reloads its data and scrolls to the top.
+  const sameSection = (target: "home" | "favorites" | "messages" | "account") => (event: React.MouseEvent) => {
+    const here = target === "home" ? pathname === "/" && !favoritesPage : target === "favorites" ? favoritesPage : target === "messages" ? pathname === "/messages" : pathname === "/profile";
+    if (!here) return;
+    event.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.dispatchEvent(new Event("kiraye:refresh"));
+  };
   const accountPage = ["/profile", "/account", "/balance", "/admin"].some(path => pathname === path || pathname?.startsWith(path + "/"));
   useEffect(() => {
     let active = true;
@@ -65,7 +74,7 @@ export default function Header() {
           <a className="kzLogo" href="/" aria-label="kirayeal.az — ana səhifə">kirayeal<span>.az</span></a>
           <div className="kzCatalog">
             <button type="button" className="kzCatalogButton" aria-expanded={catalogOpen} aria-controls="kz-catalog" onClick={() => setCatalogOpen(!catalogOpen)}>
-              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+              <LayoutGrid aria-hidden="true" size={18} strokeWidth={2} />
               <span>{t("Kataloq")}</span>
             </button>
             {catalogOpen && <nav id="kz-catalog" className="kzCatalogPanel" aria-label={t("Kateqoriyalar")}>
@@ -90,35 +99,35 @@ export default function Header() {
             <button type="submit">{t("Axtar")}</button>
           </form>
           <nav className="kzHeaderNav" aria-label="Əsas menyu">
-            <a href="/?favorites=1#elanlar" aria-current={favoritesPage?"page":undefined} title={t("Seçilmişlər")} aria-label={t("Seçilmişlər")}><NavigationIcon name="heart"/></a>
-            <Link href="/messages" aria-current={pathname === "/messages" ? "page" : undefined} title={t("Mesajlar")} aria-label={t("Mesajlar")}><NavigationIcon name="message"/>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
+            <a href="/?favorites=1#elanlar" onClick={sameSection("favorites")} aria-current={favoritesPage?"page":undefined} title={t("Seçilmişlər")} aria-label={t("Seçilmişlər")}><NavigationIcon name="heart"/></a>
+            <Link href="/messages" onClick={sameSection("messages")} aria-current={pathname === "/messages" ? "page" : undefined} title={t("Mesajlar")} aria-label={t("Mesajlar")}><NavigationIcon name="message"/>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
             {signedIn && accountId
               ? <AccountMenu key={accountId} userId={accountId} initialName={accountName} initialPhone={accountPhone}/>
               : <Link className="kzGuest" href="/login"><span className="kzAvatar"><NavigationIcon name="account"/></span><span>{t("Daxil ol")}</span></Link>}
           </nav>
           <Link className="kzPublish" href="/new">
-            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>{t("Yeni elan")}</span>
+            <CirclePlus aria-hidden="true" size={20} strokeWidth={2} /><span>{t("Yeni elan")}</span>
           </Link>
           <LanguageSelect />
           <Link className="kzMobilePublish" href="/new" aria-label={t("Yeni elan")}>
-            <svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M12 7v10M7 12h10" stroke="#fff" strokeWidth="2.2" strokeLinecap="round"/></svg>
+            <span className="kzRoundPlus" aria-hidden="true"><Plus size={20} strokeWidth={2.5} /></span>
           </Link>
         </div>
       </header>
       <nav className={`kzTabbar${pathname?.startsWith("/listings/") ? " kzTabbarHidden" : ""}`} aria-label="Mobil menyu">
-        <a href="/" aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
+        <a href="/" onClick={sameSection("home")} aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
           <NavigationIcon name="home"/><span>{t("Əsas")}</span>
         </a>
-        <a href="/?favorites=1#elanlar" aria-current={favoritesPage ? "page" : undefined}>
+        <a href="/?favorites=1#elanlar" onClick={sameSection("favorites")} aria-current={favoritesPage ? "page" : undefined}>
           <NavigationIcon name="heart"/><span>{t("Seçilmişlər")}</span>
         </a>
         <Link className="kzTabbarPublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
-          <span className="kzTabPlus" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span>{t("Yeni elan")}</span>
+          <span className="kzTabPlus" aria-hidden="true"><Plus size={24} strokeWidth={2.25} /></span><span>{t("Yeni elan")}</span>
         </Link>
-        <Link href="/messages" aria-current={pathname === "/messages" ? "page" : undefined}>
+        <Link href="/messages" onClick={sameSection("messages")} aria-current={pathname === "/messages" ? "page" : undefined}>
           <NavigationIcon name="message"/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
         </Link>
-        <Link href={signedIn ? "/profile" : "/login"} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
+        <Link href={signedIn ? "/profile" : "/login"} onClick={signedIn ? sameSection("account") : undefined} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
           <NavigationIcon name="account"/><span>{t("Kabinet")}</span>
         </Link>
       </nav>

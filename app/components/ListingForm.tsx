@@ -1,4 +1,5 @@
 "use client";
+import { Check } from "lucide-react";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
 import { watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -27,6 +28,8 @@ import {
   type Listing,
 } from "../../lib/marketplace";
 
+const limitDate=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",day:"2-digit",month:"2-digit",year:"numeric"}).formatToParts(new Date(value));const part=(type:string)=>parts.find(item=>item.type===type)?.value||"";return `${part("day")}.${part("month")}.${part("year")}`;};
+const limitMessage=(next?:string|null)=>`Bu kateqoriya üzrə pulsuz limitiniz bitib.${next?` Növbəti pulsuz yerləşdirmə: ${limitDate(next)}.`:""}`;
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const [step, setStep] = useState(1);
   const [canModerate, setCanModerate] = useState(false);
@@ -91,6 +94,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [files, setFiles] = useState<File[]>([]),
     [previews, setPreviews] = useState<string[]>([]),
     [category, setCategory] = useState(""),
+    [categoryLimit, setCategoryLimit] = useState<{remaining:number;next_free_at:string|null}|null>(null),
     [initial, setInitial] = useState<Listing | null>(null),
     [existingImages, setExistingImages] = useState<string[]>([]),
     [loadError, setLoadError] = useState(false);
@@ -106,6 +110,17 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     void saveListingDraft(user,draft).then(mode=>setDraftNotice(mode==='text'&&files.length?'Mətn saxlanıldı; şəkilləri yenidən seçmək lazım ola bilər.':'Qaralama bu cihazda saxlanıldı.')).catch(()=>setDraftNotice('Bu brauzerdə qaralamanı saxlamaq mümkün olmadı.'));
   };
   function queueDraft(){if(listingId)return;draftDirty.current=true;setSavedDraft(null);if(draftTimer.current)clearTimeout(draftTimer.current);draftTimer.current=setTimeout(()=>draftSave.current(),350);}
+  // Warn before the form is filled when the category has no free placements left.
+  useEffect(() => {
+    if (!category || listingId) { setCategoryLimit(null); return; }
+    let active = true;
+    fetch("/api/listings/limits", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(data => {
+      if (!active || !data) return;
+      const state = (data.items || []).find((item: { category: string }) => item.category === category);
+      setCategoryLimit(state ? { remaining: state.remaining, next_free_at: state.next_free_at } : null);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [category, listingId]);
   useEffect(()=>{if(!user||loading||listingId)return;let active=true;readListingDraft(user).then(value=>{if(active)setSavedDraft(value);});return()=>{active=false;};},[user,loading,listingId]);
   useEffect(()=>{const flush=()=>draftSave.current();const visibility=()=>{if(document.visibilityState==='hidden')flush();};window.addEventListener('pagehide',flush);document.addEventListener('visibilitychange',visibility);return()=>{flush();if(draftTimer.current)clearTimeout(draftTimer.current);window.removeEventListener('pagehide',flush);document.removeEventListener('visibilitychange',visibility);};},[]);
   function restoreDraft(){
@@ -374,9 +389,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         attributes,
       };
       const resultResponse=await fetch("/api/listings",{method:listingId?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(listingId?{...payload,id:listingId}:payload)});
-      if(resultResponse.status===429&&listingId)throw new Error("Elanı gündə yalnız bir dəfə redaktə etmək olar. Sabah yenidən cəhd et.");
-      if(resultResponse.status===429)throw new Error("Bu kateqoriyada 30 gün ərzində 3 pulsuz elan limitin dolub. Mövcud elanı redaktə edə və ya limit boşalanda yenisini yerləşdirə bilərsən.");
-      if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd et.");
+      if(resultResponse.status===429&&listingId)throw new Error("Elanı gündə yalnız bir dəfə redaktə etmək olar. Sabah yenidən cəhd edin.");
+      if(resultResponse.status===429){const data=await resultResponse.json().catch(()=>({}));throw new Error(limitMessage(data.next_free_at));}
+      if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.");
       saved = true;
       draftDirty.current=false;
       if(!listingId)void clearListingDraft(user);
@@ -437,12 +452,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
         ) : success ? (
           <section className="successPanel" role="status">
-            <span>✓</span>
-            <h2>Elanın yoxlamaya göndərildi</h2>
-            <p>
-              Təsdiqləndikdən sonra hamı üçün görünəcək. Vəziyyətini kabinetində
-              izləyə bilərsən.
-            </p>
+            <span><Check aria-hidden="true" size={18} strokeWidth={2.5} /></span>
+            <h2>Elan yoxlamaya göndərildi</h2>
+            <p>Təsdiqdən sonra elan 30 gün yayımda olacaq. Nəticəni «Elanlarım» bölməsində görəcəksiniz.</p>
             <Link className="add" href="/profile">
               Elanlarıma keç
             </Link>
@@ -539,6 +551,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     <p className="muted">
                       Əvvəl kateqoriyanı seç — uyğun xanalar açılacaq.
                     </p>
+                  )}
+                  {category && !listingId && categoryLimit && categoryLimit.remaining <= 0 && (
+                    <p className="kzLimitWarning" role="alert">{limitMessage(categoryLimit.next_free_at)}</p>
                   )}
                 </section>
                 {category && (

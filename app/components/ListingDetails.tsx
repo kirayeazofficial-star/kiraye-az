@@ -1,4 +1,5 @@
 "use client";
+import { Check, MapPin, Share2 } from "lucide-react";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
@@ -177,7 +178,7 @@ export default function ListingDetails({
         </>}
         <div className="galleryActions">
           {!effectiveOwner&&<button type="button" aria-label={favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"} aria-pressed={favorite} onClick={toggleFavorite}><NavigationIcon name="heart" filled={favorite}/></button>}
-          <button type="button" aria-label="Elanı paylaş" onClick={share}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></button>
+          <button type="button" aria-label="Elanı paylaş" onClick={share}><Share2 aria-hidden="true" size={20} strokeWidth={1.75} /></button>
         </div>
         </div>
         {imageCount > 1 && (
@@ -209,7 +210,7 @@ export default function ListingDetails({
           <h1>{item.title}</h1>
         )}
         <p className="muted">
-          <svg className="pinIcon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg> {item.city}
+          <MapPin className="pinIcon" aria-hidden="true" size={14} strokeWidth={2} /> {item.city}
           {item.district ? `, ${item.district}` : ""} ·{" "}
           {item.demo
             ? "Nümunə"
@@ -271,7 +272,7 @@ export default function ListingDetails({
         {!!item.attributes?.amenities?.length && (
           <div className="amenityTags">
             {item.attributes.amenities.map((a) => (
-              <span key={a}>✓ {a}</span>
+              <span key={a}><Check aria-hidden="true" size={14} strokeWidth={2.25} /> {a}</span>
             ))}
           </div>
         )}

@@ -5,7 +5,7 @@ export const rejectionReasons = [
  "Elan məlumatları natamamdır. Qiymət və kirayə şərtlərini dəqiqləşdir.",
  "Elanın məzmunu saytın qaydalarına uyğun deyil. Qaydaları nəzərdən keçir.",
 ];
-export const moderationActions: Record<string,string> = {submitted:"Elan göndərildi",resubmitted:"Dəyişiklik təkrar yoxlamaya göndərildi",approved:"Təsdiqləndi",rejected:"Rədd edildi",edited:"Məlumat dəyişdirildi",status_changed:"Vəziyyət dəyişdirildi",deleted:"Elan silindi"};
+export const moderationActions: Record<string,string> = {restored:"Bərpa edildi",submitted:"Elan göndərildi",resubmitted:"Dəyişiklik təkrar yoxlamaya göndərildi",approved:"Təsdiqləndi",rejected:"Rədd edildi",edited:"Məlumat dəyişdirildi",status_changed:"Vəziyyət dəyişdirildi",deleted:"Elan silindi"};
 export const moderationFields: Record<string,string> = {title:"Başlıq",description:"Təsvir",category:"Kateqoriya",city:"Şəhər",district:"Rayon",price:"Qiymət",rental_period:"Qiymət vahidi",contact:"Əlaqə nömrəsi",images:"Şəkillər",attributes:"Xüsusiyyətlər",deposit:"Depozit",min_days:"Minimum müddət",rooms:"Otaq sayı",area_m2:"Sahə",available_from:"Başlanğıc tarixi",available_until:"Son tarix"};
 export type ModerationEvent = {id:number;listing_id:string;actor_id:string|null;actor_name:string|null;actor_kind:string;action:string;old_status:string|null;new_status:string|null;changed_fields:string[];before_values:Record<string,unknown>|null;after_values:Record<string,unknown>|null;reason:string|null;created_at:string};
 export type ModerationContext = {

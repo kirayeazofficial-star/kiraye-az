@@ -154,9 +154,12 @@ export async function POST(request:NextRequest){
       const id=String(body.id||""),status=String(body.status||""),from=String(body.from||"pending"),reason=String(body.reason||"").trim().slice(0,500);
       if(!uuid.test(id)||!["published","rejected"].includes(status)||!["pending","published","rejected"].includes(from)||from===status||(status==="rejected"&&reason.length<10))return reply({error:"INVALID_ACTION"},400);
       const done=await hostTransaction(async db=>{
+        const before=await db.query(`select first_published_at,category,owner_id from public.listings where id=$1 for update`,[id]);
         const rows=await db.query(`update public.listings set status=$2,rejection_reason=$4,first_published_at=case when $2='published' then coalesce(first_published_at,now()) else first_published_at end,expires_at=case when $2='published' and (expires_at is null or expires_at<=now()) then now()+interval '30 days' else expires_at end,updated_at=now() where id=$1 and status=$3 returning id,owner_id`,[id,status,from,status==="rejected"?reason:null]);
         if(!rows.rows[0])return false;
         await db.query(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status,reason) values($1,$2,$3,'admin',$4,$5,$6,$7)`,[id,rows.rows[0].owner_id,auth.user.id,status==="published"?"approved":"rejected",from,status,status==="rejected"?reason:null]);
+        // The first approval uses one free placement; later approvals after edits do not.
+        if(status==="published"&&before.rows[0]&&!before.rows[0].first_published_at)await db.query(`insert into public.listing_placements(owner_id,listing_id,category) values($1,$2,$3)`,[before.rows[0].owner_id,id,before.rows[0].category]);
         return true;
       });
       return done?reply({ok:true}):reply({error:"STATUS_CHANGED"},409);

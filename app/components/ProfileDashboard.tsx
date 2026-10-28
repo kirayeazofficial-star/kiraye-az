@@ -1,4 +1,5 @@
 "use client";
+import { LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -6,6 +7,7 @@ import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
 import PromotionOptions from "./PromotionOptions";
+import { activePromotion } from "./PromotionBadges";
 import NavigationIcon from "./NavigationIcon";
 import AccountLimits from "./AccountLimits";
 import BalancePreview from "../components/BalancePreview";
@@ -20,7 +22,9 @@ import {
   money,
   periodName,
 } from "../../lib/marketplace";
-const listingTabs = [["published", "Hazırda saytda"], ["payment", "Ödəniş gözləyir"], ["expired", "Müddəti bitib"], ["pending", "Gözləmədə"], ["draft", "Dərc olunmamış"]];
+const listingTabs = [["published", "Aktiv"], ["pending", "Yoxlamada"], ["rejected", "Rədd edilib"], ["expired", "Müddəti bitib"]];
+const emptyText: Record<string, string> = { published: "Aktiv elanınız yoxdur. İstifadə etmədiyiniz əşyanı kirayəyə verin.", pending: "Yoxlamada olan elan yoxdur.", rejected: "Rədd edilmiş elan yoxdur.", expired: "Müddəti bitmiş elan yoxdur." };
+const shortDate = (value?: string | null) => { if (!value) return "—"; const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Baku", day: "2-digit", month: "2-digit", year: "numeric" }).formatToParts(new Date(value)); const part = (type: string) => parts.find(item => item.type === type)?.value || ""; return `${part("day")}.${part("month")}.${part("year")}`; };
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
   const params=useSearchParams(),requested=params.get("section"),section=requested&&["listings","transactions","cards","limits"].includes(requested)?requested:"listings",screen:"menu"|"section"=balanceOnly||requested&&["listings","transactions","cards","limits"].includes(requested)?"section":"menu",[profileNumber,setProfileNumber]=useState("");
   useEffect(()=>{window.scrollTo(0,0);},[requested]);
@@ -38,8 +42,17 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [staffRole, setStaffRole] = useState(""),
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
-    [statusFilter, setStatusFilter] = useState("published");
+    [statusFilter, setStatusFilter] = useState("published"),
+    [reloadKey, setReloadKey] = useState(0),
+    [refreshing, setRefreshing] = useState(false);
+  // Tapping the cabinet link while already here reloads the data.
   useEffect(() => {
+    const refresh = () => setReloadKey(key => key + 1);
+    window.addEventListener("kiraye:refresh", refresh);
+    return () => window.removeEventListener("kiraye:refresh", refresh);
+  }, []);
+  useEffect(() => {
+    if (reloadKey) { setRefreshing(true); setError(""); }
     fetch('/api/auth/host',{cache:'no-store'})
       .then(async response => {
         const data=await response.json();if(!data.user)return;
@@ -56,14 +69,14 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         }
         if(!balanceOnly){
           if(listingsResult.status==='fulfilled'&&Array.isArray(listingsResult.value))setListings(listingsResult.value);
-          else setError("Elanlarınızı yükləmək mümkün olmadı. Yenidən yoxlayın.");
+          else setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.");
         }
       })
       .catch(() =>
-        setError("Məlumatları yükləmək mümkün olmadı. Yenidən yoxlayın."),
+        setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin."),
       )
-      .finally(() => setLoading(false));
-  }, [balanceOnly]);
+      .finally(() => { setLoading(false); setRefreshing(false); });
+  }, [balanceOnly, reloadKey]);
   const [deleteConfirm,setDeleteConfirm]=useState("");
   async function archive(item: Listing) {
     if (busy) return;
@@ -83,11 +96,20 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     }
   }
 
-  function renew(_item: Listing) {
-    setError("");
-    setNotice("Elanı bərpa etmək ödənişli xidmətdir. Hazırda ödənişlər aktiv olmadığından bərpa etmək mümkün deyil. Heç bir məbləğ tutulmadı.");
+  async function restore(item: Listing) {
+    if (busy) return;
+    setBusy(item.id); setError(""); setNotice("");
+    try {
+      const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
+      const data = await response.json().catch(() => ({}));
+      if (response.status === 429) { setNotice(`Bu kateqoriya üzrə pulsuz limitiniz bitib.${data.next_free_at ? ` Növbəti pulsuz yerləşdirmə: ${shortDate(data.next_free_at)}.` : ""}`); return; }
+      if (!response.ok) throw new Error();
+      setNotice("Elan yenidən 30 gün müddətinə yayımlandı.");
+      setReloadKey(key => key + 1);
+    } catch { setError("Elanı bərpa etmək mümkün olmadı. Yenidən cəhd edin."); }
+    finally { setBusy(""); }
   }
-  const matchesTab=(item:Listing,status:string)=>{const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);if(!status)return true;if(status==="payment")return false;if(status==="draft")return ["draft","rejected"].includes(current);return current===status;};
+  const matchesTab=(item:Listing,status:string)=>{const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);return current===status;};
   async function logout() {
     const response=await fetch('/api/auth/host',{method:'DELETE'});
     if (!response.ok) {
@@ -138,133 +160,72 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
                 {admin && <Link className="cabinetAdminLink" href="/admin"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span></Link>}
-                <button type="button" className="textButton cabinetLogout" onClick={logout}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/></svg><span>Hesabdan çıx</span></button>
+                <button type="button" className="textButton cabinetLogout" onClick={logout}><LogOut aria-hidden="true" size={20} strokeWidth={1.75} /><span>Hesabdan çıx</span></button>
               </div>
             </nav>
             </aside>
             <div className="cabinetContent">
               <div className="cabinetBack">{balanceOnly?<Link href="/profile" aria-label="Kabinetə qayıt">‹</Link>:<Link href="/profile" aria-label="Kabinetə qayıt">‹</Link>}<strong>{balanceOnly?"Balans":sectionTitles[section]}</strong></div>
               {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : <>
-              <div className="stats">
-                <div>
-                  <b>{listings.length}</b>
-                  <span>Bütün elanlar</span>
-                </div>
-                <div>
-                  <b>
-                    {listings.filter((x) => effectiveListingStatus(x) === "published").length}
-                  </b>
-                  <span>Yayımlanmış</span>
-                </div>
-                <div>
-                  <b>{listings.filter((x) => effectiveListingStatus(x) === "pending").length}</b>
-                  <span>Gözləmədə</span>
-                </div>
+              <div className="kzOwnHead">
+                <h2>Elanlarım{refreshing && <span className="kzSpinner" role="status" aria-label="Yenilənir" />}</h2>
+                <Link className="kzButton" href="/new">+ Yeni elan</Link>
               </div>
-              <div className="sectionTitle">
-                <h2>Elanlarım</h2>
-                <div className="contactActions">
-                  <Link className="add" href="/new">
-                    + Yeni elan
-                  </Link>
-                </div>
-              </div>
-              {!listings.length && !error && (
-                <div className="empty">
-                  <h3>İlk elanını yaratmağa hazırsan?</h3>
-                  <p>İstifadə etmədiyin əşyanı kirayə ver.</p>
-                  <Link href="/new" className="add">
-                    Elan yerləşdir
-                  </Link>
-                </div>
-              )}
-              <div className="profileTabs desktopListingTabs listingStatusStrip" aria-label="Elan vəziyyəti">
+              <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
                 {listingTabs.map(([status, label]) => (
-                  <button
-                    key={status}
-                    className="secondary"
-                    aria-pressed={statusFilter === status}
-                    onClick={() => setStatusFilter(status)}
-                  >
-                    {label} (
-                    {
-                      listings.filter((x) => matchesTab(x,status))
-                        .length
-                    }
-                    )
+                  <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => setStatusFilter(status)}>
+                    {label}<b>{listings.filter((x) => matchesTab(x, status)).length}</b>
                   </button>
                 ))}
               </div>
-              {!!listings.length &&
-                !listings.some(
-                  (x) => matchesTab(x,statusFilter),
-                ) && <p className="notice">Bu bölmədə elan yoxdur.</p>}
-              <p className="muted editRule">Elanı gündə bir dəfə redaktə etmək olar. Redaktədən sonra elan yoxlanışa gedir.</p>
-              {notice && <p className="notice" role="status">{notice}</p>}
-              <div className="accountListings">
-                {listings
-                  .filter((x) => matchesTab(x,statusFilter))
-                  .map((x) => (
-                    <article key={x.id}>
-                      <Link
-                        href={
-                          effectiveListingStatus(x) === "published"
-                            ? `/listings/${x.id}`
-                            : `/profile/listings/${x.id}`
-                        }
-                        aria-label={`${x.title} — elana bax`}
-                        className="ownedPhoto"
-                      >
-                        <img
-                          src={x.images?.[0] || "/placeholder.svg"}
-                          alt={x.title}
-                        />
-                        
-                      </Link>
-                      <div>
-                        <span className={`status ${effectiveListingStatus(x)}`}>
-                          {statusName(effectiveListingStatus(x))}
-                        </span>
-                        <h3>
-                          <Link
-                            href={
-                              effectiveListingStatus(x) === "published"
-                                ? `/listings/${x.id}`
-                                : `/profile/listings/${x.id}`
-                            }
-                          >
-                            {x.title}
-                          </Link>
-                        </h3>
-                        <p>
-                          {money(x.price)} ₼ / {periodName(x.rental_period)} ·{" "}
-                          {x.city}
+              {notice && <p className="kzOwnNotice" role="status">{notice}</p>}
+              {!listings.some((x) => matchesTab(x, statusFilter)) ? (
+                <div className="kzOwnEmpty">
+                  <p>{emptyText[statusFilter]}</p>
+                  {(statusFilter === "published" || !listings.length) && <Link className="kzButton" href="/new">Elan yerləşdir</Link>}
+                </div>
+              ) : (
+                <div className="accountListings">
+                  {listings.filter((x) => matchesTab(x, statusFilter)).map((x) => {
+                    const current = effectiveListingStatus(x), expired = ["expired", "archived"].includes(current);
+                    const href = current === "published" ? `/listings/${x.id}` : `/profile/listings/${x.id}`;
+                    const promo = activePromotion(x);
+                    return <article key={x.id}>
+                      <Link href={href} aria-label={`${x.title} — elana bax`} className="ownedPhoto"><img src={x.images?.[0] || "/placeholder.svg"} alt="" /></Link>
+                      <div className="kzOwnBody">
+                        <div className="kzOwnTop"><span className={`status ${expired ? "expired" : current}`}>{statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
+                        <h3><Link href={href}>{x.title}</Link></h3>
+                        <p className="kzOwnPrice">{money(x.price)} ₼ / {periodName(x.rental_period)} · {x.city}</p>
+                        <p className="kzOwnMeta">{x.listing_no ? `№ ${x.listing_no} · ` : ""}Baxış: {x.views ?? 0}</p>
+                        <p className="kzOwnDates">
+                          {current === "published" && x.expires_at && <span>Aktivdir: {shortDate(x.expires_at)} tarixinədək</span>}
+                          {expired && <span>Müddəti bitib: {shortDate(x.expires_at || x.created_at)}</span>}
+                          {current === "pending" && <span>Yoxlamadadır. Təsdiqdən sonra yayımlanacaq.</span>}
+                          {promo && x.promotion_until && <span>{promo === "premium" ? "Premium" : "VIP"}: {shortDate(x.promotion_until)} tarixinədək</span>}
                         </p>
-                        {effectiveListingStatus(x) === "rejected" && x.rejection_reason && (
-                          <p className="error">Səbəb: {x.rejection_reason}</p>
-                        )}
-                        <p className="listingViews" title="Eyni IP və brauzerdən təkrar baxışlar gündə bir dəfə sayılır.">Baxış: {x.views ?? 0}</p>
-                        <small>{new Date(x.created_at).toLocaleDateString("az-AZ")}</small>
-                        {x.expires_at && <p className="muted">Bitmə tarixi: {new Date(x.expires_at).toLocaleDateString("az-AZ")}</p>}
+                        {current === "rejected" && x.rejection_reason && <p className="kzOwnReason">Səbəb: {x.rejection_reason} Səbəbi aradan qaldırıb elanı redaktə edin.</p>}
+                        {expired && <p className="kzOwnHint">Elanın müddəti bitib. Yenidən yayımlamaq üçün “Bərpa et” seçin.</p>}
                       </div>
                       <div className="accountItemActions">
-                        {["expired", "archived"].includes(effectiveListingStatus(x)) ? <PromotionOptions kind="restore" label="Elanı bərpa et" /> : <>
-                          {effectiveListingStatus(x) === "published" && <>
-                            <PromotionOptions label="Reklam et" />
+                        {expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : "Bərpa et"}</button>
+                          : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Redaktə et</Link>
+                          : <>
+                            <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
+                            {current === "published" && <PromotionOptions label="İrəlilət" />}
                           </>}
-                          <Link className="secondary" href={`/edit/${x.id}`}>Redaktə et</Link>
-                          <button className="secondary" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}>{busy === x.id ? "Gözləyin..." : "Elanı sil"}</button>
-                        </>}
+                        <button type="button" className="kzDangerLink" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}>Sil</button>
                       </div>
-                    {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan həmişəlik silinəcək. Bu əməliyyatı geri qaytarmaq olmur.</p><button type="button" className="secondary" disabled={!!busy} onClick={()=>archive(x)}>Bəli, elanı sil</button><button type="button" className="textButton" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
-                    </article>
-                  ))}
-              </div>
+                      {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan həmişəlik silinəcək. Silinmə istifadə olunmuş pulsuz limiti geri qaytarmır.</p><button type="button" className="kzDangerButton" disabled={!!busy} onClick={()=>archive(x)}>Bəli, sil</button><button type="button" className="kzButtonGhost" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
+                    </article>;
+                  })}
+                </div>
+              )}
+              <p className="kzOwnRule">Elanı gündə bir dəfə redaktə etmək olar. Dəyişikliklər yoxlamadan sonra görünür; elanın 30 günlük müddəti dəyişmir.</p>
               </>}
             </div>
           </div></>
         )}
-        {error && <div className="formError" role="alert"><span>{error}</span><button type="button" className="textButton" onClick={()=>window.location.reload()}>Yenidən yoxla</button></div>}
+        {error && <div className="kzErrorBar" role="alert"><span>{error}</span><button type="button" className="kzButtonGhost" onClick={()=>setReloadKey(key=>key+1)}>Yenidən cəhd et</button></div>}
       </main>
       <Footer />
     </>

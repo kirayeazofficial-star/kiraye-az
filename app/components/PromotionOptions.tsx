@@ -1,10 +1,11 @@
 "use client";
+import { ArrowUp, Crown, Gem, Megaphone, RotateCcw } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 const packages = [
-  { title: "Elanı bərpa et", icon: "↩️", kind: "restore", description: "Müddəti bitmiş və ya arxivə keçmiş elan yenidən yayımlanacaq.", plans: ["Elanı yenidən 30 gün yayımla"] },
-  { title: "İrəli çək", icon: "⬆️", kind: "bump", description: "Elan seçdiyin sayda, hər 8 saatdan bir irəli çəkiləcək.", plans: ["3 dəfə (8 saatdan bir) — 1,50 AZN", "9 dəfə (8 saatdan bir) — 2 AZN", "15 dəfə (8 saatdan bir) — 3 AZN", "30 dəfə (8 saatdan bir) — 5 AZN"] },
-  { title: "VIP", icon: "💎", kind: "vip", description: "Xüsusi VIP bölməsində, öz kateqoriyasının VIP elanları arasında növbəli göstərilmə və hər gün irəli çəkmə.", plans: ["1 gün — 3 AZN", "5 gün — 6 AZN", "15 gün — 15 AZN", "30 gün — 25 AZN"] },
-  { title: "Premium", icon: "👑", kind: "premium", description: "VIP üstünlükləri, hər gün irəli çəkmə və xidmət müddətində əsas səhifənin Premium bölməsində göstərilmə.", plans: ["1 gün — 5 AZN", "5 gün — 15 AZN", "15 gün — 30 AZN", "30 gün — 50 AZN"] },
+  { title: "Elanı bərpa et", icon: RotateCcw, kind: "restore", description: "Müddəti bitmiş və ya arxivə keçmiş elan yenidən yayımlanacaq.", plans: ["Elanı yenidən 30 gün yayımla"] },
+  { title: "İrəli çək", icon: ArrowUp, kind: "bump", description: "Elan seçdiyin sayda, hər 8 saatdan bir irəli çəkiləcək.", plans: ["3 dəfə (8 saatdan bir) — 1,50 AZN", "9 dəfə (8 saatdan bir) — 2 AZN", "15 dəfə (8 saatdan bir) — 3 AZN", "30 dəfə (8 saatdan bir) — 5 AZN"] },
+  { title: "VIP", icon: Gem, kind: "vip", description: "Xüsusi VIP bölməsində, öz kateqoriyasının VIP elanları arasında növbəli göstərilmə və hər gün irəli çəkmə.", plans: ["1 gün — 3 AZN", "5 gün — 6 AZN", "15 gün — 15 AZN", "30 gün — 25 AZN"] },
+  { title: "Premium", icon: Crown, kind: "premium", description: "VIP üstünlükləri, hər gün irəli çəkmə və xidmət müddətində əsas səhifənin Premium bölməsində göstərilmə.", plans: ["1 gün — 5 AZN", "5 gün — 15 AZN", "15 gün — 30 AZN", "30 gün — 50 AZN"] },
 ];
 export default function PromotionOptions({ eligible = true, kind, label }: { eligible?: boolean; kind?: string; label?: string }) {
   const id = useId();
@@ -23,7 +24,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
   }, [opened]);
   return <details ref={root} className="promotionOptions" aria-label="Elanın irəlilədilməsi"
     onToggle={(event) => { setOpened(event.currentTarget.open); if (!event.currentTarget.open) setSelected(null); }}>
-    <summary ref={trigger} className="promotionTrigger">{label ?? <><span aria-hidden="true">📣</span> Elanı reklam et</>}</summary>
+    <summary ref={trigger} className="promotionTrigger">{label ?? <><Megaphone aria-hidden="true" size={16} strokeWidth={1.75} /> Elanı reklam et</>}</summary>
     <div className="promotionShade" aria-hidden="true" onClick={close} />
     <div ref={panel} className={`promotionPanel${kind?" kindOnly":""}`} role="dialog" aria-modal="true" aria-label="Elanın reklam paketləri" tabIndex={-1}
       onKeyDown={(event) => {
@@ -43,7 +44,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
           else if (selected === pack.kind) setSelected(null);
         }}>
         <summary>
-          <span className={`promotionIcon ${pack.kind}`} aria-hidden="true">{pack.icon}</span>
+          <span className={`promotionIcon ${pack.kind}`} aria-hidden="true"><pack.icon size={22} strokeWidth={1.75} /></span>
           <span className="promotionHeading"><strong>{pack.title}</strong><small>Paket seç</small></span>
         </summary>
         <p>{pack.description}</p>

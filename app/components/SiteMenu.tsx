@@ -1,4 +1,5 @@
 "use client";
+import { ChevronRight, Menu, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -41,7 +42,7 @@ export default function SiteMenu() {
 
   return <>
     <button ref={trigger} className="mobileMenuButton" type="button" aria-label={t("Menyunu aç")} aria-expanded={open} onClick={event => { keyboardOpen.current = event.detail === 0; setOpen(true); }}>
-      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 5h18M3 12h18M3 19h18" /></svg>
+      <Menu aria-hidden="true" size={22} strokeWidth={2} />
     </button>
     {open && createPortal(<div className="siteMenuLayer">
       <button className="siteMenuShade" type="button" aria-label={t("Menyunu bağla")} tabIndex={-1} onClick={() => setOpen(false)} />
@@ -57,15 +58,15 @@ export default function SiteMenu() {
         <div className="siteMenuHeading">
           <Link className="logo" href="/" onClick={() => setOpen(false)}>kirayeal<span>.az</span><small>{t("KİRAYƏ ÜÇÜN BİR ÜNVAN")}</small></Link>
           <button className="siteMenuClose" type="button" aria-label={t("Menyunu bağla")} onClick={() => setOpen(false)}>
-            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="m6 6 12 12M18 6 6 18" /></svg>
+            <X aria-hidden="true" size={22} strokeWidth={2} />
           </button>
         </div>
         <div className="siteMenuLanguage"><span>{t("Dil")}</span><LanguageSelect /></div>
         <nav aria-label={t("Sayt bölmələri")}>
-          {primaryLinks.map(([href, title]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{t(title)}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg></Link>)}
+          {primaryLinks.map(([href, title]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{t(title)}<ChevronRight aria-hidden="true" size={16} strokeWidth={1.75} /></Link>)}
         </nav>
         <nav className="siteMenuHelp" aria-label={t("Məlumat və kömək")}>
-          {helpLinks.map(([href, title]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{t(title)}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="m9 5 7 7-7 7" /></svg></Link>)}
+          {helpLinks.map(([href, title]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{t(title)}<ChevronRight aria-hidden="true" size={16} strokeWidth={1.75} /></Link>)}
         </nav>
         <SiteContact />
       </aside>

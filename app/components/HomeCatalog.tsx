@@ -1,4 +1,5 @@
 "use client";
+import { LayoutGrid, SlidersHorizontal } from "lucide-react";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
@@ -82,8 +83,10 @@ export default function Home() {
       setOnlyFavorites(false);
       requestAnimationFrame(() => document.getElementById("elanlar")?.scrollIntoView({ behavior: "smooth" }));
     };
+    const refresh = () => { setFavorites(readFavorites()); setRetry(value => value + 1); };
     window.addEventListener("kiraye:search", search);
-    return () => window.removeEventListener("kiraye:search", search);
+    window.addEventListener("kiraye:refresh", refresh);
+    return () => { window.removeEventListener("kiraye:search", search); window.removeEventListener("kiraye:refresh", refresh); };
   }, []);
   const closeFilters = useCallback(() => setAdvanced(false), []);
   const favoriteIds = onlyFavorites ? favorites.join(",") : "";
@@ -128,7 +131,7 @@ export default function Home() {
             setTotal(0);
             setDemo(false);
             setNotice(
-              "Elanları yükləmək mümkün olmadı. Bağlantını yoxlayıb yenidən cəhd et.",
+              "Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.",
             );
           }
         })
@@ -338,7 +341,7 @@ export default function Home() {
       <main className={`kzMain kzHome${onlyFavorites ? " favoritesView" : ""}`}>
         <section className="kzCategories" aria-label={t("Kateqoriyalar")}>
           <button type="button" className="kzCategoryCatalog" onClick={() => window.dispatchEvent(new Event("kiraye:catalog"))}>
-            <span className="kzCatalogTile" aria-hidden="true"><svg width="44" height="44" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1.2"/><rect x="13" y="3" width="8" height="8" rx="1.2"/><rect x="3" y="13" width="8" height="8" rx="1.2"/><rect x="13" y="13" width="8" height="8" rx="1.2"/></svg></span>
+            <span className="kzCatalogTile" aria-hidden="true"><LayoutGrid size={40} strokeWidth={1.75} /></span>
             <span>{t("Kataloq")}</span>
           </button>
           {categories.map((c) => (
@@ -392,7 +395,7 @@ export default function Home() {
               aria-expanded={advanced}
               onClick={() => setAdvanced(!advanced)}
             >
-              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+              <SlidersHorizontal aria-hidden="true" size={16} strokeWidth={2} />
               {t("Filtrlər")}{activeFilters.length > 0 && <b>{activeFilters.length}</b>}
             </button>
             {(["daily", "monthly"] as const).map(value => <button

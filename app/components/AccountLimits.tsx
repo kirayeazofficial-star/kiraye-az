@@ -3,13 +3,26 @@ import {useEffect,useState} from "react";
 import {FREE_LISTING_LIMIT,LIMIT_WINDOW_DAYS} from "../../lib/listing-limit";
 import {categories} from "../../lib/marketplace";
 
-type Row={category:string;status:string;created_at:string};
+type State={category:string;limit:number;used:number;pending:number;remaining:number;next_free_at:string|null};
+const date=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",day:"2-digit",month:"2-digit",year:"numeric"}).formatToParts(new Date(value));const part=(type:string)=>parts.find(item=>item.type===type)?.value||"";return `${part("day")}.${part("month")}.${part("year")}`;};
 export default function AccountLimits(){
- const [rows,setRows]=useState<Row[]|null>(null),[failed,setFailed]=useState(false);
- useEffect(()=>{let live=true;fetch("/api/listings?scope=mine&limit=200",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{if(live)setRows(d.items||[]);}).catch(()=>{if(live)setFailed(true);});return()=>{live=false;};},[]);
- const since=Date.now()-LIMIT_WINDOW_DAYS*86400000;
- const used=new Map<string,number>();
- for(const r of rows||[])if(["pending","published","expired"].includes(r.status)&&new Date(r.created_at).getTime()>since)used.set(r.category,(used.get(r.category)||0)+1);
- const list=categories.map(c=>({key:c.id,label:c.name}));
- return <section className="limitsPanel"><h2>Limitlər</h2><p>Hər kateqoriyada {LIMIT_WINDOW_DAYS} gün ərzində {FREE_LISTING_LIMIT} pulsuz elan yerləşdirə bilərsən.</p>{failed?<p role="alert">Limitləri yükləmək mümkün olmadı.</p>:!rows?<p role="status">Yüklənir…</p>:<ul>{list.map(c=><li key={c.key}><span>{c.label}</span><b>{used.get(c.key)||0} / {FREE_LISTING_LIMIT}</b></li>)}</ul>}<p className="muted">Əlavə limit almaq üçün ödəniş sistemi müvəqqəti işləmir.</p></section>;
+ const [items,setItems]=useState<State[]|null>(null),[failed,setFailed]=useState(false),[attempt,setAttempt]=useState(0);
+ useEffect(()=>{let live=true;setFailed(false);fetch("/api/listings/limits",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{if(live)setItems(d.items||[]);}).catch(()=>{if(live)setFailed(true);});return()=>{live=false;};},[attempt]);
+ const byCategory=new Map((items||[]).map(item=>[item.category,item]));
+ return <section className="kzLimits">
+  <h2>Elan limitləri</h2>
+  <p className="kzLimitsLead">Hər kateqoriyada son {LIMIT_WINDOW_DAYS} gündə {FREE_LISTING_LIMIT} pulsuz elan yerləşdirə bilərsiniz. Yer elan təsdiqlənəndə istifadə olunur və {LIMIT_WINDOW_DAYS} gün sonra azad olur. Elanı silmək limiti qaytarmır; rədd edilmiş elan limit sərf etmir.</p>
+  {failed?<div className="kzErrorBar" role="alert"><span>Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.</span><button type="button" className="kzButtonGhost" onClick={()=>setAttempt(x=>x+1)}>Yenidən cəhd et</button></div>:!items?<p className="kzMuted" role="status">Yüklənir…</p>:
+  <div className="kzLimitTable" role="table" aria-label="Elan limitləri">
+   <div className="kzLimitRow head" role="row"><span>Kateqoriya</span><span>Limit</span><span>İstifadə</span><span>Qalıb</span><span>Növbəti pulsuz yer</span></div>
+   {categories.map(category=>{const state=byCategory.get(category.id);const used=(state?.used||0)+(state?.pending||0),remaining=state?state.remaining:FREE_LISTING_LIMIT;return <div className="kzLimitRow" role="row" key={category.id}>
+    <span>{category.name}</span>
+    <span data-label="Limit">{FREE_LISTING_LIMIT}</span>
+    <span data-label="İstifadə">{used}{state?.pending?<small> ({state.pending} yoxlamada)</small>:null}</span>
+    <span data-label="Qalıb" className={remaining?"ok":"none"}>{remaining}</span>
+    <span data-label="Növbəti">{remaining?"İndi":state?.next_free_at?date(state.next_free_at):"—"}</span>
+   </div>;})}
+  </div>}
+  <p className="kzLimitsLead">Ödənişli yerləşdirmə pulsuz limitdən ayrıca hesablanır. Ödəniş sistemi hələ qoşulmayıb.</p>
+ </section>;
 }

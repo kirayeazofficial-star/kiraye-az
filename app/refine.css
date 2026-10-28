@@ -26,3 +26,11 @@ body:has(.stickyContact){padding-bottom:70px}
 .galleryStage img[src*="/placeholders/"]{object-fit:contain!important}
 .galleryStage:has(img[src*="/placeholders/"]){aspect-ratio:16/10!important;height:auto!important;max-height:none!important}
 .stickyContact .add{background:#1f9d55!important;border-color:#1f9d55!important;color:#fff!important}
+
+/* Phone: compact hero so listings start higher */
+@media (max-width:760px){
+.rentalHome .catalogIntro{min-height:0!important;padding:16px 18px 38px!important;margin-top:10px!important;border-radius:16px!important}
+.rentalHome .catalogIntro h1{max-width:none!important;font-size:22px!important;letter-spacing:-.6px!important;line-height:1.15!important}
+.rentalHome .catalogIntro>div>span{display:none!important}
+.rentalHome .searchWrap{margin-top:-24px!important}
+}

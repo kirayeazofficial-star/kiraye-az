@@ -23,6 +23,7 @@ const client = new Client({
   connectionTimeoutMillis: 10000,
 });
 let copied = 0;
+try {
 const images = join(folder, "images");
 for (const owner of await readdir(images).catch(() => [])) {
   await mkdir(join(storage, owner), { recursive: true, mode: 0o750 });
@@ -31,11 +32,18 @@ for (const owner of await readdir(images).catch(() => [])) {
     copied++;
   }
 }
-await client.connect();
+} catch (error) {
+  console.error(`Photo copy error: ${error.code || ""} ${error.message}`.replace(/\s+/g, " "));
+  process.exit(1);
+}
 try {
+  await client.connect();
   await client.query(await readFile(sqlFile, "utf8"));
+} catch (error) {
+  console.error(`Import error: ${error.code || ""} ${error.message} ${error.detail || ""}`.replace(/\s+/g, " "));
+  process.exit(1);
 } finally {
-  await client.end();
+  await client.end().catch(() => {});
 }
 await rename(folder, `${folder}-done-${new Date().toISOString().replace(/[:.]/g, "-")}`);
 console.log(`Legacy import finished (${copied} photos).`);

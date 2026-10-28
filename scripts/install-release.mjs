@@ -47,7 +47,7 @@ if (await exists(join(source, "host/postgres"))) {
     );
     console.log((imported.stdout || "").trim());
     if (imported.status !== 0)
-      console.error("LEGACY IMPORT FAILED (the site still updates):", (imported.stderr || "").split("\n").filter(Boolean).slice(-2).join(" "));
+      console.error("LEGACY IMPORT FAILED (the site still updates):", (imported.stderr || "").replace(/\s+/g, " ").slice(-400));
   }
 }
 

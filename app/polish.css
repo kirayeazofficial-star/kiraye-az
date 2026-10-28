@@ -495,3 +495,10 @@ button:active,.add:active,.secondary:active,.categories>button:active{transform:
 .profileSettings .emailBox input[readonly]{background:#f6f6f9;color:#5b6070}
 .profileSettings .emailActions{display:flex;gap:10px;align-items:center}
 .profileSettings .notice{max-width:520px}
+
+/* ---- v16: cabinet footer rows ---- */
+.accountDashboard .cabinetNavFoot{gap:2px!important}
+.accountDashboard .cabinetNavFoot>a,.accountDashboard .cabinetNavFoot>button{justify-content:flex-start!important;text-align:left!important;width:100%;min-height:46px;padding:10px 12px!important;gap:12px!important;border:0!important;background:transparent!important;font-size:15px!important;font-weight:400!important;color:#1f2230!important;border-radius:10px!important}
+.accountDashboard .cabinetNavFoot .cabinetAdminLink{background:transparent!important}
+.accountDashboard .cabinetNavFoot .cabinetLogout{color:#b4382a!important}
+.accountDashboard .cabinetNavFoot svg{width:20px;height:20px;flex:none}

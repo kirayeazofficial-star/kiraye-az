@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
@@ -20,10 +21,10 @@ import {
 } from "../../lib/marketplace";
 const listingTabs = [["published", "Hazırda saytda"], ["payment", "Ödəniş gözləyir"], ["expired", "Müddəti başa çatmış"], ["pending", "Yoxlanışda"], ["draft", "Dərc olunmamış"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
-  const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState(""),[screen,setScreen]=useState<"menu"|"section">(balanceOnly?"section":"menu");
-  useEffect(()=>{const read=()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["listings","transactions","cards","limits"].includes(value)){setSection(value);setScreen("section");}else if(!balanceOnly){setSection("listings");setScreen("menu");}};read();window.addEventListener("popstate",read);return()=>window.removeEventListener("popstate",read);},[balanceOnly]);
+  const params=useSearchParams(),requested=params.get("section"),section=requested&&["listings","transactions","cards","limits"].includes(requested)?requested:"listings",screen:"menu"|"section"=balanceOnly||requested&&["listings","transactions","cards","limits"].includes(requested)?"section":"menu",[profileNumber,setProfileNumber]=useState("");
+  useEffect(()=>{window.scrollTo(0,0);},[requested]);
   const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər"};
-  const openSection=(name:string)=>{setSection(name);setScreen("section");window.scrollTo(0,0);};
+  const openSection=(_name:string)=>{};
   const [accountPhone,setAccountPhone]=useState(""),[accountEmail,setAccountEmail]=useState("");
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
@@ -92,7 +93,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       <main className="wrap dashboard accountDashboard">
         <div className="sectionTitle accountHeading">
           <div>
-            <h1>{identity||"Kabinet"}</h1>
+            <h1>{identity||"Profil"}</h1>
             {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>}{accountEmail&&<span> · {accountEmail}</span>}</p>}
           </div>
         </div>
@@ -118,18 +119,17 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </span></Link>
               
               <Link href="/account"><NavigationIcon name="account"/><span>Profil</span></Link>
-              <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}><NavigationIcon name="wallet"/><span>Balans</span></Link>
-              <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></Link>
+                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></Link>
               <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></Link>
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
                 {admin && <Link className="cabinetAdminLink" href="/admin"><NavigationIcon name="account"/><span>Admin paneli</span></Link>}
-                <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
+                <button type="button" className="textButton cabinetLogout" onClick={logout}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/></svg><span>Hesabdan çıx</span></button>
               </div>
             </nav>
             </aside>
             <div className="cabinetContent">
-              <div className="cabinetBack">{balanceOnly?<Link href="/profile" aria-label="Kabinetə qayıt">‹</Link>:<button type="button" aria-label="Kabinetə qayıt" onClick={()=>{setScreen("menu");setSection("listings");window.history.pushState(null,"","/profile");}}>‹</button>}<strong>{balanceOnly?"Balans":sectionTitles[section]}</strong></div>
+              <div className="cabinetBack">{balanceOnly?<Link href="/profile" aria-label="Kabinetə qayıt">‹</Link>:<Link href="/profile" aria-label="Kabinetə qayıt">‹</Link>}<strong>{balanceOnly?"Balans":sectionTitles[section]}</strong></div>
               {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : <>
               <div className="stats">
                 <div>

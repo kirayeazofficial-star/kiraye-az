@@ -174,3 +174,8 @@ body:has(.rentalHome){background:#fff!important}
 .listingDetails:not(.compactDetails) .detailSide{position:sticky;top:84px}
 .detailHead h1{font-size:28px!important}
 }
+.detailSide>*{margin:0!important}
+.detailSide{gap:10px}
+.detailSide .detailPrice{padding:2px 0 4px}
+.detailSide>.muted{font-size:12px;color:#7b8883}
+.galleryStage::before{filter:blur(22px) brightness(.95)}

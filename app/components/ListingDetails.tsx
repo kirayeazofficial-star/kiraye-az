@@ -1,14 +1,13 @@
 "use client";
-import { publicDate, publicMonthYear } from "../../lib/public-date";
+import { publicDate } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
 import ImageViewer from "./ImageViewer";
 import NavigationIcon from './NavigationIcon';
-import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
 import { formatContact, partiallyHiddenContact } from "../../lib/contact-mask";
 import { minimumRentalLabel } from "../../lib/rental-details";
 import { extraAttributeLabels } from "../../lib/listing-form-options";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import RentalEstimator from "./RentalEstimator";
 import {
@@ -18,8 +17,7 @@ import {
   periodName,
   readFavorites,
 } from "../../lib/marketplace";
-import { normalizePhone, reportReasons } from "../../lib/rental-details";
-import { supabase } from "../../lib/supabase";
+import { normalizePhone } from "../../lib/rental-details";
 export default function ListingDetails({
   item,
   compact = false,
@@ -28,29 +26,10 @@ export default function ListingDetails({
   compact?: boolean;
 }) {
   const [phoneShown,setPhoneShown]=useState(false);
-  const [publicInfo,setPublicInfo]=useState<{seller_name?:string;views?:number}|null>(null);
-  useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(!supabase||item.demo||item.status!=="published")return;let active=true;Promise.resolve(supabase.rpc('public_listing_info',{p_listing_id:item.id}).abortSignal(AbortSignal.timeout(3000))).then(({data,error})=>{if(active&&!error&&data&&typeof data==='object'&&!Array.isArray(data))setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
-  const [isOwner,setIsOwner]=useState(false);
-  const [ownerReady,setOwnerReady]=useState(false);
-  useEffect(()=>{if(!supabase){setOwnerReady(true);return;}let active=true,authChanged=false;setOwnerReady(false);const {data}=supabase.auth.onAuthStateChange((_event,session)=>{authChanged=true;if(active){setIsOwner(!!session&&session.user.id===item.owner_id);setOwnerReady(true);}});supabase.auth.getUser().then(({data})=>{if(active&&!authChanged){setIsOwner(!!data.user&&data.user.id===item.owner_id);setOwnerReady(true);}}).catch(()=>{if(active&&!authChanged)setOwnerReady(true);});return()=>{active=false;data.subscription.unsubscribe();};},[item.owner_id]);
+  useEffect(() => setPhoneShown(false), [item.id]);
   const [image, setImage] = useState(0),
     [favorite, setFavorite] = useState(false),
-    [notice, setNotice] = useState(""),
-    [report, setReport] = useState(false),
-    [busy, setBusy] = useState(false),
-    [reported, setReported] = useState(false);
-  useEffect(()=>{
-    if(item.demo||item.status!=="published")return;
-    let active=true;
-    const timer=setTimeout(async()=>{
-      try{const session=await supabase?.auth.getSession();if(!active||session?.data.session?.user.id===item.owner_id)return;
-        const headers:Record<string,string>={'Content-Type':'application/json'};
-        if(session?.data.session?.access_token)headers.Authorization=`Bearer ${session.data.session.access_token}`;
-        await fetch('/api/listing-view',{method:'POST',headers,body:JSON.stringify({id:item.id}),keepalive:true});
-      }catch{/* Statistics never interrupt browsing. */}
-    },1500);
-    return()=>{active=false;clearTimeout(timer);};
-  },[item.id,item.owner_id,item.status,item.demo]);
+    [notice, setNotice] = useState("");
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -87,65 +66,6 @@ export default function ListingDetails({
     } catch (err) {
       if (!(err instanceof Error && err.name === "AbortError"))
         setNotice(`Elanın ünvanı: ${url}`);
-    }
-  }
-  async function sendReport(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (busy) return;
-    if (item.demo) {
-      setNotice("Nümunə elana şikayət göndərilmir.");
-      return;
-    }
-    if (!supabase) {
-      setNotice("Şikayət xidməti hazır deyil.");
-      return;
-    }
-    setBusy(true);
-    const form = new FormData(e.currentTarget);
-    try {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        setNotice("Şikayət göndərmək üçün hesabınıza daxil olun.");
-        return;
-      }
-      if (data.user.id === item.owner_id) {
-        setNotice(
-          "Öz elanına şikayət göndərə bilməzsən. Dəyişiklik üçün kabinetdə Redaktə et seç.",
-        );
-        return;
-      }
-      const message = String(form.get("message") ?? "").trim();
-      if (message.length < 10 || message.length > 1000) {
-        setNotice("Əlavə məlumat 10–1000 simvol olmalıdır.");
-        return;
-      }
-      const result = await supabase.from("listing_reports").insert({
-        listing_id: item.id,
-        reporter_id: data.user.id,
-        reason: form.get("reason"),
-        message,
-        status: "open",
-      });
-      if (result.error?.code === "23505") {
-        setReported(true);
-        setNotice("Bu elan üçün şikayətiniz artıq qeydə alınıb.");
-        return;
-      }
-      if (result.error) throw result.error;
-      setReported(true);
-      setReport(false);
-      setNotice("Şikayətiniz qeydə alındı. İdarəçi yoxlayacaq.");
-    } catch (error) {
-      const code = (error as { code?: string })?.code;
-      setNotice(
-        code === "42501"
-          ? "Bu elan üçün şikayət icazəsi yoxdur. Hesabını və elanın yayımlandığını yoxla."
-          : code === "42P01" || code === "PGRST205"
-            ? "Şikayət xidməti bazada aktivləşdirilməyib. Sayt idarəçisi quraşdırmanı tamamlamalıdır."
-            : "Şikayət göndərilmədi. Bir az sonra yenidən yoxlayın.",
-      );
-    } finally {
-      setBusy(false);
     }
   }
   const phone = normalizePhone(item.contact || "");
@@ -196,7 +116,6 @@ export default function ListingDetails({
         />
         </button>
         <PhotoMark src={item.images?.[selectedImage]} />
-        <PromotionBadges item={item}/>
         {imageCount > 1 && <>
           <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}>‹</button>
           <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}>›</button>
@@ -238,18 +157,13 @@ export default function ListingDetails({
             ? "Nümunə"
             : `Elan tarixi: ${publicDate(item.created_at)}`}
         </p>
-        {!item.demo && <div className="publicListingMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
-        {!item.demo && item.owner_id && <section className="sellerCard"><strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong><a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>İstifadəçinin bütün elanları</a></section>}
-        {!item.demo && item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && (
-          <p className="muted">Elan sahibi {publicMonthYear(item.seller_since)} tarixindən qeydiyyatdadır.</p>
-        )}
+        {!item.demo && item.listing_no && <div className="publicListingMeta"><span>Elan № {item.listing_no}</span></div>}
         <strong className="detailPrice">
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
         {phone && !item.demo ? (
           <div className="contactActions">
-            {ownerReady&&(isOwner?<Link className="secondary" href={`/edit/${item.id}`}>Elanı redaktə et</Link>:<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>)}
             {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et · {formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər">Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"
@@ -371,38 +285,6 @@ export default function ListingDetails({
           Kirayə götürəcəyin əşyanı, nəqliyyatı və ya əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini
           yazılı razılaşdır. Platforma hazırda ödəniş qəbul etmir.
         </p>
-        {!item.demo && !reported && (
-          <button className="textButton" onClick={() => setReport(!report)}>
-            {report ? "Şikayəti bağla" : "Bu elandan şikayət et"}
-          </button>
-        )}
-        {report && !reported && (
-          <form className="reportForm" onSubmit={sendReport}>
-            <h3>Şikayət göndər</h3>
-            <label>
-              Səbəb
-              <select name="reason">
-                {reportReasons.map((reason) => (
-                  <option key={reason}>{reason}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Əlavə məlumat
-              <textarea
-                name="message"
-                minLength={10}
-                maxLength={1000}
-                required
-                rows={3}
-                placeholder="Problemi qısa təsvir et. Şəxsi məlumat yazma."
-              />
-            </label>
-            <button className="secondary" disabled={busy}>
-              {busy ? "Göndərilir..." : "Şikayəti göndər"}
-            </button>
-          </form>
-        )}
         {notice && (
           <p className="notice" role="status">
             {notice}

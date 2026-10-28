@@ -1,126 +1,34 @@
-# kiraye.az
+# kirayeal.az
 
-Azərbaycan üçün kirayə elanları platforması. Next.js 16, React 19, TypeScript, Supabase Auth/Postgres/Storage.
+Kirayə elanları saytı. Next.js 16 + React 19 + TypeScript. Verilənlər bazası və ya xarici xidmət yoxdur — hər şey bu repodadır, istənilən Node 22 hostinqə köçürülə bilər.
 
-## Password recovery
+## Elanları dəyişmək
 
-The login screen now uses email → six-digit recovery code → new password. Apply the Supabase email template and OTP settings in [EMAIL-RECOVERY.md](docs/EMAIL-RECOVERY.md) before deploying this flow. Existing recovery links remain supported. Browser tests simulate Auth responses and do not prove real email delivery.
+Bütün elanlar `data/listings.ts` faylındadır (faylın başındakı izaha bax). Şəkilləri `public/` qovluğuna qoy, elanda `/ad.jpg` kimi yaz. `status: "hidden"` elanı gizlədir. `demo: true` olan elanlar "Nümunə" kimi göstərilir və axtarış sisteminə (sitemap) düşmür.
 
-## Local development
+## Lokal işə salmaq
 
-Node.js 22/24 recommended.
-
-```sh
-npm ci --cache /workspace/.npm-cache
+```
+npm ci
+cp .env.example .env.local
 npm run dev
 ```
 
-Create `.env.local` using `.env.example` and supply the project URL and browser-safe publishable key. Never use a secret/service-role key in NEXT_PUBLIC variables. Existing code accepts NEXT_PUBLIC_SUPABASE_ANON_KEY as an alternative.
+Yoxlama: `npm run lint`, `npm run build`. Testlər: `node tests/<fayl>.cjs`.
 
-## Supabase activation
+## Mühit dəyişənləri
 
-1. Run `supabase/schema.sql` in the project's SQL Editor. It retains existing tables/data and installs RLS, moderation enforcement and storage policies. Review existing third-party policies separately if this project has other applications.
-2. In Authentication → URL Configuration, replace the default localhost Site URL with `https://kirayeal.az`. Add these exact Redirect URLs:
-   - `https://kirayeal.az/auth/callback`
-   - `https://kirayeal.az/auth/callback?flow=recovery`
-   - `https://kirayeal.az/reset-password`
-     Supabase falls back to Site URL when a requested redirect is not allowed; this is why a localhost Site URL sends confirmation emails to a blank local page. Request a NEW confirmation email after saving; old emails retain their original URLs.
-     New code uses `/auth/callback` for confirmation and `/reset-password` directly for password recovery, validates expired links, supports token-hash and code callbacks, and shows explicit recovery actions. If the configured email template includes a numeric OTP, users can also verify it on the login page. Email templates containing only a confirmation link do not supply a numeric code. Optional `NEXT_PUBLIC_SITE_URL` pins the callback host to the production origin; localhost is never selected for new outbound email redirects.
-3. Enable email/password authentication. Configure a production SMTP provider before public launch; default email delivery has limits.
-4. Register the owner's account (profiles are created automatically by the schema), and designate it as admin using the SQL statement at the bottom of schema.sql. This privileged step must be executed only in the SQL Editor.
-5. Verify sign-up, email confirmation, login, password recovery, photo uploads, pending listing visibility, admin approval, public feed and archive with real accounts.
+Yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`). Dəyişəndə yenidən build lazımdır. Docker üçün əlavə `SITE_HOST`.
 
-## Hosting
+## cPanel-ə yerləşdirmə (hostinq.az)
 
-The site runs as a Node.js standalone app on hostinq.az (cPanel). See [CPANEL.md](docs/CPANEL.md) and [CPANEL-UPDATE.md](docs/CPANEL-UPDATE.md). Set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `NEXT_PUBLIC_SITE_URL` in the app's environment, then rebuild: NEXT_PUBLIC values are embedded at build time, so a restart alone is not enough. No secret/service-role key belongs in `NEXT_PUBLIC_*` variables.
+1. Node.js App: Node 22, startup file `app.js`, `NEXT_PUBLIC_SITE_URL` əlavə et.
+2. Git Version Control: repo `https://github.com/kirayeazofficial-star/kiraye-az`, branch `main`.
+3. Dəyişiklikdən sonra: **Update from Remote** → **Deploy HEAD Commit**.
+4. Nəticədə `HTTP verified` yazısına və `https://kirayeal.az/api/health` cavabına bax.
 
-**Supabase is OFF by default.** The backend project was deleted, so the code ignores every `NEXT_PUBLIC_SUPABASE_*` value unless `NEXT_PUBLIC_SUPABASE_ENABLED=true` is also set at build time. Without it the site builds and deploys in interface/demo mode: no login, no real listings, only clearly labelled samples. Old Supabase values left in the cPanel environment are harmless. Set the flag (and the URL/key) only after a working project exists. Browser tests that need a configured backend must build with `NEXT_PUBLIC_SUPABASE_ENABLED=true`.
+Build uğursuz olsa canlı sayt toxunulmaz qalır. Hər deploydan əvvəl `.kirayeal-backups` qovluğunda ehtiyat saxlanır.
 
-## Login and deployment fixes
+## Başqa hostinqə köçürmək
 
-- Login accepts existing shorter passwords; the eight-character minimum applies only to new registration. Invalid credentials, missing confirmation, expired codes and rate limits have separate messages.
-- Email callbacks from localhost use the production hostname (`https://kirayeal.az`) by default. `NEXT_PUBLIC_SITE_URL` pins the callback host explicitly.
-- Header follows session state; profile has status tabs; logout clears the session.
-- The public catalog runs search/filter/sort/count in Supabase before pagination (18 results/page). Failed live requests show an error and retry action, rather than replacing real results with sample listings. Samples are explicitly labeled only in the unconfigured state.
-- Compact grid/list layouts and real listing links improve navigation. Quick previews remain available separately.
-
-## Checks
-
-```sh
-npm run build
-npm run lint
-npm run test:ui
-node tests/auth-flow.cjs
-node tests/rental-details.cjs
-node tests/catalog.cjs
-```
-
-Build includes TypeScript validation. UI tests need `npm run dev -- --port 3001` or a production server on port 3001. They exercise the disconnected/demo state with browser-safe Supabase variables absent. `PLAYWRIGHT_MODULE_PATH` may point to an existing Playwright module; browser binaries must be installed. Set `CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium` to use a system browser.
-
-`tests/account-workflow.cjs` requires a configured browser-public Supabase URL/key and running server. It intercepts all Supabase requests and simulates login, navigation, photo submission, editing, archive and logout; it does not create real accounts, send emails or prove a real user's password is valid. Run with `TEST_BASE_URL=http://127.0.0.1:3013 node tests/account-workflow.cjs`. Do not rebuild the same `.next` directory while browser tests are running. The disconnected suite requires empty Supabase variables at build time; test it separately before building the configured version.
-
-Database-policy tests use an isolated PGlite instance: `PGLITE_MODULE_PATH=/path/to/@electric-sql/pglite node tests/schema.cjs`. They stub the Supabase auth/storage schemas and do not replace live integration tests.
-
-## Implemented
-
-Responsive category marketplace, city/price/period/search/sort filters, persistent favorites, listing detail/gallery/phone/WhatsApp, authenticated photo uploads and listing submission, owner dashboard/archive, database-enforced admin moderation, login/sign-up/password recovery, rules/safety page. Demo listings are explicitly labeled and are used only when the live feed is unavailable. Real listings are stored in Supabase, never browser localStorage.
-
-## Rental marketplace extension
-
-- `/listings/[id]`: shareable public listing pages with title/description metadata, canonical URLs, photos, deposit, minimum rental duration, stated availability, property amenities and vehicle details. `/listings/example-*` pages are marked noindex.
-- `/edit/[id]`: authenticated owners can retain/remove/add photos, change terms and resubmit. Every edit sets the status to pending; a published listing leaves the public feed until reapproved. Archived listings can be renewed through the same form. Identity and owner cannot be changed in the database.
-- Profile now links to editing, archive, public listing views and `/account` settings.
-- Logged-in visitors can report published listings, one report per person/listing. Report content is visible only to its reporter and admins. Owners cannot report their own listings. Admins have a report queue and must provide a reason when rejecting listings.
-- Room count, area, vehicle brand/gearbox, deposit and date filters are supported. Availability is the owner's stated interval, not a reservation or live booking calendar.
-- `/help` explains how to use the platform; `/privacy` documents current storage behavior. No fictional business address/support contact is published. Business identity, operator contact and a full reviewed privacy/retention policy remain launch requirements.
-- `sitemap.xml` refreshes hourly and includes up to 1000 published listings. `robots.txt` excludes account/admin and example routes. Optional `NEXT_PUBLIC_SITE_URL` sets the canonical origin; otherwise `https://kirayeal.az` is used.
-
-**Database upgrade:** Run the updated `supabase/schema.sql` once in the same project's SQL Editor. It adds rental-term columns, report policies and automatic profile creation/backfill without removing listings. Running it twice is covered by the isolated database tests. This file has NOT been executed against the real project from Codex. Until it is applied, new queries/writes can fail. Apply this additive upgrade before deploying the extension.
-
-## Launch limits
-
-No payments, reservations, VIP listings, in-app chat or automated identity verification. Photo bucket is public, including photos uploaded for pending listings; don't upload sensitive material. The public feed searches and sorts in the database and pages 18 results at a time; owner/admin queues still load up to 200 rows, so introduce queue pagination before high-volume moderation. Rate limits, legal/privacy review, retention/deletion operations and monitoring should be finalized before public launch. Backend integration needs real project credentials and SQL activation and is not established by a successful local build.
-
-### Phone sign-in and delivery setup
-
-Email/password opens by default; phone/SMS is available as a separate tab when a provider has been configured. The page reads Supabase's public Auth settings and shows the phone tab only when enabled. If Phone Auth is disabled, it explains that SMS is unavailable rather than claiming a code was sent. Once enabled, `signInWithOtp` creates/signs in the phone user; `verifyOtp` establishes the session. The cabinet uses the authenticated user ID, including accounts without email. A profile's editable contact number does not change the verified sign-in number.
-
-**External setup required:** in Supabase → Authentication → Sign In / Providers → Phone, configure a supported SMS provider (for example Twilio), its sending number/service and credentials, then enable Phone. An SMS provider account and delivery charges are required; the repository cannot provision these. Store provider secrets only in Supabase, never a `NEXT_PUBLIC_*` variable, source code or chat. Configure delivery limits and test a real Azerbaijan mobile number before launch. Public provider-enabled settings do not prove that a carrier will deliver messages. An existing email account and a new phone account are separate until deliberately linked; automatic merging is not attempted.
-
-Email confirmation opens the link in the email by default. Numeric OTP entry is optional because Supabase's standard email template may contain only a link. Resend has a cooldown; pending email verification survives a tab reload without storing passwords or tokens. A successful request is not represented as guaranteed inbox delivery. For missing email, the owner must check Auth delivery logs and configure production SMTP; application code cannot repair an unconfigured sender.
-
-Run `TEST_BASE_URL=http://127.0.0.1:3020 node tests/phone-email-login.cjs` against a configured build. All Supabase requests are intercepted. The suite checks disabled/unreachable providers, phone normalization, wrong/valid OTP, resend limits, phone-only cabinet and photo-form identity, email link/code flows, sender failures, repeated registrations and responsive dimensions. It sends no real messages.
-
-### Owner administrator setup
-
-The intended owner account is `kiraye.azofficial@gmail.com` (confirmed by the owner). Open Supabase SQL Editor and run `supabase/assign-owner-admin.sql` once, then refresh `/admin` while signed into that website account. The script promotes only that existing account, is repeatable, and stops with a clear error if the account does not exist. It does not set a password or bypass email verification. This requires the project's SQL Editor access; the browser-public Supabase key cannot grant administrator privileges.
-
-Moderation now filters, searches and paginates in Postgres (24 per page, including records beyond the previous 200-item window). State transitions check the previously loaded status so concurrent changes fail visibly rather than silently overwriting an intervening decision. A reason-validation error keeps the moderation form on screen. The owner can approve, reject with a reason, archive, and resolve reports. User administration or payment processing is not implied.
-
-Posting supports incremental photo selection, a six-photo total limit including retained photos, choosing a cover among the retained/new photo groups, and local preview before submission. Invalid prices are rejected before uploads, duplicate submission is guarded, and a failed upload cleanup cannot hide the original error. Email request throttling persists across reloads and distinguishes sending limits from password login. These frontend checks do not lift Supabase's delivery limits or configure SMTP/SMS.
-
-Additional verification: `node tests/admin-auth-review.cjs` (query and retry rules); `TEST_BASE_URL=http://127.0.0.1:3031 node tests/admin-workflow.cjs` (mocked moderator actions and access checks). The isolated database policy suite also tests the targeted owner assignment and refusal of missing accounts. No integration test sends real email/SMS or modifies production data.
-
-### Google sign-in and moving to your own server
-
-See [Google and server setup (Azerbaijani)](docs/GOOGLE-AND-SERVER.md) for the exact Google Cloud callback, Supabase provider/redirect settings, and domain deployment steps. Inactive Google and phone options are hidden from the login form; enabling it requires the owner's Google Cloud Client ID/Secret in Supabase. No Google secret belongs in this repository or browser environment. OAuth returns only to allowed local pages, including an interrupted rental submission.
-
-`next.config.mjs` generates standalone output. `Dockerfile`, `compose.yaml` and `deploy/Caddyfile` provide a non-root Node.js server behind Caddy HTTPS. `scripts/check-public-env.mjs` validates production public configuration before the Docker build. `/api/health` checks process readiness only. Build-time `NEXT_PUBLIC_*` values must be rebuilt for a new domain. Supabase remains the managed Auth/database/storage backend, so moving the web server preserves existing users and listings when the same project is used.
-
-Deployment verification: standalone Node output served health, static assets and application routes, and the mocked Google/account/moderation browser suites ran against that standalone server. `node tests/deployment.cjs` validates production configuration guards. Docker Compose configuration validates; the full clean Docker build could not finish in this cloud workspace because containers cannot resolve the npm registry (`EAI_AGAIN`). No TLS verification was disabled. Run a clean Docker build on the target server before launch; DNS and a real Google round trip still require the owner's external configuration.
-
-Login recovery simplification: inactive OAuth/SMS choices no longer occupy the email form. A failed password login offers a direct recovery action preserving the email, and the recovery shortcut is above the submit button. Password rejection is not bypassed. Production builds now copy standalone assets automatically and `npm start` launches that output, avoiding the unsupported standalone/`next start` combination. Read-only browser checks against the live site covered category/search/favorites and signed-out route guards; authenticated posting/moderation checks use isolated simulated responses and do not prove the owner's password or email delivery.
-
-Password recovery regression fix: new email requests point directly to `/reset-password`; older `/auth/callback` recovery links remain supported. The return URL is captured in memory before SDK initialization consumes its fragment, and a recovery pending in the original login tab returns to the password form when a session is available. Callback/form initialization and Auth network requests have finite deadlines, and reset success clears only pending recovery UI state. The integrated `tests/password-recovery.cjs` suite uses simulated Auth responses to cover request redirect, direct and legacy links, mismatched/updated passwords, expired links, missing sessions and returning to the original waiting tab. It changes no real password and sends no email.
-
-### Category-specific posting
-
-The posting form uses brand/model dropdowns with an explicit custom entry. Car listings require color, fuel, gearbox, body type, drivetrain, year, new/used status and mileage; electric cars omit engine displacement. Bicycle, motorcycle, property, equipment and event fields are scoped to their category. Equipment brands follow the equipment type. Titles can be generated from the selected brand/model and remain editable. Public specifications are stored in the existing `attributes` JSON column, so this update does not require a database migration. Account email is displayed privately in the form and is never copied into public listing attributes.
-
-`node tests/listing-attributes.cjs` checks payload isolation and specification validation. The mocked account browser suite covers dropdown dependencies, custom entries, reset, autofill, mobile submission, editing and public specifications.
-
-### Rental estimates and handover terms
-
-Listing details include an indicative rental calculator. Daily estimates count the interval from pickup to return (return date excluded); monthly estimates use calendar months with end-of-month clamping. Deposit and delivery are separate. Unknown delivery fees stay unknown and are excluded from the known-cost subtotal. The estimator checks minimum duration and owner-stated availability, but does not hold dates, collect payment or create a booking. WhatsApp enquiries include the selected dates and provisional amounts.
-
-Optional listing terms cover delivery, included accessories, return/cancellation terms, property utilities and vehicle driver requirements. These use the existing attributes column. `node tests/rental-estimate.cjs` checks currency/date calculations; the account browser suite checks term persistence and dated WhatsApp enquiries. `docs/PROMOTIONS-PLAN.md` records the supplied paid-promotion reference as a future plan, not an active paid service.
+Repo fayllarını köçür, Node 22 + `NEXT_PUBLIC_SITE_URL` təyin et, `npm ci && npm run build && npm start`. Docker: `compose.yaml`.

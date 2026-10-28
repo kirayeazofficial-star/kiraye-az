@@ -1,85 +1,91 @@
 "use client";
-import AccountMenu from "./AccountMenu";
 import NavigationIcon from "./NavigationIcon";
-import UnreadMessages from "./UnreadMessages";
 import SiteMenu from "./SiteMenu";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { supabase } from "../../lib/supabase";
+import { siteContact } from "../../lib/site-contact";
 export default function Header() {
-  const {t} = useLanguage();
-  const [accountId,setAccountId]=useState(""),[accountName,setAccountName]=useState(""),[accountPhone,setAccountPhone]=useState("");
-  const [signedIn, setSignedIn] = useState(false);
-  const [authReady, setAuthReady] = useState(false);
+  const { t } = useLanguage();
   const pathname = usePathname();
   const [favoritesPage, setFavoritesPage] = useState(false);
   useEffect(() => {
-    const sync = () => setFavoritesPage(pathname === "/" && new URLSearchParams(window.location.search).has("favorites"));
+    const sync = () =>
+      setFavoritesPage(
+        pathname === "/" &&
+          new URLSearchParams(window.location.search).has("favorites"),
+      );
     sync();
     window.addEventListener("popstate", sync);
     return () => window.removeEventListener("popstate", sync);
   }, [pathname]);
-  const accountPage = ["/profile", "/account", "/balance", "/admin"].some(path => pathname === path || pathname?.startsWith(path + "/"));
-  useEffect(() => {
-    if (!supabase) { setAuthReady(true); return; }
-    let active = true;
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) { setSignedIn(!!session);setAccountId(session?.user.id||"");setAccountName(session?.user.user_metadata?.full_name||"");setAccountPhone(session?.user.user_metadata?.contact_phone||""); setAuthReady(true); }
-    });
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (active) { setSignedIn(!!data.session);setAccountId(data.session?.user.id||"");setAccountName(data.session?.user.user_metadata?.full_name||"");setAccountPhone(data.session?.user.user_metadata?.contact_phone||""); setAuthReady(true); }
-      })
-      .catch(() => { if (active) setAuthReady(true); });
-    return () => {
-      active = false;
-      data.subscription.unsubscribe();
-    };
-  }, []);
   return (
     <>
-      <header className={`header${signedIn?" isSignedIn":""}`}>
-        <div className="headerBrand"><SiteMenu /><a className="logo" href="/">
-          kirayeal<span>.az</span>
-          <small>{t("KİRAYƏ ÜÇÜN BİR ÜNVAN")}</small>
-        </a></div>
+      <header className="header">
+        <div className="headerBrand">
+          <SiteMenu />
+          <a className="logo" href="/">
+            kirayeal<span>.az</span>
+            <small>{t("KİRAYƏ ÜÇÜN BİR ÜNVAN")}</small>
+          </a>
+        </div>
         <nav aria-label="Əsas menyu">
           <a href="/#elanlar">{t("Elanlar")}</a>
-          <a href="/?favorites=1#elanlar"><NavigationIcon name="heart"/>{t("Seçilmişlər")}</a>
+          <a href="/?favorites=1#elanlar">
+            <NavigationIcon name="heart" />
+            {t("Seçilmişlər")}
+          </a>
           <Link href="/help">{t("Kömək")}</Link>
-          <Link className="desktopMessagesLink" href="/messages"><NavigationIcon name="message"/>{t("Mesajlar")}{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
         </nav>
         <div className="headerActions">
           <LanguageSelect />
-          {signedIn && accountId ? <AccountMenu key={accountId} userId={accountId} initialName={accountName} initialPhone={accountPhone}/> : <Link className="accountLink guestAccountLink" href="/login">{t("Daxil ol")}</Link>}
-          {authReady && !signedIn && <Link className="mobileSignupLink" href="/login?mode=signup">
-            {t("Qeydiyyatdan keç")}
-          </Link>}
-          <Link className="add headerPublish" href="/new" aria-label={t("Elan yerləşdir")}>
+          <a
+            className="add headerPublish"
+            href={siteContact.whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t("Elan yerləşdir")}
+          >
             <span className="desktopPublishLabel">{t("+ Elan yerləşdir")}</span>
-            <span className="mobilePublishLabel"><NavigationIcon name="plus"/><span>{t("Elan")}</span></span>
-          </Link>
+            <span className="mobilePublishLabel">
+              <NavigationIcon name="plus" />
+              <span>{t("Elan")}</span>
+            </span>
+          </a>
         </div>
       </header>
       <nav className="mobileNav" aria-label="Mobil menyu">
-        <a href="/" aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
-          <NavigationIcon name="home"/><span>{t("Əsas")}</span>
+        <a
+          href="/"
+          aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}
+        >
+          <NavigationIcon name="home" />
+          <span>{t("Əsas")}</span>
         </a>
-        <a href="/?favorites=1#elanlar" aria-current={favoritesPage ? "page" : undefined}>
-          <NavigationIcon name="heart"/><span>{t("Seçilmişlər")}</span>
+        <a
+          href="/?favorites=1#elanlar"
+          aria-current={favoritesPage ? "page" : undefined}
+        >
+          <NavigationIcon name="heart" />
+          <span>{t("Seçilmişlər")}</span>
         </a>
-        <Link className="mobilePublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
-          <NavigationIcon name="plus"/><span>{t("Yeni elan")}</span>
-        </Link>
-        <Link href="/messages" aria-current={pathname === "/messages" ? "page" : undefined}>
-          <NavigationIcon name="message"/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
-        </Link>
-        <Link href={signedIn ? "/profile" : "/login"} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
-          <NavigationIcon name="account"/><span>{t("Kabinet")}</span>
+        <a
+          className="mobilePublish"
+          href={siteContact.whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <NavigationIcon name="plus" />
+          <span>{t("Elan yerləşdir")}</span>
+        </a>
+        <Link
+          href="/help"
+          aria-current={pathname === "/help" ? "page" : undefined}
+        >
+          <NavigationIcon name="message" />
+          <span>{t("Kömək")}</span>
         </Link>
       </nav>
     </>

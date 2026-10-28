@@ -75,13 +75,6 @@ try{
   if(attempt<2)await new Promise(done=>setTimeout(done,2000));
  }
  console.log(verified?'HTTP verified: the new build is responding.':'HTTP release NOT verified. Use cPanel Node.js Restart and inspect kirayeal.az.');
- if(verified&&process.env.KIRAYE_REQUIRE_CLOUD_BACKUP==='1'){
-  const{requestCloudBackup}=await import('./request-cloud-backup.mjs');
-  const backup=await requestCloudBackup(manifest.commit);
-  if(backup.ok)console.log('Bulud ehtiyatı növbəyə alındı; tamamlanması Drive-da ayrıca yoxlanmalıdır.');
-  else{console.error('Sayt yerləşdirildi, amma bulud ehtiyatı növbəyə alınmadı. Əvvəlki ehtiyatlar saxlanılıb.');process.exitCode=1;}
- }else if(verified)console.warn('Bulud ehtiyatının yerləşdirmədən sonrakı avtomatik çağırışı hələ qurulmayıb.');
- console.log('Database migrations, SMTP/Google and host-only data migration are still pending. Payments remain inactive.');
 }catch(error){
  console.error(error.message);
  if(activated&&backupReady){console.error('Restoring the application backup...');try{await run('tar',['-xzf',archive,'-C',target]);await mkdir(join(target,'tmp'),{recursive:true});await writeFile(join(target,'tmp/restart.txt'),stamp);console.error('Backup restored; inspect the site and cPanel status.');}catch{console.error('Automatic restore failed. Preserve the backup and inspect before further changes:',archive);}}

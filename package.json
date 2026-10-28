@@ -14,7 +14,6 @@
     "predev": "node scripts/prepare-browser-compat.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.118.0",
     "@types/node": "22.10.2",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",

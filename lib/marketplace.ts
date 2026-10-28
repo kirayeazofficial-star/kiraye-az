@@ -1,4 +1,3 @@
-import { supabase } from "./supabase";
 
 export const categories = [
   { id: "property", name: "Ev və mənzil", icon: "⌂" },
@@ -102,14 +101,7 @@ export const cities = [
 
 export type Listing = {
   id: string;
-  owner_id?: string;
   listing_no?: number | string;
-  promotion_kind?: "vip"|"premium"|null;
-  promotion_until?: string|null;
-  review_kind?: "new" | "edited";
-  seller_since?: string;
-  first_published_at?: string | null;
-  expires_at?: string | null;
   category: string;
   title: string;
   city: string;
@@ -128,7 +120,6 @@ export type Listing = {
   min_days?: number;
   available_from?: string | null;
   available_until?: string | null;
-  rejection_reason?: string | null;
   attributes?: {
     [key: string]: string | number | string[] | undefined;
     delivery_method?: string;
@@ -169,15 +160,6 @@ export type Listing = {
 export const categoryName = (id: string) =>
   categories.find((c) => c.id === id)?.name ?? id;
 export const periodName = (id: string) => (id === "monthly" ? "ay" : id === "weekly" ? "həftə" : "gün");
-export const statusName = (id: string) =>
-  ({
-    pending: "Yoxlanılır",
-    published: "Yayımlanıb",
-    rejected: "Qəbul edilməyib",
-    archived: "Arxivdə",
-    expired: "Müddəti bitib",
-    draft: "Qaralama",
-  })[id] ?? id;
 // Keep SSR and browser output identical even when a browser lacks az-AZ ICU data.
 export const money = (price: number) => {
   const value = Number(price);
@@ -187,114 +169,6 @@ export const money = (price: number) => {
   return `${value < 0 ? "−" : ""}${whole.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0")}${fraction ? `,${fraction}` : ""}`;
 };
 
-export const photo = (id: string) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1000&q=80`;
-export const examples: Listing[] = [
-  [
-    "property",
-    "Nizami metrosu yaxınlığında işıqlı mənzil",
-    "Bakı",
-    45,
-    "photo-1600585154340-be6161a56a0c",
-  ],
-  [
-    "car",
-    "Hyundai Elantra — rahat şəhər səfərləri",
-    "Bakı",
-    55,
-    "photo-1503376780353-7e6692767b70",
-  ],
-  [
-    "villa",
-    "Mərdəkan, hovuzlu və geniş həyətli bağ evi",
-    "Bakı",
-    180,
-    "photo-1600607687939-ce8a6c25118c",
-  ],
-  [
-    "commercial",
-    "28 Mayda işıqlı ofis, 85 m²",
-    "Bakı",
-    1200,
-    "photo-1497366754035-f200968a6e72",
-  ],
-  [
-    "equipment",
-    "Foto və video çəkiliş üçün kamera",
-    "Sumqayıt",
-    35,
-    "photo-1502920917128-1aa500764cbd",
-  ],
-  [
-    "bicycle",
-    "Həftəsonu gəzintisi üçün şəhər velosipedi",
-    "Bakı",
-    12,
-    "photo-1571068316344-75bc76f77890",
-  ],
-].map((v, i) => ({
-  id: `example-${i}`,
-  category: String(v[0]),
-  title: String(v[1]),
-  city: String(v[2]),
-  price: Number(v[3]),
-  images: [
-    [
-      "/room.svg",
-      "/car.svg",
-      "/room.svg",
-      "/room.svg",
-      "/camera.svg",
-      "/bicycle.svg",
-    ][i],
-  ],
-  rental_period: i === 3 ? "monthly" : "daily",
-  status: "published",
-  description:
-    "Bu elan saytın imkanlarını göstərmək üçün nümunədir. Real kirayə təklifi deyil.",
-  contact: "",
-  created_at: "2026-10-20",
-  demo: true,
-  rooms: i === 0 ? 2 : i === 2 ? 4 : undefined,
-  area_m2: i === 0 ? 65 : i === 2 ? 180 : i === 3 ? 85 : undefined,
-  deposit: i === 1 ? 100 : 0,
-  min_days: 1,
-  attributes:
-    i === 1
-      ? { brand: "Hyundai", model: "Elantra", year: 2022, gearbox: "Avtomat" }
-      : i === 0
-        ? { amenities: ["Wi-Fi", "Kondisioner", "Mebel"] }
-        : {},
-}));
-export async function loadListings(
-  scope: "public" | "mine" | "admin" = "public",
-) {
-  if (!supabase)
-    throw new Error(
-      "Xidmətə bağlantı hələ tamamlanmayıb. Bir az sonra yenidən yoxlayın.",
-    );
-  if (scope === "mine") {
-    const {data,error}=await supabase.auth.getUser();
-    if(error||!data.user)throw new Error("Əvvəl hesabınıza daxil olun.");
-    const all:Listing[]=[],seen=new Set<string>();
-    for(let offset=0;;offset+=200){
-      const result=await supabase.from("listings").select("*").eq("owner_id",data.user.id).order("created_at",{ascending:false}).order("id",{ascending:false}).range(offset,offset+199).abortSignal(AbortSignal.timeout(15000));
-      if(result.error)throw new Error("Elanları yükləmək mümkün olmadı. Yenidən yoxla.");
-      const rows=result.data as Listing[];let added=0;for(const row of rows){if(!seen.has(row.id)){seen.add(row.id);all.push(row);added++;}}
-      if(rows.length<200)break;
-      if(!added)throw new Error("Elanların növbəti səhifəsi yüklənmədi. Yenidən yoxla.");
-    }
-    return all;
-  }
-  let query = supabase.from("listings").select("*").order("created_at", { ascending: false }).limit(200);
-  if (scope === "public") query = query.eq("status", "published");
-  const { data, error } = await query;
-  if (error)
-    throw new Error(
-      "Elanları yükləmək mümkün olmadı. Bir az sonra yenidən yoxlayın.",
-    );
-  return data as Listing[];
-}
 export function readFavorites(): string[] {
   try {
     const value = JSON.parse(localStorage.getItem("kiraye-favorites") ?? "[]");

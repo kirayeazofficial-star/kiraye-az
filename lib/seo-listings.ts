@@ -1,7 +1,9 @@
-import { publicSupabase } from './supabase';
-import { isListingExpired } from './listing-lifecycle';
-import type { Listing } from './marketplace';
-export async function categoryListings(category:string){
- if(!publicSupabase)return {items:[] as Listing[],unavailable:true};
- try{const {data,error}=await publicSupabase.from('listings').select('*').eq('status','published').eq('category',category).order('created_at',{ascending:false}).limit(18).abortSignal(AbortSignal.timeout(4000));return {items:error?[]:(data as Listing[]||[]).filter(item=>!isListingExpired(item)),unavailable:!!error};}catch{return {items:[] as Listing[],unavailable:true};}
+import { listings } from "../data/listings";
+import type { Listing } from "./marketplace";
+
+export function categoryListings(category: string): Listing[] {
+  return listings
+    .filter((item) => item.status === "published" && item.category === category)
+    .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at))
+    .slice(0, 18);
 }

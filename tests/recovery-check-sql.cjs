@@ -1,7 +1,0 @@
-const assert=require('node:assert/strict'),fs=require('node:fs');const {PGlite}=require(process.env.PGLITE_MODULE_PATH||'@electric-sql/pglite');
-(async()=>{const db=new PGlite();await db.exec("create role anon;create role authenticated;create role service_role;create schema auth;create table auth.users(email text);insert into auth.users values('known@example.invalid');");const sql=fs.readFileSync('supabase/recovery-check.sql','utf8');await db.exec(sql);await db.exec(sql);
-for(const role of ['anon','authenticated']){await db.exec('set role '+role);await assert.rejects(db.query('select public.recovery_email_exists($1,$2)',['known@example.invalid','a'.repeat(64)]));await db.exec('reset role');}
-await db.exec('set role service_role');assert.equal((await db.query('select public.recovery_email_exists($1,$2) as found',['KNOWN@example.invalid','a'.repeat(64)])).rows[0].found,true);assert.equal((await db.query('select public.recovery_email_exists($1,$2) as found',['missing@example.invalid','a'.repeat(64)])).rows[0].found,false);
-for(let i=0;i<8;i++)await db.query('select public.recovery_email_exists($1,$2)',['different@example.invalid','a'.repeat(64)]);
-await assert.rejects(db.query('select public.recovery_email_exists($1,$2)',['known@example.invalid','a'.repeat(64)]),e=>e.code==='PR429');await assert.rejects(db.exec('select * from public.recovery_check_usage'));
-await db.close();console.log('PASS recovery lookup is server-only, case-insensitive, rate-limited and keeps its ledger private');})().catch(e=>{console.error(e);process.exit(1)});

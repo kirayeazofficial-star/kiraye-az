@@ -1,7 +1,7 @@
 import SiteContact from "../components/SiteContact";
-import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { siteContact } from "../../lib/site-contact";
 export default function Help() {
   return (
     <>
@@ -14,11 +14,11 @@ export default function Help() {
           {[
             [
               "Elan necə yerləşdirilir?",
-              "Hesabına daxil ol, şəkilləri və kirayə şərtlərini əlavə et. Elan idarəçi təsdiqindən sonra yayımlanır.",
+              "Telefon, WhatsApp və ya e-poçtla bizimlə əlaqə saxla, şəkilləri və kirayə şərtlərini göndər. Elan hazırlanıb saytda yerləşdirilir.",
             ],
             [
               "Elanımı necə dəyişə bilərəm?",
-              "Şəxsi kabinetdə “Redaktə et” seç. Dəyişikliklər yenidən yoxlamaya göndərilir. Artıq aktual olmayan elanı arxivə keçirə bilərsən.",
+              "Dəyişiklik və ya elanı saytdan götürmək üçün bizə yaz, elan yenilənəcək.",
             ],
             [
               "Kirayəni necə razılaşdırım?",
@@ -30,23 +30,15 @@ export default function Help() {
             ],
             [
               "Tarix seçmək rezervasiya yaradır?",
-              "Xeyr. Hesablama və WhatsApp müraciəti tarixləri tutmur. Mövcudluğu və son qiyməti elan sahibi təsdiqləməlidir. Depozitin qaytarılması, gecikmə, zərər və ləğv şərtlərini əvvəlcədən yazılı razılaşdır.",
+              "Xeyr. Hesablama tarixləri tutmur. Mövcudluğu və son qiyməti elan sahibi təsdiqləməlidir. Depozitin qaytarılması, gecikmə, zərər və ləğv şərtlərini əvvəlcədən yazılı razılaşdır.",
             ],
             [
               "Saytda ödəniş edə bilərəm?",
-              "Hazırda platforma ödəniş və rezervasiya qəbul etmir. Elan sahibi ilə birbaşa razılaşırsan. Əmlakı görmədən beh göndərmə.",
+              "Xeyr. Platforma ödəniş və rezervasiya qəbul etmir. Elan sahibi ilə birbaşa razılaşırsan. Əmlakı görmədən beh göndərmə.",
             ],
             [
               "Şübhəli elanı necə bildirim?",
-              "Elan səhifəsində “Bu elandan şikayət et” seç. Hesabına daxil olub səbəbi və qısa təsviri yaz. İdarəçi şikayəti yoxlayacaq.",
-            ],
-            [
-              "Hesabıma necə daxil olum?",
-              "“Daxil ol” bölməsində qeydiyyatdan keçdiyin e-poçt ünvanını və şifrəni yaz. Hesabın yoxdursa, “Qeydiyyatdan keç” seç. Şifrəni unutmusansa, “Şifrəni unutdum” ilə bərpa et.",
-            ],
-            [
-              "Təsdiq məktubu gəlmir?",
-              "Spam qovluğunu yoxla. Giriş səhifəsində yeni təsdiq məktubu istə. Yalnız ən son link və ya məktubdakı koddan istifadə et.",
+              "Elanın ünvanını və səbəbi telefon, WhatsApp və ya e-poçtla bizə göndər. Elan yoxlanılacaq.",
             ],
           ].map(([q, a]) => (
             <section key={q} className="helpCard">
@@ -55,9 +47,14 @@ export default function Help() {
             </section>
           ))}
         </div>
-        <Link className="add" href="/new">
+        <a
+          className="add"
+          href={siteContact.whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Elan yerləşdir
-        </Link>
+        </a>
       </main>
       <Footer />
     </>

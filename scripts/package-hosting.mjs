@@ -18,21 +18,7 @@ if (process.platform !== "linux" || process.arch !== "x64") {
 }
 const publicConfig = {
   site: process.env.NEXT_PUBLIC_SITE_URL || "",
-  databaseConfigured: !!(
-    process.env.NEXT_PUBLIC_SUPABASE_ENABLED === "true" &&
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    (process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-  ),
 };
-if (
-  !publicConfig.databaseConfigured &&
-  !process.argv.includes("--allow-unconfigured")
-) {
-  throw new Error(
-    "Database is not configured. Use --allow-unconfigured only for an explicitly labelled interface/demo package.",
-  );
-}
 // Never overwrite an existing deployment directory or copy the source .env files.
 await mkdir(dirname(target), { recursive: true });
 await mkdir(target);
@@ -62,9 +48,6 @@ await writeFile(
 );
 await writeFile(
   join(target, "HOSTING-README.txt"),
-  `kirayeal.az — hazır interfeys paketi\n\nApplication root: kirayeal (dəyişmə). Startup file: app.js.\nZIP-in içindəkiləri /home/kiraytfg/kirayeal qovluğuna çıxar.\n.next qovluğu da mütləq çıxarılmalıdır. Sonra Node.js panelində Restart et.\nBuild, dev, start və NPM Install bu hazır paket üçün lazım deyil.\nMövcud node_modules və nodevenv qovluqlarını silmə və köçürmə.\nNODE_OPTIONS: --disable-wasm-trap-handler saxlanıla bilər.\n\nBaza qoşulub: ${publicConfig.databaseConfigured ? "bəli" : "XEYR — yalnız nümunə/interfeys rejimi"}.\n${publicConfig.databaseConfigured ? "Canlı qeydiyyat və göndəriş ayrıca yoxlanmalıdır." : "Real qeydiyyat, giriş və elan göndərişi aktiv deyil. PostgreSQL, hesablar və şəkillərin köçürülməsi bu paketə daxil deyil. Mövcud Supabase məlumatlarını silmə."}\n\nYığım: Node ${process.version}, Linux x64.\nServer: https://kirayeal.az/api/health\n`,
+  `kirayeal.az — hazır interfeys paketi\n\nApplication root: kirayeal (dəyişmə). Startup file: app.js.\nZIP-in içindəkiləri /home/kiraytfg/kirayeal qovluğuna çıxar.\n.next qovluğu da mütləq çıxarılmalıdır. Sonra Node.js panelində Restart et.\nBuild, dev, start və NPM Install bu hazır paket üçün lazım deyil.\nMövcud node_modules və nodevenv qovluqlarını silmə və köçürmə.\nNODE_OPTIONS: --disable-wasm-trap-handler saxlanıla bilər.\n\nYığım: Node ${process.version}, Linux x64.\nServer: https://kirayeal.az/api/health\n`,
 );
 console.log(`Hosting package: ${target}`);
-console.log(
-  `Database configured: ${publicConfig.databaseConfigured ? "yes" : "NO — interface/demo only"}`,
-);

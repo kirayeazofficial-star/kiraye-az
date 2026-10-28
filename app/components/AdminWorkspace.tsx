@@ -15,7 +15,7 @@ type StaffEvent = { id: number; action: string; created_at: string; actor_email?
 
 const PAGE = 24;
 const sectionLabels: Record<Section, string> = { overview: "Ümumi", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyat tarixçəsi", users: "İstifadəçilər", staff: "Adminlər" };
-const statuses: [string, string][] = [["pending", "Yoxlanılır"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Arxiv"], ["all", "Hamısı"]];
+const statuses: [string, string][] = [["pending", "Yoxlanılır"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Bitmiş"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
 
 async function api(params: Record<string, string | number>) {
@@ -170,9 +170,9 @@ export default function AdminWorkspace() {
   }, [allowed, section, filter, query, page, revision, dateFrom, reviewKind]);
   useEffect(() => {
     if (!allowed) return;
-    if (section === "overview") api({ action: "overview" }).then(data => setCounts(data.counts)).catch(() => setError("Statistika yüklənmədi."));
+    api({ action: "overview" }).then(data => setCounts(data.counts)).catch(() => setError("Statistika yüklənmədi."));
     if (section === "users") api({ action: "users", query: userQuery }).then(data => setUsers(data.items)).catch(() => setError("İstifadəçilər yüklənmədi."));
-  }, [allowed, section, userQuery]);
+  }, [allowed, section, userQuery, revision]);
 
   async function moderate(item: AdminListing, status: "published" | "rejected") {
     if (busy || loading) return;
@@ -193,9 +193,9 @@ export default function AdminWorkspace() {
   if (allowed === false) return <section className="empty"><h2>Bu bölmə yalnız idarəçilər üçündür</h2><p>Admin icazəsi olan hesabla daxil ol.</p><Link className="add" href="/login?next=/admin">Admin hesabına daxil ol</Link><Link className="secondary" href="/profile">Kabinetə qayıt</Link></section>;
   const sections = (Object.keys(sectionLabels) as Section[]).filter(item => !["overview", "history"].includes(item) && (item !== "staff" || role === "leader"));
   return <div className="adminWorkspace">
-    <nav className="adminSections" aria-label="Admin bölmələri"><p className="adminNavTitle">İdarəetmə</p>{sections.map(item => <button key={item} aria-pressed={section === item} onClick={() => { setSection(item); setError(""); }}><span aria-hidden="true" className={`adminNavIcon adminNavIcon-${item === "moderation" || item === "history" ? "listings" : item}`} />{sectionLabels[item]}</button>)}<Link className="adminBackLink" href="/profile">← Şəxsi kabinet</Link></nav>
+    <nav className="adminSections" aria-label="Admin bölmələri"><p className="adminNavTitle">İdarəetmə</p>{sections.map(item => <button key={item} aria-pressed={section === item} onClick={() => { setSection(item); setError(""); }}><span aria-hidden="true" className={`adminNavIcon adminNavIcon-${item === "moderation" || item === "history" ? "listings" : item}`} />{sectionLabels[item]}{item === "moderation" && !!counts?.statuses?.pending && <em className="adminBadge">{counts.statuses.pending}</em>}{item === "reports" && !!counts?.reports && <em className="adminBadge">{counts.reports}</em>}</button>)}<Link className="adminBackLink" href="/profile">← Şəxsi kabinet</Link></nav>
     <div>
-      <p className="adminRoleLabel">Səlahiyyət: <strong>{staffRoleName(role)}</strong></p>
+      
       {error && <p className="error" role="alert">{error}</p>}
       {section === "overview" && <section className="adminPanel"><h2>Saytın vəziyyəti</h2><div className="adminStats"><article><b>{counts?.users || 0}</b><span>İstifadəçi</span></article><article><b>{counts?.listings || 0}</b><span>Bütün elanlar</span></article><article><b>{counts?.statuses?.pending || 0}</b><span>Yoxlanılır</span></article><article><b>{counts?.statuses?.published || 0}</b><span>Yayımlanıb</span></article><article><b>{counts?.messages || 0}</b><span>Mesaj</span></article><article><b>{counts?.reports || 0}</b><span>Açıq şikayət</span></article></div></section>}
       {section === "users" && <section className="adminPanel"><form className="adminSearch" onSubmit={event => { event.preventDefault(); }}><input value={userQuery} onChange={event => setUserQuery(event.target.value)} placeholder="Ad, e-poçt və ya hesab nömrəsi" /></form><div className="adminUsers">{users.map(user => <article key={user.id}><div><strong>{user.display_name || "Adsız istifadəçi"}</strong><span>{user.email} · #{user.profile_no}</span></div><span>{user.phone || "Telefon yoxdur"}</span><b>{user.staff_role === "leader" ? "Rəhbər" : user.staff_role === "moderator" ? "Admin" : user.listing_count + " elan"}</b></article>)}</div></section>}
@@ -204,14 +204,14 @@ export default function AdminWorkspace() {
       {section === "reports" && <div id="reports"><ReportQueue onInspect={inspect} /></div>}
       {section === "moderation" && <section id="moderation" aria-labelledby="moderation-title">
         <div className="sectionTitle"><h2 id="moderation-title">Elanların yoxlanılması</h2><div className="contactActions"><button className="secondary" type="button" onClick={() => setSection("history")}>Tarixçə</button><button className="secondary" disabled={loading || !!busy} onClick={() => setRevision(x => x + 1)}>Yenilə</button></div></div>
-        <div className="profileTabs" aria-label="Elan vəziyyəti">{statuses.map(([status, label]) => <button key={status} className="secondary" aria-pressed={filter === status} disabled={!!busy} onClick={() => { setFilter(status); setPage(1); }}>{label}</button>)}</div>
+        <div className="profileTabs" aria-label="Elan vəziyyəti">{statuses.map(([status, label]) => <button key={status} className="secondary" aria-pressed={filter === status} disabled={!!busy} onClick={() => { setFilter(status); setPage(1); }}>{label}{counts && <small className="chipCount">{status === "all" ? counts.listings : status === "archived" ? (counts.statuses.archived || 0) + (counts.statuses.expired || 0) : counts.statuses[status] || 0}</small>}</button>)}</div>
         <details className="adminFilters"><summary>Axtarış və filtrlər</summary>
         <form className="adminSearch" onSubmit={find}><label htmlFor="admin-search">Başlıq, telefon, elan nömrəsi və ya ID-si</label><div><input id="admin-search" value={search} onChange={event => setSearch(event.target.value)} maxLength={100} placeholder="Elan axtar..." /><button className="add" disabled={!!busy}>Axtar</button></div></form>
         <div className="adminExtraFilters"><label>Elanın tarixi<input type="date" value={dateFrom} onChange={event => { setDateFrom(event.target.value); setPage(1); }} /></label><label>Yoxlama növü<select aria-label="Yoxlama növü" value={reviewKind} onChange={event => { setReviewKind(event.target.value); setPage(1); }}><option value="">Hamısı</option><option value="new">Yeni elanlar</option><option value="edited">Dəyişdirilmiş elanlar</option></select></label></div>
         </details>
         {loading ? <p role="status">Elanlar yüklənir...</p> : <>
           <p className="adminResultCount">{total} elan · Səhifə {page} / {Math.max(1, Math.ceil(total / PAGE))}</p>
-          {!items.length && <div className="empty"><h3>Bu bölmədə elan yoxdur</h3><p>Başqa vəziyyət seç və ya axtarışı dəyiş.</p></div>}
+          {!items.length && <div className="empty"><h3>{filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Bu bölmədə elan yoxdur"}</h3><p>{filter === "pending" && !query ? "Bütün elanlar baxılıb." : "Başqa vəziyyət seç və ya axtarışı dəyiş."}</p></div>}
           {items.map(item => <article className="moderationCard" key={item.id}>
             <div className="moderationImages">{item.images?.map(src => <a key={src} href={src} target="_blank" rel="noopener noreferrer"><img src={src} alt={item.title} loading="lazy" /></a>)}</div>
             <span className={`status ${item.status}`}>{statusName(item.status)}</span><h3>{item.title}</h3>

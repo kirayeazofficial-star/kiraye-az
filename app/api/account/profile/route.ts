@@ -21,9 +21,11 @@ export async function GET(){
   let profile_no:number|string=0,role=user.email.toLowerCase()==='kirayeal.az@gmail.com'?'admin':'user',staff_role:string|null=null;
   try{const rows=await hostQuery<{profile_no:number;role:string}>(`select profile_no,role from public.profiles where id=$1`,[user.id]);if(rows[0]){profile_no=rows[0].profile_no;role=rows[0].role||role;}}catch{}
   try{const rows=await hostQuery<{staff_role:string}>(`select staff_role from public.staff_members where user_id=$1`,[user.id]);staff_role=rows[0]?.staff_role||null;}catch{}
+  let avatar_url:string|null=null;
+  try{const rows=await hostQuery<{avatar_url:string|null}>(`select avatar_url from public.profiles where id=$1`,[user.id]);avatar_url=rows[0]?.avatar_url||null;}catch{}
   let created_at:string|null=null;
   try{const ts=await hostQuery<{created_at:string}>(`select created_at from auth.users where id=$1`,[user.id]);created_at=ts[0]?.created_at||null;}catch{}
-  return reply({profile:{profile_no,name:user.display_name||user.email.split('@')[0]||'İstifadəçi',display_name:user.display_name||'',phone:user.phone||'',email:user.email,role,staff_role,phone_changes:0,email_changes:0,phone_remaining:3,email_remaining:3,phone_verified:false,pending_email:null,created_at}});
+  return reply({profile:{profile_no,name:user.display_name||user.email.split('@')[0]||'İstifadəçi',display_name:user.display_name||'',phone:user.phone||'',email:user.email,role,staff_role,phone_changes:0,email_changes:0,phone_remaining:3,email_remaining:3,phone_verified:false,pending_email:null,created_at,avatar_url}});
  }catch(error){console.error('profile get',error);return reply({code:'profile_unavailable',stage:'session'},503);}
 }
 export async function POST(request:Request){

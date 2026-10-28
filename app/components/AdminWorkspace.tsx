@@ -193,11 +193,23 @@ export default function AdminWorkspace() {
   if (allowed === false) return <section className="empty"><h2>Bu bölmə yalnız idarəçilər üçündür</h2><p>Admin icazəsi olan hesabla daxil ol.</p><Link className="add" href="/login?next=/admin">Admin hesabına daxil ol</Link><Link className="secondary" href="/profile">Kabinetə qayıt</Link></section>;
   const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "staff" || role === "leader");
   return <div className="adminWorkspace">
-    <nav className="adminSections" aria-label="Admin bölmələri"><p className="adminNavTitle">İdarəetmə</p>{sections.map(item => <button key={item} aria-pressed={section === item} onClick={() => { setSection(item); setError(""); }}><span aria-hidden="true" className={`adminNavIcon adminNavIcon-${item === "moderation" || item === "history" ? "listings" : item}`} />{sectionLabels[item]}</button>)}<Link className="adminBackLink" href="/profile">← Şəxsi kabinet</Link></nav>
+    <nav className="adminSections" aria-label="Admin bölmələri"><p className="adminNavTitle">İdarəetmə</p>{sections.map(item => { const badge = item === "moderation" ? counts?.statuses?.pending : item === "reports" ? counts?.reports : 0; return <button key={item} aria-pressed={section === item} onClick={() => { setSection(item); setError(""); }}><span aria-hidden="true" className={`adminNavIcon adminNavIcon-${item === "moderation" || item === "history" ? "listings" : item}`} /><span className="kzAdminNavLabel">{sectionLabels[item]}</span>{!!badge && <b className="kzAdminBadge">{badge}</b>}</button>; })}<Link className="adminBackLink" href="/profile">← Şəxsi kabinet</Link></nav>
     <div>
       
       {error && <p className="error" role="alert">{error}</p>}
-      {section === "overview" && <section className="adminPanel"><h2>Saytın vəziyyəti</h2><div className="adminStats"><article><b>{counts?.users || 0}</b><span>İstifadəçi</span></article><article><b>{counts?.listings || 0}</b><span>Bütün elanlar</span></article><article><b>{counts?.statuses?.pending || 0}</b><span>Yoxlanılır</span></article><article><b>{counts?.statuses?.published || 0}</b><span>Yayımlanıb</span></article><article><b>{counts?.messages || 0}</b><span>Mesaj</span></article><article><b>{counts?.reports || 0}</b><span>Açıq şikayət</span></article></div></section>}
+      {section === "overview" && <section className="adminPanel"><h2>Saytın vəziyyəti</h2>
+        {!!(counts?.statuses?.pending || counts?.reports) && <div className="kzAdminTodo">
+          {!!counts?.statuses?.pending && <button type="button" onClick={() => { setFilter("pending"); setPage(1); setSection("moderation"); }}><b>{counts.statuses.pending}</b><span>elan yoxlanış gözləyir</span><em>Yoxla →</em></button>}
+          {!!counts?.reports && <button type="button" className="warn" onClick={() => setSection("reports")}><b>{counts.reports}</b><span>açıq şikayət var</span><em>Bax →</em></button>}
+        </div>}
+        <div className="adminStats">
+          <button type="button" onClick={() => setSection("users")}><b>{counts?.users || 0}</b><span>İstifadəçi</span></button>
+          <button type="button" onClick={() => { setFilter("all"); setPage(1); setSection("moderation"); }}><b>{counts?.listings || 0}</b><span>Bütün elanlar</span></button>
+          <button type="button" onClick={() => { setFilter("pending"); setPage(1); setSection("moderation"); }}><b>{counts?.statuses?.pending || 0}</b><span>Yoxlanılır</span></button>
+          <button type="button" onClick={() => { setFilter("published"); setPage(1); setSection("moderation"); }}><b>{counts?.statuses?.published || 0}</b><span>Yayımlanıb</span></button>
+          <article><b>{counts?.messages || 0}</b><span>Mesaj</span></article>
+          <button type="button" onClick={() => setSection("reports")}><b>{counts?.reports || 0}</b><span>Açıq şikayət</span></button>
+        </div></section>}
       {section === "users" && <section className="adminPanel"><form className="adminSearch" onSubmit={event => { event.preventDefault(); }}><input value={userQuery} onChange={event => setUserQuery(event.target.value)} placeholder="Ad, e-poçt və ya hesab nömrəsi" /></form><div className="adminUsers">{users.map(user => <article key={user.id}><div className="adminUserMain"><strong>{user.display_name || "Adsız istifadəçi"}</strong><span className="adminUserMeta">ID: #{user.profile_no} · {user.email}</span></div><div className="adminUserDetails"><span>{user.phone || "Telefon yoxdur"}</span><span>{user.listing_count} elan</span>{user.created_at&&<span>Qeydiyyat: {(()=>{const d=new Date(user.created_at!);const m=['yan','fev','mar','apr','may','iyn','iyl','avq','sen','okt','noy','dek'];return`${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()}`})()}</span>}{user.staff_role&&<b className="adminUserRole">{user.staff_role==="leader"?"Rəhbər":"Admin"}</b>}</div></article>)}</div></section>}
       {section === "staff" && role === "leader" && <StaffManagement />}
       {section === "history" && <><button type="button" className="secondary" onClick={() => setSection("moderation")}>← Elanlara qayıt</button><ModerationHistory revision={revision} onInspect={inspect} /></>}
@@ -212,19 +224,31 @@ export default function AdminWorkspace() {
         {loading ? <p role="status">Elanlar yüklənir...</p> : <>
           <p className="adminResultCount">{total} elan · Səhifə {page} / {Math.max(1, Math.ceil(total / PAGE))}</p>
           {!items.length && <div className="empty"><h3>{filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Bu bölmədə elan yoxdur"}</h3><p>{filter === "pending" && !query ? "Bütün elanlar baxılıb." : "Başqa vəziyyət seç və ya axtarışı dəyiş."}</p></div>}
-          {items.map(item => <article className="moderationCard" key={item.id}>
+          {items.map(item => <article className="moderationCard kzModCard" key={item.id}>
+            <a className="kzModThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={item.images[0]} alt="" loading="lazy" /> : <span />}{(item.images?.length || 0) > 1 && <small>{item.images.length} şəkil</small>}</a>
+            <div className="kzModMain">
+              <div className="kzModTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzModEdited">Dəyişdirilib</span>}<span className="kzModCat">{categoryName(item.category)}</span></div>
+              <h3>{item.title}</h3>
+              <p className="kzModPrice"><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
+              <p className="kzModMeta">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)} · {item.owner_name || "İstifadəçi"} · {item.contact}</p>
+              {item.rejection_reason && <p className="kzModReason">Əvvəlki səbəb: {item.rejection_reason}</p>}
+            </div>
+            <div className="kzModActions">
+              <button disabled={!!busy || item.status === "published" || !["pending", "rejected"].includes(item.status)} className="kzApprove" onClick={() => void moderate(item, "published")}>{busy === item.id ? "Saxlanılır..." : "Təsdiqlə"}</button>
+              <button disabled={!!busy || item.status === "rejected" || !["pending", "published"].includes(item.status)} className="kzReject" onClick={() => { const box = document.getElementById(`reject-${item.id}`) as HTMLDetailsElement | null; if (box && !box.open && (reasons[item.id]?.trim().length || 0) < 10) { box.open = true; box.querySelector("select")?.focus(); return; } void moderate(item, "rejected"); }}>Rədd et</button>
+            </div>
+            <div className="kzModMore">
+            <details id={`reject-${item.id}`} className="adminMore"><summary>Rədd səbəbi</summary>
+            <label className="moderationPreset">Hazır rədd səbəbi<select aria-label="Hazır rədd səbəbi" value={rejectionReasons.includes(reasons[item.id] || "") ? reasons[item.id] : ""} onChange={event => { if (event.target.value) setReasons(current => ({ ...current, [item.id]: event.target.value })); }}><option value="">Səbəb seç və ya aşağıda özün yaz</option>{rejectionReasons.map(reason => <option key={reason} value={reason}>{reason}</option>)}</select></label>
+            <label className="moderationReason">Rədd səbəbi<textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reasons[item.id] ?? ""} onChange={event => setReasons({ ...reasons, [item.id]: event.target.value })} placeholder="Elan sahibinə görünəcək səbəbi yazın." /></label>
+            <button type="button" className="kzReject" disabled={!!busy || (reasons[item.id]?.trim().length || 0) < 10} onClick={() => void moderate(item, "rejected")}>Səbəblə rədd et</button></details>
+            <details className="adminMore"><summary>Ətraflı məlumat</summary>
             <div className="moderationImages">{item.images?.map(src => <a key={src} href={src} target="_blank" rel="noopener noreferrer"><img src={src} alt={item.title} loading="lazy" /></a>)}</div>
-            <span className={`status ${item.status}`}>{statusName(item.status)}</span><h3>{item.title}</h3>
-            {item.status === "pending" && item.review_kind === "edited" && <p className="notice">Yayımdan sonra dəyişdirilib — təkrar yoxlanmalıdır.</p>}
-            <p><strong>{money(item.price)} ₼ / {periodName(item.rental_period)}</strong> · {item.city} {item.district && `· ${item.district}`}</p>
-            <details className="adminMore"><summary>Ətraflı məlumat</summary><dl className="moderationMeta"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Əlaqə</dt><dd>{item.contact}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq sayı</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Sahibi</dt><dd>{item.owner_name || "İstifadəçi"} · {item.owner_email}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
+            <dl className="moderationMeta"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Əlaqə</dt><dd>{item.contact}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq sayı</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Sahibi</dt><dd>{item.owner_name || "İstifadəçi"} · {item.owner_email}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
             <p className="description">{item.description}</p>
             <p className="adminItemId">Elan № {item.listing_no ?? "təyin edilməyib"} · {adminDate(item.created_at)}<small> · Sistem ID: {item.id}</small></p>
-            {item.rejection_reason && <p className="error">Əvvəlki səbəb: {item.rejection_reason}</p>}
-            <ModerationReview key={`${item.id}-${revision}`} listingId={item.id} onInspect={inspect} /></details><details className="adminMore"><summary>Rədd səbəbi</summary>
-            <label className="moderationPreset">Hazır rədd səbəbi<select aria-label="Hazır rədd səbəbi" value={rejectionReasons.includes(reasons[item.id] || "") ? reasons[item.id] : ""} onChange={event => { if (event.target.value) setReasons(current => ({ ...current, [item.id]: event.target.value })); }}><option value="">Səbəb seç və ya aşağıda özün yaz</option>{rejectionReasons.map(reason => <option key={reason} value={reason}>{reason}</option>)}</select></label>
-            <label className="moderationReason">Rədd səbəbi<textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reasons[item.id] ?? ""} onChange={event => setReasons({ ...reasons, [item.id]: event.target.value })} placeholder="Elan sahibinə görünəcək səbəbi yazın." /></label></details>
-            <div className="contactActions"><button disabled={!!busy || item.status === "published" || !["pending", "rejected"].includes(item.status)} className="add" onClick={() => void moderate(item, "published")}>{busy === item.id ? "Saxlanılır..." : "Təsdiqlə və yayımla"}</button><button disabled={!!busy || item.status === "rejected" || !["pending", "published"].includes(item.status)} className="secondary" onClick={() => void moderate(item, "rejected")}>Rədd et</button></div>
+            <ModerationReview key={`${item.id}-${revision}`} listingId={item.id} onInspect={inspect} /></details>
+            </div>
           </article>)}
           {total > PAGE && <nav className="pagination" aria-label="Admin elan səhifələri"><button className="secondary" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}>Əvvəlki</button><span>{page}</span><button className="secondary" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti</button></nav>}
         </>}

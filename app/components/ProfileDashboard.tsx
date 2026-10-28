@@ -19,9 +19,11 @@ import {
 } from "../../lib/marketplace";
 const listingTabs = [["", "Hamısı"], ["published", "Yayımlanmış"], ["pending", "Yoxlanılır"], ["rejected", "Rədd edilmiş"], ["draft", "Dərc olunmamış"], ["expired", "Müddəti bitmiş"], ["archived", "Arxiv"]];
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
-  const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState("");
-  useEffect(()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["transactions","cards","limits"].includes(value))setSection(value);},[]);
-  const [accountPhone,setAccountPhone]=useState("");
+  const [section,setSection]=useState("listings"),[profileNumber,setProfileNumber]=useState(""),[screen,setScreen]=useState<"menu"|"section">(balanceOnly?"section":"menu");
+  useEffect(()=>{const read=()=>{const value=new URLSearchParams(window.location.search).get("section");if(value&&["listings","transactions","cards","limits"].includes(value)){setSection(value);setScreen("section");}else if(!balanceOnly){setSection("listings");setScreen("menu");}};read();window.addEventListener("popstate",read);return()=>window.removeEventListener("popstate",read);},[balanceOnly]);
+  const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər"};
+  const openSection=(name:string)=>{setSection(name);setScreen("section");window.scrollTo(0,0);};
+  const [accountPhone,setAccountPhone]=useState(""),[accountEmail,setAccountEmail]=useState("");
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
     [loading, setLoading] = useState(true),
@@ -35,7 +37,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     fetch('/api/auth/host',{cache:'no-store'})
       .then(async response => {
         const data=await response.json();if(!data.user)return;
-        setUserId(data.user.id);setIdentity(data.user.display_name||data.user.email||'Hesab');setAccountPhone(data.user.phone||'');
+        setUserId(data.user.id);setIdentity(data.user.display_name||data.user.email||'Hesab');setAccountPhone(data.user.phone||'');setAccountEmail(data.user.email||'');
         const roleResponse=await fetch('/api/account/profile',{cache:'no-store'}),role=await roleResponse.json(),profile=role.profile;
         if(profile?.profile_no)setProfileNumber(String(profile.profile_no));
         setAdmin(profile?.role==='admin'||!!profile?.staff_role);
@@ -91,14 +93,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       <main className="wrap dashboard accountDashboard">
         <div className="sectionTitle accountHeading">
           <div>
-            <p className="eyebrow">ŞƏXSİ KABİNET</p>
-            <h1>Hesabım</h1>
-            <p className="muted">
-              {identity || "Elanlarını bir yerdən idarə et."}
-            </p>
-            {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>} <span title={userId}>· ID: {profileNumber||userId.slice(0,8)}</span></p>}
+            <h1>{identity||"Kabinet"}</h1>
+            {userId && <p className="accountIdentity">{accountPhone ? formatContact(accountPhone) : <Link href="/account">Telefon nömrəni əlavə et</Link>}{accountEmail&&<span> · {accountEmail}</span>}</p>}
           </div>
-
         </div>
         {loading ? (
           <p role="status">Yüklənir...</p>
@@ -113,19 +110,19 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             </Link>
           </div>
         ) : (
-          <><div className="cabinetLayout">
+          <><div className={`cabinetLayout screen-${screen}`}>
             <aside className="cabinetSidebar">
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
-              <Link href="/profile?section=listings" onClick={()=>setSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
+              <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 <NavigationIcon name="home"/><span>Mənim elanlarım
               </span></Link>
               
               <Link href="/account"><NavigationIcon name="account"/><span>Profil</span></Link>
               <Link href="/balance" aria-current={balanceOnly ? "page" : undefined}><NavigationIcon name="wallet"/><span>Balans</span></Link>
-              <Link href="/profile?section=transactions" onClick={()=>setSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></Link>
-              <Link href="/profile?section=cards" onClick={()=>setSection('cards')} aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></Link>
-              <Link href="/profile?section=limits" onClick={()=>setSection('limits')} aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></Link>
+              <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><NavigationIcon name="history"/><span>Əməliyyat tarixçəsi</span></Link>
+              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><NavigationIcon name="card"/><span>Mənim kartlarım</span></Link>
+              <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><NavigationIcon name="limits"/><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
                 {admin && <Link className="cabinetAdminLink" href="/admin"><NavigationIcon name="account"/><span>Admin paneli</span></Link>}
                 <button type="button" className="textButton cabinetLogout" onClick={logout}>Hesabdan çıx</button>
@@ -133,6 +130,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             </nav>
             </aside>
             <div className="cabinetContent">
+              <div className="cabinetBack">{balanceOnly?<Link href="/profile" aria-label="Kabinetə qayıt">‹</Link>:<button type="button" aria-label="Kabinetə qayıt" onClick={()=>{setScreen("menu");setSection("listings");window.history.pushState(null,"","/profile");}}>‹</button>}<strong>{balanceOnly?"Balans":sectionTitles[section]}</strong></div>
               {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : <>
               <div className="stats">
                 <div>

@@ -315,3 +315,33 @@ svg[stroke-linejoin]{stroke-linejoin:round}
 .messagesTitle{padding:14px 16px 6px!important}
 .messagesPage{padding-left:0;padding-right:0}
 .messagesTitle h1{margin:0!important}
+
+/* ---- v9: cabinet as menu screen + section screens (phone) ---- */
+.cabinetBack{display:none}
+.accountHeading .accountIdentity{margin:2px 0 0;color:#6b7080;font-size:14px}
+.accountHeading .accountIdentity span{word-break:break-all}
+.balanceTopUp{opacity:.55;cursor:not-allowed}
+.balancePreview{display:flex;align-items:center;justify-content:space-between;gap:12px}
+@media (max-width:760px){
+.cabinetLayout.screen-menu .cabinetContent{display:none!important}
+.cabinetLayout.screen-section .cabinetSidebar{display:none!important}
+.accountDashboard:has(.screen-section) .accountHeading{display:none}
+.cabinetBack{display:flex;align-items:center;gap:6px;position:sticky;top:0;z-index:5;margin:0 -16px 12px;padding:10px 12px;background:#fff;border-bottom:1px solid #ececf1}
+.cabinetBack a,.cabinetBack button{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:0;border-radius:50%;background:#f4f4f8;color:#f2653e;font-size:28px;line-height:1;padding:0 0 3px;text-decoration:none}
+.cabinetBack strong{font-size:17px}
+.cabinetNav.cabinetCards a[aria-current="page"]{background:transparent!important;color:inherit!important}
+}
+
+/* ---- v9: simpler admin / leader panel ---- */
+.adminRoleLabel{margin:0 0 10px;font-size:13px;color:#6b7080}
+.adminFilters,.adminMore{margin:10px 0;border:1px solid #ececf1;border-radius:12px;background:#fff}
+.adminFilters>summary,.adminMore>summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:600;font-size:14px;display:flex;justify-content:space-between}
+.adminFilters>summary::after,.adminMore>summary::after{content:"▾";color:#8f94a8}
+.adminFilters[open]>summary::after,.adminMore[open]>summary::after{content:"▴"}
+.adminFilters>*:not(summary),.adminMore>*:not(summary){margin-left:14px;margin-right:14px}
+.adminFilters[open],.adminMore[open]{padding-bottom:12px}
+.moderationCard{border:1px solid #ececf1!important;border-radius:16px!important;box-shadow:none!important;padding:14px!important}
+.moderationCard .contactActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.moderationCard .adminItemId{font-size:12px;color:#8f94a8;margin:6px 0}
+.moderationCard .adminItemId small{display:none}
+.moderationCard .moderationImages img{border-radius:10px}

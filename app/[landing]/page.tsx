@@ -9,7 +9,7 @@ import { seoCategories,type SeoCategorySlug } from '../../lib/seo-categories';
 import { categoryListings } from '../../lib/seo-listings';
 import { publicSiteUrl } from '../../lib/site-url';
 import { money,periodName } from '../../lib/marketplace';
-export const revalidate=300;
+export const dynamic="force-dynamic";
 type Props={params:Promise<{landing:string}>};
 function config(slug:string){if(!Object.hasOwn(seoCategories,slug))notFound();return seoCategories[slug as SeoCategorySlug];}
 export function generateStaticParams(){return Object.keys(seoCategories).map(landing=>({landing}));}

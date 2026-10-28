@@ -105,6 +105,7 @@ export type Listing = {
   listing_no?: number | string;
   promotion_kind?: "vip"|"premium"|null;
   promotion_until?: string|null;
+  deleted_at?: string | null;
   review_kind?: "new" | "edited";
   seller_since?: string;
   first_published_at?: string | null;

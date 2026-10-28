@@ -1,5 +1,6 @@
 "use client";
-import { Check, MapPin, Share2 } from "lucide-react";
+import { Check, LayoutList, MapPin, Pencil, Share2 } from "lucide-react";
+import PromotionOptions from "./PromotionOptions";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
@@ -223,9 +224,17 @@ export default function ListingDetails({
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
         {effectiveOwner ? (
-          <div className="ownerListingActions">
-            <p><strong>Bu sizin elanınızdır.</strong><span>Əlaqə və mesaj düymələri yalnız digər istifadəçilərə göstərilir.</span></p>
-            <div className="contactActions"><Link className="add" href={`/edit/${item.id}`}>Elanı redaktə et</Link><Link className="secondary" href={`/profile/listings/${item.id}`}>Elanı idarə et</Link></div>
+          <div className="kzOwnerBox">
+            <div className="kzOwnerServices">
+              <PromotionOptions kind="bump" label="İrəli çək" />
+              <PromotionOptions kind="vip" label="VIP et" />
+              <PromotionOptions kind="premium" label="Premium et" />
+            </div>
+            <div className="kzOwnerRow">
+              <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
+              <Link className="kzButtonGhost" href="/profile?section=listings"><LayoutList aria-hidden="true" size={16} strokeWidth={1.75} />Elanlarım</Link>
+            </div>
+            {item.expires_at && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir · Baxış: {publicInfo?.views ?? 0}</p>}
           </div>
         ) : phone && !item.demo ? (
           <div className="contactActions">

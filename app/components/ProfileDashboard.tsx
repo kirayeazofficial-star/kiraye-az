@@ -1,5 +1,5 @@
 "use client";
-import { LogOut } from "lucide-react";
+import { ChevronRight, LogOut, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -22,8 +22,8 @@ import {
   money,
   periodName,
 } from "../../lib/marketplace";
-const listingTabs = [["published", "Aktiv"], ["pending", "Yoxlamada"], ["rejected", "Rədd edilib"], ["expired", "Müddəti bitib"]];
-const emptyText: Record<string, string> = { published: "Aktiv elanınız yoxdur. İstifadə etmədiyiniz əşyanı kirayəyə verin.", pending: "Yoxlamada olan elan yoxdur.", rejected: "Rədd edilmiş elan yoxdur.", expired: "Müddəti bitmiş elan yoxdur." };
+const listingTabs = [["published", "Aktiv"], ["pending", "Yoxlamada"], ["rejected", "Rədd edilib"], ["expired", "Müddəti bitib"], ["deleted", "Silinmiş"]];
+const emptyText: Record<string, string> = { published: "Aktiv elanınız yoxdur. İstifadə etmədiyiniz əşyanı kirayəyə verin.", pending: "Yoxlamada olan elan yoxdur.", rejected: "Rədd edilmiş elan yoxdur.", expired: "Müddəti bitmiş elan yoxdur.", deleted: "Silinmiş elan yoxdur." };
 const shortDate = (value?: string | null) => { if (!value) return "—"; const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Baku", day: "2-digit", month: "2-digit", year: "numeric" }).formatToParts(new Date(value)); const part = (type: string) => parts.find(item => item.type === type)?.value || ""; return `${part("day")}.${part("month")}.${part("year")}`; };
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
   const params=useSearchParams(),requested=params.get("section"),section=requested&&["listings","transactions","cards","limits"].includes(requested)?requested:"listings",screen:"menu"|"section"=balanceOnly||requested&&["listings","transactions","cards","limits"].includes(requested)?"section":"menu",[profileNumber,setProfileNumber]=useState("");
@@ -86,7 +86,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     try {
       const response=await fetch('/api/listings',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id})});
       if(!response.ok)throw new Error('archive_failed');
-      setListings((current) => current.filter((x) => x.id !== item.id));
+      setListings((current) => current.map((x) => x.id === item.id ? { ...x, status: "archived", deleted_at: new Date().toISOString() } : x));
       setDeleteConfirm("");
       setNotice("Elan silindi.");
     } catch {
@@ -102,14 +102,14 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     try {
       const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
       const data = await response.json().catch(() => ({}));
-      if (response.status === 429) { setNotice(`Bu kateqoriya üzrə pulsuz limitiniz bitib.${data.next_free_at ? ` Növbəti pulsuz yerləşdirmə: ${shortDate(data.next_free_at)}.` : ""}`); return; }
+      if (response.status === 429) { setNotice(`Bu kateqoriya üzrə pulsuz limitiniz bitib.${data.next_free_at ? ` Növbəti pulsuz yerləşdirmə: ${shortDate(data.next_free_at)}.` : ""} O vaxtadək gözləyə və ya ödənişli yerləşdirmə seçə bilərsiniz (ödəniş sistemi qoşulandan sonra).`); return; }
       if (!response.ok) throw new Error();
       setNotice("Elan yenidən 30 gün müddətinə yayımlandı.");
       setReloadKey(key => key + 1);
     } catch { setError("Elanı bərpa etmək mümkün olmadı. Yenidən cəhd edin."); }
     finally { setBusy(""); }
   }
-  const matchesTab=(item:Listing,status:string)=>{const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);return current===status;};
+  const matchesTab=(item:Listing,status:string)=>{if(status==="deleted")return !!item.deleted_at;if(item.deleted_at)return false;const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);return current===status;};
   async function logout() {
     const response=await fetch('/api/auth/host',{method:'DELETE'});
     if (!response.ok) {
@@ -159,8 +159,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="card"/></span><span>Mənim kartlarım</span></Link>
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
-                {admin && <Link className="cabinetAdminLink" href="/admin"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span></Link>}
-                <button type="button" className="textButton cabinetLogout" onClick={logout}><LogOut aria-hidden="true" size={20} strokeWidth={1.75} /><span>Hesabdan çıx</span></button>
+                {admin && <Link className="kzMenuRow" href="/admin"><span className="kzMenuIcon admin"><ShieldCheck size={18} strokeWidth={2} /></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={18} strokeWidth={1.75} /></Link>}
+                <button type="button" className="kzMenuRow danger" onClick={logout}><span className="kzMenuIcon logout"><LogOut size={18} strokeWidth={2} /></span><span>Hesabdan çıx</span></button>
               </div>
             </nav>
             </aside>
@@ -193,18 +193,19 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     return <article key={x.id}>
                       <Link href={href} aria-label={`${x.title} — elana bax`} className="ownedPhoto"><img src={x.images?.[0] || "/placeholder.svg"} alt="" /></Link>
                       <div className="kzOwnBody">
-                        <div className="kzOwnTop"><span className={`status ${expired ? "expired" : current}`}>{statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
+                        <div className="kzOwnTop"><span className={`status ${x.deleted_at ? "archived" : expired ? "expired" : current}`}>{x.deleted_at ? "Silinib" : statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
                         <h3><Link href={href}>{x.title}</Link></h3>
                         <p className="kzOwnPrice">{money(x.price)} ₼ / {periodName(x.rental_period)} · {x.city}</p>
                         <p className="kzOwnMeta">{x.listing_no ? `№ ${x.listing_no} · ` : ""}Baxış: {x.views ?? 0}</p>
                         <p className="kzOwnDates">
                           {current === "published" && x.expires_at && <span>Aktivdir: {shortDate(x.expires_at)} tarixinədək</span>}
-                          {expired && <span>Müddəti bitib: {shortDate(x.expires_at || x.created_at)}</span>}
+                          {expired && !x.deleted_at && <span>Müddəti bitib: {shortDate(x.expires_at || x.created_at)}</span>}
                           {current === "pending" && <span>Yoxlamadadır. Təsdiqdən sonra yayımlanacaq.</span>}
                           {promo && x.promotion_until && <span>{promo === "premium" ? "Premium" : "VIP"}: {shortDate(x.promotion_until)} tarixinədək</span>}
                         </p>
                         {current === "rejected" && x.rejection_reason && <p className="kzOwnReason">Səbəb: {x.rejection_reason} Səbəbi aradan qaldırıb elanı redaktə edin.</p>}
-                        {expired && <p className="kzOwnHint">Elanın müddəti bitib. Yenidən yayımlamaq üçün “Bərpa et” seçin.</p>}
+                        {expired && !x.deleted_at && <p className="kzOwnHint">Elanın müddəti bitib. Yenidən yayımlamaq üçün “Bərpa et” seçin.</p>}
+                        {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. Bərpa pulsuz limitdən bir yer istifadə edir.</p>}
                       </div>
                       <div className="accountItemActions">
                         {expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : "Bərpa et"}</button>
@@ -213,9 +214,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
                             {current === "published" && <PromotionOptions label="İrəlilət" />}
                           </>}
-                        <button type="button" className="kzDangerLink" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}>Sil</button>
+                        {!x.deleted_at && <button type="button" className="kzDangerLink" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}>Sil</button>}
                       </div>
-                      {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan həmişəlik silinəcək. Silinmə istifadə olunmuş pulsuz limiti geri qaytarmır.</p><button type="button" className="kzDangerButton" disabled={!!busy} onClick={()=>archive(x)}>Bəli, sil</button><button type="button" className="kzButtonGhost" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
+                      {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan saytdan çıxarılacaq və «Silinmiş» bölməsinə keçəcək. Silmək pulsuz limiti geri qaytarmır.</p><button type="button" className="kzDangerButton" disabled={!!busy} onClick={()=>archive(x)}>Bəli, sil</button><button type="button" className="kzButtonGhost" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
                     </article>;
                   })}
                 </div>

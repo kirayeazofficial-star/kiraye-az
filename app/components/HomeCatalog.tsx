@@ -32,6 +32,11 @@ import {
   periodName,
 } from "../../lib/marketplace";
 
+const popularSearches: [string, string][] = [
+  ["/kiraye-ev/baki", "Kirayə ev Bakı"], ["/kiraye-ev", "Günlük kirayə ev"], ["/kiraye-masin/baki", "Kirayə maşın Bakı"], ["/kiraye-masin", "Avtomobil kirayəsi"],
+  ["/kiraye-villa", "Kirayə villa və bağ evi"], ["/kiraye-ev/sumqayit", "Kirayə ev Sumqayıt"], ["/kiraye-ev/gence", "Kirayə ev Gəncə"], ["/kiraye-komersiya/baki", "Kirayə ofis Bakı"],
+  ["/kiraye-aletler", "Alət kirayəsi"], ["/kiraye-tedbir", "Tədbir avadanlığı kirayəsi"], ["/kiraye-foto", "Kamera kirayəsi"], ["/kiraye-villa/qebele", "Qəbələdə kirayə ev"],
+];
 export default function Home() {
   const {t} = useLanguage();
   const [listings, setListings] = useState<Listing[]>([]),
@@ -339,6 +344,7 @@ export default function Home() {
     <>
       <Header />
       <main className={`kzMain kzHome${onlyFavorites ? " favoritesView" : ""}`}>
+        <h1 className="srOnly">Kirayə elanları — ev, maşın, avadanlıq kirayəsi Azərbaycanda</h1>
         <section className="kzCategories" aria-label={t("Kateqoriyalar")}>
           <button type="button" className="kzCategoryCatalog" onClick={() => window.dispatchEvent(new Event("kiraye:catalog"))}>
             <span className="kzCatalogTile" aria-hidden="true"><LayoutGrid size={40} strokeWidth={1.75} /></span>
@@ -634,6 +640,11 @@ export default function Home() {
             </nav>
           )}
         </section>
+        {browsing && <section className="kzPopular" aria-label="Populyar axtarışlar">
+          <h2>Populyar axtarışlar</h2>
+          <div>{popularSearches.map(([href, label]) => <a key={href} href={href}>{label}</a>)}</div>
+          <p>kirayeal.az — Azərbaycanda kirayə elanları saytı. Günlük və aylıq kirayə ev, mənzil, maşın, villa, alət və avadanlıq elanlarını tapın, sahibi ilə birbaşa əlaqə saxlayın və ya öz əşyanızı pulsuz kirayəyə verin.</p>
+        </section>}
       </main>
       <Footer />
     </>

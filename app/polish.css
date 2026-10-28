@@ -424,3 +424,7 @@ button,.add,.secondary,.textButton{font-weight:500!important;font-size:14px}
 .accountItemActions .promotionTrigger{color:#f2653e;border-color:#f6c6b6;background:#fff7f3}
 .accountItemActions summary::-webkit-details-marker{display:none}
 .ownedPhoto{cursor:pointer}
+.accountItemActions{display:flex!important;flex-wrap:wrap!important;gap:8px!important;width:100%}
+.accountItemActions .promotionOptions{display:inline-block!important;width:auto!important;margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+.accountItemActions .promotionTrigger{display:inline-flex!important;width:auto!important;margin:0!important;padding:8px 14px!important;white-space:nowrap}
+.accountItemActions .secondary{width:auto!important;margin:0!important}

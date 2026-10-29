@@ -12,6 +12,7 @@ export async function watermarkPhoto(file: File): Promise<File> {
     context.fillStyle = "#fff"; context.fillRect(0, 0, canvas.width, canvas.height);
     context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high";
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    await document.fonts?.load(`900 32px ${brandFamily()}`).catch(() => undefined);
     drawBrandMark(context, canvas.width, canvas.height);
     // Sharp enough to zoom in on, but always under the 5 MB upload limit.
     const encode = (quality: number) => new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Şəkli hazırlamaq mümkün olmadı.")), "image/jpeg", quality));
@@ -43,24 +44,42 @@ export async function sharePreview(file: Blob): Promise<Blob> {
 // translucent backing, so it reads the same on light and dark photos.
 export function drawBrandMark(context: CanvasRenderingContext2D, width: number, height: number) {
   const side = Math.min(width, height);
-  const font = Math.max(14, Math.round(side * 0.046));
+  const font = Math.max(15, Math.round(side * 0.05));
   const margin = Math.max(10, Math.round(side * 0.04));
-  const family = `system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif`;
-  const pad = Math.round(font * 0.28), tile = Math.round(font * 1.3), gap = Math.round(font * 0.36);
+  const family = brandFamily();
+  const pad = Math.round(font * 0.3), tile = Math.round(font * 1.32), gap = Math.round(font * 0.38);
+  // Heavy weight plus a thin outline in the same colour: the letters stay solid even where the
+  // device falls back to a font without a heavy weight.
+  const heavy = (text: string, x: number, y: number, color: string, size: number) => {
+    context.fillStyle = color; context.strokeStyle = color;
+    context.lineWidth = Math.max(1, size * 0.03); context.lineJoin = "round";
+    context.strokeText(text, x, y); context.fillText(text, x, y);
+  };
   context.save();
-  context.font = `800 ${font}px ${family}`;
+  context.font = `900 ${font}px ${family}`;
   const name = "kirayeal", nameWidth = context.measureText(name).width, textWidth = nameWidth + context.measureText(".az").width;
-  const boxH = tile + pad * 2, boxW = Math.round(pad + tile + gap + textWidth + font * 0.6);
+  const boxH = tile + pad * 2, boxW = Math.round(pad + tile + gap + textWidth + font * 0.62);
   const x = margin, y = height - margin - boxH, middle = y + boxH / 2;
   const round = (left: number, top: number, w: number, h: number, r: number) => { context.beginPath(); if (typeof context.roundRect === "function") context.roundRect(left, top, w, h, r); else context.rect(left, top, w, h); };
-  context.fillStyle = "rgba(15,18,22,0.55)"; round(x, y, boxW, boxH, Math.round(boxH * 0.3)); context.fill();
+  context.fillStyle = "rgba(15,18,22,0.6)"; round(x, y, boxW, boxH, Math.round(boxH * 0.3)); context.fill();
   context.fillStyle = "#ff5a1f"; round(x + pad, y + pad, tile, tile, Math.round(tile * 0.24)); context.fill();
   context.textBaseline = "middle";
-  context.fillStyle = "#fff"; context.textAlign = "center"; context.font = `800 ${Math.round(tile * 0.7)}px ${family}`;
-  context.fillText("k", x + pad + tile / 2, middle + tile * 0.02);
-  context.textAlign = "left"; context.font = `800 ${font}px ${family}`;
+  const kSize = Math.round(tile * 0.72);
+  context.textAlign = "center"; context.font = `900 ${kSize}px ${family}`;
+  heavy("k", x + pad + tile / 2, middle + tile * 0.02, "#fff", kSize);
+  context.textAlign = "left"; context.font = `900 ${font}px ${family}`;
+  // A touch of letter spacing keeps heavy letters from running into each other (where supported).
+  if ("letterSpacing" in context) (context as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${(font * 0.01).toFixed(1)}px`;
   const textX = x + pad + tile + gap;
-  context.fillStyle = "#fff"; context.fillText(name, textX, middle);
-  context.fillStyle = "#ff8a57"; context.fillText(".az", textX + nameWidth, middle);
+  heavy(name, textX, middle, "#fff", font);
+  heavy(".az", textX + nameWidth, middle, "#ff8a57", font);
   context.restore();
+}
+
+// The site's own font (the one the logo uses) when it is available in this page, else system fonts.
+const fallbackFamily = `system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif`;
+function brandFamily() {
+  if (typeof document === "undefined") return fallbackFamily;
+  const family = getComputedStyle(document.body).fontFamily;
+  return family ? `${family}, ${fallbackFamily}` : fallbackFamily;
 }

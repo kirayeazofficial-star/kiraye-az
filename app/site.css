@@ -1628,3 +1628,17 @@ html{-webkit-tap-highlight-color:transparent}
   .detailSpecs dt,.detailSpecs dd{font-size:var(--fs-14)!important;line-height:1.35!important}
   .listingDetails .description,.listingDetails .detailDescription p{font-size:var(--fs-15)!important;line-height:1.55!important}
 }
+/* Cabinet on phones: "Hesabdan çıx" lives at the very end of the page */
+.kzLogoutEnd{display:none}
+@media (max-width:767px){
+  .accountDashboard .kzLogoutNav{display:none!important}
+  .kzLogoutEnd{display:flex!important;align-items:center;gap:12px;width:100%;min-height:48px;margin:14px 0 4px;padding:0 14px;border:0;border-radius:14px;background:#fff;color:var(--kz-danger)!important;font:inherit;font-size:var(--fs-14);font-weight:600;cursor:pointer;box-shadow:none}
+}
+/* Profile page: messages appear right under the title, not at the bottom */
+.kzAccountPage>.notice{margin:0 0 12px!important}
+@media (max-width:767px){.accountDashboard .cabinetNav .cabinetNavFoot>.kzMenuRow.kzLogoutNav,.accountDashboard .cabinetNav.cabinetCards .cabinetNavFoot>.kzMenuRow.kzLogoutNav{display:none!important}}
+@media (max-width:767px){
+  .accountDashboard .cabinetLayout.screen-menu .kzOwnHead{display:flex!important;align-items:center;justify-content:space-between;margin:0 0 10px!important}
+  .accountDashboard .cabinetLayout.screen-menu .kzOwnHead h2{margin:0!important;font-size:var(--fs-17,17px)!important;font-weight:700}
+  .accountDashboard .cabinetLayout.screen-menu .kzOwnHead .kzButton{display:none!important}
+}

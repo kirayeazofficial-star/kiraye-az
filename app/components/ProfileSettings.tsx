@@ -46,6 +46,8 @@ export default function ProfileSettings(){
  return <><Header/><main className="wrap formPage profileSettings kzAccountPage">
   <div className="cabinetBack profileBack"><Link href="/profile" aria-label="Kabinetə qayıt"><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></Link><strong>Profil</strong></div>
   <h1 className="kzPageTitle">Profil</h1>
+  {error&&<div role="alert" className="notice error"><span>{error}</span></div>}
+  {notice&&<p role="status" className="notice">{notice}</p>}
   {loading?<p role="status">Yüklənir...</p>:!signedIn?<p className="notice"><Link href="/login?next=/account">Davam etmək üçün daxil olun.</Link></p>:profile?<div className="kzAccountGrid">
    <section className="kzPanel kzPhotoPanel">
     <UserAvatar src={profile.avatar_url} name={profile.name} className="large"/>
@@ -58,10 +60,6 @@ export default function ProfileSettings(){
      </div>
      <input ref={photoInput} type="file" accept="image/*" hidden onChange={event=>changePhoto(event.target.files?.[0])}/>
     </div>
-   </section>
-   <section className="kzPanel">
-    <h2>Mənim məlumatlarım</h2>
-    <dl className="kzFacts"><div><dt>Profil nömrəsi</dt><dd>{profile.profile_no||'—'}</dd></div><div><dt>Qeydiyyat tarixi</dt><dd>{profile.created_at?azDate(profile.created_at):'—'}</dd></div><div><dt>E-poçt</dt><dd>{profile.email}</dd></div><div><dt>Telefon</dt><dd>{profile.phone?formatContact(profile.phone):'Əlavə edilməyib'}</dd></div></dl>
    </section>
    <form className="kzPanel listingForm accountForm" onSubmit={event=>submit(event,'profile')}>
     <h2>Ad və telefon</h2>
@@ -76,8 +74,10 @@ export default function ProfileSettings(){
     {emailStep===1&&<form onSubmit={event=>submit(event,'email')}><label>Yeni e-poçt<input type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} required autoComplete="email"/></label><label>Cari şifrə<input type="password" value={emailPassword} onChange={e=>setEmailPassword(e.target.value)} autoComplete="current-password" required maxLength={512}/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email'?'Göndərilir…':'Kod göndər'}</button><button type="button" className="kzButtonGhost" onClick={()=>setEmailStep(0)}>Ləğv et</button></div></form>}
     {emailStep===2&&<form onSubmit={event=>submit(event,'email_confirm')}><p className="muted">6 rəqəmli kod {profile.email} ünvanına göndərildi.</p><label>Kod<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={emailCode} onChange={e=>setEmailCode(e.target.value.replace(/\D/g,''))} required autoComplete="one-time-code"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email_confirm'?'Yoxlanılır…':'Təsdiqlə'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setEmailCode('');}}>Ləğv et</button></div></form>}
    </div>
+   <section className="kzPanel">
+    <h2>Mənim məlumatlarım</h2>
+    <dl className="kzFacts"><div><dt>Profil nömrəsi</dt><dd>{profile.profile_no||'—'}</dd></div><div><dt>Qeydiyyat tarixi</dt><dd>{profile.created_at?azDate(profile.created_at):'—'}</dd></div><div><dt>E-poçt</dt><dd>{profile.email}</dd></div><div><dt>Telefon</dt><dd>{profile.phone?formatContact(profile.phone):'Əlavə edilməyib'}</dd></div></dl>
+   </section>
   </div>:null}
-  {error&&<div role="alert" className="notice error"><span>{error}</span></div>}
-  {notice&&<p role="status" className="notice">{notice}</p>}
  </main><Footer/></>;
 }

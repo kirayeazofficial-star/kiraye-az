@@ -66,7 +66,6 @@ export default function ProfileSettings(){
     <h2>Ad və telefon</h2>
     <label>Ad və soyad<input value={name} onChange={e=>setName(e.target.value)} maxLength={100} required autoComplete="name"/></label>
     <label>Əsas telefon<input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} maxLength={25} required autoComplete="tel"/></label>
-    {phoneChanged&&<label>Cari şifrə<input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" required maxLength={512}/></label>}
     <button className="kzButton" disabled={!!busy}>{busy==='profile'?'Saxlanılır…':'Yadda saxla'}</button>
    </form>
    <div className="kzPanel listingForm accountForm emailBox">

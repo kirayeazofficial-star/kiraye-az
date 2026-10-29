@@ -47,9 +47,10 @@ export async function POST(request:Request){
    await hostQuery(`update auth.users set email=$1,updated_at=now() where id=$2`,[cleanNew,user.id]);
    return reply({profile:await status(user.id),email_changed:true});
   }
-  const password=String(input.password||'');const auth=await hostQuery<{password_hash:string|null}>(`select password_hash from auth.users where id=$1`,[user.id]);
-  if(!password||!auth[0]?.password_hash||!await passwordMatches(password,auth[0].password_hash))return reply({code:'reauth_failed'},401);
   if(input.action==='email'){
+   // Only changing the sign-in e-mail asks for the password again; name and phone do not.
+   const password=String(input.password||'');const auth=await hostQuery<{password_hash:string|null}>(`select password_hash from auth.users where id=$1`,[user.id]);
+   if(!password||!auth[0]?.password_hash||!await passwordMatches(password,auth[0].password_hash))return reply({code:'reauth_failed'},401);
    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanNew)||cleanNew.length>254)return reply({code:'invalid_email'},400);
    if(cleanNew===user.email.toLowerCase())return reply({code:'same_email'},400);
    const taken=await hostQuery(`select 1 from auth.users where lower(email)=$1`,[cleanNew]);if(taken[0])return reply({code:'email_taken'},409);

@@ -123,6 +123,9 @@ export type Listing = {
   images: string[];
   created_at: string;
   rooms?: number;
+  lat?: number | null;
+  lng?: number | null;
+  location_exact?: boolean;
   area_m2?: number;
   demo?: boolean;
   deposit?: number;

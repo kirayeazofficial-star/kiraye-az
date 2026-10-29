@@ -1,6 +1,8 @@
 "use client";
 import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
+import dynamic from "next/dynamic";
+const ListingMap = dynamic(() => import("./LocationMap"), { ssr: false, loading: () => <div className="kzMap kzMapLoading kzMapListing" /> });
 import { keyFacts } from "../../lib/listing-facts";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
@@ -388,6 +390,26 @@ export default function ListingDetails({
             . Tarixi əlaqə saxlayaraq dəqiqləşdir.
           </p>
         )}
+        {(() => {
+          // Yerləşmə: district / metro chips (search links) and the map; approximate points show an area.
+          const metro = typeof item.attributes?.metro === "string" ? item.attributes.metro : "";
+          const hasPoint = item.lat != null && item.lng != null;
+          if (!item.district && !metro && !hasPoint) return null;
+          return <section className="kzLocation" aria-label="Yerləşmə">
+            <h3>Yerləşmə</h3>
+            {(item.district || metro) && <div className="kzLocationChips">
+              {item.district && <Link href={`/?q=${encodeURIComponent(item.district)}#elanlar`}>{item.district} r.</Link>}
+              {metro && <Link href={`/?q=${encodeURIComponent(metro)}#elanlar`}>{metro} m.</Link>}
+            </div>}
+            {hasPoint && <>
+              <ListingMap lat={Number(item.lat)} lng={Number(item.lng)} exact={!!item.location_exact} className="kzMapListing" />
+              <div className="kzLocationFoot">
+                <span>{item.location_exact ? `${item.city}${item.district ? `, ${item.district} r.` : ""}` : "Təxmini ərazi göstərilir. Dəqiq ünvanı elan sahibindən öyrənin."}</span>
+                <a href={`https://www.google.com/maps/search/?api=1&query=${item.lat},${item.lng}`} target="_blank" rel="noopener noreferrer">Xəritədə bax</a>
+              </div>
+            </>}
+          </section>;
+        })()}
         <details className="kzEstimate"><summary><Calculator aria-hidden="true" size={18} strokeWidth={1.75} />Kirayə xərcini hesabla</summary><RentalEstimator key={item.id} item={item} /></details>
         <p className="safetyNote">
           Kirayə götürəcəyin əşyanı, nəqliyyatı və ya əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-type Banner = { id: string; title: string; image_url: string; link_url: string | null };
+type Banner = { id: string; title: string; image_url: string; media_type?: string; link_url: string | null };
 // Shows active banners for a placement; several banners can be swiped, with dots below.
 export default function BannerStrip({ placement }: { placement: "home" | "listing" }) {
   const [items, setItems] = useState<Banner[]>([]), [index, setIndex] = useState(0);
@@ -11,7 +11,7 @@ export default function BannerStrip({ placement }: { placement: "home" | "listin
   return <section className={`kzBanners ${placement}`} aria-label="Reklam">
     <div className="kzBannerRail" ref={rail} onScroll={event => { const el = event.currentTarget; setIndex(Math.round(el.scrollLeft / el.clientWidth)); }}>
       {items.map(banner => {
-        const image = <img src={banner.image_url} alt={banner.title || "Reklam"} loading="lazy" />;
+        const image = banner.media_type === "video" || /\.(mp4|webm)$/i.test(banner.image_url) ? <video src={banner.image_url} aria-label={banner.title || "Reklam"} muted loop autoPlay playsInline preload="metadata" /> : <img src={banner.image_url} alt={banner.title || "Reklam"} loading="lazy" />;
         return banner.link_url ? <a key={banner.id} href={banner.link_url} target={banner.link_url.startsWith("/") ? undefined : "_blank"} rel={banner.link_url.startsWith("/") ? undefined : "noopener sponsored"} onClick={() => click(banner.id)}>{image}</a> : <div key={banner.id}>{image}</div>;
       })}
     </div>

@@ -1358,3 +1358,60 @@ p.safetyNote{font-size:var(--fs-13)!important;color:#7a4a2a!important}
 .promotionPackage>p{padding:0 16px!important;margin:0 0 8px!important}
 .promotionPanel input[type=radio],.promotionPanel input[type=checkbox]{accent-color:var(--kz-accent)}
 .promotionPanel .paymentChoices legend{font-size:var(--fs-15)!important}
+/* Video banners fill the same frame as pictures */
+.kzBannerRail video,.kzBannerPick video{display:block;width:100%;height:100%;object-fit:cover;background:#000}
+video.kzBannerThumb{display:block}
+.kzBannerFields label small{font-size:var(--fs-12);font-weight:400;color:var(--kz-muted);line-height:1.4}
+.kzBannerGuide{display:grid;gap:4px;margin:0 0 14px!important;padding:10px 12px;border-radius:10px;background:var(--kz-soft)}
+.kzBannerGuide p{margin:0;font-size:var(--fs-13);line-height:1.45;color:var(--kz-text)}
+.kzBannerGuide strong{color:var(--kz-ink)}
+/* Sort control */
+.kzSortMenu{position:relative;flex:none}
+.kzSortButton{display:inline-flex;align-items:center;gap:6px;height:36px;min-height:0;margin:0;padding:0 12px;border:1px solid var(--kz-line);border-radius:999px;background:#fff;color:var(--kz-ink);font:inherit;font-size:var(--fs-13);font-weight:500;white-space:nowrap;cursor:pointer;box-shadow:none}
+.kzSortButton svg{color:var(--kz-muted)}
+.kzSortButton[aria-expanded=true]{border-color:var(--kz-ink)}
+.kzSortList{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:190px;margin:0;padding:6px;list-style:none;border:1px solid var(--kz-line);border-radius:12px;background:#fff;box-shadow:0 12px 32px rgba(16,24,40,.14)}
+.kzSortList button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:40px;margin:0;padding:0 10px;border:0;border-radius:8px;background:none;color:var(--kz-ink);font:inherit;font-size:var(--fs-14);text-align:left;cursor:pointer;box-shadow:none}
+.kzSortList button:hover{background:var(--kz-soft)}
+.kzSortList [aria-selected=true] button{font-weight:600;color:var(--kz-accent-dark)}
+@media (max-width:767px){.kzSortButton{height:32px;padding:0 10px;font-size:var(--fs-12)}.kzSortList button{min-height:38px;font-size:var(--fs-13)}}
+/* ---- Side menu (hamburger): tidy rows with coloured icon tiles ---- */
+.siteMenuPanel.kzSide{display:flex!important;flex-direction:column;gap:0;width:min(320px,86vw)!important;padding:14px 14px calc(16px + env(safe-area-inset-bottom))!important;background:#fff!important}
+.siteMenuPanel.kzSide .siteMenuHeading{margin:0 0 6px!important;padding:2px 2px 12px!important;border-bottom:1px solid var(--kz-line)!important}
+.siteMenuPanel.kzSide .siteMenuHeading .logo{font-size:var(--fs-24)!important}
+.siteMenuPanel.kzSide .siteMenuHeading .logo small{margin-top:4px!important;font-size:8px!important;color:var(--kz-muted)!important}
+.siteMenuPanel.kzSide .siteMenuClose{flex:0 0 36px!important;width:36px!important;height:36px!important;min-height:0!important;border-radius:50%!important;background:var(--kz-soft)!important;color:var(--kz-ink)!important}
+.siteMenuPanel.kzSide .siteMenuClose svg{width:18px;height:18px}
+.siteMenuPanel.kzSide .siteMenuLanguage{margin:0!important;padding:10px 4px!important;border:0!important}
+.siteMenuPanel.kzSide .siteMenuLanguage>span{font-size:var(--fs-14);color:var(--kz-text)}
+.siteMenuPanel.kzSide .languageSelect{gap:4px!important;padding:3px;border-radius:999px;background:var(--kz-soft)}
+.siteMenuPanel.kzSide .languageSelect button{min-height:0!important;height:28px;padding:0 12px!important;border:0!important;border-radius:999px!important;background:none!important;color:var(--kz-text)!important;font-size:var(--fs-12)!important;font-weight:600!important;box-shadow:none!important}
+.siteMenuPanel.kzSide .languageSelect button[aria-pressed="true"]{background:#fff!important;color:var(--kz-ink)!important;box-shadow:0 1px 3px rgba(16,24,40,.12)!important}
+.siteMenuPanel.kzSide nav{display:flex!important;flex-direction:column;gap:0!important;margin:0!important;padding:4px 0!important}
+.siteMenuPanel.kzSide nav+nav,.siteMenuPanel.kzSide .siteMenuHelp{margin-top:6px!important;padding-top:8px!important;border-top:1px solid var(--kz-line)!important}
+.siteMenuPanel.kzSide nav a{display:flex!important;align-items:center;gap:12px;min-height:46px!important;margin:0!important;padding:0 6px!important;border-radius:10px!important;background:none!important;color:var(--kz-ink)!important;font-size:var(--fs-15)!important;font-weight:500!important;text-decoration:none!important}
+.siteMenuPanel.kzSide nav a>span:nth-child(2){flex:1;min-width:0}
+.siteMenuPanel.kzSide nav a:hover,.siteMenuPanel.kzSide nav a:active{background:var(--kz-soft)!important}
+.siteMenuPanel.kzSide .kzSideArrow{flex:none;color:#b3b8c2}
+.kzSideIcon{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:9px}
+.kzSideIcon.orange{background:#fff1ec;color:#ff5a1f}.kzSideIcon.red{background:#fdecea;color:#d92d20}.kzSideIcon.green{background:#e9f7ef;color:#1f8a4c}
+.kzSideIcon.blue{background:#ebf1ff;color:#2f6fe4}.kzSideIcon.purple{background:#f3edff;color:#7c4ddb}.kzSideIcon.grey{background:var(--kz-soft);color:var(--kz-text)}
+.siteMenuPanel.kzSide .siteContact{margin-top:auto!important;padding:14px 6px 0!important;border-top:1px solid var(--kz-line)!important;gap:6px!important;background:none!important;border-radius:0!important;border-left:0!important;border-right:0!important;border-bottom:0!important}
+.siteMenuPanel.kzSide .siteContact strong{font-size:var(--fs-13)!important;color:var(--kz-muted)!important;font-weight:600}
+.siteMenuPanel.kzSide .siteContact a{font-size:var(--fs-14)!important;color:var(--kz-ink)!important}
+.siteMenuPanel.kzSide .siteContact .socialLinks{display:flex;gap:14px}
+.siteMenuPanel.kzSide .kzSideIcon svg{color:inherit!important;stroke:currentColor!important;width:18px!important;height:18px!important}
+.siteMenuPanel.kzSide .kzSideIcon.orange{color:#ff5a1f!important}.siteMenuPanel.kzSide .kzSideIcon.red{color:#d92d20!important}.siteMenuPanel.kzSide .kzSideIcon.green{color:#1f8a4c!important}
+.siteMenuPanel.kzSide .kzSideIcon.blue{color:#2f6fe4!important}.siteMenuPanel.kzSide .kzSideIcon.purple{color:#7c4ddb!important}.siteMenuPanel.kzSide .kzSideIcon.grey{color:#4b5260!important}
+.siteMenuPanel.kzSide .languageSelect button{display:inline-flex!important;align-items:center;justify-content:center;line-height:1!important}
+.siteMenuPanel.kzSide .siteContact .socialLinks a{min-height:0!important;height:30px;padding:0 12px!important;display:inline-flex;align-items:center;border:1px solid var(--kz-line)!important;border-radius:999px!important;font-size:var(--fs-13)!important}
+/* Tab bar: the active section gets a softly filled icon */
+.kzTabbar>a[aria-current=page] svg{fill:currentColor;fill-opacity:.16;stroke-width:2.2}
+/* Admin stats on phones: one tidy row per figure, nothing can overlap */
+@media (max-width:767px){
+  .kzAdStats.four{grid-template-columns:1fr!important;gap:6px!important}
+  .kzAdStats.four>*{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"label value" "note value";align-items:center;column-gap:12px;row-gap:2px!important;padding:10px 12px!important;line-height:1.3}
+  .kzAdStats.four>* span{grid-area:label;line-height:1.3!important}
+  .kzAdStats.four>* b{grid-area:value;line-height:1!important;font-size:var(--fs-20)!important}
+  .kzAdStats.four>* small{grid-area:note;line-height:1.3!important}
+}

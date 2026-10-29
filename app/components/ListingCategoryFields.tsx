@@ -454,6 +454,7 @@ function PropertyFields({
         value={kind}
         onChange={setKind}
       />
+      <OwnerTypeField value={typeof attributes?.owner_type === "string" ? attributes.owner_type : ""} />
       <div className="formGrid propertyBasics">
         {category !== "commercial" && (
           <label>
@@ -581,4 +582,18 @@ function ItemFields({
       </div>}
     </section>
   );
+}
+
+// "Siz kimsiniz?" for homes and premises: owner or agent, shown under the seller's name on the listing.
+function OwnerTypeField({ value }: { value: string }) {
+  const [current, setCurrent] = useState(value || "Mülkiyyətçi");
+  return <div className="kzOwnerTypeField">
+    <p className="fieldLabel">Siz kimsiniz?</p>
+    <div className="kzSegmented" role="radiogroup" aria-label="Siz kimsiniz?">
+      {["Mülkiyyətçi", "Vasitəçi"].map(option => <label key={option} className={current === option ? "selected" : ""}>
+        <input type="radio" name="owner_type" value={option} checked={current === option} onChange={() => setCurrent(option)} />
+        <span>{option}</span>
+      </label>)}
+    </div>
+  </div>;
 }

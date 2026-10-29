@@ -21,6 +21,8 @@ import {
 import CategoryVisual from "./CategoryVisual";
 import ListingSuggestions from "./ListingSuggestions";
 import BannerStrip from "./BannerStrip";
+import EmptyArt from "./EmptyArt";
+import { typeOptions } from "../../lib/listing-facts";
 import SideBanners from "./SideBanners";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -42,6 +44,9 @@ export default function Home() {
     [notice, setNotice] = useState(""),
     [demo, setDemo] = useState(false);
   const [savedSearches,setSavedSearches] = useState<SavedSearch[]>([]);
+  const [kindFilter, setKindFilter] = useState("");
+  const [todayCount, setTodayCount] = useState(0);
+  useEffect(() => { fetch("/api/listings/today").then(r => r.json()).then(d => setTodayCount(Number(d.count) || 0)).catch(() => {}); }, []);
   const [category, setCategory] = useState(""),
     [query, setQuery] = useState(""),
     [city, setCity] = useState(""),
@@ -100,6 +105,7 @@ export default function Home() {
       searchCatalog({
         // The Premium block above already shows premium listings: keep them out of the plain list.
         notPremium: !ownerFilter && !onlyFavorites && !category && !query,
+        kind: kindFilter || undefined,
         owner:ownerFilter,
         category,
         city,
@@ -150,6 +156,7 @@ export default function Home() {
     };
   }, [
     category,
+    kindFilter,
     ownerFilter,
     city,
     period,
@@ -172,6 +179,7 @@ export default function Home() {
   useEffect(() => {
     setPage(1);
   }, [
+    kindFilter,
     query,
     city,
     category,
@@ -279,6 +287,7 @@ export default function Home() {
   }
   function changeCategory(value: string) {
     setCategory(value);
+    setKindFilter("");
     setRooms("");
     setArea("");
     setBrand("");
@@ -293,6 +302,7 @@ export default function Home() {
   }
   function reset() {
     setCategory("");
+    setKindFilter("");
     setCity("");
     setPeriod("");
     setMin("");
@@ -330,6 +340,7 @@ export default function Home() {
     brand && { label: brand, clear: () => setBrand("") },
     gearbox && { label: gearbox, clear: () => setGearbox("") },
     noDeposit && { label: t("Depozitsiz"), clear: () => setNoDeposit(false) },
+    kindFilter && { label: kindFilter, clear: () => setKindFilter("") },
     from && { label: `Başlanğıc: ${from}`, clear: () => setFrom("") },
     until && { label: `Son tarix: ${until}`, clear: () => setUntil("") },
   ].filter(
@@ -374,6 +385,7 @@ export default function Home() {
                   : category
                     ? t(categoryName(category))
                     : t(ownerFilter ? "İstifadəçinin elanları" : browsing ? "Son elanlar" : "Kirayə elanları")}
+                {browsing && todayCount > 0 && <span className="kzTodayBadge"><i aria-hidden="true" />Bu gün {todayCount} yeni elan</span>}
               </h2>
               <p className="kzMuted" role="status" aria-live="polite">
                 {loading
@@ -388,6 +400,9 @@ export default function Home() {
               options={[{ value: "new", label: t("Əvvəlcə yenilər") }, { value: "low", label: t("Əvvəlcə ucuz") }, { value: "high", label: t("Əvvəlcə bahalı") }]}
             />
           </div>
+          {category && typeOptions(category).length > 0 && <div className="kzTypeChips" role="group" aria-label="Növ">
+            {typeOptions(category).map(option => <button key={option} type="button" className={kindFilter === option ? "active" : ""} aria-pressed={kindFilter === option} onClick={() => setKindFilter(kindFilter === option ? "" : option)}>{t(option)}</button>)}
+          </div>}
           <div className="kzToolbar" aria-label="Kirayə filtrləri">
             <button
               type="button"
@@ -602,6 +617,7 @@ export default function Home() {
           )}
           {!loading && !filtered.length && (
             onlyFavorites && !query ? <div className="kzEmpty">
+              <EmptyArt kind="heart" />
               <h3>{t("Seçilmiş elan yoxdur")}</h3>
               <p>{t("Bəyəndiyin elanın şəklindəki ürək işarəsinə toxun — elan burada saxlanacaq.")}</p>
               <a className="kzButton" href="/">{t("Elanlara bax")}</a>

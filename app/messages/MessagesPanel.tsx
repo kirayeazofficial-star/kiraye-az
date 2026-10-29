@@ -3,6 +3,7 @@ import { ChevronLeft, MessageCircle, MoreHorizontal, SendHorizontal } from "luci
 import {FormEvent,useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";import Header from "../components/Header";import Footer from "../components/Footer";import {publicDate} from "../../lib/public-date";
 import UserAvatar from "../components/UserAvatar";
+import EmptyArt from "../components/EmptyArt";
 type Thread={id:string;listing_id:string;listing_title:string;listing_image?:string|null;peer_name:string;peer_avatar?:string|null;is_buyer?:boolean;peer_no:number;listing_active:boolean;blocked:boolean;blocked_by_me:boolean;last_message_at?:string;preview?:string;unread?:number};type Message={id:number;author_id:string;body:string;created_at:string};
 async function api(action:string,data:Record<string,unknown>={}){const response=await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...data})}),body=await response.json();if(!response.ok)throw new Error(body.error||'MESSAGE_FAILED');return body;}
 function explain(code:string){return code==='OWN_LISTING'?'Öz elanına mesaj yazmaq olmaz. Elanı kabinetdən idarə et.':code==='BLOCKED'?'Bu yazışmada mesaj göndərilməsi bloklanıb.':code==='RATE_LIMIT'?'Çox tez mesaj göndərirsən. Bir az gözlə.':'Əməliyyat baş tutmadı. Yenidən yoxla.';}
@@ -25,13 +26,13 @@ export default function MessagesPanel(){
     <aside className="kzChatList" aria-label="Söhbətlər">
      <div className="kzChatListHead"><h1>Mesajlar</h1>{!!threads.length&&<span>{threads.length}</span>}</div>
      <div className="kzChatTabs" role="group" aria-label="Söhbət növü">{([['all','Hamısı'],['buy','Götürürəm'],['sell','Verirəm']] as const).map(([key,label])=><button key={key} type="button" aria-pressed={tab===key} onClick={()=>setTab(key)}>{label}</button>)}</div>
-     {inboxLoading&&!threads.length?<p className="kzChatHint" role="status">Söhbətlər yüklənir…</p>:!threads.filter(item=>tab==='all'||(tab==='buy')===!!item.is_buyer).length?<div className="kzChatEmpty"><MessageCircle aria-hidden="true" size={44} strokeWidth={1.5} /><strong>Hələ söhbət yoxdur</strong><p>Bəyəndiyin elanda “Mesaj yaz” düyməsini bas.</p></div>:threads.filter(item=>tab==='all'||(tab==='buy')===!!item.is_buyer).map(item=><button type="button" key={item.id} className="kzChatItem" aria-pressed={thread?.id===item.id} onClick={()=>void open(item)}>
+     {inboxLoading&&!threads.length?<p className="kzChatHint" role="status">Söhbətlər yüklənir…</p>:!threads.filter(item=>tab==='all'||(tab==='buy')===!!item.is_buyer).length?<div className="kzChatEmpty"><EmptyArt kind="chat" /><strong>Hələ söhbət yoxdur</strong><p>Bəyəndiyin elanda “Mesaj yaz” düyməsini bas.</p></div>:threads.filter(item=>tab==='all'||(tab==='buy')===!!item.is_buyer).map(item=><button type="button" key={item.id} className="kzChatItem" aria-pressed={thread?.id===item.id} onClick={()=>void open(item)}>
       <span className="kzChatThumb">{item.listing_image?<img src={item.listing_image} alt=""/>:<UserAvatar src={item.peer_avatar} name={item.peer_name}/>}<UserAvatar src={item.peer_avatar} name={item.peer_name} className="kzChatPeer"/></span>
       <span className="kzChatText"><span className="kzChatTop"><strong>{item.peer_name}</strong>{item.last_message_at&&<time>{publicDate(item.last_message_at).replace('Bu gün, ','')}</time>}</span><span className="kzChatListing">{item.listing_title}</span><span className="kzChatBottom"><small>{item.preview||'Yeni söhbət'}</small>{!!item.unread&&<b>{item.unread}</b>}</span></span>
      </button>)}
     </aside>
     <section className="kzChatBody">
-     {!conversationOpen?<div className="kzChatEmpty"><MessageCircle aria-hidden="true" size={56} strokeWidth={1.25} /><strong>Söhbət seç</strong><p>Soldakı siyahıdan yazışmanı aç.</p></div>:<>
+     {!conversationOpen?<div className="kzChatEmpty"><EmptyArt kind="chat" /><strong>Söhbət seç</strong><p>Soldakı siyahıdan yazışmanı aç.</p></div>:<>
       <header className="kzChatHead">
        <button type="button" className="kzChatBack" aria-label="Söhbətlərə qayıt" onClick={()=>{setThread(null);setListing('');setMessages([]);}}><ChevronLeft aria-hidden="true" size={24} strokeWidth={2} /></button>
        {thread?<>

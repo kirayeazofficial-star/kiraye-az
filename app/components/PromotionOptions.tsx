@@ -1,68 +1,100 @@
 "use client";
-import { ArrowUp, ChevronLeft, Crown, Gem, Megaphone, RotateCcw, X } from "lucide-react";
+import { ArrowUp, ChevronLeft, ChevronRight, Crown, Gem, Megaphone, X, type LucideIcon } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-const packages = [
-  { title: "Elanı bərpa et", icon: RotateCcw, kind: "restore", description: "Müddəti bitmiş və ya arxivə keçmiş elan yenidən yayımlanacaq.", plans: ["Elanı yenidən 30 gün yayımla"] },
-  { title: "İrəli çək", icon: ArrowUp, kind: "bump", description: "Elan seçdiyin sayda, hər 8 saatdan bir irəli çəkiləcək.", plans: ["3 dəfə (8 saatdan bir) — 1,50 AZN", "9 dəfə (8 saatdan bir) — 2 AZN", "15 dəfə (8 saatdan bir) — 3 AZN", "30 dəfə (8 saatdan bir) — 5 AZN"] },
-  { title: "VIP", icon: Gem, kind: "vip", description: "Xüsusi VIP bölməsində, öz kateqoriyasının VIP elanları arasında növbəli göstərilmə və hər gün irəli çəkmə.", plans: ["1 gün — 3 AZN", "5 gün — 6 AZN", "15 gün — 15 AZN", "30 gün — 25 AZN"] },
-  { title: "Premium", icon: Crown, kind: "premium", description: "VIP üstünlükləri, hər gün irəli çəkmə və xidmət müddətində əsas səhifənin Premium bölməsində göstərilmə.", plans: ["1 gün — 5 AZN", "5 gün — 15 AZN", "15 gün — 30 AZN", "30 gün — 50 AZN"] },
+import { createPortal } from "react-dom";
+
+type Kind = "bump" | "vip" | "premium";
+type Plan = { label: string; price: string; extra?: string };
+type Pack = { kind: Kind; title: string; action: string; icon: LucideIcon; from: string; description: string; bonus?: { before: string; now: string }; plans: Plan[] };
+
+// Prices and wording of the paid services (payments are not connected yet: "Ödə" only explains that).
+export const packs: Pack[] = [
+  { kind: "bump", title: "İrəli çək", action: "Elanı irəli çək", icon: ArrowUp, from: "1,50",
+    description: "Elan seçdiyin sayda, hər 8 saatdan bir öz kateqoriyasının axtarış nəticələrində birinci yerə qalxacaq.",
+    plans: [{ label: "3 dəfə (8 saatdan bir)", price: "1,50" }, { label: "9 dəfə (8 saatdan bir)", price: "2,00" }, { label: "15 dəfə (8 saatdan bir)", price: "3,00" }, { label: "30 dəfə (8 saatdan bir)", price: "5,00" }] },
+  { kind: "vip", title: "VIP", action: "VIP et", icon: Gem, from: "3",
+    description: "Elan VIP bölməsində və öz kateqoriyasının axtarış nəticələrində təsadüfi qaydada göstəriləcək.",
+    bonus: { before: "1 dəfə irəli çək", now: "Hər gün irəli çək" },
+    plans: [{ label: "1 gün", price: "3,00", extra: "1 irəli çək" }, { label: "5 gün", price: "6,00" }, { label: "15 gün", price: "15,00" }, { label: "30 gün", price: "25,00" }] },
+  { kind: "premium", title: "Premium", action: "Premium et", icon: Crown, from: "5",
+    description: "Elan əsas səhifənin Premium bölməsində göstəriləcək və xidmət müddətinin sonunadək orada qalacaq.",
+    bonus: { before: "1 dəfə irəli çək + VIP", now: "Hər gün irəli çək + VIP" },
+    plans: [{ label: "1 gün", price: "5,00", extra: "1 irəli çək + VIP" }, { label: "5 gün", price: "15,00" }, { label: "15 gün", price: "30,00" }, { label: "30 gün", price: "50,00" }] },
 ];
-export default function PromotionOptions({ eligible = true, kind, label }: { eligible?: boolean; kind?: string; label?: string }) {
+
+// Trigger + dialog for paid promotion. With `kind` it opens that service directly; without it the
+// dialog first lets the owner choose a service. `card` renders the trigger as a small price card.
+export default function PromotionOptions({ eligible = true, kind, label, card = false }: { eligible?: boolean; kind?: Kind; label?: string; card?: boolean }) {
   const id = useId();
-  const root = useRef<HTMLDetailsElement>(null);
-  const panel = useRef<HTMLDivElement>(null);
-  const trigger = useRef<HTMLElement>(null);
-  const [opened, setOpened] = useState(false);
-  const [selected, setSelected] = useState<string | null>(null);
-  const TriggerIcon = packages.find(pack => pack.kind === kind)?.icon ?? Megaphone;
-  function close() { if (root.current) root.current.open = false; }
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [open, setOpen] = useState(false);
+  const [chosen, setChosen] = useState<Kind | null>(kind ?? null);
+  const [plan, setPlan] = useState(0), [method, setMethod] = useState("card"), [notice, setNotice] = useState(false);
+  const own = packs.find(item => item.kind === kind);
+  const pack = packs.find(item => item.kind === chosen);
   useEffect(() => {
-    if (!opened) return;
+    const node = dialog.current;
+    if (!open || !node) return;
+    node.showModal();
     const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    if(panel.current){panel.current.scrollTop=0;panel.current.focus();}
-    return () => { document.body.style.overflow = previous; trigger.current?.focus(); };
-  }, [opened]);
-  return <details ref={root} className="promotionOptions" aria-label="Elanın irəlilədilməsi"
-    onToggle={(event) => { setOpened(event.currentTarget.open); if (!event.currentTarget.open) setSelected(null); }}>
-    <summary ref={trigger} className={`promotionTrigger${kind ? " " + kind : ""}`}><TriggerIcon aria-hidden="true" size={16} strokeWidth={2} />{label ?? "Elanı reklam et"}</summary>
-    <div className="promotionShade" aria-hidden="true" onClick={close} />
-    <div ref={panel} className={`promotionPanel${kind?" kindOnly":""}`} role="dialog" aria-modal="true" aria-label="Elanın reklam paketləri" tabIndex={-1}
-      onKeyDown={(event) => {
-        if (event.key === "Escape") { event.preventDefault(); close(); }
-        if (event.key !== "Tab") return;
-        const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("button,input,summary,a[href]")).filter(element => element.getClientRects().length > 0 && !element.hasAttribute("disabled"));
-        const first = controls[0], last = controls[controls.length - 1];
-        if (event.shiftKey && (document.activeElement === first || document.activeElement === event.currentTarget)) { event.preventDefault(); last?.focus(); }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-      }}>
-      <div className="promotionModalHeader"><h3>{kind ? (packages.find(pack => pack.kind === kind)?.title ?? "Reklam") : "Reklam paketləri"}</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}><X aria-hidden="true" size={20} strokeWidth={2} /></button></div>
-      <p>Ödəniş sistemi müvəqqəti işləmir. Paketlərlə tanış ola bilərsən; pul tutulmur və elanın sıralaması dəyişmir.</p>
-      {selected && <button type="button" className="textButton" onClick={() => setSelected(null)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Başqa xidmət seç</button>}
-      {packages.filter(pack => kind ? pack.kind === kind : (pack.kind !== "restore" && (!selected || pack.kind === selected))).map(pack => <details key={pack.kind} className="promotionPackage" open={selected === pack.kind || kind === pack.kind}
-        onToggle={(event) => {
-          if (event.currentTarget.open) { setSelected(pack.kind); if (panel.current) panel.current.scrollTop = 0; }
-          else if (selected === pack.kind) setSelected(null);
-        }}>
-        <summary>
-          <span className={`promotionIcon ${pack.kind}`} aria-hidden="true"><pack.icon size={22} strokeWidth={1.75} /></span>
-          <span className="promotionHeading"><strong>{pack.title}</strong><small>Paket seç</small></span>
-        </summary>
-        <p>{pack.description}</p>
-        <fieldset className="paymentChoices"><legend>Xidmətin müddəti</legend>
-          {pack.plans.map((plan, index) => <label key={plan}>
-            <input type="radio" name={`${id}-${pack.kind}-plan`} value={plan} defaultChecked={index === 0} />
-            <span>{plan}</span>
-          </label>)}
-        </fieldset>
-        <fieldset className="paymentChoices"><legend>Ödəniş üsulu</legend>
-          <label><input type="radio" name={`${id}-${pack.kind}-method`} value="card" defaultChecked /><span>Bank kartı</span></label>
-          <label><input type="radio" name={`${id}-${pack.kind}-method`} value="balance" /><span>Şəxsi hesab (0,00 AZN)</span></label>
-        </fieldset>
-        <button type="button" className="payButton" disabled aria-disabled="true">Ödə</button>
-        <p className="payNote" role="status">Ödəniş sistemi müvəqqəti işləmir. Hesabından pul tutulmur.</p>
-      </details>)}
-      {!eligible && <p>İrəlilətmə yalnız yayımlanmış elanlar üçün mümkün olacaq.</p>}
-    </div>
-  </details>;
+    return () => { node.close(); document.body.style.overflow = previous; };
+  }, [open]);
+  const close = () => { setOpen(false); setChosen(kind ?? null); setPlan(0); setNotice(false); };
+  const Icon = own?.icon ?? Megaphone;
+  return <>
+    <button type="button" className={`promotionTrigger${kind ? " " + kind : ""}${card ? " kzPromoCard" : ""}`} disabled={!eligible} onClick={() => setOpen(true)}>
+      {card && own ? <><span className="kzPromoCardText"><strong>{label ?? own.title}</strong><small>{own.from} AZN-dən</small></span><Icon aria-hidden="true" size={18} strokeWidth={2} /></>
+        : <><Icon aria-hidden="true" size={16} strokeWidth={2} />{label ?? "Elanı reklam et"}</>}
+    </button>
+    {/* Rendered at the end of <body> so no card or list styling of the trigger's parent reaches it. */}
+    {open && createPortal(<dialog ref={dialog} className="kzPromoDlg" aria-labelledby={`${id}-title`}
+      onCancel={event => { event.preventDefault(); close(); }}
+      onClick={event => { if (event.target === event.currentTarget) close(); }}>
+      <div className="kzPromoBody" tabIndex={-1} autoFocus>
+        <header className="kzPromoHead">
+          {!kind && pack && <button type="button" className="kzPromoIconBtn" aria-label="Xidmətlərə qayıt" onClick={() => { setChosen(null); setPlan(0); setNotice(false); }}><ChevronLeft aria-hidden="true" size={20} strokeWidth={2} /></button>}
+          <h2 id={`${id}-title`}>{pack ? <><pack.icon className={`kzPromoKind ${pack.kind}`} aria-hidden="true" size={20} strokeWidth={2.25} />{pack.action}</> : "Elanı reklam et"}</h2>
+          <button type="button" className="kzPromoIconBtn" aria-label="Bağla" onClick={close}><X aria-hidden="true" size={20} strokeWidth={2} /></button>
+        </header>
+        {!pack ? <div className="kzPromoChoose">
+          {packs.map(item => <button key={item.kind} type="button" className="kzPromoOption" onClick={() => setChosen(item.kind)}>
+            <span className={`kzPromoOptionIcon ${item.kind}`}><item.icon aria-hidden="true" size={20} strokeWidth={2} /></span>
+            <span className="kzPromoOptionText"><strong>{item.title}</strong><small>{item.description}</small></span>
+            <span className="kzPromoOptionPrice">{item.from} AZN-dən<ChevronRight aria-hidden="true" size={16} strokeWidth={2} /></span>
+          </button>)}
+        </div> : <>
+          <p className="kzPromoDesc">{pack.description}</p>
+          {pack.bonus && <div className="kzPromoBonus">
+            <span className="kzPromoBonusTag">BONUS</span>
+            <div><small>Əvvəl</small><s>{pack.bonus.before}</s></div>
+            <div><small>İndi</small><b><ArrowUp aria-hidden="true" size={14} strokeWidth={2.5} />{pack.bonus.now}</b></div>
+          </div>}
+          <p className="kzPromoSection">Xidmətin müddətini seçin</p>
+          <div className="kzPromoList" role="radiogroup" aria-label="Xidmətin müddəti">
+            {pack.plans.map((item, index) => <label key={item.label} className={plan === index ? "on" : ""}>
+              <input type="radio" name={`${id}-plan`} checked={plan === index} onChange={() => setPlan(index)} />
+              <span className="kzPromoRadio" aria-hidden="true" />
+              <span className="kzPromoPlan">{item.label} / {item.price} AZN</span>
+              {item.extra && <span className="kzPromoExtra">{item.extra}</span>}
+            </label>)}
+          </div>
+          <p className="kzPromoSection">Ödəniş üsulunu seçin</p>
+          <div className="kzPromoList" role="radiogroup" aria-label="Ödəniş üsulu">
+            {[["card", "Bank kartı"], ["balance", "Şəxsi hesab (0,00 AZN)"]].map(([value, text]) => <label key={value} className={method === value ? "on" : ""}>
+              <input type="radio" name={`${id}-method`} checked={method === value} onChange={() => setMethod(value)} />
+              <span className="kzPromoRadio" aria-hidden="true" />
+              <span className="kzPromoPlan">{text}</span>
+            </label>)}
+          </div>
+          <footer className="kzPromoFoot">
+            {notice && <p className="kzPromoNotice" role="status">Ödəniş sistemi hələ qoşulmayıb — heç bir məbləğ tutulmadı. Qoşulan kimi bu düymə ilə ödəyə biləcəksiniz.</p>}
+            <button type="button" className="kzPromoPay" onClick={() => setNotice(true)}>Ödə · {pack.plans[plan].price} AZN</button>
+            <p className="kzPromoLegal">«Ödə» düyməsini sıxmaqla kirayeal.az-ın <Link href="/terms">İstifadəçi razılaşmasını</Link> qəbul etmiş olursunuz.</p>
+          </footer>
+        </>}
+      </div>
+    </dialog>, document.body)}
+  </>;
 }

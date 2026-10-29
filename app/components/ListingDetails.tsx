@@ -1,6 +1,7 @@
 "use client";
 import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
+import { keyFacts } from "../../lib/listing-facts";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
@@ -59,6 +60,7 @@ export default function ListingDetails({
     return()=>{active=false;clearTimeout(timer);};
   },[item.id,item.owner_id,item.status,item.demo,effectiveOwner]);
   const [photoRatio, setPhotoRatio] = useState(4 / 3);
+  const facts = keyFacts(item);
   // On phones a long specification list is cut after 8 rows so "Bənzər elanlar" stays within reach.
   const specsList = useRef<HTMLDListElement>(null);
   const [specsOpen, setSpecsOpen] = useState(false), [specCount, setSpecCount] = useState(0);
@@ -238,10 +240,15 @@ export default function ListingDetails({
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
+        {facts.length > 0 && <dl className="kzKeyFacts">{facts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
         {effectiveOwner ? (
           <div className="kzOwnerBox">
+            {item.status === "published" && <div className="kzPromoCards">
+              <PromotionOptions kind="bump" card />
+              <PromotionOptions kind="vip" card />
+              <PromotionOptions kind="premium" card />
+            </div>}
             <div className="kzOwnerRow">
-              {item.status === "published" && <PromotionOptions label="Reklam et" />}
               <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
             </div>
             {item.expires_at && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir</p>}
@@ -278,6 +285,7 @@ export default function ListingDetails({
           <UserAvatar src={publicInfo?.seller_avatar} name={publicInfo?.seller_name||item.attributes?.contact_name||'E'} className="sellerAvatar"/>
           <div>
             <strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong>
+            {typeof item.attributes?.owner_type === "string" && item.attributes.owner_type && <span className="kzOwnerType">{item.attributes.owner_type}</span>}
             {item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && <small>{publicMonthYear(item.seller_since)} tarixindən saytdadır</small>}
             <a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>Bütün elanları<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></a>
           </div>
@@ -286,7 +294,7 @@ export default function ListingDetails({
       <div className="listingInfo">
         <h3>Elan haqqında</h3>
         <p className="description">{item.description}</p>
-        {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{/* A small number makes a listing look unpopular: visitors see the count from 15 views, the owner always. */}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&(effectiveOwner||Number(publicInfo.views)>=15)&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
+        {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{(()=>{const updated=(item as Listing&{updated_at?:string}).updated_at||item.created_at;return updated&&Number.isFinite(Date.parse(updated))?<span>Yeniləndi: {publicDate(updated)}</span>:null;})()}{/* A small number makes a listing look unpopular: visitors see the count from 15 views, the owner always. */}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&(effectiveOwner||Number(publicInfo.views)>=15)&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
 
         <dl ref={specsList} className={`detailSpecs${specsOpen ? "" : " kzSpecsCollapsed"}`}>
           <div>

@@ -95,12 +95,9 @@ export default function ResetPassword() {
               {notice}
             </p>
           )}
-          <Link
-            className={done ? "authSubmit authBack" : "authBack"}
-            href={done ? "/profile" : "/login"}
-          >
-            {done ? "Kabinetə keç" : "Girişə qayıt / Yeni bərpa linki istə"}
-          </Link>
+          {done
+            ? <Link className="kzButton kzAuthDone" href="/profile">Kabinetə keç</Link>
+            : <div className="kzAuthLinks"><Link href="/login">Girişə qayıt</Link><Link href="/login?mode=reset">Yeni bərpa kodu istə</Link></div>}
         </section>
       </div>
     </main>

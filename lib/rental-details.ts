@@ -21,6 +21,7 @@ export function normalizePhone(value: string) {
   const digits = value.replace(/\D/g, "").replace(/^00/, "");
   if (/^0\d{9}$/.test(digits)) return `+994${digits.slice(1)}`;
   if (/^994\d{9}$/.test(digits)) return `+${digits}`;
+  if (/^[1-9]\d{8}$/.test(digits)) return `+994${digits}`;
   return null;
 }
 export function validateRentalDetails({

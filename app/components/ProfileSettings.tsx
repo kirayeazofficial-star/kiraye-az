@@ -8,6 +8,7 @@ import {normalizePhone} from '../../lib/rental-details';
 import {formatContact} from '../../lib/contact-mask';
 import {squareAvatar} from '../../lib/avatar-image';
 import UserAvatar from './UserAvatar';
+import PhoneInput from './PhoneInput';
 type Profile={profile_no:number;name:string;phone:string;email:string;role:string;staff_role:string|null;phone_changes:number;email_changes:number;phone_remaining:number;email_remaining:number;phone_verified:false;pending_email:string|null;created_at?:string|null;avatar_url?:string|null};
 const azMonths=['yanvar','fevral','mart','aprel','may','iyun','iyul','avqust','sentyabr','oktyabr','noyabr','dekabr'];
 function azDate(iso:string){const d=new Date(iso);return`${d.getDate()} ${azMonths[d.getMonth()]} ${d.getFullYear()}`}
@@ -64,7 +65,7 @@ export default function ProfileSettings(){
    <form className="kzPanel listingForm accountForm" onSubmit={event=>submit(event,'profile')}>
     <h2>Ad və telefon</h2>
     <label>Ad və soyad<input value={name} onChange={e=>setName(e.target.value)} maxLength={100} required autoComplete="name"/></label>
-    <label>Əsas telefon<input type="tel" value={phone} onChange={e=>setPhone(e.target.value)} maxLength={25} required autoComplete="tel"/></label>
+    <label>Əsas telefon<PhoneInput label="Əsas telefon" value={phone} onChange={setPhone} required /></label>
     <button className="kzButton" disabled={!!busy}>{busy==='profile'?'Saxlanılır…':'Yadda saxla'}</button>
    </form>
    <div className="kzPanel listingForm accountForm emailBox">

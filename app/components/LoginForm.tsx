@@ -11,6 +11,7 @@ import {
 import {rememberLogin,setRememberLogin} from '../../lib/auth-storage';
 import { rateLimitSeconds } from "../../lib/auth-throttle";
 import GoogleLogin from "../components/GoogleLogin";
+import PhoneInput from "./PhoneInput";
 import "../login/style.css";
 type Verification = "signup" | "recovery";
 const pendingKey = "kiraye:pending-confirmation";
@@ -388,7 +389,7 @@ export default function Login({
                   onInvalid={(event) => {
                     const field = event.target as HTMLInputElement;
                     setNotice(
-                      field.name === "full_name" ? "Ad və soyadını yaz." : field.name === "contact_phone" ? "Düzgün Azərbaycan telefon nömrəsi yaz." : field.name === "email"
+                      field.name === "full_name" ? "Ad və soyadını yaz." : field.name === "contact_phone" ? "+994-dən sonra 0 olmadan 9 rəqəm yaz (məsələn: 501234567)." : field.name === "email"
                         ? "Düzgün e-poçt ünvanı yaz."
                         : mode === "signup"
                           ? "Ən azı 8 simvoldan ibarət şifrə yaz."
@@ -399,7 +400,7 @@ export default function Login({
                   <fieldset className="authFields" disabled={busy}>
                     {mode === "signup" && <>
                       <label>Ad və soyad<input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Adın və soyadın" /></label>
-                      <label>Telefon nömrəsi<input name="contact_phone" aria-label="Telefon nömrəsi" type="tel" autoComplete="tel" required maxLength={25} placeholder="050 123 45 67" /></label>
+                      <label>Telefon nömrəsi<PhoneInput name="contact_phone" label="Telefon nömrəsi" required /></label>
                     </>}
                     <label>
                       E-poçt

@@ -1,12 +1,13 @@
 "use client";
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Flag, History, LayoutDashboard, List, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import { Flag, History, Image, LayoutDashboard, List, ShieldCheck, Users, type LucideIcon } from "lucide-react";
+import BannerManager from "./BannerManager";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
 import { moderationActions, moderationFields, rejectionReasons, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
 
-type Section = "overview" | "moderation" | "reports" | "history" | "users" | "staff";
+type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff";
 type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string };
 type Counts = { users: number; listings: number; messages: number; reports: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
@@ -17,10 +18,10 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", staff: "Adminlər" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", staff: "Adminlər" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
-const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, staff: ShieldCheck };
+const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, staff: ShieldCheck };
 
 async function api(params: Record<string, string | number>) {
   const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
@@ -246,7 +247,7 @@ export default function AdminWorkspace() {
 
   if (allowed === null) return <p className="kzAdMuted" role="status">İcazə yoxlanılır…</p>;
   if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil ol." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
-  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "staff" || role === "leader");
+  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (item !== "staff" || role === "leader"));
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0;
   const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : 0;
 
@@ -260,24 +261,15 @@ export default function AdminWorkspace() {
 
       {section === "overview" && <>
         <Panel title="Ümumi baxış" actions={<button type="button" className="kzAdBtn" onClick={() => setRevision(x => x + 1)}>Yenilə</button>}>
-          <h3 className="kzAdSub first">Görüləcək işlər</h3>
-          <div className="kzAdTodo">
+                    <div className="kzAdTodo">
             <button type="button" className={pending ? "attention" : ""} onClick={() => showListings("pending")}><b>{pending}</b><span>{pending ? "elan yoxlama gözləyir" : "yoxlanılacaq elan yoxdur"}</span><em>Bax →</em></button>
             <button type="button" className={openReports ? "warn" : ""} onClick={() => open("reports")}><b>{openReports}</b><span>{openReports ? "açıq şikayət" : "açıq şikayət yoxdur"}</span><em>Bax →</em></button>
           </div>
-          <h3 className="kzAdSub">Bu gün</h3>
-          <div className="kzAdStats">
-            <button type="button" onClick={() => open("users")}><span>Yeni istifadəçilər</span><b>{periods?.users.today ?? "—"}</b></button>
-            <button type="button" onClick={() => showListings("all")}><span>Yeni elanlar</span><b>{periods?.listings.today ?? "—"}</b></button>
-            <button type="button" onClick={() => showListings("published")}><span>Yayımda olan elanlar</span><b>{counts?.statuses?.published ?? "—"}</b></button>
-          </div>
-          <h3 className="kzAdSub">Statistika</h3>
-          <div className="kzAdTable kzAdPeriods" role="table" aria-label="Statistika">
-            <div className="kzAdTableHead" role="row"><span /><span>Son 7 gün</span><span>Son 30 gün</span><span>Cəmi</span></div>
-            <div className="kzAdTableRow" role="row"><span>Qeydiyyat</span><span className="kzAdNum">{periods?.users.week ?? "—"}</span><span className="kzAdNum">{periods?.users.month ?? "—"}</span><button type="button" className="kzAdNum kzAdLink" onClick={() => open("users")}>{counts?.users ?? "—"}</button></div>
-            <div className="kzAdTableRow" role="row"><span>Elanlar</span><span className="kzAdNum">{periods?.listings.week ?? "—"}</span><span className="kzAdNum">{periods?.listings.month ?? "—"}</span><button type="button" className="kzAdNum kzAdLink" onClick={() => showListings("all")}>{counts?.listings ?? "—"}</button></div>
-            <div className="kzAdTableRow" role="row"><span>Rədd edilib</span><span /><span /><button type="button" className="kzAdNum kzAdLink" onClick={() => showListings("rejected")}>{counts?.statuses?.rejected ?? 0}</button></div>
-            <div className="kzAdTableRow" role="row"><span>Mesajlar</span><span /><span /><span className="kzAdNum">{counts?.messages ?? "—"}</span></div>
+          <div className="kzAdStats four">
+            <button type="button" onClick={() => open("users")}><span>Yeni istifadəçi · bu gün</span><b>{periods?.users.today ?? "—"}</b><small>7 gün: {periods?.users.week ?? "—"} · 30 gün: {periods?.users.month ?? "—"}</small></button>
+            <button type="button" onClick={() => showListings("all")}><span>Yeni elan · bu gün</span><b>{periods?.listings.today ?? "—"}</b><small>7 gün: {periods?.listings.week ?? "—"} · 30 gün: {periods?.listings.month ?? "—"}</small></button>
+            <button type="button" onClick={() => showListings("published")}><span>Yayımda olan elanlar</span><b>{counts?.statuses?.published ?? "—"}</b><small>Cəmi elan: {counts?.listings ?? "—"}</small></button>
+            <button type="button" onClick={() => open("users")}><span>İstifadəçilər</span><b>{counts?.users ?? "—"}</b><small>Mesajlar: {counts?.messages ?? "—"}</small></button>
           </div>
         </Panel>
         <Panel title="Son fəaliyyətlər" actions={<button type="button" className="kzAdBtn" onClick={() => open("history")}>Hamısı</button>}>
@@ -289,17 +281,10 @@ export default function AdminWorkspace() {
             <time>{adminDate(item.created_at)}</time>
           </li>)}</ul>}
         </Panel>
-        <Panel title="Gəlirlər və ödənişlər">
-          <div className="kzAdStats">
-            <div><span>Bu ay gəlir</span><b>0 ₼</b></div>
-            <div><span>Ödənişli xidmətlər (VIP, Premium)</span><b>0</b></div>
-            <div><span>Ödəniş sistemi</span><b className="kzAdOff">Qoşulmayıb</b></div>
-          </div>
-          <p className="kzAdHint">Ödəniş sistemi qoşulandan sonra gəlirlər və ödənişlər burada görünəcək.</p>
-        </Panel>
+
       </>}
 
-      {section === "moderation" && <Panel title="Elanlar" actions={<button type="button" className="kzAdBtn" disabled={loading || !!busy} onClick={() => setRevision(x => x + 1)}>Yenilə</button>}>
+      {section === "moderation" && <Panel title="Elanlar" actions={<><button type="button" className="kzAdBtn" onClick={() => open("history")}><History aria-hidden="true" size={15} strokeWidth={2} />Tarixçə</button><button type="button" className="kzAdBtn" disabled={loading || !!busy} onClick={() => setRevision(x => x + 1)}>Yenilə</button></>}>
         <div className="kzAdTabs" role="group" aria-label="Elan vəziyyəti">{statuses.map(([status, label]) => <button key={status} type="button" aria-pressed={filter === status} disabled={!!busy} onClick={() => { setFilter(status); setPage(1); }}>{label}{counts && <small>{status === "all" ? counts.listings : status === "archived" ? (counts.statuses.archived || 0) + (counts.statuses.expired || 0) : counts.statuses[status] || 0}</small>}</button>)}</div>
         <form className="kzAdFilters" onSubmit={find}>
           <input type="search" value={search} onChange={event => setSearch(event.target.value)} maxLength={100} placeholder="Başlıq, telefon və ya elan nömrəsi" aria-label="Elan axtar" />
@@ -351,6 +336,7 @@ export default function AdminWorkspace() {
 
       {section === "reports" && <ReportQueue onInspect={inspect} onChange={() => setRevision(x => x + 1)} />}
       {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
+      {section === "banners" && <BannerManager />}
       {section === "users" && <UserList revision={revision} onListings={ownerListings} />}
       {section === "staff" && role === "leader" && <StaffManagement />}
     </div>

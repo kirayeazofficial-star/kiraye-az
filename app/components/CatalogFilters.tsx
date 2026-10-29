@@ -1,4 +1,5 @@
 "use client";
+import { X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 // Filters open as a window above the page: a bottom sheet on phones, a centred dialog on wider screens.
@@ -27,7 +28,7 @@ export default function CatalogFilters({children,onClose,title,done}: {children:
  return createPortal(<div className="kzSheetLayer">
   <button type="button" className="kzSheetShade" aria-label="Filtrləri bağla" onClick={onClose} tabIndex={-1}/>
   <div className="kzSheet" ref={panel} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
-   <div className="kzSheetHead"><h2>{title}</h2><button type="button" aria-label="Filtrləri bağla" onClick={onClose}>×</button></div>
+   <div className="kzSheetHead"><h2>{title}</h2><button type="button" aria-label="Filtrləri bağla" onClick={onClose}><X aria-hidden="true" size={20} strokeWidth={2} /></button></div>
    <div className="kzSheetBody">{children}</div>
    <div className="kzSheetFoot"><button type="button" className="kzButton" onClick={onClose}>{done}</button></div>
   </div>

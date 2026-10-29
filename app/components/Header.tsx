@@ -1,5 +1,5 @@
 "use client";
-import { CirclePlus, LayoutGrid, Plus } from "lucide-react";
+import { CirclePlus, LayoutGrid, Plus, X } from "lucide-react";
 import AccountMenu from "./AccountMenu";
 import NavigationIcon from "./NavigationIcon";
 import UnreadMessages from "./UnreadMessages";
@@ -78,7 +78,7 @@ export default function Header() {
               <span>{t("Kataloq")}</span>
             </button>
             {catalogOpen && <nav id="kz-catalog" className="kzCatalogPanel" aria-label={t("Kateqoriyalar")}>
-              <div className="kzCatalogHead"><strong>{t("Kataloq")}</strong><button type="button" aria-label={t("Bağla")} onClick={() => setCatalogOpen(false)}>×</button></div>
+              <div className="kzCatalogHead"><strong>{t("Kataloq")}</strong><button type="button" aria-label={t("Bağla")} onClick={() => setCatalogOpen(false)}><X aria-hidden="true" size={20} strokeWidth={2} /></button></div>
               {categories.map(item => <a key={item.id} href={`/?category=${item.id}#elanlar`}><CategoryVisual id={item.id}/><span>{t(item.name)}</span></a>)}
             </nav>}
           </div>
@@ -95,7 +95,7 @@ export default function Header() {
             window.dispatchEvent(new CustomEvent("kiraye:search", {detail: value}));
           }}>
             <NavigationIcon name="search"/>
-            <input name="q" type="search" maxLength={120} value={query} onChange={event=>setQuery(event.target.value)} placeholder={t("Ev, maşın, avadanlıq axtar")} aria-label={t("Elan axtar")} autoComplete="off" enterKeyHint="search" />
+            <input name="q" type="text" inputMode="search" maxLength={120} value={query} onChange={event=>setQuery(event.target.value)} placeholder={t("Ev, maşın, avadanlıq axtar")} aria-label={t("Elan axtar")} autoComplete="off" enterKeyHint="search" />
             <button type="submit">{t("Axtar")}</button>
           </form>
           <nav className="kzHeaderNav" aria-label="Əsas menyu">

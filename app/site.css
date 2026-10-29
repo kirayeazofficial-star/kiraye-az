@@ -1120,3 +1120,87 @@ nav.breadcrumb a{display:inline!important;margin:0!important;padding:0!important
 .kzBannerRail>*{aspect-ratio:16/3}
 .kzBannerPick,.kzBannerThumb{aspect-ratio:16/3}
 @media (max-width:767px){.kzBannerRail>*{aspect-ratio:3/1}}
+
+/* iOS draws its own magnifier and clear button inside search fields; ours is enough. */
+input[type=search]{-webkit-appearance:none;appearance:none}
+input[type=search]::-webkit-search-decoration,input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-results-button,input[type=search]::-webkit-search-results-decoration{-webkit-appearance:none;display:none}
+
+/* Phone categories: compact tiles, about five and a half visible on a 375px screen. */
+@media (max-width:767px){
+  .kzCategories{gap:clamp(4px,calc(6 * var(--u)),8px)!important;padding-top:2px!important;margin-bottom:14px!important}
+  .kzCategories>button{flex:0 0 clamp(54px,calc(62 * var(--u)),70px)!important;gap:5px!important}
+  .kzCategories .categoryVisual,.kzCatalogTile{width:clamp(46px,calc(54 * var(--u)),62px)!important;height:clamp(46px,calc(54 * var(--u)),62px)!important;border-radius:clamp(10px,calc(12 * var(--u)),14px)!important}
+  .kzCatalogTile svg{width:42%!important;height:42%!important;stroke-width:2}
+  .kzCategories>button>span:last-child{font-size:clamp(9.5px,calc(10.5 * var(--u)),12px)!important;line-height:1.2!important;min-height:2.4em!important}
+  .kzSearch{height:clamp(36px,calc(38 * var(--u)),42px)!important}
+  .kzSearch input{font-size:16px!important}
+}
+@media (max-width:767px){
+  .kzBannerRail>*{aspect-ratio:16/3!important}
+  .kzBannerTag{top:5px;right:5px;padding:1px 5px;font-size:9px}
+  .kzBanners{margin-bottom:16px!important}
+}
+
+/* ---------- Leader panel: app-style layout on phones ---------- */
+.kzAdMenu,.kzAdBack,.kzAdFilterToggle{display:none!important}
+.kzAdExtra{display:contents}
+.kzAdFilters input[type=text]{flex:1;min-width:200px}
+.kzAdMenu .tone-moderation{--tone:#ff5a1f;--tint:#fff1ec}
+.kzAdMenu .tone-reports{--tone:#d92d20;--tint:#fdecea}
+.kzAdMenu .tone-users{--tone:#8b5cf6;--tint:#f3edff}
+.kzAdMenu .tone-banners{--tone:#0ea5a4;--tint:#e6f7f7}
+.kzAdMenu .tone-staff{--tone:#e9a514;--tint:#fff6e0}
+.kzAdMenu .tone-history{--tone:#3b6ef5;--tint:#ebf1ff}
+@media (max-width:767px){
+  .kzAdmin{padding-top:12px!important}
+  .kzAdm{display:block}
+  .kzAdNav{display:none!important}
+  .kzAdContent{gap:10px}
+  .kzAdMenu{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+  .kzAdMenu button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:clamp(78px,calc(86 * var(--u)),96px);margin:0;padding:8px 4px;border:0;border-radius:14px;background:#fff;color:var(--kz-ink);font:inherit;font-size:var(--fs-12);font-weight:500;cursor:pointer;box-shadow:none}
+  .kzAdMenuIcon{display:flex;align-items:center;justify-content:center;width:clamp(36px,calc(40 * var(--u)),44px);height:clamp(36px,calc(40 * var(--u)),44px);border-radius:12px;background:var(--tint);color:var(--tone)}
+  .kzAdMenuIcon svg{width:52%;height:52%}
+  .kzAdMenu b{position:absolute;top:8px;right:8px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--kz-accent);color:#fff;font-size:10px;line-height:18px;text-align:center;box-sizing:border-box}
+  .kzAdBack{display:inline-flex!important;align-items:center;gap:2px;align-self:flex-start;min-height:32px;margin:0 0 -2px -6px;padding:0 6px;border:0;background:none;color:var(--kz-ink);font:inherit;font-size:var(--fs-15);font-weight:600;cursor:pointer;box-shadow:none}
+  .kzAdPanel{padding:14px!important;border-radius:14px!important}
+  .kzAdPanelHead{margin-bottom:10px!important}
+  .kzAdPanelHead h2{font-size:var(--fs-18)!important}
+  .kzAdBtn{min-height:34px;padding:0 10px;font-size:var(--fs-13)}
+  .kzAdActions{gap:6px}
+  .kzAdTodo{gap:8px;margin-bottom:8px}
+  .kzAdTodo button{min-height:52px;padding:0 14px;gap:10px}
+  .kzAdTodo b{font-size:var(--fs-20)}
+  .kzAdTodo span{font-size:var(--fs-14)}
+  .kzAdTodo em{font-size:var(--fs-13)}
+  .kzAdStats.four{gap:8px}
+  .kzAdStats>*{min-height:0!important;padding:10px 12px!important;gap:2px!important}
+  .kzAdStats span{font-size:var(--fs-12)!important}
+  .kzAdStats b{font-size:var(--fs-20)!important}
+  .kzAdStats small{font-size:var(--fs-11)}
+  .kzAdActivity li{padding:10px 0}
+  .kzAdActivity p{font-size:var(--fs-13)}
+  /* filters: search + one toggle + button in one row */
+  .kzAdFilters{flex-wrap:wrap;gap:6px}
+  .kzAdFilters input[type=text]{flex:1 1 0!important;min-width:0!important;min-height:38px!important}
+  .kzAdFilterToggle{display:inline-flex!important;flex:0 0 38px;min-height:38px;padding:0}
+  .kzAdFilterToggle[aria-expanded=true]{border-color:var(--kz-ink);background:var(--kz-ink);color:#fff!important}
+  .kzAdFilters .kzAdBtn.primary{flex:0 0 auto;min-height:38px}
+  .kzAdExtra{display:none}
+  .kzAdExtra.open{display:flex;order:5;flex:1 1 100%;gap:6px}
+  .kzAdExtra.open>*{flex:1 1 0;min-width:0;min-height:38px!important}
+  .kzAdTabs{margin-bottom:10px}
+  .kzAdTabs button{min-height:32px;padding:0 12px;font-size:var(--fs-13)}
+  /* listing rows */
+  .kzAdRow,.kzAdRow.kzAdListing{grid-template-columns:clamp(64px,calc(72 * var(--u)),84px) minmax(0,1fr)!important;gap:6px 10px!important;padding:10px!important}
+  .kzAdRowMain h3{font-size:var(--fs-14)!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .kzAdRowMain p{font-size:var(--fs-13)}
+  .kzAdRowMain .kzAdMuted{font-size:var(--fs-11);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kzAdRowTop .status,.kzAdRowTop .kzAdPill{font-size:10px!important;padding:2px 6px!important}
+  .kzAdRowTop .kzAdMuted{display:none}
+  .kzAdRowActions{gap:6px}
+  .kzAdRowActions .kzAdBtn{min-height:36px}
+  .kzAdRowMore{gap:2px 16px}
+  .kzAdMore>summary{font-size:var(--fs-12)}
+  .kzAdReport,.kzBannerRow{grid-template-columns:1fr!important}
+}
+@media (max-width:767px){.kzAdFilterToggle{width:38px!important;flex:0 0 38px!important;justify-content:center}}

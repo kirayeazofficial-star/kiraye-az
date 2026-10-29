@@ -51,7 +51,7 @@ export default function BannerManager() {
   }
   return <section className="kzAdPanel">
     <header className="kzAdPanelHead"><h2>Bannerlər</h2><div className="kzAdActions"><button type="button" className="kzAdBtn primary" onClick={() => start()}><ImagePlus aria-hidden="true" size={16} strokeWidth={2} />Banner əlavə et</button></div></header>
-    <p className="kzAdHint">Tövsiyə olunan ölçü: 1600 × 300 piksel. JPG, PNG və ya WebP, 3 MB-dan kiçik. Telefonda kənarlar bir az kəsilir — yazını mərkəzdə saxlayın.</p>
+    <p className="kzAdHint">Tövsiyə olunan ölçü: 1600 × 300 piksel. JPG, PNG və ya WebP, 3 MB-dan kiçik. Telefonda da tam göstərilir, yazını iri yazın.</p>
     {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {open && <form className="kzBannerForm" onSubmit={save}>
       <button type="button" className="kzBannerPick" onClick={() => fileInput.current?.click()}>{preview ? <img src={preview} alt="" /> : <span><ImagePlus aria-hidden="true" size={28} strokeWidth={1.5} />Şəkil seç</span>}</button>

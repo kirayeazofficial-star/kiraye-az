@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, Check, ChevronLeft, ChevronRight, LayoutList, MapPin, Pencil, Phone, Share2 } from "lucide-react";
+import { Calculator, Check, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
@@ -233,7 +233,6 @@ export default function ListingDetails({
             </div>
             <div className="kzOwnerRow">
               <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
-              <Link className="kzButtonGhost" href="/profile?section=listings"><LayoutList aria-hidden="true" size={16} strokeWidth={1.75} />Elanlarım</Link>
             </div>
             {item.expires_at && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir · Baxış: {publicInfo?.views ?? 0}</p>}
           </div>
@@ -287,6 +286,18 @@ export default function ListingDetails({
           </div>
         )}
         <dl className="detailSpecs">
+          <div>
+            <dt>Kateqoriya</dt>
+            <dd>{categoryName(item.category)}</dd>
+          </div>
+          <div>
+            <dt>Şəhər</dt>
+            <dd>{item.city}{item.district ? `, ${item.district}` : ""}</dd>
+          </div>
+          <div>
+            <dt>Qiymət</dt>
+            <dd>{money(item.price)} ₼ / {periodName(item.rental_period)}</dd>
+          </div>
           {item.rooms && (
             <div>
               <dt>Otaq</dt>

@@ -42,7 +42,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [staffRole, setStaffRole] = useState(""),
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
-    [statusFilter, setStatusFilter] = useState("published"),
+    [statusFilter, setStatusFilter] = useState(() => { const tab = params.get("tab"); return tab && listingTabs.some(([key]) => key === tab) ? tab : "published"; }),
     [reloadKey, setReloadKey] = useState(0),
     [refreshing, setRefreshing] = useState(false);
   // Tapping the cabinet link while already here reloads the data.

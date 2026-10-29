@@ -1,5 +1,5 @@
 "use client";
-import { Check, ChevronLeft, ChevronRight, ImagePlus, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Clock, ImagePlus, X } from "lucide-react";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
 import { watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -95,7 +95,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [files, setFiles] = useState<File[]>([]),
     [previews, setPreviews] = useState<string[]>([]),
     [category, setCategory] = useState(""),
-    [categoryLimit, setCategoryLimit] = useState<{remaining:number;next_free_at:string|null}|null>(null),
     [initial, setInitial] = useState<Listing | null>(null),
     [existingImages, setExistingImages] = useState<string[]>([]),
     [loadError, setLoadError] = useState(false);
@@ -111,17 +110,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     void saveListingDraft(user,draft).then(mode=>setDraftNotice(mode==='text'&&files.length?'Mətn saxlanıldı; şəkilləri yenidən seçmək lazım ola bilər.':'Qaralama bu cihazda saxlanıldı.')).catch(()=>setDraftNotice('Bu brauzerdə qaralamanı saxlamaq mümkün olmadı.'));
   };
   function queueDraft(){if(listingId)return;draftDirty.current=true;setSavedDraft(null);if(draftTimer.current)clearTimeout(draftTimer.current);draftTimer.current=setTimeout(()=>draftSave.current(),350);}
-  // Warn before the form is filled when the category has no free placements left.
-  useEffect(() => {
-    if (!category || listingId) { setCategoryLimit(null); return; }
-    let active = true;
-    fetch("/api/listings/limits", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(data => {
-      if (!active || !data) return;
-      const state = (data.items || []).find((item: { category: string }) => item.category === category);
-      setCategoryLimit(state ? { remaining: state.remaining, next_free_at: state.next_free_at } : null);
-    }).catch(() => {});
-    return () => { active = false; };
-  }, [category, listingId]);
   useEffect(()=>{if(!user||loading||listingId)return;let active=true;readListingDraft(user).then(value=>{if(active)setSavedDraft(value);});return()=>{active=false;};},[user,loading,listingId]);
   useEffect(()=>{const flush=()=>draftSave.current();const visibility=()=>{if(document.visibilityState==='hidden')flush();};window.addEventListener('pagehide',flush);document.addEventListener('visibilitychange',visibility);return()=>{flush();if(draftTimer.current)clearTimeout(draftTimer.current);window.removeEventListener('pagehide',flush);document.removeEventListener('visibilitychange',visibility);};},[]);
   function restoreDraft(){
@@ -395,6 +383,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.");
       const saveResult=await resultResponse.json().catch(()=>({}));
       setPaymentWaiting(!!saveResult.payment_required);
+      if(saveResult.payment_required)setTimeout(()=>{window.location.href='/profile?section=listings&tab=payment';},3500);
       saved = true;
       draftDirty.current=false;
       if(!listingId)void clearListingDraft(user);
@@ -444,22 +433,17 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </div>
           </section>
         )}
-        {!listingId && user && !canModerate && !loading && (
-          <p className="notice">
-            Hər kateqoriyada ayda 1 elan pulsuzdur. Limit dolubsa da elan yerləşdirə bilərsən — o «Ödəniş gözləyir» bölməsinə düşəcək.
-          </p>
-        )}
         {!success && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></section>}
         {loading ? (
           <section><p role="status">Hesab yoxlanılır...</p>
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
         ) : success ? (
-          <section className="successPanel" role="status">
-            <span><Check aria-hidden="true" size={18} strokeWidth={2.5} /></span>
-            <h2>{paymentWaiting ? "Elan saxlanıldı — ödəniş gözləyir" : "Elan yoxlamaya göndərildi"}</h2>
-            <p>{paymentWaiting ? "Bu kateqoriyada pulsuz limitiniz dolub. Elan «Elanlarım → Ödəniş gözləyir» bölməsindədir. Ödənişdən sonra yoxlamaya göndəriləcək." : "Təsdiqdən sonra elan 30 gün yayımda olacaq. Nəticəni «Elanlarım» bölməsində görəcəksiniz."}</p>
-            <Link className="add" href="/profile">
-              Elanlarıma keç
+          <section className={`successPanel${paymentWaiting ? " waiting" : ""}`} role="status">
+            <span>{paymentWaiting ? <Clock aria-hidden="true" size={18} strokeWidth={2.5} /> : <Check aria-hidden="true" size={18} strokeWidth={2.5} />}</span>
+            <h2>{paymentWaiting ? "Elanınız yoxlamaya göndərilə bilmədi" : "Elan yoxlamaya göndərildi"}</h2>
+            <p>{paymentWaiting ? "Bu kateqoriyada pulsuz elan limitiniz dolub. Elan saxlanıldı və «Ödəniş gözləyir» bölməsinə keçirildi. Ödənişdən sonra yoxlamaya göndəriləcək." : "Təsdiqdən sonra elan 30 gün yayımda olacaq. Nəticəni «Elanlarım» bölməsində görəcəksiniz."}</p>
+            <Link className="add" href={paymentWaiting ? "/profile?section=listings&tab=payment" : "/profile?section=listings&tab=pending"}>
+              {paymentWaiting ? "Ödəniş gözləyir bölməsinə keç" : "Elanlarıma keç"}
             </Link>
           </section>
         ) : loadError ? (
@@ -554,9 +538,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     <p className="muted">
                       Əvvəl kateqoriyanı seç — uyğun xanalar açılacaq.
                     </p>
-                  )}
-                  {category && !listingId && categoryLimit && categoryLimit.remaining <= 0 && (
-                    <p className="kzLimitWarning" role="status">Bu kateqoriyada pulsuz limitiniz dolub. Elanı yenə yerləşdirə bilərsiniz — o «Ödəniş gözləyir» bölməsinə düşəcək.</p>
                   )}
                 </section>
                 {category && (

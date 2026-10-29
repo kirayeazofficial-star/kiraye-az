@@ -83,13 +83,12 @@ export default async function Rules() {
         {section.rules.map((rule, ruleIndex) => <p key={ruleIndex}><strong>{index + 1}.{ruleIndex + 1}.</strong> {rule}</p>)}
       </section>)}
       <section id="muddet-ve-limit">
-        <h2>8. Aktivləşdiriləcək 30 günlük müddət və limit qaydaları</h2>
-        <p className="notice"><strong>Bu hissə hələ qüvvəyə minməyib.</strong> 30 günlük avtomatik müddət, bərpa sistemi və kateqoriyalar üzrə dəqiq limitlər aktivləşdirildikdə burada bildiriləcək. Ödəniş qəbul edilmir.</p>
-        <p><strong>8.1.</strong> Elanın aktivlik müddəti 30 gün olacaq. Müddət başa çatdıqda yayımı dayanacaq və elan silinmədən “Müddəti başa çatmış” bölməsinə keçəcək.</p>
-        <p><strong>8.2.</strong> Həm eyni vaxtda aktiv elan sayı, həm də kateqoriya üzrə 30 gün ərzində yerləşdirilən elan sayı nəzərə alınacaq. Kateqoriyalar üzrə saylar ayrıca göstəriləcək.</p>
-        <p><strong>8.3.</strong> Hər kateqoriyada ayda 1 elan pulsuzdur. Limit dolduqda elan yenə yerləşdirilə bilər: o «Ödəniş gözləyir» bölməsinə düşür və ödənişdən sonra yoxlamaya göndərilir. Ödəniş sistemi hələ qoşulmayıb.</p>
-        <p><strong>8.4.</strong> Müddəti bitmiş elanın bərpası ödənişli xidmətdir. Ödəniş sistemi aktivləşənədək bərpa mümkün deyil və heç bir məbləğ tutulmur. Xidmətin qiyməti aktivləşdirilməzdən əvvəl göstəriləcək.</p>
-        <p><strong>8.5.</strong> Ödənişli xidmətin elan müddətini bərpa etməsi və uzatması xidmət aktivləşdiriləndə göstərilən şərtlərlə tənzimlənəcək.</p>
+        <h2>8. Elan müddəti və limit qaydaları</h2>
+        <p><strong>8.1.</strong> Təsdiqlənmiş elan 30 gün yayımda qalır. Müddət bitdikdə elan silinmir, kabinetdə «Müddəti bitib» bölməsinə keçir.</p>
+        <p><strong>8.2.</strong> Hər kateqoriyada ayda 1 elan pulsuzdur. Pulsuz yer elan təsdiqlənəndə istifadə olunur və 30 gün sonra yenidən açılır. Rədd edilmiş elan limit sərf etmir, elanı silmək isə limiti geri qaytarmır.</p>
+        <p><strong>8.3.</strong> Limit dolduqda elan yenə yerləşdirilə bilər: o «Ödəniş gözləyir» bölməsinə düşür və ödənişdən sonra yoxlamaya göndərilir.</p>
+        <p><strong>8.4.</strong> Müddəti bitmiş və ya silinmiş elanı bərpa etmək pulsuz yer varsa pulsuzdur, yoxdursa ödənişlidir.</p>
+        <p><strong>8.5.</strong> Ödəniş sistemi hələ qoşulmayıb: ödənişli addımlarda heç bir məbləğ tutulmur. Qiymətlər ödəniş aktivləşdirilməzdən əvvəl göstəriləcək.</p>
       </section>
       <p><Link href="/help">Suallar və kömək</Link> · <Link href="/new">Elan yerləşdir</Link></p>
     </main>

@@ -199,7 +199,9 @@ function StaffManagement() {
     <h3 className="kzAdSub">Komanda ({members.length})</h3>
     <div className="kzAdList">{members.map(account => person(account, account.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(account, false)}>Geri al</button> : undefined))}</div>
     {!members.some(account => account.role === "moderator") && <p className="kzAdHint">Sizdən başqa admin yoxdur. Admin əlavə etmək üçün yuxarıda hesabı tapın.</p>}
-    <details className="kzAdMore"><summary>Səlahiyyət əməliyyatları</summary><div className="kzAdMoreBody"><ol className="kzAdTimeline">{events.map(event => <li key={event.id}><div className="kzAdTimelineTop"><strong>{staffActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div><p>{event.actor_email || "Sistem"}{event.target_email && <> <ArrowRight className="kzI" aria-hidden="true" size={13} strokeWidth={2.25} /> {event.target_email}</>}</p></li>)}</ol>{cursor && <button type="button" className="kzAdBtn" disabled={busy} onClick={() => void older()}>Daha köhnə qeydlər</button>}</div></details>
+    <h3 className="kzAdSub">Son dəyişikliklər</h3>
+    {!events.length ? <p className="kzAdHint">Hələ heç bir dəyişiklik olmayıb.</p> : <ol className="kzAdTimeline kzAdChanges">{events.map(event => <li key={event.id}><div className="kzAdTimelineTop"><strong>{staffActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div><p>{event.target_email || "—"}{event.actor_email && <small> · {event.actor_email} tərəfindən</small>}</p></li>)}</ol>}
+    {cursor && <button type="button" className="kzAdBtn" disabled={busy} onClick={() => void older()}>Daha köhnə qeydlər</button>}
   </Panel>;
 }
 
@@ -285,12 +287,19 @@ export default function AdminWorkspace() {
           </div>
         </Panel>
         <Panel title="Statistika" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" onClick={() => setRevision(x => x + 1)}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>
-          <div className="kzAdStats four">
-            <button type="button" onClick={() => open("users")}><span>Yeni istifadəçi · bu gün</span><b>{periods?.users.today ?? "—"}</b><small>7 gün: {periods?.users.week ?? "—"} · 30 gün: {periods?.users.month ?? "—"}</small></button>
-            <button type="button" onClick={() => showListings("all")}><span>Yeni elan · bu gün</span><b>{periods?.listings.today ?? "—"}</b><small>7 gün: {periods?.listings.week ?? "—"} · 30 gün: {periods?.listings.month ?? "—"}</small></button>
-            <button type="button" onClick={() => showListings("published")}><span>Yayımda olan elanlar</span><b>{counts?.statuses?.published ?? "—"}</b><small>Cəmi elan: {counts?.listings ?? "—"}</small></button>
-            <button type="button" onClick={() => open("users")}><span>İstifadəçilər</span><b>{counts?.users ?? "—"}</b><small>Mesajlar: {counts?.messages ?? "—"}</small></button>
+          <div className="kzAdKpis">
+            <button type="button" onClick={() => showListings("published")}><b>{counts?.statuses?.published ?? "—"}</b><span>Yayımda olan elan</span></button>
+            <button type="button" onClick={() => showListings("all")}><b>{counts?.listings ?? "—"}</b><span>Cəmi elan</span></button>
+            <button type="button" onClick={() => open("users")}><b>{counts?.users ?? "—"}</b><span>İstifadəçi</span></button>
+            <div><b>{counts?.messages ?? "—"}</b><span>Mesaj</span></div>
           </div>
+          <table className="kzAdPeriods">
+            <thead><tr><th scope="col">Yeni</th><th scope="col">Bu gün</th><th scope="col">7 gün</th><th scope="col">30 gün</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">İstifadəçi</th><td>{periods?.users.today ?? "—"}</td><td>{periods?.users.week ?? "—"}</td><td>{periods?.users.month ?? "—"}</td></tr>
+              <tr><th scope="row">Elan</th><td>{periods?.listings.today ?? "—"}</td><td>{periods?.listings.week ?? "—"}</td><td>{periods?.listings.month ?? "—"}</td></tr>
+            </tbody>
+          </table>
         </Panel>
         <Panel title="Son fəaliyyətlər" actions={<button type="button" className="kzAdBtn" onClick={() => open("history")}>Hamısı</button>}>
           {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.map(item => <li key={item.id}>

@@ -7,7 +7,7 @@ import {sendVerificationCode} from '../../../../lib/host/mailer';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 const reply=(body:object,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function status(id:string){
- const rows=await hostQuery<{profile_no:number;name:string;phone:string;email:string}>(`select p.profile_no,p.display_name name,p.phone,u.email from auth.users u join public.profiles p on p.id=u.id where u.id=$1`,[id]);
+ const rows=await hostQuery<{profile_no:number;name:string;phone:string;email:string}>(`select p.profile_no,p.display_name as name,p.phone,u.email from auth.users u join public.profiles p on p.id=u.id where u.id=$1`,[id]);
  const row=rows[0];if(!row)return null;
  let staff_role:string|null=null,role=row.email.toLowerCase()==='kirayeal.az@gmail.com'?'admin':'user';
  try{const staff=await hostQuery<{staff_role:string}>(`select staff_role from public.staff_members where user_id=$1`,[id]);staff_role=staff[0]?.staff_role||null;}catch{}

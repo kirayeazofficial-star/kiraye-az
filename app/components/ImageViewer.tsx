@@ -114,7 +114,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose }:
       if (event.key === "+" || event.key === "=") zoomTo(Math.min(MAX, view.scale + 1));
       if (event.key === "-") zoomTo(view.scale - 1);
     }}>
-    <div className="kzViewerTop">
+    <div className="kzViewerTop" tabIndex={-1} autoFocus>
       <span className="kzViewerCount" role="status">{current + 1} / {images.length}</span>
       <div className="kzViewerTools">
         <button type="button" onClick={onClose} aria-label="Şəkilləri bağla"><X aria-hidden="true" size={22} strokeWidth={2} /></button>

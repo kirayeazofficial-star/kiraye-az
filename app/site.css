@@ -1562,3 +1562,13 @@ input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]){
 .kzPayBody .kzPayNote{padding:10px 12px;border-radius:10px;background:#fff7e6;color:#8a5a00;font-size:var(--fs-13)}
 .kzPayBody .kzButton{width:100%;margin-top:8px}
 .kzPayClose{width:34px!important;height:34px!important;min-height:0!important;padding:0!important;border-radius:50%!important}
+
+/* ---- Focus: no square browser frames around round buttons; a soft ring that follows the shape ---- */
+html{-webkit-tap-highlight-color:transparent}
+:where(button,a,summary,[role=button],[tabindex]):focus:not(:focus-visible){outline:none!important}
+:where(button,a,summary,[role=button]):focus-visible{outline:none!important;box-shadow:0 0 0 3px rgba(255,90,31,.38)!important}
+:where(dialog,[role=dialog],.kzPayBody,.siteMenuPanel,.promotionPanel):focus,:where(dialog,[role=dialog],.kzPayBody,.siteMenuPanel,.promotionPanel):focus-visible{outline:none!important}
+/* Help: opened answers don't stretch the neighbouring question */
+.helpGrid{align-items:start}
+/* Account forms on desktop: buttons sized to their text, aligned left */
+@media (min-width:768px){.kzAccountPage form>.kzButton,.kzAccountPage form>button[type=submit]{width:auto!important;min-width:160px;padding:0 24px!important}}

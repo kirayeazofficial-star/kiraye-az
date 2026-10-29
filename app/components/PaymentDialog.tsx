@@ -13,7 +13,7 @@ export default function PaymentDialog({ title, text, onClose }: { title: string;
   return <dialog ref={dialog} className="kzPayDialog" aria-labelledby="kz-pay-title"
     onCancel={event => { event.preventDefault(); onClose(); }}
     onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
-    <div className="kzPayBody">
+    <div className="kzPayBody" tabIndex={-1} autoFocus>
       <button type="button" className="kzPayClose" aria-label="Bağla" onClick={onClose}><X aria-hidden="true" size={18} strokeWidth={2.25} /></button>
       <span className="kzPayIcon" aria-hidden="true"><CreditCard size={26} strokeWidth={1.9} /></span>
       <h2 id="kz-pay-title">{title}</h2>

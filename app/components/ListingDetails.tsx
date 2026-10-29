@@ -200,7 +200,11 @@ export default function ListingDetails({
         )}
       </div>
       {viewerOpen && <ImageViewer images={imageCount ? item.images : ["/placeholder.svg"]} title={item.title}
-        index={selectedImage} onChange={setImage} onClose={() => setViewerOpen(false)}/>}
+        index={selectedImage} onChange={setImage} onClose={() => setViewerOpen(false)}
+        actions={<>
+          {!effectiveOwner&&<button type="button" className={favorite ? "on" : ""} aria-label={favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"} aria-pressed={favorite} onClick={toggleFavorite}><NavigationIcon name="heart" filled={favorite}/></button>}
+          <button type="button" aria-label="Elanı paylaş" onClick={share}><Share2 aria-hidden="true" size={20} strokeWidth={2} /></button>
+        </>}/>}
       <div className="detailHead">
         {(compact||item.demo)&&<span className="tag">
           {categoryName(item.category)}

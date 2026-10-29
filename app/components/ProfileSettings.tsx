@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Header from './Header';
 import Footer from './Footer';
 import {normalizePhone} from '../../lib/rental-details';
+import {formatContact} from '../../lib/contact-mask';
 import {squareAvatar} from '../../lib/avatar-image';
 import UserAvatar from './UserAvatar';
 type Profile={profile_no:number;name:string;phone:string;email:string;role:string;staff_role:string|null;phone_changes:number;email_changes:number;phone_remaining:number;email_remaining:number;phone_verified:false;pending_email:string|null;created_at?:string|null;avatar_url?:string|null};
@@ -60,7 +61,7 @@ export default function ProfileSettings(){
    </section>
    <section className="kzPanel">
     <h2>Mənim məlumatlarım</h2>
-    <dl className="kzFacts"><div><dt>Profil nömrəsi</dt><dd>{profile.profile_no||'—'}</dd></div><div><dt>Qeydiyyat tarixi</dt><dd>{profile.created_at?azDate(profile.created_at):'—'}</dd></div><div><dt>E-poçt</dt><dd>{profile.email}</dd></div><div><dt>Telefon</dt><dd>{profile.phone||'Əlavə edilməyib'}</dd></div></dl>
+    <dl className="kzFacts"><div><dt>Profil nömrəsi</dt><dd>{profile.profile_no||'—'}</dd></div><div><dt>Qeydiyyat tarixi</dt><dd>{profile.created_at?azDate(profile.created_at):'—'}</dd></div><div><dt>E-poçt</dt><dd>{profile.email}</dd></div><div><dt>Telefon</dt><dd>{profile.phone?formatContact(profile.phone):'Əlavə edilməyib'}</dd></div></dl>
    </section>
    <form className="kzPanel listingForm accountForm" onSubmit={event=>submit(event,'profile')}>
     <h2>Ad və telefon</h2>

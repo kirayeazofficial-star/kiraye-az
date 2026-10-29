@@ -87,7 +87,7 @@ export default async function Rules() {
         <p className="notice"><strong>Bu hissə hələ qüvvəyə minməyib.</strong> 30 günlük avtomatik müddət, bərpa sistemi və kateqoriyalar üzrə dəqiq limitlər aktivləşdirildikdə burada bildiriləcək. Ödəniş qəbul edilmir.</p>
         <p><strong>8.1.</strong> Elanın aktivlik müddəti 30 gün olacaq. Müddət başa çatdıqda yayımı dayanacaq və elan silinmədən “Müddəti başa çatmış” bölməsinə keçəcək.</p>
         <p><strong>8.2.</strong> Həm eyni vaxtda aktiv elan sayı, həm də kateqoriya üzrə 30 gün ərzində yerləşdirilən elan sayı nəzərə alınacaq. Kateqoriyalar üzrə saylar ayrıca göstəriləcək.</p>
-        <p><strong>8.3.</strong> Limit aşıldıqda istifadəçi növbəti elan üçün limitin imkan verməsini gözləməli və ya ödənişli xidmətlər aktiv olduqda uyğun kateqoriya paketi seçməli olacaq.</p>
+        <p><strong>8.3.</strong> Hər kateqoriyada ayda 1 elan pulsuzdur. Limit dolduqda elan yenə yerləşdirilə bilər: o «Ödəniş gözləyir» bölməsinə düşür və ödənişdən sonra yoxlamaya göndərilir. Ödəniş sistemi hələ qoşulmayıb.</p>
         <p><strong>8.4.</strong> Müddəti bitmiş elanın bərpası ödənişli xidmətdir. Ödəniş sistemi aktivləşənədək bərpa mümkün deyil və heç bir məbləğ tutulmur. Xidmətin qiyməti aktivləşdirilməzdən əvvəl göstəriləcək.</p>
         <p><strong>8.5.</strong> Ödənişli xidmətin elan müddətini bərpa etməsi və uzatması xidmət aktivləşdiriləndə göstərilən şərtlərlə tənzimlənəcək.</p>
       </section>

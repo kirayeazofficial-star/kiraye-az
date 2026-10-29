@@ -190,6 +190,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
                 <dd>{money(quote.total)} ₼</dd>
               </div>
             </dl>
+            {quote.partialWeek && <p className="estimateNote">Natamam həftə gündəlik hesablanıb: həftəlik qiymət ({money(item.price)} ₼) ÷ 7 × {quote.days} gün. Son qiyməti sahibi ilə dəqiqləşdir.</p>}
             {quote.deposit > 0 && <p className="estimateNote">Depozitin qaytarılma şərtlərini elan sahibi ilə razılaşdır.</p>}
             {includeDelivery && quote.delivery === null && <p className="estimateNote" role="status">Çatdırılma haqqı göstərilməyib və hesaba daxil deyil. Elan sahibi ilə dəqiqləşdir.</p>}
             {phone && !item.demo && (

@@ -29,7 +29,7 @@ import {
 } from "../../lib/marketplace";
 
 const limitDate=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",day:"2-digit",month:"2-digit",year:"numeric"}).formatToParts(new Date(value));const part=(type:string)=>parts.find(item=>item.type===type)?.value||"";return `${part("day")}.${part("month")}.${part("year")}`;};
-const limitMessage=(next?:string|null)=>`Bu kateqoriya üzrə pulsuz limitiniz bitib.${next?` Növbəti pulsuz yerləşdirmə: ${limitDate(next)}.`:""}`;
+const limitMessage=(_next?:string|null)=>"Bu kateqoriyada pulsuz limitiniz dolub.";
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const [step, setStep] = useState(1);
   const [canModerate, setCanModerate] = useState(false);
@@ -91,6 +91,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [success, setSuccess] = useState(false),
+    [paymentWaiting, setPaymentWaiting] = useState(false),
     [files, setFiles] = useState<File[]>([]),
     [previews, setPreviews] = useState<string[]>([]),
     [category, setCategory] = useState(""),
@@ -392,6 +393,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       if(resultResponse.status===429&&listingId)throw new Error("Elanı gündə yalnız bir dəfə redaktə etmək olar. Sabah yenidən cəhd edin.");
       if(resultResponse.status===429){const data=await resultResponse.json().catch(()=>({}));throw new Error(limitMessage(data.next_free_at));}
       if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.");
+      const saveResult=await resultResponse.json().catch(()=>({}));
+      setPaymentWaiting(!!saveResult.payment_required);
       saved = true;
       draftDirty.current=false;
       if(!listingId)void clearListingDraft(user);
@@ -443,7 +446,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         )}
         {!listingId && user && !canModerate && !loading && (
           <p className="notice">
-            Hər kateqoriyada 30 gün ərzində 3 pulsuz elan yerləşdirə bilərsən. Limit dolubsa, mövcud elanı redaktə edə və ya limit boşalanda yeni elan yerləşdirə bilərsən.
+            Hər kateqoriyada ayda 1 elan pulsuzdur. Limit dolubsa da elan yerləşdirə bilərsən — o «Ödəniş gözləyir» bölməsinə düşəcək.
           </p>
         )}
         {!success && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></section>}
@@ -453,8 +456,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         ) : success ? (
           <section className="successPanel" role="status">
             <span><Check aria-hidden="true" size={18} strokeWidth={2.5} /></span>
-            <h2>Elan yoxlamaya göndərildi</h2>
-            <p>Təsdiqdən sonra elan 30 gün yayımda olacaq. Nəticəni «Elanlarım» bölməsində görəcəksiniz.</p>
+            <h2>{paymentWaiting ? "Elan saxlanıldı — ödəniş gözləyir" : "Elan yoxlamaya göndərildi"}</h2>
+            <p>{paymentWaiting ? "Bu kateqoriyada pulsuz limitiniz dolub. Elan «Elanlarım → Ödəniş gözləyir» bölməsindədir. Ödənişdən sonra yoxlamaya göndəriləcək." : "Təsdiqdən sonra elan 30 gün yayımda olacaq. Nəticəni «Elanlarım» bölməsində görəcəksiniz."}</p>
             <Link className="add" href="/profile">
               Elanlarıma keç
             </Link>
@@ -553,7 +556,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     </p>
                   )}
                   {category && !listingId && categoryLimit && categoryLimit.remaining <= 0 && (
-                    <p className="kzLimitWarning" role="alert">{limitMessage(categoryLimit.next_free_at)}</p>
+                    <p className="kzLimitWarning" role="status">Bu kateqoriyada pulsuz limitiniz dolub. Elanı yenə yerləşdirə bilərsiniz — o «Ödəniş gözləyir» bölməsinə düşəcək.</p>
                   )}
                 </section>
                 {category && (

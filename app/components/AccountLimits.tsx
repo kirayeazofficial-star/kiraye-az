@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useState} from "react";
-import {FREE_LISTING_LIMIT,LIMIT_WINDOW_DAYS} from "../../lib/listing-limit";
+import {FREE_LISTING_LIMIT} from "../../lib/listing-limit";
 import {categories} from "../../lib/marketplace";
 
 type State={category:string;limit:number;used:number;pending:number;remaining:number;next_free_at:string|null};
@@ -11,7 +11,7 @@ export default function AccountLimits(){
  const byCategory=new Map((items||[]).map(item=>[item.category,item]));
  return <section className="kzLimits">
   <h2>Elan limitləri</h2>
-  <p className="kzLimitsLead">Hər kateqoriyada son {LIMIT_WINDOW_DAYS} gündə {FREE_LISTING_LIMIT} pulsuz elan yerləşdirə bilərsiniz. Yer elan təsdiqlənəndə istifadə olunur və {LIMIT_WINDOW_DAYS} gün sonra azad olur. Elanı silmək limiti qaytarmır; rədd edilmiş elan limit sərf etmir.</p>
+  <p className="kzLimitsLead">Hər kateqoriyada ayda {FREE_LISTING_LIMIT} elan pulsuzdur. Limit dolanda da elan yerləşdirə bilərsiniz — elan «Ödəniş gözləyir» bölməsinə düşür. Elanı silmək limiti qaytarmır; rədd edilmiş elan limit sərf etmir.</p>
   {failed?<div className="kzErrorBar" role="alert"><span>Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.</span><button type="button" className="kzButtonGhost" onClick={()=>setAttempt(x=>x+1)}>Yenidən cəhd et</button></div>:!items?<p className="kzMuted" role="status">Yüklənir…</p>:
   <div className="kzLimitTable" role="table" aria-label="Elan limitləri">
    <div className="kzLimitRow head" role="row"><span>Kateqoriya</span><span>Limit</span><span>İstifadə</span><span>Qalıb</span><span>Növbəti pulsuz yer</span></div>

@@ -27,13 +27,13 @@ const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderati
 async function api(params: Record<string, string | number>) {
   const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw Object.assign(new Error(data.error || "FAILED"), { status: response.status, code: data.error });
+  if (!response.ok) throw Object.assign(new Error(data.error || "FAILED"), { status: response.status, code: data.error, detail: data.detail });
   return data;
 }
 async function post(payload: Record<string, unknown>) {
   const response = await fetch("/api/admin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw Object.assign(new Error(data.error || "FAILED"), { code: data.error });
+  if (!response.ok) throw Object.assign(new Error(data.error || "FAILED"), { code: data.error, detail: data.detail });
   return data;
 }
 const renderValue = (value: unknown) => value === null || value === undefined || value === "" ? "—" : typeof value === "object" ? JSON.stringify(value) : String(value);
@@ -167,23 +167,23 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
 
 function StaffManagement() {
   const [members, setMembers] = useState<Member[]>([]), [events, setEvents] = useState<StaffEvent[]>([]), [cursor, setCursor] = useState<number | null>(null);
-  const [query, setQuery] = useState(""), [found, setFound] = useState<Member | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
+  const [query, setQuery] = useState(""), [found, setFound] = useState<Member | null>(null), [matches, setMatches] = useState<Member[]>([]), [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
   const load = useCallback(async () => { const data = await api({ action: "staff" }); setMembers(data.members); setEvents(data.events); setCursor(data.next); }, []);
-  useEffect(() => { load().catch(() => setError("Admin siyahısı yüklənmədi.")); }, [load]);
+  useEffect(() => { load().catch(failure => setError(`Admin siyahısı yüklənmədi.${(failure as { detail?: string }).detail ? ` Texniki kod: ${(failure as { detail?: string }).detail}` : ""}`)); }, [load]);
   async function older() {
     if (busy || !cursor) return; setBusy(true); setError("");
     try { const data = await api({ action: "staff", before: cursor }); setEvents(old => [...old, ...data.events]); setCursor(data.next); } catch { setError("Köhnə qeydlər yüklənmədi."); } finally { setBusy(false); }
   }
   async function find(event: FormEvent) {
-    event.preventDefault(); if (busy) return; setBusy(true); setError(""); setNotice(""); setFound(null);
-    try { setFound((await api({ action: "find", query: query.trim() })).account); }
-    catch (failure) { const code = (failure as { code?: string }).code; setError(code === "NOT_FOUND" ? "Bu məlumatla hesab tapılmadı. Hesab əvvəl qeydiyyatdan keçməlidir." : code === "MULTIPLE" ? "Bu nömrə bir neçə hesaba aiddir. E-poçt və ya hesab nömrəsi yaz." : "Axtarış alınmadı."); }
+    event.preventDefault(); if (busy) return; setBusy(true); setError(""); setNotice(""); setFound(null); setMatches([]);
+    try { const data = await api({ action: "find", query: query.trim() }); if (data.account) setFound(data.account); else setMatches(data.accounts || []); }
+    catch (failure) { const { code, detail } = failure as { code?: string; detail?: string }; setError(code === "NOT_FOUND" ? "Bu məlumatla hesab tapılmadı. Hesab əvvəl saytda qeydiyyatdan keçməlidir." : code === "INVALID_REQUEST" ? "Ən azı 3 simvol yaz." : `Axtarış alınmadı.${detail ? ` Texniki kod: ${detail}` : ""}`); }
     finally { setBusy(false); }
   }
   async function change(account: Member, enabled: boolean) {
     if (busy) return; setBusy(true); setError(""); setNotice("");
-    try { await post({ action: "set_staff", id: account.id, enabled }); setFound(null); setQuery(""); setNotice(enabled ? "Admin təyin edildi." : "Səlahiyyət geri alındı."); await load(); }
-    catch (failure) { const code = (failure as { code?: string }).code; setError(code === "EMAIL_NOT_CONFIRMED" ? "Əvvəl e-poçt təsdiqlənməlidir." : code === "LEADER_PROTECTED" ? "Rəhbərin səlahiyyəti dəyişdirilmir." : "Səlahiyyət dəyişdirilmədi."); }
+    try { await post({ action: "set_staff", id: account.id, enabled }); setFound(null); setMatches([]); setQuery(""); setNotice(enabled ? "Admin təyin edildi." : "Səlahiyyət geri alındı."); await load(); }
+    catch (failure) { const { code, detail } = failure as { code?: string; detail?: string }; setError(code === "EMAIL_NOT_CONFIRMED" ? "Bu hesabın e-poçtu təsdiqlənməyib. İstifadəçi əvvəl e-poçtunu təsdiqləməlidir." : code === "LEADER_PROTECTED" ? "Rəhbərin səlahiyyəti dəyişdirilmir." : `Səlahiyyət dəyişdirilmədi.${detail ? ` Texniki kod: ${detail}` : ""}`); }
     finally { setBusy(false); }
   }
   const person = (account: Member, action?: ReactNode) => <article className="kzAdRow" key={account.id}>
@@ -192,9 +192,10 @@ function StaffManagement() {
   </article>;
   return <Panel title="Adminlər">
     <p className="kzAdHint">Yalnız Rəhbər yeni admin təyin edə və səlahiyyəti geri ala bilər.</p>
-    <form className="kzAdFilters kzAdInline" onSubmit={event => void find(event)}><input aria-label="Telefon, e-poçt və ya hesab nömrəsi" value={query} onChange={event => { setQuery(event.target.value); setFound(null); }} maxLength={254} placeholder="Telefon, e-poçt və ya №" required /><button className="kzAdBtn primary" disabled={busy}>Hesabı tap</button></form>
+    <form className="kzAdFilters kzAdInline" onSubmit={event => void find(event)}><input aria-label="Telefon, e-poçt və ya hesab nömrəsi" value={query} onChange={event => { setQuery(event.target.value); setFound(null); setMatches([]); }} maxLength={254} placeholder="E-poçt, telefon, ad və ya №" minLength={3} required /><button className="kzAdBtn primary" disabled={busy}>Hesabı tap</button></form>
     {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {found && <div className="kzAdFound">{person(found, found.role === "user" ? <button className="kzAdBtn primary" type="button" disabled={busy || !found.confirmed} onClick={() => void change(found, true)}>{found.confirmed ? "Admin təyin et" : "E-poçt təsdiqlənməyib"}</button> : found.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(found, false)}>Səlahiyyəti geri al</button> : undefined)}</div>}
+    {!!matches.length && <div className="kzAdFound"><p className="kzAdHint">{matches.length} hesab tapıldı. Lazım olanı seçin:</p><div className="kzAdList">{matches.map(account => person(account, account.role === "user" ? <button className="kzAdBtn" type="button" onClick={() => { setFound(account); setMatches([]); }}>Seç</button> : undefined))}</div></div>}
     <h3 className="kzAdSub">Komanda ({members.length})</h3>
     <div className="kzAdList">{members.map(account => person(account, account.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(account, false)}>Geri al</button> : undefined))}</div>
     {!members.some(account => account.role === "moderator") && <p className="kzAdHint">Sizdən başqa admin yoxdur. Admin əlavə etmək üçün yuxarıda hesabı tapın.</p>}

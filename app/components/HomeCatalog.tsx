@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, LayoutGrid, Plus, Search, SlidersHorizontal,
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
+import SortMenu from "./SortMenu";
 import { useCallback } from "react";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { useLanguage } from "./LanguageProvider";
@@ -385,16 +386,12 @@ export default function Home() {
                   : `${demo ? filtered.length : total} ${demo ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
               </p>
             </div>
-            <select
-              className="kzSort"
-              aria-label={t("Sıralama")}
+            <SortMenu
+              label={t("Sıralama")}
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
-            >
-              <option value="new">{t("Əvvəlcə yenilər")}</option>
-              <option value="low">{t("Əvvəlcə ucuz")}</option>
-              <option value="high">{t("Əvvəlcə bahalı")}</option>
-            </select>
+              onChange={setSort}
+              options={[{ value: "new", label: t("Əvvəlcə yenilər") }, { value: "low", label: t("Əvvəlcə ucuz") }, { value: "high", label: t("Əvvəlcə bahalı") }]}
+            />
           </div>
           <div className="kzToolbar" aria-label="Kirayə filtrləri">
             <button
@@ -406,14 +403,14 @@ export default function Home() {
               <SlidersHorizontal aria-hidden="true" size={16} strokeWidth={2} />
               {t("Filtrlər")}{activeFilters.length > 0 && <b>{activeFilters.length}</b>}
             </button>
-            {(["daily", "monthly"] as const).map(value => <button
+            {(["daily", "weekly", "monthly"] as const).map(value => <button
               key={value}
               type="button"
               className={`kzChip${period === value ? " active" : ""}`}
               aria-pressed={period === value}
               onClick={() => { setPeriod(period === value ? "" : value); setMin(""); setMax(""); }}
             >
-              {t(value === "daily" ? "Günlük" : "Aylıq")}
+              {t(value === "daily" ? "Günlük" : value === "weekly" ? "Həftəlik" : "Aylıq")}
             </button>)}
             <button
               type="button"

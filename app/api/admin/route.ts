@@ -122,21 +122,30 @@ export async function GET(request:NextRequest){
     if(action==="staff"){
       if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
       const before=Number(param(request,"before"))||null;
-      const [members,events]=await Promise.all([
-        before?Promise.resolve([]):hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name name,p.phone,p.profile_no,s.staff_role role,s.assigned_at from public.staff_members s join auth.users u on u.id=s.user_id join public.profiles p on p.id=s.user_id order by case when s.staff_role='leader' then 0 else 1 end,s.assigned_at`),
+      // The team list and the history load separately: one failing must not hide the other.
+      const [members,events]=await Promise.allSettled([
+        before?Promise.resolve([]):hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name name,p.phone,p.profile_no,s.staff_role role,s.assigned_at from public.staff_members s join auth.users u on u.id=s.user_id left join public.profiles p on p.id=s.user_id order by case when s.staff_role='leader' then 0 else 1 end,s.assigned_at`),
         hostQuery<{id:string}>(`select e.id,e.action,e.created_at,e.actor_id,e.target_id,a.email actor_email,t.email target_email from public.staff_events e left join auth.users a on a.id=e.actor_id left join auth.users t on t.id=e.target_id where ($1::bigint is null or e.id<$1) order by e.id desc limit 51`,[before]),
       ]);
-      return reply({members,events:events.slice(0,50),next:events.length>50?events[49].id:null,role:auth.role});
+      if(members.status==="rejected")throw members.reason;
+      if(events.status==="rejected")console.error("admin staff events",events.reason);
+      const history=events.status==="fulfilled"?events.value:[];
+      return reply({members:members.value,events:history.slice(0,50),next:history.length>50?history[49].id:null,role:auth.role});
     }
 
     if(action==="find"){
       if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
-      const query=param(request,"query").slice(0,254);if(!query)return reply({error:"INVALID_REQUEST"},400);
+      const query=param(request,"query").slice(0,254);if(query.length<3)return reply({error:"INVALID_REQUEST"},400);
       const digits=query.replace(/\D/g,"");
-      const rows=await hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name name,p.phone,p.profile_no,coalesce(s.staff_role,'user') role from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where lower(u.email)=lower($1::text) or u.id::text=$1::text or ($2::text<>'' and (regexp_replace(coalesce(p.phone,''),'\\D','','g')=$2::text or p.profile_no::text=$2::text)) limit 5`,[query,digits]);
+      // Exact e-mail, account number or phone first; otherwise part of the e-mail or name.
+      const rows=await hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name name,p.phone,p.profile_no,coalesce(s.staff_role,'user') role from auth.users u left join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id
+        where lower(trim(u.email))=lower($1::text) or u.id::text=$1::text
+          or ($2::text<>'' and length($2::text)>=6 and (right(regexp_replace(coalesce(p.phone,''),'\\D','','g'),9)=right($2::text,9) or p.profile_no::text=$2::text))
+          or position(lower($1::text) in lower(u.email))>0
+          or ($2::text='' and position(lower($1::text) in lower(coalesce(p.display_name,'')))>0)
+        order by (lower(trim(u.email))=lower($1::text)) desc,u.created_at desc limit 10`,[query,digits]);
       if(!rows.length)return reply({error:"NOT_FOUND"},404);
-      if(rows.length>1)return reply({error:"MULTIPLE"},409);
-      return reply({account:rows[0]});
+      return reply({account:rows.length===1?rows[0]:null,accounts:rows});
     }
     return reply({error:"UNKNOWN_ACTION"},400);
   }catch(error){return failure(error,staff);}
@@ -187,7 +196,7 @@ export async function POST(request:NextRequest){
         if(row.staff_role==="leader")return"LEADER_PROTECTED";
         if(enabled){
           if(!row.confirmed)return"EMAIL_NOT_CONFIRMED";
-          await db.query(`update public.profiles set role='admin',updated_at=now() where id=$1`,[id]);
+          await db.query(`insert into public.profiles(id,display_name,phone,role) select u.id,split_part(u.email,'@',1),'','admin' from auth.users u where u.id=$1 on conflict(id) do update set role='admin',updated_at=now()`,[id]);
           await db.query(`insert into public.staff_members(user_id,staff_role,assigned_by) values($1,'moderator',$2) on conflict(user_id) do nothing`,[id,auth.user.id]);
           await db.query(`insert into public.staff_events(actor_id,target_id,action) values($1,$2,'moderator_granted')`,[auth.user.id,id]);
         }else{

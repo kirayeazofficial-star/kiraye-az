@@ -19,7 +19,7 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", staff: "Adminlər" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", staff: "Komanda" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
 const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, staff: ShieldCheck };
@@ -190,15 +190,16 @@ function StaffManagement() {
     <div className="kzAdPerson"><b aria-hidden="true">{initial(account.name || account.email)}</b><span><strong>{account.name || account.email}<em className={`kzAdPill${account.role === "leader" ? " strong" : ""}`}>{staffRoleName(account.role)}</em></strong><small>#{account.profile_no || "—"} · {account.email}{account.phone ? ` · ${account.phone}` : ""}</small>{account.assigned_at && <small>Təyinat: {adminDate(account.assigned_at)}</small>}</span></div>
     {action && <div className="kzAdRowActions">{action}</div>}
   </article>;
-  return <Panel title="Adminlər">
-    <p className="kzAdHint">Yalnız Rəhbər yeni admin təyin edə və səlahiyyəti geri ala bilər.</p>
+  return <Panel title="Komanda">
+    <h3 className="kzAdSub">Üzvlər ({members.length})</h3>
+    <div className="kzAdList">{members.map(account => person(account, account.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(account, false)}>Geri al</button> : undefined))}</div>
+    {!members.some(account => account.role === "moderator") && <p className="kzAdHint">Hələ heç kimə admin səlahiyyəti verilməyib. Komandada yalnız siz — Rəhbər varsınız.</p>}
+    <h3 className="kzAdSub">Yeni admin təyin et</h3>
+    <p className="kzAdHint">İstifadəçinin e-poçtunu, telefonunu, adını və ya profil nömrəsini yazıb hesabını tapın. Admin elanları yoxlaya və şikayətlərə baxa bilər; admin təyin etmək və geri almaq yalnız Rəhbərin işidir.</p>
     <form className="kzAdFilters kzAdInline" onSubmit={event => void find(event)}><input aria-label="Telefon, e-poçt və ya hesab nömrəsi" value={query} onChange={event => { setQuery(event.target.value); setFound(null); setMatches([]); }} maxLength={254} placeholder="E-poçt, telefon, ad və ya №" minLength={3} required /><button className="kzAdBtn primary" disabled={busy}>Hesabı tap</button></form>
     {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {found && <div className="kzAdFound">{person(found, found.role === "user" ? <button className="kzAdBtn primary" type="button" disabled={busy || !found.confirmed} onClick={() => void change(found, true)}>{found.confirmed ? "Admin təyin et" : "E-poçt təsdiqlənməyib"}</button> : found.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(found, false)}>Səlahiyyəti geri al</button> : undefined)}</div>}
     {!!matches.length && <div className="kzAdFound"><p className="kzAdHint">{matches.length} hesab tapıldı. Lazım olanı seçin:</p><div className="kzAdList">{matches.map(account => person(account, account.role === "user" ? <button className="kzAdBtn" type="button" onClick={() => { setFound(account); setMatches([]); }}>Seç</button> : undefined))}</div></div>}
-    <h3 className="kzAdSub">Komanda ({members.length})</h3>
-    <div className="kzAdList">{members.map(account => person(account, account.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(account, false)}>Geri al</button> : undefined))}</div>
-    {!members.some(account => account.role === "moderator") && <p className="kzAdHint">Sizdən başqa admin yoxdur. Admin əlavə etmək üçün yuxarıda hesabı tapın.</p>}
     <h3 className="kzAdSub">Son dəyişikliklər</h3>
     {!events.length ? <p className="kzAdHint">Hələ heç bir dəyişiklik olmayıb.</p> : <ol className="kzAdTimeline kzAdChanges">{events.map(event => <li key={event.id}><div className="kzAdTimelineTop"><strong>{staffActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div><p>{event.target_email || "—"}{event.actor_email && <small> · {event.actor_email} tərəfindən</small>}</p></li>)}</ol>}
     {cursor && <button type="button" className="kzAdBtn" disabled={busy} onClick={() => void older()}>Daha köhnə qeydlər</button>}
@@ -260,7 +261,7 @@ export default function AdminWorkspace() {
     : item === "reports" ? (openReports ? { text: `${openReports} açıq şikayət`, alert: true } : { text: "Açıq şikayət yoxdur" })
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
-    : { text: "Komanda və icazələr" };
+    : { text: "Rəhbər və adminlər" };
 
   return <div className="kzAdm">
     <nav className="kzAdNav" aria-label="Panel bölmələri">

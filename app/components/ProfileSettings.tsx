@@ -61,7 +61,7 @@ export default function ProfileSettings(){
      <strong>{profile.name||'Profil'}</strong>
      {profile.phone&&<span>{formatContact(profile.phone)}</span>}
      <span>{profile.email}</span>
-     <small>{profile.profile_no?`Profil № ${profile.profile_no}`:''}{profile.profile_no&&profile.created_at?' · ':''}{profile.created_at?`${azDate(profile.created_at)} tarixindən`:''}</small>
+     <div className="kzProfileMeta">{profile.profile_no?<span>Profil № {profile.profile_no}</span>:null}{profile.created_at?<span>Qeydiyyat: {azDate(profile.created_at)}</span>:null}</div>
     </div>
    </section>
    <section className="kzPanel kzPhotoRow">

@@ -7,7 +7,9 @@ import { useState } from "react";
 const digitsOf = (value: string) => { let d = value.replace(/\D/g, ""); if (d.startsWith("994") && d.length > 9) d = d.slice(3); return d.replace(/^0+/, "").slice(0, 9); };
 export default function PhoneInput({ name, label, value, onChange, required }: { name?: string; label: string; value?: string; onChange?: (full: string) => void; required?: boolean }) {
   const [local, setLocal] = useState("");
-  const digits = value !== undefined ? digitsOf(value) : local;
+  // A value from the parent is always "+994…" (or empty): only its prefix is removed, so a half-typed or
+  // half-deleted number such as "+9945" shows as "5" and never brings back "994".
+  const digits = value !== undefined ? (value.startsWith("+994") ? value.slice(4).replace(/\D/g, "").slice(0, 9) : digitsOf(value)) : local;
   return <span className="kzPhoneInput">
     <span className="kzPhonePrefix" aria-hidden="true">+994</span>
     <input name={name} aria-label={label} type="tel" inputMode="numeric" autoComplete="tel-national" required={required} placeholder="501234567"

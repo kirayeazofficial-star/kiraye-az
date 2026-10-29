@@ -31,7 +31,7 @@ const sections = [
     title: "Təkrar elanlar və redaktə",
     rules: [
       "Eyni əmlak və ya əşya üçün təkrar aktiv və ya yoxlamada olan elan yaratma. Elanı silib yenidən yerləşdirməklə və ya başqa hesabdan istifadə etməklə limitdən yayınmaq olmaz.",
-      "Qiymət, təsvir, şəkil və əlaqə məlumatlarında dəyişiklik üçün mövcud elanın “Redaktə et” seçimini istifadə et. Dəyişikliklər yenidən yoxlamaya göndərilir.",
+      "Qiymət, təsvir, şəkil və əlaqə məlumatlarında dəyişiklik üçün mövcud elanın “Redaktə et” seçimini istifadə et. Elanı 24 saat ərzində ən çox 2 dəfə redaktə etmək olar; dəyişikliklər yenidən yoxlamaya göndərilir.",
       "Mövcud elanın məlumatlarını başqa əmlakın və ya əşyanın məlumatları ilə əvəz etmək olmaz. Redaktə elanı avtomatik irəli çəkmir.",
       "Artıq kirayəyə verilməyən və ya aktual olmayan elanı sil. Silinən elan geri qaytarılmır, hesab məlumatların qalır.",
     ],
@@ -39,7 +39,7 @@ const sections = [
   {
     title: "Başlıq, qiymət və kirayə şərtləri",
     rules: [
-      "Başlıq qısa, aydın və təklifə uyğun olmalıdır. Başlıqda telefon nömrəsi, reklam keçidləri, təkrarlanan açar sözlər və aldadıcı ifadələr yerləşdirmə.",
+      "Başlıq qısa, aydın və təklifə uyğun olmalıdır. Başlıqda və təsvirdə telefon nömrəsi, sayt linkləri, başqa elanların reklamı, təkrarlanan açar sözlər və aldadıcı ifadələr yerləşdirmə — sayt belə mətni qəbul etmir. Nömrə yalnız “Əlaqə” xanasında göstərilir.",
       "Qiyməti AZN ilə və hansı müddətə aid olduğunu göstərərək yaz. Real kirayə haqqını gizlədən şərti qiymət göstərmək olmaz.",
       "Depozit, minimum kirayə müddəti, çatdırılma və digər əlavə ödənişlər varsa, onları açıq qeyd et. Əşyanın məlum qüsurlarını və istifadə məhdudiyyətlərini gizlətmə.",
     ],
@@ -87,8 +87,9 @@ export default async function Rules() {
         <p><strong>8.1.</strong> Təsdiqlənmiş elan 30 gün yayımda qalır. Müddət bitdikdə elan silinmir, kabinetdə «Müddəti bitib» bölməsinə keçir.</p>
         <p><strong>8.2.</strong> Hər kateqoriyada ayda 1 elan pulsuzdur. Pulsuz yer elan təsdiqlənəndə istifadə olunur və 30 gün sonra yenidən açılır. Rədd edilmiş elan limit sərf etmir, elanı silmək isə limiti geri qaytarmır.</p>
         <p><strong>8.3.</strong> Limit dolduqda elan yenə yerləşdirilə bilər: o «Ödəniş gözləyir» bölməsinə düşür və ödənişdən sonra yoxlamaya göndərilir.</p>
-        <p><strong>8.4.</strong> Müddəti bitmiş və ya silinmiş elanı bərpa etmək pulsuz yer varsa pulsuzdur, yoxdursa ödənişlidir.</p>
-        <p><strong>8.5.</strong> Ödəniş sistemi hələ qoşulmayıb: ödənişli addımlarda heç bir məbləğ tutulmur. Qiymətlər ödəniş aktivləşdirilməzdən əvvəl göstəriləcək.</p>
+        <p><strong>8.4.</strong> Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir. Bərpa edilən elan yenidən 30 gün yayımlanır.</p>
+        <p><strong>8.5.</strong> Müddəti bitmiş, silinmiş və ya rədd edilmiş elan 180 gün ərzində bərpa olunmazsa, birdəfəlik arxivə keçir və kabinetdə görünmür.</p>
+        <p><strong>8.6.</strong> Ödəniş sistemi hələ qoşulmayıb: ödənişli addımlarda heç bir məbləğ tutulmur. Qiymətlər ödəniş aktivləşdirilməzdən əvvəl göstəriləcək.</p>
       </section>
       <p><Link href="/help">Suallar və kömək</Link> · <Link href="/new">Elan yerləşdir</Link></p>
     </main>

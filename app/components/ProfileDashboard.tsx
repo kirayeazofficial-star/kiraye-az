@@ -106,22 +106,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     }
   }
 
-  const paidRestore = () => setPayment({ title: "Ödənişlə bərpa", text: "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yenidən 30 gün yayımlamaq üçün ödəniş lazımdır." });
+  const paidRestore = () => setPayment({ title: "Ödənişlə bərpa", text: "Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir. Bərpa edilən elan yenidən 30 gün yayımlanır." });
   const paidSubmit = () => setPayment({ title: "Ödənişlə göndərmə", text: "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yoxlamaya göndərmək üçün ödəniş lazımdır." });
-  async function restore(item: Listing) {
-    if (busy) return;
-    if (fullCategories.includes(item.category)) { paidRestore(); return; }
-    setBusy(item.id); setError(""); setNotice("");
-    try {
-      const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
-      const data = await response.json().catch(() => ({}));
-      if (response.status === 429) { setFullCategories(list => [...list, item.category]); paidRestore(); return; }
-      if (!response.ok) throw new Error();
-      setNotice("Elan yenidən 30 gün müddətinə yayımlandı.");
-      setReloadKey(key => key + 1);
-    } catch { setError("Elanı bərpa etmək mümkün olmadı. Yenidən cəhd edin."); }
-    finally { setBusy(""); }
-  }
+  // Restoring is always a paid step (payments are not connected yet, so this opens the payment notice).
+  function restore() { if (!busy) paidRestore(); }
   async function submitWaiting(item: Listing) {
     if (busy) return;
     setBusy(item.id); setError(""); setNotice("");
@@ -218,15 +206,15 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         </p>
                         {x.payment_required && !x.deleted_at && <p className="kzOwnHint">Bu kateqoriyada pulsuz limitiniz dolduğu üçün elan ödəniş gözləyir. Ödənişdən sonra yoxlamaya göndəriləcək.</p>}
                         {current === "rejected" && x.rejection_reason && <p className="kzOwnReason">Səbəb: {x.rejection_reason} Səbəbi aradan qaldırıb elanı redaktə edin.</p>}
-                        {expired && !x.deleted_at && <p className="kzOwnHint">{fullCategories.includes(x.category) ? "Elanın müddəti bitib. Pulsuz limit dolduğu üçün bərpa ödənişlidir." : "Elanın müddəti bitib. Yenidən yayımlamaq üçün “Bərpa et” seçin."}</p>}
-                        {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. {fullCategories.includes(x.category) ? "Bu kateqoriyada pulsuz limit dolub — bərpa ödənişli olacaq." : "Bərpa pulsuz limitdən bir yer istifadə edir."}</p>}
+                        {expired && !x.deleted_at && <p className="kzOwnHint">Elanın müddəti bitib. Bərpa ödənişlidir; bərpa olunmayan elan 180 gün sonra arxivə keçir.</p>}
+                        {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. Bərpa ödənişlidir; 180 gün sonra elan arxivə keçir.</p>}
                       </div>
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
                             <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin..." : "Ödəniş et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
                           </>
-                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : fullCategories.includes(x.category) ? "Ödənişlə bərpa et" : "Bərpa et"}</button>
+                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={restore}>Ödənişlə bərpa et</button>
                           : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Redaktə et</Link>
                           : <>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>

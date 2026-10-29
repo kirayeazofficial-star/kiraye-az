@@ -24,6 +24,7 @@ export default function Footer() {
           <Link href="/help">{t("Kömək")}</Link>
           <Link href="/rules">{t("Qaydalar və təhlükəsizlik")}</Link>
           <Link href="/privacy">{t("Məxfilik")}</Link>
+          <Link href="/terms">{t("İstifadəçi razılaşması")}</Link>
           <Link href="/new">{t("Elan yerləşdir")}</Link>
         </nav>
         <div>

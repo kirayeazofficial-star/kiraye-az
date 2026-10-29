@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRight, CirclePlus, Heart, LayoutGrid, LifeBuoy, Lock, Menu, MessageCircle, ShieldCheck, User, X, type LucideIcon } from "lucide-react";
+import { ChevronRight, CirclePlus, Heart, LayoutGrid, LifeBuoy, Lock, Menu, MessageCircle, ShieldCheck, User, X, type LucideIcon, FileText } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -18,6 +18,7 @@ const helpLinks: [string, string, LucideIcon, string][] = [
   ["/help", "Kömək", LifeBuoy, "grey"],
   ["/rules", "Qaydalar və təhlükəsizlik", ShieldCheck, "grey"],
   ["/privacy", "Məxfilik", Lock, "grey"],
+  ["/terms", "İstifadəçi razılaşması", FileText, "grey"],
 ];
 
 export default function SiteMenu() {

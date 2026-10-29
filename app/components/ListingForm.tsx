@@ -10,6 +10,8 @@ import { listingExamples } from "../../lib/listing-form-options";
 import RentalTermsFields from "./RentalTermsFields";
 import DurationField from "./DurationField";
 import ListingCategoryFields from "./ListingCategoryFields";
+import { contactInText, contactInTextMessage } from "../../lib/contact-filter";
+import { editLimitMessage, nextEditAt } from "../../lib/edit-limit";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 
 import {
@@ -107,6 +109,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
   const files=useMemo(()=>photos.flatMap(photo=>photo.file?[photo.file]:[]),[photos]);
   const existingImages=useMemo(()=>photos.flatMap(photo=>photo.file?[]:[photo.src]),[photos]);
   const [photoNotice,setPhotoNotice]=useState("");
+  const [editBlockedUntil,setEditBlockedUntil]=useState<Date|null>(null);
+  const contactKind=contactInText(`${title} ${descriptionText}`);
   const photoSize=(file:File)=>new Promise<{w:number;h:number}|null>(resolve=>{const url=URL.createObjectURL(file);const image=new Image();image.onload=()=>{resolve({w:image.naturalWidth,h:image.naturalHeight});URL.revokeObjectURL(url);};image.onerror=()=>{resolve(null);URL.revokeObjectURL(url);};image.src=url;});
   const [savedDraft,setSavedDraft]=useState<ListingDraft|null>(null);
   const [draftNotice,setDraftNotice]=useState("");
@@ -201,6 +205,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           manualTitle.current = true;
           setCategory(result.item.category);
           setPhotos((result.item.images ?? []).map(photoFromSrc));
+          setEditBlockedUntil(nextEditAt((result.item as Listing & { edit_log?: string[] }).edit_log));
         }
       })
       .catch(() => { if (active) { setLoadError(true); setError("Hesabı yoxlamaq mümkün olmadı."); } })
@@ -244,6 +249,11 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         });
         return false;
       }
+    }
+    if (current === 2 && contactKind) {
+      setError(contactInTextMessage(contactKind));
+      requestAnimationFrame(() => document.querySelector<HTMLElement>('textarea[name="description"]')?.focus());
+      return false;
     }
     if (current === 2 && formRef.current) {
       const form = new FormData(formRef.current);
@@ -296,6 +306,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       setError("Kateqoriya seçin.");
       return;
     }
+    const textContact = contactInText(`${title} ${description}`);
+    if (textContact) { setError(contactInTextMessage(textContact)); return; }
     if (title.length < 10 || description.length < 30) {
       setError("Başlıq ən azı 10, təsvir ən azı 30 simvol olmalıdır.");
       return;
@@ -386,7 +398,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         attributes,
       };
       const resultResponse=await fetch("/api/listings",{method:listingId?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(listingId?{...payload,id:listingId}:payload)});
-      if(resultResponse.status===429&&listingId)throw new Error("Elanı gündə yalnız bir dəfə redaktə etmək olar. Sabah yenidən cəhd edin.");
+      if(resultResponse.status===429&&listingId){const data=await resultResponse.json().catch(()=>({}));const next=data.next_edit_at?new Date(data.next_edit_at):null;if(next)setEditBlockedUntil(next);throw new Error(editLimitMessage(next));}
+      if(resultResponse.status===400){const data=await resultResponse.clone().json().catch(()=>({}));if(data.error==="CONTACT_IN_TEXT")throw new Error(contactInTextMessage(contactInText(`${title} ${description}`)||"phone"));}
       if(resultResponse.status===429){const data=await resultResponse.json().catch(()=>({}));throw new Error(limitMessage(data.next_free_at));}
       if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.");
       const saveResult=await resultResponse.json().catch(()=>({}));
@@ -462,6 +475,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           <div className="formLayout">
             {savedDraft && <aside className="draftResume"><p>Yarımçıq elanın var. Davam etmək istəyirsən?</p><button type="button" className="secondary" onClick={restoreDraft}>Qaralamaya davam et</button><button type="button" className="textButton" onClick={()=>{void clearListingDraft(user);setSavedDraft(null);}}>Qaralamanı sil</button></aside>}
             {!listingId && draftNotice && <p className="draftNotice" role="status">{draftNotice}</p>}
+            {listingId && editBlockedUntil && editBlockedUntil.getTime() > Date.now() && <p className="kzEditLimit" role="status">{editLimitMessage(editBlockedUntil)}</p>}
             <form
               ref={formRef}
               className="listingForm"
@@ -686,6 +700,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           rows={5}
                           placeholder={listingExamples[category]?.description}
                         />
+                        {contactKind && <span className="kzFieldError" role="alert">{contactInTextMessage(contactKind)}</span>}
                         {descriptionText.length > 0 && descriptionText.length < 30 && <span className="kzDescProgress" role="status">
                           <span className="kzDescBar"><span style={{ width: `${Math.round(descriptionText.length / 30 * 100)}%` }} /></span>
                           <small>Daha {30 - descriptionText.length} simvol</small>
@@ -717,7 +732,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                                 min="0"
                                 max="1000000"
                                 step="0.01"
-                                defaultValue={initial?.deposit ?? ""}
+                                defaultValue={initial?.deposit == null ? "" : String(Number(initial.deposit))}
                               />
                               <span aria-hidden="true">₼</span>
                             </div>
@@ -797,6 +812,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       <p className="photoCount" aria-live="polite">
                         {photos.length} / 6 şəkil{photos.length > 1 ? " · Sıranı dəyişmək üçün şəkli basıb saxlayıb sürüşdürün" : ""}
                       </p>
+                      <p className="kzPhotoRule">Birinci şəkil elanın üz qabığıdır: kirayə verdiyin əşyanın özünü göstərsin — maşının tam görünüşü, evin otağı, əşyanın özü. Tualet, balkon, küçə, sənəd və ya ekran şəkli birinci ola bilməz.</p>
                       {photoNotice && <p className="kzPhotoNotice" role="status">{photoNotice}</p>}
                       <PhotoOrganizer photos={photos} onChange={next => { setPhotos(next); queueDraft(); }} />
                     </section>
@@ -901,7 +917,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           <p className="description">{preview.description}</p>
                         </section>
                       )}
-                      <button className="add wide" disabled={busy}>
+                      <button className="add wide" disabled={busy || (!!listingId && !!editBlockedUntil && editBlockedUntil.getTime() > Date.now())}>
                         {busy
                           ? "Göndərilir, gözləyin..."
                           : "Elanı yoxlamaya göndər"}

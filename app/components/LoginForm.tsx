@@ -514,6 +514,7 @@ export default function Login({
                             ? "6 rəqəmli kod göndər"
                             : "Daxil ol"}
                     </button>
+                    {mode === "signup" && <p className="kzAuthTerms">«Hesab yarat» düyməsini basmaqla <Link href="/terms">İstifadəçi razılaşmasını</Link> və <Link href="/rules">Elan qaydalarını</Link> qəbul edirsiniz.</p>}
                   </fieldset>
                 </form>
               ) : (

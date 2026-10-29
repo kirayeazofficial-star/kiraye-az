@@ -62,6 +62,15 @@
         "nxtPlanding": "nxtPlanding"
       },
       "namedRegex": "^/(?<nxtPlanding>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/[landing]/[city]",
+      "regex": "^/([^/]+?)/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPlanding": "nxtPlanding",
+        "nxtPcity": "nxtPcity"
+      },
+      "namedRegex": "^/(?<nxtPlanding>[^/]+?)/(?<nxtPcity>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [

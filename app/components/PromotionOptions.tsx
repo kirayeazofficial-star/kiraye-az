@@ -1,5 +1,5 @@
 "use client";
-import { ArrowUp, Crown, Gem, Megaphone, RotateCcw, X } from "lucide-react";
+import { ArrowUp, ChevronLeft, Crown, Gem, Megaphone, RotateCcw, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 const packages = [
   { title: "Elanı bərpa et", icon: RotateCcw, kind: "restore", description: "Müddəti bitmiş və ya arxivə keçmiş elan yenidən yayımlanacaq.", plans: ["Elanı yenidən 30 gün yayımla"] },
@@ -14,6 +14,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
   const trigger = useRef<HTMLElement>(null);
   const [opened, setOpened] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
+  const TriggerIcon = packages.find(pack => pack.kind === kind)?.icon ?? Megaphone;
   function close() { if (root.current) root.current.open = false; }
   useEffect(() => {
     if (!opened) return;
@@ -24,7 +25,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
   }, [opened]);
   return <details ref={root} className="promotionOptions" aria-label="Elanın irəlilədilməsi"
     onToggle={(event) => { setOpened(event.currentTarget.open); if (!event.currentTarget.open) setSelected(null); }}>
-    <summary ref={trigger} className="promotionTrigger">{label ?? <><Megaphone aria-hidden="true" size={16} strokeWidth={1.75} /> Elanı reklam et</>}</summary>
+    <summary ref={trigger} className={`promotionTrigger${kind ? " " + kind : ""}`}><TriggerIcon aria-hidden="true" size={16} strokeWidth={2} />{label ?? "Elanı reklam et"}</summary>
     <div className="promotionShade" aria-hidden="true" onClick={close} />
     <div ref={panel} className={`promotionPanel${kind?" kindOnly":""}`} role="dialog" aria-modal="true" aria-label="Elanın reklam paketləri" tabIndex={-1}
       onKeyDown={(event) => {
@@ -37,7 +38,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
       }}>
       <div className="promotionModalHeader"><h3>{kind ? (packages.find(pack => pack.kind === kind)?.title ?? "Reklam") : "Reklam paketləri"}</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}><X aria-hidden="true" size={20} strokeWidth={2} /></button></div>
       <p>Ödəniş sistemi müvəqqəti işləmir. Paketlərlə tanış ola bilərsən; pul tutulmur və elanın sıralaması dəyişmir.</p>
-      {selected && <button type="button" className="textButton" onClick={() => setSelected(null)}>← Başqa xidmət seç</button>}
+      {selected && <button type="button" className="textButton" onClick={() => setSelected(null)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Başqa xidmət seç</button>}
       {packages.filter(pack => kind ? pack.kind === kind : (pack.kind !== "restore" && (!selected || pack.kind === selected))).map(pack => <details key={pack.kind} className="promotionPackage" open={selected === pack.kind || kind === pack.kind}
         onToggle={(event) => {
           if (event.currentTarget.open) { setSelected(pack.kind); if (panel.current) panel.current.scrollTop = 0; }

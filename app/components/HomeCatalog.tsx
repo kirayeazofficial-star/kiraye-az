@@ -1,5 +1,5 @@
 "use client";
-import { LayoutGrid, SlidersHorizontal, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
@@ -609,11 +609,16 @@ export default function Home() {
             </div>
           )}
           {!loading && !filtered.length && (
+            onlyFavorites && !query ? <div className="kzEmpty">
+              <h3>{t("Seçilmiş elan yoxdur")}</h3>
+              <p>{t("Bəyəndiyin elanın şəklindəki ürək işarəsinə toxun — elan burada saxlanacaq.")}</p>
+              <a className="kzButton" href="/">{t("Elanlara bax")}</a>
+            </div> :
             <div className="kzEmpty">
               <h3>{t("Uyğun elan tapılmadı")}</h3>
               <p>{t("Başqa sözlə axtar və ya öz kirayə elanını yerləşdir.")}</p>
               <Link className="kzButton" href="/new">
-                {t("+ Elan yerləşdir")}</Link>
+                <Plus className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />{t("Elan yerləşdir")}</Link>
               <button className="kzButtonGhost" onClick={reset}>
                 {t("Bütün elanlara bax")}</button>
             </div>
@@ -627,7 +632,7 @@ export default function Home() {
                   document.getElementById("elanlar")?.scrollIntoView();
                 }}
               >
-                {t("← Əvvəlki")}</button>
+                <ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />{t("Əvvəlki")}</button>
               <span>
                 {page} / {Math.ceil(total / PAGE_SIZE)}
               </span>
@@ -638,14 +643,13 @@ export default function Home() {
                   document.getElementById("elanlar")?.scrollIntoView();
                 }}
               >
-                {t("Növbəti →")}</button>
+                {t("Növbəti")}<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button>
             </nav>
           )}
         </section>
         {browsing && <section className="kzPopular" aria-label="Populyar axtarışlar">
           <h2>Populyar axtarışlar</h2>
-          <div>{popularSearches.map(([href, label]) => <a key={href} href={href}>{label}</a>)}</div>
-          <p>kirayeal.az — Azərbaycanda kirayə elanları saytı. Günlük və aylıq kirayə ev, mənzil, maşın, villa, alət və avadanlıq elanlarını tapın, sahibi ilə birbaşa əlaqə saxlayın və ya öz əşyanızı pulsuz kirayəyə verin.</p>
+          <div>{popularSearches.map(([href, label]) => <a key={href} href={href}><Search aria-hidden="true" size={13} strokeWidth={2.25} />{label}</a>)}</div>
         </section>}
       </main>
       <Footer />

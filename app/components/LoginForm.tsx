@@ -1,4 +1,5 @@
 "use client";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { normalizePhone } from "../../lib/rental-details";
 import { createStrongPassword } from "../../lib/strong-password";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -459,7 +460,7 @@ export default function Login({
                             aria-pressed={showPassword}
                             onClick={() => setShowPassword(value => !value)}
                           >
-                            {showPassword ? "Gizlət" : "Göstər"}
+                            {showPassword ? <EyeOff aria-hidden="true" size={20} strokeWidth={1.9} /> : <Eye aria-hidden="true" size={20} strokeWidth={1.9} />}
                           </button>
                         </div>
                         {mode === "signup" && (
@@ -510,7 +511,7 @@ export default function Login({
                           ? "Hesab yarat"
                           : mode === "reset"
                             ? "6 rəqəmli kod göndər"
-                            : "Daxil ol →"}
+                            : "Daxil ol"}
                     </button>
                   </fieldset>
                 </form>
@@ -586,7 +587,7 @@ export default function Login({
                       className="recoveryAction"
                       onClick={() => changeMode("reset")}
                     >
-                      Şifrəni yenilə →
+                      Şifrəni yenilə
                     </button>
                   )}
                 </div>
@@ -623,7 +624,7 @@ export default function Login({
           )}
         </section>
         <Link className="authBack" href="/">
-          ← Elanlara qayıt
+          <ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Elanlara qayıt
         </Link>
       </div>
     </main>

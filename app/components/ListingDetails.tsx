@@ -228,8 +228,8 @@ export default function ListingDetails({
           <div className="kzOwnerBox">
             <div className="kzOwnerServices">
               <PromotionOptions kind="bump" label="İrəli çək" />
-              <PromotionOptions kind="vip" label="VIP et" />
-              <PromotionOptions kind="premium" label="Premium et" />
+              <PromotionOptions kind="vip" label="VIP" />
+              <PromotionOptions kind="premium" label="Premium" />
             </div>
             <div className="kzOwnerRow">
               <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
@@ -261,7 +261,7 @@ export default function ListingDetails({
         {compact && (
           <div className="detailTools">
             <Link href={`/listings/${item.id}`} className="secondary">
-              Ayrıca səhifədə aç →
+              Ayrıca səhifədə aç<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} />
             </Link>
           </div>
         )}
@@ -270,7 +270,7 @@ export default function ListingDetails({
           <div>
             <strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong>
             {item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && <small>{publicMonthYear(item.seller_since)} tarixindən saytdadır</small>}
-            <a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>Bütün elanları →</a>
+            <a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>Bütün elanları<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></a>
           </div>
         </section>}
       </div>

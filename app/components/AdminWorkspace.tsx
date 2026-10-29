@@ -1,8 +1,9 @@
 "use client";
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
+import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
 import { moderationActions, moderationFields, rejectionReasons, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
@@ -38,8 +39,8 @@ async function post(payload: Record<string, unknown>) {
 const renderValue = (value: unknown) => value === null || value === undefined || value === "" ? "—" : typeof value === "object" ? JSON.stringify(value) : String(value);
 const initial = (name?: string | null) => (name || "?").trim().charAt(0).toUpperCase() || "?";
 
-function Panel({ title, actions, children }: { title: string; actions?: ReactNode; children: ReactNode }) {
-  return <section className="kzAdPanel"><header className="kzAdPanelHead"><h2>{title}</h2>{actions && <div className="kzAdActions">{actions}</div>}</header>{children}</section>;
+function Panel({ title, actions, children, className }: { title: string; actions?: ReactNode; children: ReactNode; className?: string }) {
+  return <section className={`kzAdPanel${className ? " " + className : ""}`}><header className="kzAdPanelHead"><h2>{title}</h2>{actions && <div className="kzAdActions">{actions}</div>}</header>{children}</section>;
 }
 function Empty({ title, text }: { title: string; text?: string }) {
   return <div className="kzAdEmpty"><strong>{title}</strong>{text && <p>{text}</p>}</div>;
@@ -48,7 +49,7 @@ function Empty({ title, text }: { title: string; text?: string }) {
 function EventList({ events, onInspect }: { events: ModerationEvent[]; onInspect?: (id: string) => void }) {
   return <ol className="kzAdTimeline">{events.map(event => <li key={event.id}>
     <div className="kzAdTimelineTop"><strong>{moderationActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div>
-    <p>{event.actor_name || (event.actor_kind === "system" ? "Sistem" : event.actor_kind === "admin" ? "İdarəçi" : "Elan sahibi")}{(event.old_status || event.new_status) && <> · {event.old_status ? statusName(event.old_status) + " → " : ""}{event.new_status ? statusName(event.new_status) : "Silinib"}</>}</p>
+    <p>{event.actor_name || (event.actor_kind === "system" ? "Sistem" : event.actor_kind === "admin" ? "İdarəçi" : "Elan sahibi")}{(event.old_status || event.new_status) && <> · {event.old_status && <>{statusName(event.old_status)} <ArrowRight className="kzI" aria-hidden="true" size={13} strokeWidth={2.25} /> </>}{event.new_status ? statusName(event.new_status) : "Silinib"}</>}</p>
     {event.reason && <p className="kzAdReason">Səbəb: {event.reason}</p>}
     <div className="kzAdTimelineLinks">
       {onInspect && <button type="button" className="kzAdLink" onClick={() => onInspect(event.listing_id)}>Elanı aç</button>}
@@ -95,7 +96,7 @@ function ModerationHistory({ revision, onInspect }: { revision: number; onInspec
     finally { setLoading(false); }
   }, []);
   useEffect(() => { void load(); }, [load, revision]);
-  return <Panel title="Əməliyyat tarixçəsi" actions={<button type="button" className="kzAdBtn" disabled={loading} onClick={() => void load()}>{loading ? "Yüklənir…" : "Yenilə"}</button>}>
+  return <Panel title="Əməliyyat tarixçəsi" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" disabled={loading} onClick={() => void load()}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>
     {error && <p className="kzAdError" role="alert">{error}</p>}
     {!events.length && !loading && !error ? <Empty title="Hələ qeyd yoxdur" /> : <EventList events={events} onInspect={onInspect} />}
     {cursor && <button type="button" className="kzAdBtn kzAdMoreBtn" disabled={loading} onClick={() => void load(cursor)}>Daha köhnə qeydlər</button>}
@@ -118,8 +119,8 @@ function ReportQueue({ onInspect, onChange }: { onInspect: (id: string) => void;
   return <Panel title="Şikayətlər">
     <div className="kzAdTabs" role="group" aria-label="Şikayət bölmələri">{[["open", "Açıq"], ["resolved", "Arxiv"]].map(([key, label]) => <button key={key} type="button" aria-pressed={tab === key} onClick={() => { setTab(key); setPage(0); }}>{label}</button>)}</div>
     <form className="kzAdFilters" onSubmit={event => { event.preventDefault(); setQuery(search.trim()); setPage(0); }}>
-      <input aria-label="Şikayət nömrəsi" inputMode="numeric" pattern="[0-9]{8,18}" value={search} onChange={event => setSearch(event.target.value)} placeholder="Şikayət nömrəsi, məs. 20000001" />
-      <input aria-label="Şikayət tarixi" type="date" value={from} onChange={event => { setFrom(event.target.value); setPage(0); }} />
+      <input aria-label="Şikayət nömrəsi" inputMode="numeric" pattern="[0-9]{8,18}" value={search} onChange={event => setSearch(event.target.value)} placeholder="Şikayət №, məs. 20000001" />
+      <AzerbaijaniDateInput label="Şikayət tarixi" value={from} onChange={value => { setFrom(value); setPage(0); }} />
       <button className="kzAdBtn primary">Axtar</button>
     </form>
     {error && <p className="kzAdError" role="alert">{error}</p>}
@@ -136,7 +137,7 @@ function ReportQueue({ onInspect, onChange }: { onInspect: (id: string) => void;
         {tab === "open" && <button type="button" className="kzAdBtn primary" disabled={!!busy} onClick={() => void resolve(report.id)}>{busy === report.id ? "Saxlanılır…" : "Baxıldı"}</button>}
       </div>
     </article>)}</div>}
-    {(page > 0 || reports.length >= 50) && <nav className="kzAdPager" aria-label="Şikayət səhifələri"><button type="button" className="kzAdBtn" disabled={!page || loading} onClick={() => setPage(page - 1)}>← Əvvəlki</button><span>{page + 1}</span><button type="button" className="kzAdBtn" disabled={reports.length < 50 || loading} onClick={() => setPage(page + 1)}>Növbəti →</button></nav>}
+    {(page > 0 || reports.length >= 50) && <nav className="kzAdPager" aria-label="Şikayət səhifələri"><button type="button" className="kzAdBtn" disabled={!page || loading} onClick={() => setPage(page - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page + 1}</span><button type="button" className="kzAdBtn" disabled={reports.length < 50 || loading} onClick={() => setPage(page + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
   </Panel>;
 }
 
@@ -148,7 +149,7 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
     return () => { active = false; clearTimeout(timer); };
   }, [query, revision]);
   return <Panel title="İstifadəçilər" actions={<span className="kzAdMuted">{users.length >= 100 ? "Son 100 hesab" : `${users.length} hesab`}</span>}>
-    <div className="kzAdFilters kzAdInline"><input type="text" inputMode="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Ad, e-poçt, telefon və ya hesab nömrəsi" aria-label="İstifadəçi axtar" /></div>
+    <div className="kzAdFilters kzAdInline"><input type="text" inputMode="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Ad, e-poçt, telefon, №" aria-label="İstifadəçi axtar" /></div>
     {error && <p className="kzAdError" role="alert">{error}</p>}
     {loading && !users.length ? <p className="kzAdMuted" role="status">Yüklənir…</p> : !users.length ? <Empty title="İstifadəçi tapılmadı" /> : <div className="kzAdTable kzAdUsers" role="table" aria-label="İstifadəçilər">
       <div className="kzAdTableHead" role="row"><span>Ad</span><span>Əlaqə</span><span>Elan</span><span>Qeydiyyat</span><span>Rol</span><span /></div>
@@ -191,13 +192,13 @@ function StaffManagement() {
   </article>;
   return <Panel title="Adminlər">
     <p className="kzAdHint">Yalnız Rəhbər yeni admin təyin edə və səlahiyyəti geri ala bilər.</p>
-    <form className="kzAdFilters kzAdInline" onSubmit={event => void find(event)}><input aria-label="Telefon, e-poçt və ya hesab nömrəsi" value={query} onChange={event => { setQuery(event.target.value); setFound(null); }} maxLength={254} placeholder="Yeni admin: telefon, e-poçt və ya hesab nömrəsi" required /><button className="kzAdBtn primary" disabled={busy}>Hesabı tap</button></form>
+    <form className="kzAdFilters kzAdInline" onSubmit={event => void find(event)}><input aria-label="Telefon, e-poçt və ya hesab nömrəsi" value={query} onChange={event => { setQuery(event.target.value); setFound(null); }} maxLength={254} placeholder="Telefon, e-poçt və ya №" required /><button className="kzAdBtn primary" disabled={busy}>Hesabı tap</button></form>
     {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {found && <div className="kzAdFound">{person(found, found.role === "user" ? <button className="kzAdBtn primary" type="button" disabled={busy || !found.confirmed} onClick={() => void change(found, true)}>{found.confirmed ? "Admin təyin et" : "E-poçt təsdiqlənməyib"}</button> : found.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(found, false)}>Səlahiyyəti geri al</button> : undefined)}</div>}
     <h3 className="kzAdSub">Komanda ({members.length})</h3>
-    {!members.some(account => account.role === "moderator") && <p className="kzAdHint">Hələ admin təyin edilməyib. Hesabı axtararaq admin əlavə edə bilərsiniz.</p>}
     <div className="kzAdList">{members.map(account => person(account, account.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(account, false)}>Geri al</button> : undefined))}</div>
-    <details className="kzAdMore"><summary>Səlahiyyət əməliyyatları</summary><div className="kzAdMoreBody"><ol className="kzAdTimeline">{events.map(event => <li key={event.id}><div className="kzAdTimelineTop"><strong>{staffActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div><p>{event.actor_email || "Sistem"}{event.target_email ? ` → ${event.target_email}` : ""}</p></li>)}</ol>{cursor && <button type="button" className="kzAdBtn" disabled={busy} onClick={() => void older()}>Daha köhnə qeydlər</button>}</div></details>
+    {!members.some(account => account.role === "moderator") && <p className="kzAdHint">Sizdən başqa admin yoxdur. Admin əlavə etmək üçün yuxarıda hesabı tapın.</p>}
+    <details className="kzAdMore"><summary>Səlahiyyət əməliyyatları</summary><div className="kzAdMoreBody"><ol className="kzAdTimeline">{events.map(event => <li key={event.id}><div className="kzAdTimelineTop"><strong>{staffActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div><p>{event.actor_email || "Sistem"}{event.target_email && <> <ArrowRight className="kzI" aria-hidden="true" size={13} strokeWidth={2.25} /> {event.target_email}</>}</p></li>)}</ol>{cursor && <button type="button" className="kzAdBtn" disabled={busy} onClick={() => void older()}>Daha köhnə qeydlər</button>}</div></details>
   </Panel>;
 }
 
@@ -251,11 +252,17 @@ export default function AdminWorkspace() {
   const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (item !== "staff" || role === "leader"));
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0;
   const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : 0;
+  const menuNote = (item: Section): { text: string; alert?: boolean } =>
+    item === "moderation" ? (pending ? { text: `${pending} elan yoxlama gözləyir`, alert: true } : { text: "Yoxlanılacaq elan yoxdur" })
+    : item === "reports" ? (openReports ? { text: `${openReports} açıq şikayət`, alert: true } : { text: "Açıq şikayət yoxdur" })
+    : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
+    : item === "banners" ? { text: "Reklam bannerləri" }
+    : { text: "Komanda və icazələr" };
 
   return <div className="kzAdm">
     <nav className="kzAdNav" aria-label="Panel bölmələri">
       {sections.map(item => <button key={item} type="button" aria-pressed={section === item} onClick={() => open(item)}>{(() => { const SectionIcon = icons[item]; return <SectionIcon aria-hidden="true" size={20} strokeWidth={1.75} />; })()}<span>{sectionLabels[item]}</span>{!!badge(item) && <b>{badge(item)}</b>}</button>)}
-      <Link className="kzAdNavBack" href="/profile">← Şəxsi kabinet</Link>
+      <Link className="kzAdNavBack" href="/profile"><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Şəxsi kabinet</Link>
     </nav>
     <div className="kzAdContent">
       {section !== "overview" && <button type="button" className="kzAdBack" onClick={() => open(section === "history" ? "moderation" : "overview")}><ChevronLeft aria-hidden="true" size={20} strokeWidth={2} />{section === "history" ? "Elanlar" : "Panel"}</button>}
@@ -263,17 +270,20 @@ export default function AdminWorkspace() {
 
       {section === "overview" && <>
         <nav className="kzAdMenu" aria-label="Panel bölmələri">
-          {sections.filter(item => item !== "overview").map(item => { const SectionIcon = icons[item]; return <button key={item} type="button" className={`tone-${item}`} onClick={() => open(item)}>
-            <span className="kzAdMenuIcon"><SectionIcon aria-hidden="true" size={22} strokeWidth={1.9} /></span>
-            <span>{sectionLabels[item]}</span>
+          {sections.filter(item => item !== "overview").map(item => { const SectionIcon = icons[item]; const note = menuNote(item); return <button key={item} type="button" className={`tone-${item}`} onClick={() => open(item)}>
+            <span className="kzAdMenuIcon"><SectionIcon aria-hidden="true" size={20} strokeWidth={1.9} /></span>
+            <span className="kzAdMenuText"><strong>{sectionLabels[item]}</strong><small className={note.alert ? "alert" : ""}>{note.text}</small></span>
             {!!badge(item) && <b>{badge(item)}</b>}
+            <ChevronRight className="kzAdMenuArrow" aria-hidden="true" size={18} strokeWidth={2} />
           </button>; })}
         </nav>
-        <Panel title="Ümumi baxış" actions={<button type="button" className="kzAdBtn" onClick={() => setRevision(x => x + 1)}>Yenilə</button>}>
-                    <div className="kzAdTodo">
-            <button type="button" className={pending ? "attention" : ""} onClick={() => showListings("pending")}><b>{pending}</b><span>{pending ? "elan yoxlama gözləyir" : "yoxlanılacaq elan yoxdur"}</span><em>Bax →</em></button>
-            <button type="button" className={openReports ? "warn" : ""} onClick={() => open("reports")}><b>{openReports}</b><span>{openReports ? "açıq şikayət" : "açıq şikayət yoxdur"}</span><em>Bax →</em></button>
+        <Panel title="Görüləcək işlər" className="kzAdTodoPanel">
+          <div className="kzAdTodo">
+            <button type="button" className={pending ? "attention" : ""} onClick={() => showListings("pending")}><b>{pending}</b><span>{pending ? "elan yoxlama gözləyir" : "yoxlanılacaq elan yoxdur"}</span><em>Bax<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></em></button>
+            <button type="button" className={openReports ? "warn" : ""} onClick={() => open("reports")}><b>{openReports}</b><span>{openReports ? "açıq şikayət" : "açıq şikayət yoxdur"}</span><em>Bax<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></em></button>
           </div>
+        </Panel>
+        <Panel title="Statistika" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" onClick={() => setRevision(x => x + 1)}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>
           <div className="kzAdStats four">
             <button type="button" onClick={() => open("users")}><span>Yeni istifadəçi · bu gün</span><b>{periods?.users.today ?? "—"}</b><small>7 gün: {periods?.users.week ?? "—"} · 30 gün: {periods?.users.month ?? "—"}</small></button>
             <button type="button" onClick={() => showListings("all")}><span>Yeni elan · bu gün</span><b>{periods?.listings.today ?? "—"}</b><small>7 gün: {periods?.listings.week ?? "—"} · 30 gün: {periods?.listings.month ?? "—"}</small></button>
@@ -293,13 +303,13 @@ export default function AdminWorkspace() {
 
       </>}
 
-      {section === "moderation" && <Panel title="Elanlar" actions={<><button type="button" className="kzAdBtn" onClick={() => open("history")}><History aria-hidden="true" size={15} strokeWidth={2} />Tarixçə</button><button type="button" className="kzAdBtn" disabled={loading || !!busy} onClick={() => setRevision(x => x + 1)}>Yenilə</button></>}>
+      {section === "moderation" && <Panel title="Elanlar" actions={<><button type="button" className="kzAdBtn" onClick={() => open("history")}><History aria-hidden="true" size={15} strokeWidth={2} />Tarixçə</button><button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" disabled={loading || !!busy} onClick={() => setRevision(x => x + 1)}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button></>}>
         <div className="kzAdTabs" role="group" aria-label="Elan vəziyyəti">{statuses.map(([status, label]) => <button key={status} type="button" aria-pressed={filter === status} disabled={!!busy} onClick={() => { setFilter(status); setPage(1); }}>{label}{counts && <small>{status === "all" ? counts.listings : status === "archived" ? (counts.statuses.archived || 0) + (counts.statuses.expired || 0) : counts.statuses[status] || 0}</small>}</button>)}</div>
         <form className="kzAdFilters" onSubmit={find}>
-          <input type="text" inputMode="search" value={search} onChange={event => setSearch(event.target.value)} maxLength={100} placeholder="Başlıq, telefon və ya elan nömrəsi" aria-label="Elan axtar" />
+          <input type="text" inputMode="search" value={search} onChange={event => setSearch(event.target.value)} maxLength={100} placeholder="Başlıq, telefon, № elan" aria-label="Elan axtar" />
           <button type="button" className="kzAdBtn kzAdFilterToggle" aria-expanded={moreFilters} onClick={() => setMoreFilters(value => !value)}><SlidersHorizontal aria-hidden="true" size={16} strokeWidth={2} /></button>
           <span className={`kzAdExtra${moreFilters ? " open" : ""}`}>
-          <input type="date" value={dateFrom} onChange={event => { setDateFrom(event.target.value); setPage(1); }} aria-label="Elanın tarixi" />
+          <AzerbaijaniDateInput label="Elanın tarixi" value={dateFrom} onChange={value => { setDateFrom(value); setPage(1); }} />
           <select aria-label="Yoxlama növü" value={reviewKind} onChange={event => { setReviewKind(event.target.value); setPage(1); }}><option value="">Hamısı</option><option value="new">Yeni</option><option value="edited">Dəyişdirilmiş</option></select>
           </span>
           <button className="kzAdBtn primary" disabled={!!busy}>Axtar</button>
@@ -342,7 +352,7 @@ export default function AdminWorkspace() {
               <ModerationReview key={`${item.id}-${revision}`} listingId={item.id} onInspect={inspect} />
             </div>
           </article>)}</div>}
-          {total > PAGE && <nav className="kzAdPager" aria-label="Elan səhifələri"><button type="button" className="kzAdBtn" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}>← Əvvəlki</button><span>{page} / {Math.ceil(total / PAGE)}</span><button type="button" className="kzAdBtn" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti →</button></nav>}
+          {total > PAGE && <nav className="kzAdPager" aria-label="Elan səhifələri"><button type="button" className="kzAdBtn" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page} / {Math.ceil(total / PAGE)}</span><button type="button" className="kzAdBtn" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
         </>}
       </Panel>}
 

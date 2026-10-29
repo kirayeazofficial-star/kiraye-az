@@ -7,7 +7,7 @@ export default function NotFound() {
       <main className="wrap">
         <section className="empty">
           <p className="eyebrow">404 · SƏHİFƏ TAPILMADI</p>
-          <h1>Bu ünvanda elan yoxdur</h1>
+          <h1>Bu səhifə tapılmadı</h1>
           <p>Keçid dəyişmiş və ya səhifə silinmiş ola bilər.</p>
           <Link className="add" href="/">
             Elanlara qayıt

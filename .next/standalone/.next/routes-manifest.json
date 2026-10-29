@@ -207,6 +207,12 @@
       "namedRegex": "^/api/listings/restore(?:/)?$"
     },
     {
+      "page": "/api/listings/submit",
+      "regex": "^/api/listings/submit(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/listings/submit(?:/)?$"
+    },
+    {
       "page": "/api/messages",
       "regex": "^/api/messages(?:/)?$",
       "routeKeys": {},

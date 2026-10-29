@@ -12,7 +12,9 @@ async function status(id:string){
  let staff_role:string|null=null,role=row.email.toLowerCase()==='kirayeal.az@gmail.com'?'admin':'user';
  try{const staff=await hostQuery<{staff_role:string}>(`select staff_role from public.staff_members where user_id=$1`,[id]);staff_role=staff[0]?.staff_role||null;}catch{}
  try{const access=await hostQuery<{role:string}>(`select role from public.profiles where id=$1`,[id]);if(access[0]?.role)role=access[0].role;}catch{}
- return{...row,role,staff_role,phone_changes:0,email_changes:0,display_name:row.name,phone_remaining:3,email_remaining:3,phone_verified:false,pending_email:null};
+ let avatar_url:string|null=null,created_at:string|null=null;
+ try{const extra=await hostQuery<{avatar_url:string|null;created_at:string|null}>(`select p.avatar_url,u.created_at from auth.users u join public.profiles p on p.id=u.id where u.id=$1`,[id]);avatar_url=extra[0]?.avatar_url||null;created_at=extra[0]?.created_at||null;}catch{}
+ return{...row,avatar_url,created_at,role,staff_role,phone_changes:0,email_changes:0,display_name:row.name,phone_remaining:3,email_remaining:3,phone_verified:false,pending_email:null};
 }
 async function ensureProfile(user:{id:string;email:string;display_name:string;phone:string}){await hostQuery(`insert into public.profiles(id,display_name,phone) values($1,$2,$3) on conflict(id) do nothing`,[user.id,user.display_name||user.email.split('@')[0]||'İstifadəçi',user.phone||'']);}
 export async function GET(){

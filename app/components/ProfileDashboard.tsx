@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, ChevronRight, LogOut, Plus, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -135,18 +135,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     finally { setBusy(""); }
   }
   const matchesTab=(item:Listing,status:string)=>{if(status==="deleted")return !!item.deleted_at;if(item.deleted_at)return false;if(status==="payment")return !!item.payment_required;if(item.payment_required)return false;const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);return current===status;};
-  async function logout() {
-    const response=await fetch('/api/auth/host',{method:'DELETE'});
-    if (!response.ok) {
-      setError("Hesabdan çıxmaq mümkün olmadı.");
-      return;
-    }
-    try {
-      sessionStorage.removeItem("kiraye:pending-confirmation");
-      sessionStorage.removeItem("kiraye:login-email");
-    } catch {}
-    window.location.href = "/";
-  }
   return (
     <>
       <Header />
@@ -185,7 +173,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
                 {admin && <Link className="kzMenuRow" href="/admin"><span className="kzMenuIcon admin"><ShieldCheck size={18} strokeWidth={2} /></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={18} strokeWidth={1.75} /></Link>}
-                <button type="button" className="kzMenuRow danger kzLogoutNav" onClick={logout}><span className="kzMenuIcon logout"><LogOut size={18} strokeWidth={2} /></span><span>Hesabdan çıx</span></button>
               </div>
             </nav>
             </aside>

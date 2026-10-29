@@ -1751,3 +1751,9 @@ html{-webkit-tap-highlight-color:transparent}
 .kzViewer .kzViewerTop,.kzViewer .kzViewerTop:focus,.kzViewer .kzViewerTop:focus-visible{outline:none!important;box-shadow:none!important;border:0!important}
 .kzViewer:focus,.kzViewer:focus-visible{outline:none!important}
 .kzViewerHint{display:none!important}
+/* Profile: result shown right where the action happened — green with a tick, red on error */
+.kzFormStatus{display:flex;align-items:center;gap:8px;margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#e8f7ee;border:1px solid #b7e4c7;color:#17803d;font-size:var(--fs-14);font-weight:600}
+.kzFormStatus svg{flex:none}
+.kzFormStatus.error{background:#fdecec;border-color:#f5c2c3;color:#c62828}
+.kzEmailStatus:empty{display:none}
+.kzAccountGrid>.kzFormStatus{margin:-4px 0 0}

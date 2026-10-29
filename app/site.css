@@ -1415,3 +1415,53 @@ video.kzBannerThumb{display:block}
   .kzAdStats.four>* b{grid-area:value;line-height:1!important;font-size:var(--fs-20)!important}
   .kzAdStats.four>* small{grid-area:note;line-height:1.3!important}
 }
+.kzAdChanges{margin:0 0 10px!important}.kzAdChanges p small{color:var(--kz-muted)}
+/* Admin statistics: four headline figures + a small period table */
+.kzAdKpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:0 0 12px}
+.kzAdKpis>*{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:0;margin:0;padding:12px 14px;border:0;border-radius:12px;background:var(--kz-soft);color:var(--kz-ink);font:inherit;text-align:left;box-shadow:none}
+.kzAdKpis>button{cursor:pointer}.kzAdKpis>button:hover{background:#eceef2}
+.kzAdKpis b{font-size:var(--fs-24);font-weight:700;line-height:1.1}
+.kzAdKpis span{font-size:var(--fs-13);color:var(--kz-muted);line-height:1.3}
+.kzAdPeriods{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--kz-line);border-radius:12px;overflow:hidden;font-size:var(--fs-14)}
+.kzAdPeriods th,.kzAdPeriods td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--kz-line);white-space:nowrap}
+.kzAdPeriods tr:last-child>*{border-bottom:0}
+.kzAdPeriods thead th{background:var(--kz-soft);font-size:var(--fs-12);font-weight:600;color:var(--kz-muted)}
+.kzAdPeriods th:first-child{text-align:left}
+.kzAdPeriods tbody th{font-weight:500;color:var(--kz-text)}
+.kzAdPeriods td{font-weight:700;color:var(--kz-ink);font-variant-numeric:tabular-nums}
+@media (max-width:767px){
+  .kzAdKpis{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .kzAdKpis>*{padding:10px 12px}
+  .kzAdKpis b{font-size:var(--fs-20)}
+  .kzAdKpis span{font-size:var(--fs-12)}
+  .kzAdPeriods{font-size:var(--fs-13)}
+  .kzAdPeriods th,.kzAdPeriods td{padding:9px 10px}
+}
+.kzPhoneShown{font-variant-numeric:tabular-nums;letter-spacing:.2px;font-weight:700!important}
+/* One "+" style everywhere: the header button matches the tab bar button */
+@media (max-width:767px){
+  .kzRoundPlus{width:clamp(32px,calc(34 * var(--u)),38px)!important;height:clamp(32px,calc(34 * var(--u)),38px)!important;box-shadow:0 2px 8px rgba(255,90,31,.3)}
+  .kzRoundPlus svg,.kzTabbar>a .kzTabPlus svg{width:50%!important;height:50%!important}
+}
+/* Login / sign-up: tighter vertical rhythm */
+.loginPage .authModeLinks{margin-bottom:14px!important}
+.loginPage h1{margin-bottom:10px!important}
+.loginPage .googleLogin{margin-top:10px!important}
+.loginPage .googleButton{min-height:0!important;height:44px!important}
+.loginPage .mailHelp{margin:4px 0 0!important;font-size:var(--fs-12)!important;line-height:1.4}
+.loginPage .authDivider{margin:12px 0!important}
+.loginPage .authLead{margin:0 0 12px!important;font-size:var(--fs-13)!important}
+.loginPage .authFields>label,.loginPage .authPasswordGroup{margin-bottom:12px!important}
+.loginPage .authFields input:not([type=checkbox]),.loginPage .passwordField input,.loginPage .passwordToggle{min-height:0!important;height:44px!important}
+.loginPage .authFields>label>input:not([type=checkbox]),.loginPage .passwordField{margin-top:5px!important}
+.loginPage .authPasswordGroup .textButton{min-height:0!important;padding:6px 0 0!important;font-size:var(--fs-13)!important}
+.loginPage .passwordHint{margin-top:4px!important;font-size:var(--fs-12)!important;line-height:1.4}
+.loginPage .rememberLogin{margin-bottom:10px!important}
+.loginPage .authSubmit{min-height:0!important;height:46px!important}
+.loginPage .authFooter{margin-top:14px!important;padding-top:10px!important}
+.loginPage .authFooter a{min-height:36px!important}
+/* Sticky contact bar: the number fits on one line with its phone icon */
+.stickyContact{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)!important}
+.stickyContact .add,.stickyContact .messageAction{display:flex!important;align-items:center;justify-content:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 10px!important}
+.stickyContact .add{font-size:clamp(13px,calc(15 * var(--u)),16px)!important}
+.stickyContact .add .kzI{margin:0!important}

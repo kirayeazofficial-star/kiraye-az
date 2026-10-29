@@ -88,7 +88,7 @@ export async function GET(request:NextRequest){
       if(!base[0])return reply({error:"NOT_FOUND"},404);
       const l=base[0];
       const [owner,ownerListings,reports,events,signals]=await Promise.all([
-        hostQuery(`select u.id,p.display_name name,u.created_at joined_at from auth.users u left join public.profiles p on p.id=u.id where u.id=$1`,[l.owner_id]),
+        hostQuery(`select u.id,p.display_name as name,u.created_at joined_at from auth.users u left join public.profiles p on p.id=u.id where u.id=$1`,[l.owner_id]),
         hostQuery(`select id,title,status,rejection_reason,created_at from public.listings where owner_id=$1 order by created_at desc limit 20`,[l.owner_id]),
         hostQuery<{status:string;count:string}>(`select r.status,count(*)::text count from public.listing_reports r join public.listings x on x.id=r.listing_id where x.owner_id=$1 group by r.status`,[l.owner_id]),
         hostQuery(`select e.*,p.display_name actor_name from public.moderation_events e left join public.profiles p on p.id=e.actor_id where e.listing_id=$1 order by e.id desc limit 10`,[id]),
@@ -124,7 +124,7 @@ export async function GET(request:NextRequest){
       const before=Number(param(request,"before"))||null;
       // The team list and the history load separately: one failing must not hide the other.
       const [members,events]=await Promise.allSettled([
-        before?Promise.resolve([]):hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name name,p.phone,p.profile_no,s.staff_role role,s.assigned_at from public.staff_members s join auth.users u on u.id=s.user_id left join public.profiles p on p.id=s.user_id order by case when s.staff_role='leader' then 0 else 1 end,s.assigned_at`),
+        before?Promise.resolve([]):hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name as name,p.phone,p.profile_no,s.staff_role as role,s.assigned_at from public.staff_members s join auth.users u on u.id=s.user_id left join public.profiles p on p.id=s.user_id order by case when s.staff_role='leader' then 0 else 1 end,s.assigned_at`),
         hostQuery<{id:string}>(`select e.id,e.action,e.created_at,e.actor_id,e.target_id,a.email actor_email,t.email target_email from public.staff_events e left join auth.users a on a.id=e.actor_id left join auth.users t on t.id=e.target_id where ($1::bigint is null or e.id<$1) order by e.id desc limit 51`,[before]),
       ]);
       if(members.status==="rejected")throw members.reason;
@@ -138,7 +138,7 @@ export async function GET(request:NextRequest){
       const query=param(request,"query").slice(0,254);if(query.length<3)return reply({error:"INVALID_REQUEST"},400);
       const digits=query.replace(/\D/g,"");
       // Exact e-mail, account number or phone first; otherwise part of the e-mail or name.
-      const rows=await hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name name,p.phone,p.profile_no,coalesce(s.staff_role,'user') role from auth.users u left join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id
+      const rows=await hostQuery(`select u.id,u.email,(u.email_confirmed_at is not null) confirmed,p.display_name as name,p.phone,p.profile_no,coalesce(s.staff_role,'user') as role from auth.users u left join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id
         where lower(trim(u.email))=lower($1::text) or u.id::text=$1::text
           or ($2::text<>'' and length($2::text)>=6 and (right(regexp_replace(coalesce(p.phone,''),'\\D','','g'),9)=right($2::text,9) or p.profile_no::text=$2::text))
           or position(lower($1::text) in lower(u.email))>0

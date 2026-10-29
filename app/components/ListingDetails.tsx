@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, Check, ChevronLeft, ChevronRight, LayoutList, MapPin, Pencil, Share2 } from "lucide-react";
+import { Calculator, Check, ChevronLeft, ChevronRight, LayoutList, MapPin, Pencil, Phone, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
@@ -240,7 +240,7 @@ export default function ListingDetails({
         ) : phone && !item.demo ? (
           <div className="contactActions">
             {ownerReady&&<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
-            {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et · {formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər">Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
+            {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər"><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"
               href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, kirayeal.az saytındakı “${item.title}” elanınızla maraqlanıram.`)}`}
@@ -402,7 +402,7 @@ export default function ListingDetails({
         )}
       </div>
       {mounted && !compact && !effectiveOwner && phone && !item.demo && createPortal(<div className="stickyContact" role="group" aria-label="Əlaqə">
-        {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}>Nömrəni göstər</button>}
+        {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər</button>}
         {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
       </div>, document.body)}
       {!compact && <div className="kzListingBanner"><BannerStrip placement="listing" /></div>}

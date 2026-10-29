@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, ChevronRight, LogOut, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut, Plus, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -169,7 +169,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : <>
               <div className="kzOwnHead">
                 <h2>Elanlarım{refreshing && <span className="kzSpinner" role="status" aria-label="Yenilənir" />}</h2>
-                <Link className="kzButton" href="/new">+ Yeni elan</Link>
+                <Link className="kzButton" href="/new"><Plus className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Yeni elan</Link>
               </div>
               <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
                 {listingTabs.map(([status, label]) => (
@@ -212,7 +212,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                           : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Redaktə et</Link>
                           : <>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
-                            {current === "published" && <PromotionOptions label="İrəlilət" />}
+                            {current === "published" && <PromotionOptions label="Reklam et" />}
                           </>}
                         {!x.deleted_at && <button type="button" className="kzDangerLink" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}>Sil</button>}
                       </div>

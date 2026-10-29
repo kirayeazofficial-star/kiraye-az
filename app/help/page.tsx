@@ -51,10 +51,10 @@ export default function Help() {
               "Spam qovluğunu yoxla. Giriş səhifəsində yeni təsdiq məktubu istə. Yalnız ən son link və ya məktubdakı koddan istifadə et.",
             ],
           ].map(([q, a]) => (
-            <section key={q} className="helpCard">
-              <h2>{q}</h2>
+            <details key={q} className="helpCard">
+              <summary><h2>{q}</h2></summary>
               <p>{a}</p>
-            </section>
+            </details>
           ))}
         </div>
         <Link className="add" href="/new">

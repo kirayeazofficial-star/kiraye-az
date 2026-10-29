@@ -1,5 +1,5 @@
 "use client";
-import { Check } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, ImagePlus, X } from "lucide-react";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
 import { watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -762,7 +762,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         1–6 şəkil · JPG, PNG və ya WebP · hər biri maksimum 5 MB
                       </p>
                       <label className="uploadZone">
-                        ↑ Şəkilləri seç
+                        <ImagePlus className="kzI kzIL" aria-hidden="true" size={20} strokeWidth={2} /> Şəkilləri seç
                         <input
                           aria-label="Elan şəkilləri"
                           type="file"
@@ -814,7 +814,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                                 )
                               }
                             >
-                              ×
+                              <X aria-hidden="true" size={14} strokeWidth={2.5} />
                             </button>
                             {i > 0 && (
                               <button
@@ -842,7 +842,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                                 setFiles(files.filter((_, n) => n !== i))
                               }
                             >
-                              ×
+                              <X aria-hidden="true" size={14} strokeWidth={2.5} />
                             </button>
                             {i > 0 && !existingImages.length && (
                               <button
@@ -967,7 +967,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       <button className="add wide" disabled={busy}>
                         {busy
                           ? "Göndərilir, gözləyin..."
-                          : "Elanı yoxlamaya göndər →"}
+                          : "Elanı yoxlamaya göndər"}
                       </button>
                     </section>
                   </>
@@ -984,13 +984,13 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       className="secondary"
                       onClick={() => goToStep(step - 1)}
                     >
-                      ← Geri
+                      <ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Geri
                     </button>
                   )}
                   <span>{step} / 4 addım</span>
                   {step < 4 && (
                     <button type="button" className="add" onClick={nextStep}>
-                      Davam et →
+                      Davam et<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} />
                     </button>
                   )}
                 </div>

@@ -1,10 +1,11 @@
 "use client";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { ImagePlus, Pencil, Trash2 } from "lucide-react";
+import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { bannerJpeg } from "../../lib/banner-image";
 
 type Banner = { id: string; title: string; image_url: string; link_url: string | null; placement: "home" | "listing"; active: boolean; starts_at: string | null; ends_at: string | null; sort_order: number; clicks: number };
-const placements = { home: "Ana səhifə (kateqoriyaların altında)", listing: "Elan səhifəsi (təsvirin altında)" };
+const placements = { home: "Ana səhifə", listing: "Elan səhifəsi" };
 const empty = { id: "", title: "", link_url: "", placement: "home" as Banner["placement"], starts_at: "", ends_at: "", sort_order: "0", active: true };
 const day = (value: string | null) => value ? value.slice(0, 10) : "";
 const show = (value: string | null) => value ? value.slice(0, 10).split("-").reverse().join(".") : "—";
@@ -60,8 +61,8 @@ export default function BannerManager() {
         <label>Ad (yalnız paneldə görünür)<input value={form.title} maxLength={120} onChange={event => setForm({ ...form, title: event.target.value })} placeholder="Məs. Avto icarə — noyabr" /></label>
         <label>Keçid (istəyə bağlı)<input value={form.link_url} maxLength={500} onChange={event => setForm({ ...form, link_url: event.target.value })} placeholder="https://... və ya /kiraye-masin" /></label>
         <label>Yer<select value={form.placement} onChange={event => setForm({ ...form, placement: event.target.value as Banner["placement"] })}>{Object.entries(placements).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-        <label>Başlanğıc<input type="date" value={form.starts_at} onChange={event => setForm({ ...form, starts_at: event.target.value })} /></label>
-        <label>Son tarix<input type="date" value={form.ends_at} onChange={event => setForm({ ...form, ends_at: event.target.value })} /></label>
+        <AzerbaijaniDateInput label="Başlanğıc" value={form.starts_at} onChange={value => setForm({ ...form, starts_at: value })} />
+        <AzerbaijaniDateInput label="Son tarix" value={form.ends_at} min={form.starts_at || undefined} onChange={value => setForm({ ...form, ends_at: value })} />
         <label>Sıra<input type="number" min={0} max={999} value={form.sort_order} onChange={event => setForm({ ...form, sort_order: event.target.value })} /></label>
         <label className="kzBannerCheck"><input type="checkbox" checked={form.active} onChange={event => setForm({ ...form, active: event.target.checked })} />Aktivdir</label>
       </div>

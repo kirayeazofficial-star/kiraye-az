@@ -20,7 +20,7 @@ export default function Footer() {
           <a href="/kiraye-aletler">{t("Alətlər və texnika")}</a>
         </nav>
         <nav aria-label={t("Məlumat və kömək")}>
-          <strong>{t("Kömək")}</strong>
+          <strong>{t("Məlumat")}</strong>
           <Link href="/help">{t("Kömək")}</Link>
           <Link href="/rules">{t("Qaydalar və təhlükəsizlik")}</Link>
           <Link href="/privacy">{t("Məxfilik")}</Link>

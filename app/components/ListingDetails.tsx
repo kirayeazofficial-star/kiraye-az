@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
 import BannerStrip from "./BannerStrip";
+import SideBanners from "./SideBanners";
 import ImageViewer from "./ImageViewer";
 import NavigationIcon from './NavigationIcon';
 import PromotionBadges from "./PromotionBadges";
@@ -421,6 +422,7 @@ export default function ListingDetails({
         {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
       </div>, document.body)}
       {!compact && <div className="kzListingBanner"><BannerStrip placement="listing" /></div>}
+      {!compact && <SideBanners />}
       {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}
     </div>
   );

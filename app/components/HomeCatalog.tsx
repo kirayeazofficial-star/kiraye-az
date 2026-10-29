@@ -21,6 +21,7 @@ import {
 import CategoryVisual from "./CategoryVisual";
 import ListingSuggestions from "./ListingSuggestions";
 import BannerStrip from "./BannerStrip";
+import SideBanners from "./SideBanners";
 import Header from "./Header";
 import Footer from "./Footer";
 import ListingCard from "./ListingCard";
@@ -364,6 +365,7 @@ export default function Home() {
           ))}
         </section>
         {browsing && <BannerStrip placement="home" />}
+        <SideBanners />
         {browsing && <ListingSuggestions premiumOnly/>}
         <section className="kzSection" id="elanlar">
           <div className="kzSectionHead">

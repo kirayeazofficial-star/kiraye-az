@@ -9,7 +9,7 @@ import { useLanguage } from "./LanguageProvider";
 
 const primaryLinks: [string, string, LucideIcon, string][] = [
   ["/#elanlar", "Elanlar", LayoutGrid, "orange"],
-  ["/?favorites=1#elanlar", "Seçilmişlər", Heart, "red"],
+  ["/?favorites=1", "Seçilmişlər", Heart, "red"],
   ["/new", "Elan yerləşdir", CirclePlus, "green"],
   ["/messages", "Mesajlar", MessageCircle, "blue"],
   ["/profile", "Şəxsi kabinet", User, "purple"],

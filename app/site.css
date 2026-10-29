@@ -1757,3 +1757,18 @@ html{-webkit-tap-highlight-color:transparent}
 .kzFormStatus.error{background:#fdecec;border-color:#f5c2c3;color:#c62828}
 .kzEmailStatus:empty{display:none}
 .kzAccountGrid>.kzFormStatus{margin:-4px 0 0}
+
+/* Seçilmişlər: its own clean page that starts at the top with the "Seçilmiş elanlar" heading */
+.kzHome.favoritesView .kzCategories,.kzHome.favoritesView .kzBanners,.kzHome.favoritesView .kzSuggestions{display:none!important}
+.kzProfileInfo .kzProfileMeta{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.kzProfileInfo .kzProfileMeta span{padding:3px 8px;border-radius:999px;background:var(--kz-soft);color:var(--kz-muted);font-size:var(--fs-12);font-weight:500}
+/* Side banners: only on wide computer screens, centred in the free space beside the 1200px page */
+.kzSideBanner{display:none}
+@media (min-width:1536px){
+  .kzSideBanner{--side-w:clamp(120px,calc((100vw - 1248px)/2 - 32px),200px);display:block;position:fixed;top:96px;z-index:5;width:var(--side-w)}
+  .kzSideBanner.left{left:calc(((100vw - 1248px)/2 - var(--side-w))/2)}
+  .kzSideBanner.right{right:calc(((100vw - 1248px)/2 - var(--side-w))/2)}
+  .kzSideBanner a,.kzSideBanner>img,.kzSideBanner>video{display:block}
+  .kzSideBanner img,.kzSideBanner video{display:block;width:100%;height:auto;max-height:calc(100vh - 130px);object-fit:cover;border-radius:12px;background:var(--kz-soft)}
+  .kzSideBanner small{display:block;margin-top:4px;text-align:center;font-size:11px;color:var(--kz-muted)}
+}

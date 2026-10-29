@@ -1677,3 +1677,17 @@ html{-webkit-tap-highlight-color:transparent}
 @media (min-width:900px){main.prose>*,main.legalPage>*,.rulesPage>*{max-width:820px}}
 /* Phone field inside the login card keeps one border only */
 .loginPage .authFields .kzPhoneInput input,.loginPage .kzPhoneInput input[type=tel]{border:0!important;box-shadow:none!important;background:transparent!important;height:42px!important;margin:0!important}
+
+/* ===== Photos like classified sites: no blurred side bars; the photo sits on one calm neutral background ===== */
+.listingDetails .galleryStage,.listingDetails .galleryStage:has(img){background:#f1f2f4!important;isolation:auto!important}
+.listingDetails .galleryStage::before,.galleryStage::before{content:none!important;display:none!important}
+.listingDetails .galleryStage{border:1px solid var(--kz-line)!important;overflow:hidden!important}
+.galleryStage .galleryOpen>img.listingMainImage{object-fit:contain!important}
+.kzCardPhoto::before{content:none!important;display:none!important}
+.kzCardPhoto{background:#f1f2f4!important}
+.kzCardPhoto img{object-fit:contain!important}
+/* Gallery buttons: clean white circles with a soft shadow, inside the photo frame */
+.listingDetails .galleryActions{top:12px!important;right:12px!important}
+.listingDetails .galleryActions button,.listingDetails .galleryStage .galleryArrow{background:#fff!important;border:1px solid rgba(16,24,40,.08)!important;box-shadow:0 2px 6px rgba(16,24,40,.12)!important}
+.listingDetails .galleryCounter{right:12px!important;bottom:12px!important}
+@media (max-width:767px){.listingDetails .galleryStage{border:0!important;border-radius:0!important}}

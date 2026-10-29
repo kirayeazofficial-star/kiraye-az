@@ -4,9 +4,9 @@ import { ImagePlus, Pencil, Trash2 } from "lucide-react";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { bannerJpeg } from "../../lib/banner-image";
 
-type Banner = { id: string; title: string; image_url: string; media_type?: string; link_url: string | null; placement: "home" | "listing" | "left" | "right"; active: boolean; starts_at: string | null; ends_at: string | null; sort_order: number; clicks: number };
-const placements = { home: "Ana səhifə", listing: "Elan səhifəsi", left: "Kompüter: sol tərəf", right: "Kompüter: sağ tərəf" };
-const placementHints = { home: "Ana səhifədə kateqoriyaların altında, bütün ziyarətçilərə görünür.", listing: "Hər elanın səhifəsində, elan haqqında məlumatın altında görünür.", left: "Geniş kompüter ekranında səhifənin solunda, sürüşdürəndə yerində qalır. Telefonda görünmür. Şaquli şəkil: 160×600 və ya 300×900.", right: "Geniş kompüter ekranında səhifənin sağında, sürüşdürəndə yerində qalır. Telefonda görünmür. Şaquli şəkil: 160×600 və ya 300×900." };
+type Banner = { id: string; title: string; image_url: string; media_type?: string; link_url: string | null; placement: "home" | "listing" | "top" | "side"; active: boolean; starts_at: string | null; ends_at: string | null; sort_order: number; clicks: number };
+const placements = { top: "Yuxarı zolaq (kompüter)", side: "Sağ və sol (kompüter)", home: "Ana səhifə, elanların arasında", listing: "Elan səhifəsi" };
+const placementHints = { top: "Bütün səhifələrdə, saytın ən yuxarısında, menyudan əvvəl geniş zolaq. Kompüterdə görünür. Ölçü: 1920×200 (və ya 1200×120).", side: "Eyni reklam səhifənin həm solunda, həm sağında görünür, sürüşdürəndə yerində qalır. Geniş kompüter ekranında (1536px+). Ölçü: 300×900 və ya 160×600.", home: "Ana səhifədə kateqoriyaların altında, bütün ziyarətçilərə (telefonda da) görünür. Ölçü: 1200×300.", listing: "Hər elanın səhifəsində, elan məlumatının altında (telefonda da) görünür. Ölçü: 1200×300." };
 const isVideo = (banner: { image_url: string; media_type?: string }) => banner.media_type === "video" || /\.(mp4|webm)$/i.test(banner.image_url);
 const empty = { id: "", title: "", link_url: "", placement: "home" as Banner["placement"], starts_at: "", ends_at: "", sort_order: "0", active: true };
 const day = (value: string | null) => value ? value.slice(0, 10) : "";

@@ -4,7 +4,7 @@ export const dynamic="force-dynamic";
 const reply=(data:unknown,status=200)=>NextResponse.json(data,{status,headers:{"Cache-Control":"no-store"}});
 // Active banners for one placement; POST counts a click.
 export async function GET(request:NextRequest){
-  const asked=request.nextUrl.searchParams.get("placement")||"",placement=["listing","left","right"].includes(asked)?asked:"home";
+  const asked=request.nextUrl.searchParams.get("placement")||"",placement=["listing","top","side"].includes(asked)?asked:"home";
   try{
     const items=await hostQuery(`select id,title,image_url,link_url,media_type from public.banners where placement=$1 and active and (starts_at is null or starts_at<=(now() at time zone 'Asia/Baku')::date) and (ends_at is null or ends_at>=(now() at time zone 'Asia/Baku')::date) order by sort_order,created_at desc limit 10`,[placement]);
     return reply({items});

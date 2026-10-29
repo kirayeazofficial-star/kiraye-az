@@ -1,4 +1,5 @@
 "use client";
+import TopBanner from "./TopBanner";
 import { CirclePlus, LayoutGrid, Plus, X } from "lucide-react";
 import AccountMenu from "./AccountMenu";
 import NavigationIcon from "./NavigationIcon";
@@ -66,8 +67,11 @@ export default function Header() {
       active = false;
     };
   }, []);
+  // Adverts only on public pages, never in the cabinet, messages, forms or the leader panel.
+  const adFree = ["/profile","/account","/balance","/admin","/messages","/new","/edit","/login","/reset-password"].some(path => pathname === path || pathname?.startsWith(path + "/"));
   return (
     <>
+      {!adFree && <TopBanner />}
       <header className={`kzHeader${["/profile","/account","/balance","/admin","/messages","/new","/edit"].some(path => pathname === path || pathname?.startsWith(path + "/")) ? " kzHeaderCompact" : ""}`}>
         <div className="kzHeaderInner">
           <SiteMenu />

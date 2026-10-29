@@ -44,8 +44,8 @@ export async function sharePreview(file: Blob): Promise<Blob> {
 // translucent backing, so it reads the same on light and dark photos.
 export function drawBrandMark(context: CanvasRenderingContext2D, width: number, height: number) {
   const side = Math.min(width, height);
-  const font = Math.max(15, Math.round(side * 0.05));
-  const margin = Math.max(10, Math.round(side * 0.04));
+  const font = Math.max(13, Math.round(side * 0.036));
+  const margin = Math.max(8, Math.round(side * 0.03));
   const family = brandFamily();
   const pad = Math.round(font * 0.3), tile = Math.round(font * 1.32), gap = Math.round(font * 0.38);
   // Heavy weight plus a thin outline in the same colour: the letters stay solid even where the

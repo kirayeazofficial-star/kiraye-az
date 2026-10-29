@@ -40,7 +40,7 @@ export async function POST(request:NextRequest){
     const user=await staffUser();if(!user)return reply({error:"FORBIDDEN"},403);
     if(!root)return reply({error:"STORAGE_NOT_CONFIGURED"},503);
     const form=await request.formData(),id=text(form.get("id"),36);
-    const asked=text(form.get("placement"),16),placement=["listing","left","right"].includes(asked)?asked:"home";
+    const asked=text(form.get("placement"),16),placement=["listing","top","side"].includes(asked)?asked:"home";
     const title=text(form.get("title"),120),linkUrl=link(text(form.get("link_url"),500));
     const startsAt=day.test(text(form.get("starts_at"),10))?text(form.get("starts_at"),10):null,endsAt=day.test(text(form.get("ends_at"),10))?text(form.get("ends_at"),10):null;
     const sort=Math.max(0,Math.min(999,Number(text(form.get("sort_order"),4))||0)),active=text(form.get("active"),5)!=="false";

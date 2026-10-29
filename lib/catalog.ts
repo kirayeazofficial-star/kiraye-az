@@ -5,6 +5,7 @@ import { scopeRentalFilters, type RentalFilters } from "./rental-details";
 export const PAGE_SIZE = 18;
 export type CatalogQuery = RentalFilters & {
   notPremium?: boolean;
+  kind?: string;
   category: string;
   owner?: string;
   city: string;

@@ -8,6 +8,7 @@ import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
 import PaymentDialog from "./PaymentDialog";
 import PromotionOptions from "./PromotionOptions";
+import EmptyArt from "./EmptyArt";
 import { activePromotion } from "./PromotionBadges";
 import NavigationIcon from "./NavigationIcon";
 import AccountLimits from "./AccountLimits";
@@ -182,6 +183,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               {payment && <PaymentDialog title={payment.title} text={payment.text} onClose={() => setPayment(null)} />}
               {!listings.some((x) => matchesTab(x, statusFilter)) ? (
                 <div className="kzOwnEmpty">
+                  <EmptyArt kind="listings" />
                   <p>{emptyText[statusFilter]}</p>
                   {(statusFilter === "published" || !listings.length) && <Link className="kzButton" href="/new">Elan yerləşdir</Link>}
                 </div>

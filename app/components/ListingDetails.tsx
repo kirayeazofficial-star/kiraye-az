@@ -230,15 +230,11 @@ export default function ListingDetails({
         </strong>
         {effectiveOwner ? (
           <div className="kzOwnerBox">
-            <div className="kzOwnerServices">
-              <PromotionOptions kind="bump" label="İrəli çək" />
-              <PromotionOptions kind="vip" label="VIP" />
-              <PromotionOptions kind="premium" label="Premium" />
-            </div>
             <div className="kzOwnerRow">
+              {item.status === "published" && <PromotionOptions label="Reklam et" />}
               <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
             </div>
-            {item.expires_at && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir · Baxış: {publicInfo?.views ?? 0}</p>}
+            {item.expires_at && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir</p>}
           </div>
         ) : phone && !item.demo ? (
           <div className="contactActions">
@@ -268,7 +264,7 @@ export default function ListingDetails({
             </Link>
           </div>
         )}
-        {!item.demo && item.owner_id && <section className="sellerCard">
+        {!item.demo && item.owner_id && !effectiveOwner && <section className="sellerCard">
           <UserAvatar src={publicInfo?.seller_avatar} name={publicInfo?.seller_name||item.attributes?.contact_name||'E'} className="sellerAvatar"/>
           <div>
             <strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong>

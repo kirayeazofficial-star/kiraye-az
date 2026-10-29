@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Header from './Header';
 import Footer from './Footer';
 import {normalizePhone} from '../../lib/rental-details';
-import {formatContact} from '../../lib/contact-mask';
 import {squareAvatar} from '../../lib/avatar-image';
 import UserAvatar from './UserAvatar';
 import PhoneInput from './PhoneInput';
@@ -50,35 +49,31 @@ export default function ProfileSettings(){
   {error&&<div role="alert" className="notice error"><span>{error}</span></div>}
   {notice&&<p role="status" className="notice">{notice}</p>}
   {loading?<p role="status">Yüklənir...</p>:!signedIn?<p className="notice"><Link href="/login?next=/account">Davam etmək üçün daxil olun.</Link></p>:profile?<div className="kzAccountGrid">
-   <section className="kzPanel kzPhotoPanel">
-    <UserAvatar src={profile.avatar_url} name={profile.name} className="large"/>
+   <section className="kzPanel kzPhotoPanel kzPhotoCompact">
+    <UserAvatar src={profile.avatar_url} name={profile.name}/>
     <div>
      <strong>{profile.name||'Profil'}</strong>
-     <p>JPG və ya PNG, kvadrat şəkil daha yaxşı görünür.</p>
+     <small>{profile.profile_no?`Profil № ${profile.profile_no}`:''}{profile.profile_no&&profile.created_at?' · ':''}{profile.created_at?`${azDate(profile.created_at)} tarixindən`:''}</small>
      <div className="kzPhotoActions">
-      <button type="button" className="kzButton" disabled={!!busy} onClick={()=>photoInput.current?.click()}>{busy==='photo'?'Yüklənir…':profile.avatar_url?'Şəkli dəyiş':'Şəkil əlavə et'}</button>
-      {profile.avatar_url&&<button type="button" className="kzButtonGhost" disabled={!!busy} onClick={removePhoto}>Sil</button>}
+      <button type="button" className="textButton" disabled={!!busy} onClick={()=>photoInput.current?.click()}>{busy==='photo'?'Yüklənir…':profile.avatar_url?'Şəkli dəyiş':'Şəkil əlavə et'}</button>
+      {profile.avatar_url&&<button type="button" className="textButton danger" disabled={!!busy} onClick={removePhoto}>Sil</button>}
      </div>
      <input ref={photoInput} type="file" accept="image/*" hidden onChange={event=>changePhoto(event.target.files?.[0])}/>
     </div>
    </section>
    <form className="kzPanel listingForm accountForm" onSubmit={event=>submit(event,'profile')}>
-    <h2>Ad və telefon</h2>
-    <label>Ad və soyad<input value={name} onChange={e=>setName(e.target.value)} maxLength={100} required autoComplete="name"/></label>
-    <label>Əsas telefon<PhoneInput label="Əsas telefon" value={phone} onChange={setPhone} required /></label>
+    <h2>Şəxsi məlumatlar</h2>
+    <label>Adınız<input value={name} onChange={e=>setName(e.target.value)} maxLength={100} required autoComplete="name"/></label>
+    <label>Telefon<PhoneInput label="Telefon" value={phone} onChange={setPhone} required /></label>
     <button className="kzButton" disabled={!!busy}>{busy==='profile'?'Saxlanılır…':'Yadda saxla'}</button>
    </form>
    <div className="kzPanel listingForm accountForm emailBox">
     <h2>E-poçt</h2>
-    <label>Hazırkı e-poçt<input value={profile.email} readOnly/></label>
+    <p className="kzEmailNow">{profile.email}</p>
     {emailStep===0&&<button type="button" className="kzButtonGhost" onClick={()=>{setEmail('');setEmailStep(1);setError('');setNotice('');}}>E-poçtu dəyiş</button>}
     {emailStep===1&&<form onSubmit={event=>submit(event,'email')}><label>Yeni e-poçt<input type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} required autoComplete="email"/></label><label>Cari şifrə<input type="password" value={emailPassword} onChange={e=>setEmailPassword(e.target.value)} autoComplete="current-password" required maxLength={512}/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email'?'Göndərilir…':'Kod göndər'}</button><button type="button" className="kzButtonGhost" onClick={()=>setEmailStep(0)}>Ləğv et</button></div></form>}
     {emailStep===2&&<form onSubmit={event=>submit(event,'email_confirm')}><p className="muted">6 rəqəmli kod {profile.email} ünvanına göndərildi.</p><label>Kod<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={emailCode} onChange={e=>setEmailCode(e.target.value.replace(/\D/g,''))} required autoComplete="one-time-code"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email_confirm'?'Yoxlanılır…':'Təsdiqlə'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setEmailCode('');}}>Ləğv et</button></div></form>}
    </div>
-   <section className="kzPanel">
-    <h2>Mənim məlumatlarım</h2>
-    <dl className="kzFacts"><div><dt>Profil nömrəsi</dt><dd>{profile.profile_no||'—'}</dd></div><div><dt>Qeydiyyat tarixi</dt><dd>{profile.created_at?azDate(profile.created_at):'—'}</dd></div><div><dt>E-poçt</dt><dd>{profile.email}</dd></div><div><dt>Telefon</dt><dd>{profile.phone?formatContact(profile.phone):'Əlavə edilməyib'}</dd></div></dl>
-   </section>
   </div>:null}
  </main><Footer/></>;
 }

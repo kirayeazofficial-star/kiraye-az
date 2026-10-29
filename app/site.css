@@ -1790,3 +1790,34 @@ html{-webkit-tap-highlight-color:transparent}
 .kzChatMenu>a,.kzChatMenu>button{display:flex;align-items:center;width:100%;min-height:42px;padding:0 12px;border:0;border-radius:8px;background:none;color:var(--kz-ink);font:inherit;font-size:var(--fs-14);text-align:left;text-decoration:none;cursor:pointer}
 .kzChatMenu>a:hover,.kzChatMenu>button:hover{background:var(--kz-soft)}
 .kzChatMenu>.danger{color:var(--kz-danger)}
+
+/* ===== Listing form photos: even 3-column grid, drag handle, remove ✕, "Əsas şəkil" on the first ===== */
+.kzPhotoHelp{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin:0 0 10px;font-size:var(--fs-13);color:var(--kz-muted)}
+.kzPhotoGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 4px;padding:0;list-style:none}
+@media (min-width:768px){.kzPhotoGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.kzPhotoTile{position:relative;aspect-ratio:1/1;margin:0;border:1px solid var(--kz-line);border-radius:12px;overflow:hidden;background:var(--kz-soft);transition:transform .15s ease,box-shadow .15s ease}
+.kzPhotoTile:first-child{border:2px solid var(--kz-accent)}
+.kzPhotoTile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;user-select:none;-webkit-user-select:none}
+.kzPhotoTile.lifted{transform:scale(1.05);box-shadow:0 10px 24px rgba(16,24,40,.25);z-index:2}
+.kzPhotoGrid.sorting .kzPhotoTile:not(.lifted){opacity:.85}
+.kzPhotoTile>button{position:absolute;display:grid;place-items:center;min-height:0!important;margin:0!important;padding:0!important;border:0!important;cursor:pointer;box-shadow:0 1px 4px rgba(16,24,40,.25)!important}
+.kzPhotoHandle,.kzPhotoRemove{top:6px;width:28px!important;height:28px!important;border-radius:50%!important;background:rgba(255,255,255,.95)!important;color:var(--kz-ink)!important}
+.kzPhotoHandle{left:6px;cursor:grab!important;touch-action:none}
+.kzPhotoHandle:active{cursor:grabbing!important}
+.kzPhotoRemove{right:6px}
+.kzPhotoRemove:hover{color:var(--kz-danger)!important}
+.kzPhotoCover,.kzPhotoMakeCover{left:6px;right:6px;bottom:6px;height:24px!important;border-radius:999px!important;font-size:11px!important;font-weight:600;line-height:24px;text-align:center;white-space:nowrap}
+.kzPhotoCover{position:absolute;background:var(--kz-accent);color:#fff;box-shadow:0 1px 4px rgba(16,24,40,.25)}
+.kzPhotoMakeCover{background:rgba(17,20,24,.6)!important;color:#fff!important;font-family:inherit}
+.kzPhotoMakeCover:hover{background:rgba(17,20,24,.78)!important}
+.kzPhotoTile>button:focus-visible{outline:2px solid var(--kz-accent);outline-offset:2px}
+.kzPhotoHelp{display:block}
+.kzPhotoHelp .kzI{display:inline-block;vertical-align:-2px;margin:0 2px}
+.kzPhotoCover,.kzPhotoMakeCover{left:50%!important;right:auto!important;transform:translateX(-50%);width:auto!important;max-width:calc(100% - 12px);height:22px!important;line-height:22px;padding:0 10px!important}
+/* Listing specs on phones: first 8 rows, the rest behind "Bütün xüsusiyyətlər" */
+.kzSpecsMore{display:none}
+@media (max-width:767px){
+  .detailSpecs.kzSpecsCollapsed>div:nth-child(n+9){display:none!important}
+  .kzSpecsMore{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:42px;margin:4px 0 12px;padding:0 12px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;color:var(--kz-ink);font:inherit;font-size:var(--fs-14);font-weight:600;cursor:pointer}
+  .kzSpecsMore[aria-expanded=true] svg{transform:rotate(180deg)}
+}

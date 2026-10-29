@@ -7,6 +7,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import ListingDetails from "../../components/ListingDetails";
 import { getPublicListing } from "../../../lib/public-listing";
+import { shareImagePath } from "../../../lib/share-image";
 import { publicSiteUrl } from "../../../lib/site-url";
 import { money, periodName } from "../../../lib/marketplace";
 type Props = { params: Promise<{ id: string }> };
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           images: item.images?.[0]?.startsWith("https://")
             ? [item.images[0]]
             : item.images?.[0]?.startsWith("/api/media/")
-              ? [`${publicSiteUrl()}${item.images[0]}`]
+              ? [`${publicSiteUrl()}${await shareImagePath(item.images[0])}`]
               : [`${publicSiteUrl()}/og-default.jpg`],
         },
       }

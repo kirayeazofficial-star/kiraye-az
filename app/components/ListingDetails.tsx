@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, Check, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
+import { Calculator, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
@@ -59,6 +59,10 @@ export default function ListingDetails({
     return()=>{active=false;clearTimeout(timer);};
   },[item.id,item.owner_id,item.status,item.demo,effectiveOwner]);
   const [photoRatio, setPhotoRatio] = useState(4 / 3);
+  // On phones a long specification list is cut after 8 rows so "Bənzər elanlar" stays within reach.
+  const specsList = useRef<HTMLDListElement>(null);
+  const [specsOpen, setSpecsOpen] = useState(false), [specCount, setSpecCount] = useState(0);
+  useEffect(() => { setSpecCount(specsList.current?.children.length ?? 0); }, [item]);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -290,7 +294,7 @@ export default function ListingDetails({
             ))}
           </div>
         )}
-        <dl className="detailSpecs">
+        <dl ref={specsList} className={`detailSpecs${specsOpen ? "" : " kzSpecsCollapsed"}`}>
           <div>
             <dt>Kateqoriya</dt>
             <dd>{categoryName(item.category)}</dd>
@@ -361,6 +365,7 @@ export default function ListingDetails({
             ) : null;
           })}
         </dl>
+        {specCount > 8 && <button type="button" className="kzSpecsMore" aria-expanded={specsOpen} onClick={() => setSpecsOpen(!specsOpen)}>{specsOpen ? "Daha az göstər" : `Bütün xüsusiyyətlər (${specCount})`}<ChevronDown aria-hidden="true" size={16} strokeWidth={2.25} /></button>}
         {(item.available_from || item.available_until) && (
           <p className="notice">
             Elan sahibinin göstərdiyi mövcudluq:{" "}
@@ -421,9 +426,10 @@ export default function ListingDetails({
         {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər</button>}
         {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
       </div>, document.body)}
+      {/* Similar listings right after the details, before the banner, so a visitor who does not like this one moves on. */}
+      {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}
       {!compact && <div className="kzListingBanner"><BannerStrip placement="listing" /></div>}
       {!compact && <SideBanners />}
-      {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}
     </div>
   );
 }

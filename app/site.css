@@ -2009,3 +2009,12 @@ html{-webkit-tap-highlight-color:transparent}
 .kzCheck input{flex:none;width:18px;height:18px;margin:2px 0 0;accent-color:var(--kz-accent)}
 .kzCheck small{font-weight:400;color:var(--kz-muted)}
 .kzLocationPicker .formSubheading small{display:inline;margin-left:4px;font-size:var(--fs-13)}
+
+/* Phone contact: buttons live in the price box (like the big classified sites); the bottom bar
+   slides in only once they are scrolled away, so nothing stays stuck over the page. */
+@media (max-width:767px){
+  .listingDetails:not(.compactDetails) .detailSide .contactActions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .listingDetails:not(.compactDetails) .detailSide .contactActions .add{grid-column:1/-1;order:-1}
+  .stickyContact{transform:translateY(110%);transition:transform .22s ease;pointer-events:none}
+  .stickyContact.shown{transform:none;pointer-events:auto}
+}

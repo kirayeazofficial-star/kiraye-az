@@ -1,5 +1,5 @@
 "use client";
-import { ArrowUp, Crown, Gem, Megaphone, RotateCcw } from "lucide-react";
+import { ArrowUp, Crown, Gem, Megaphone, RotateCcw, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 const packages = [
   { title: "Elanı bərpa et", icon: RotateCcw, kind: "restore", description: "Müddəti bitmiş və ya arxivə keçmiş elan yenidən yayımlanacaq.", plans: ["Elanı yenidən 30 gün yayımla"] },
@@ -35,7 +35,7 @@ export default function PromotionOptions({ eligible = true, kind, label }: { eli
         if (event.shiftKey && (document.activeElement === first || document.activeElement === event.currentTarget)) { event.preventDefault(); last?.focus(); }
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }}>
-      <div className="promotionModalHeader"><h3>{kind ? (packages.find(pack => pack.kind === kind)?.title ?? "Reklam") : "Reklam paketləri"}</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}>×</button></div>
+      <div className="promotionModalHeader"><h3>{kind ? (packages.find(pack => pack.kind === kind)?.title ?? "Reklam") : "Reklam paketləri"}</h3><button type="button" aria-label="Reklam pəncərəsini bağla" onClick={close}><X aria-hidden="true" size={20} strokeWidth={2} /></button></div>
       <p>Ödəniş sistemi müvəqqəti işləmir. Paketlərlə tanış ola bilərsən; pul tutulmur və elanın sıralaması dəyişmir.</p>
       {selected && <button type="button" className="textButton" onClick={() => setSelected(null)}>← Başqa xidmət seç</button>}
       {packages.filter(pack => kind ? pack.kind === kind : (pack.kind !== "restore" && (!selected || pack.kind === selected))).map(pack => <details key={pack.kind} className="promotionPackage" open={selected === pack.kind || kind === pack.kind}

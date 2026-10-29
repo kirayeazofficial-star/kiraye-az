@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, Check, LayoutList, MapPin, Pencil, Share2 } from "lucide-react";
+import { Calculator, Check, ChevronLeft, ChevronRight, LayoutList, MapPin, Pencil, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
@@ -174,8 +174,8 @@ export default function ListingDetails({
         <PhotoMark src={item.images?.[selectedImage]} />
         <PromotionBadges item={item}/>
         {imageCount > 1 && <>
-          <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}>‹</button>
-          <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}>›</button>
+          <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></button>
+          <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>
           <span className="galleryCounter" aria-live="polite" aria-atomic="true">{selectedImage + 1} / {imageCount}</span>
         </>}
         <div className="galleryActions">

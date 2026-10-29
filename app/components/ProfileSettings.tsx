@@ -1,4 +1,5 @@
 "use client";
+import { ChevronLeft } from "lucide-react";
 import {FormEvent,useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import Header from './Header';
@@ -42,7 +43,7 @@ export default function ProfileSettings(){
  }
  const phoneChanged=!!profile&&normalizePhone(phone)!==normalizePhone(profile.phone||'');
  return <><Header/><main className="wrap formPage profileSettings kzAccountPage">
-  <div className="cabinetBack profileBack"><Link href="/profile" aria-label="Kabinetə qayıt">‹</Link><strong>Profil</strong></div>
+  <div className="cabinetBack profileBack"><Link href="/profile" aria-label="Kabinetə qayıt"><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></Link><strong>Profil</strong></div>
   <h1 className="kzPageTitle">Profil</h1>
   {loading?<p role="status">Yüklənir...</p>:!signedIn?<p className="notice"><Link href="/login?next=/account">Davam etmək üçün daxil olun.</Link></p>:profile?<div className="kzAccountGrid">
    <section className="kzPanel kzPhotoPanel">

@@ -1,5 +1,5 @@
 "use client";
-import { LayoutGrid, SlidersHorizontal } from "lucide-react";
+import { LayoutGrid, SlidersHorizontal, X } from "lucide-react";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
@@ -423,7 +423,7 @@ export default function Home() {
             >
               {t("Depozitsiz")}
             </button>
-            {savedSearches.map(item=><span className="kzChip kzSaved" key={item.id}><button type="button" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" aria-label={`${item.label} axtarışını sil`} onClick={()=>setSavedSearches(removeSavedSearch(item.id))}>×</button></span>)}
+            {savedSearches.map(item=><span className="kzChip kzSaved" key={item.id}><button type="button" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" aria-label={`${item.label} axtarışını sil`} onClick={()=>setSavedSearches(removeSavedSearch(item.id))}><X aria-hidden="true" size={13} strokeWidth={2.25} /></button></span>)}
           </div>
           {activeFilters.length > 0 && (
             <div className="kzActiveFilters" aria-label="Seçilmiş filtrlər">
@@ -435,7 +435,7 @@ export default function Home() {
                   aria-label={`${filter.label} filtrini sil`}
                 >
                   {filter.label}
-                  <span aria-hidden="true">×</span>
+                  <X aria-hidden="true" size={14} strokeWidth={2.25} />
                 </button>
               ))}
               <button type="button" className="kzLinkButton" onClick={reset}>{t("Filtrləri təmizlə")}</button>

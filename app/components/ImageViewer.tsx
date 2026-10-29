@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 /** Uses the dialog top layer, so sticky headers and adverts cannot cover photos. */
@@ -50,9 +50,9 @@ export default function ImageViewer({ images, title, index, onChange, onClose }:
           onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/placeholder.svg"; }}/>
       </div>
       <footer>
-        {images.length > 1 && <button type="button" onClick={() => move(-1)} aria-label="Əvvəlki böyük şəkil">‹</button>}
+        {images.length > 1 && <button type="button" onClick={() => move(-1)} aria-label="Əvvəlki böyük şəkil"><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></button>}
         <span role="status">{current + 1} / {images.length}</span>
-        {images.length > 1 && <button type="button" onClick={() => move(1)} aria-label="Növbəti böyük şəkil">›</button>}
+        {images.length > 1 && <button type="button" onClick={() => move(1)} aria-label="Növbəti böyük şəkil"><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>}
       </footer>
     </div>
   </dialog>;

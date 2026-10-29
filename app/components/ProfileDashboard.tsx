@@ -1,5 +1,5 @@
 "use client";
-import { ChevronRight, LogOut, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -165,7 +165,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             </nav>
             </aside>
             <div className="cabinetContent">
-              <div className="cabinetBack">{balanceOnly?<Link href="/profile" aria-label="Kabinetə qayıt">‹</Link>:<Link href="/profile" aria-label="Kabinetə qayıt">‹</Link>}<strong>{balanceOnly?"Balans":sectionTitles[section]}</strong></div>
+              <div className="cabinetBack">{balanceOnly?<Link href="/profile" aria-label="Kabinetə qayıt"><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></Link>:<Link href="/profile" aria-label="Kabinetə qayıt"><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></Link>}<strong>{balanceOnly?"Balans":sectionTitles[section]}</strong></div>
               {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : <>
               <div className="kzOwnHead">
                 <h2>Elanlarım{refreshing && <span className="kzSpinner" role="status" aria-label="Yenilənir" />}</h2>

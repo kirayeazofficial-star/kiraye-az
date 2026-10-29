@@ -1597,3 +1597,34 @@ html{-webkit-tap-highlight-color:transparent}
   .kzTabbar{height:calc(clamp(56px,calc(60 * var(--u)),64px) + env(safe-area-inset-bottom))!important}
 }
 @media (max-width:767px){.kzRoundPlus,.kzTabPlus{width:clamp(34px,calc(36 * var(--u)),40px)!important;height:clamp(34px,calc(36 * var(--u)),40px)!important}}
+
+/* ===== Final size scale on phones (one calm set for icons and text, follows the screen width) ===== */
+@media (max-width:767px){
+  /* bottom bar */
+  .kzTabbar{height:calc(clamp(52px,calc(56 * var(--u)),60px) + env(safe-area-inset-bottom))!important}
+  body{padding-bottom:calc(clamp(52px,calc(56 * var(--u)),60px) + env(safe-area-inset-bottom))!important}
+  .kzTabbar>a svg{width:clamp(20px,calc(22 * var(--u)),24px)!important;height:clamp(20px,calc(22 * var(--u)),24px)!important;stroke-width:1.85}
+  .kzTabbar>a{font-size:clamp(9px,calc(10 * var(--u)),11px)!important;gap:3px!important}
+  .kzRoundPlus,.kzTabPlus{width:clamp(30px,calc(33 * var(--u)),36px)!important;height:clamp(30px,calc(33 * var(--u)),36px)!important}
+  .kzTabbar>a .kzTabPlus svg,.kzRoundPlus svg{width:55%!important;height:55%!important}
+  .mobileMenuButton svg{width:clamp(20px,calc(22 * var(--u)),24px);height:clamp(20px,calc(22 * var(--u)),24px)}
+  /* cabinet */
+  .accountDashboard .cabinetNav.cabinetCards>a .kzNavIcon{width:clamp(36px,calc(40 * var(--u)),44px)!important;height:clamp(36px,calc(40 * var(--u)),44px)!important;border-radius:12px!important}
+  .accountDashboard .cabinetNav.cabinetCards>a .kzNavIcon svg{width:clamp(18px,calc(20 * var(--u)),22px)!important;height:clamp(18px,calc(20 * var(--u)),22px)!important}
+  .accountDashboard .cabinetNav.cabinetCards>a{font-size:var(--fs-12)!important;gap:6px!important}
+  .accountDashboard .cabinetNav.cabinetCards .cabinetNavFoot>.kzMenuRow{min-height:42px!important;font-size:var(--fs-14)!important}
+  .kzMenuIcon{width:30px!important;height:30px!important}.kzMenuIcon svg{width:17px!important;height:17px!important}
+  .accountDashboard .cabinetProfile strong,.accountDashboard .kzCabName{font-size:var(--fs-18)!important}
+  .accountListings article h3{font-size:var(--fs-14)!important;line-height:1.3!important}
+  .accountListings article .kzOwnPrice{font-size:var(--fs-13)!important}
+  .accountListings article .kzOwnMeta,.accountListings article .kzOwnDates,.accountListings article .kzOwnHint{font-size:var(--fs-12)!important}
+  .accountListings article .status,.accountListings article .kzOwnPromo{font-size:var(--fs-11)!important;padding:2px 8px!important}
+  .accountDashboard .accountListings article .accountItemActions>*{min-height:34px!important;height:34px!important;font-size:var(--fs-13)!important}
+  .accountDashboard .accountListings article .accountItemActions .promotionTrigger svg{width:14px!important;height:14px!important}
+  .kzOwnTabs button{font-size:var(--fs-13)!important}
+}
+@media (max-width:767px){
+  .detailSpecs>div{padding:9px 0!important;min-height:0!important}
+  .detailSpecs dt,.detailSpecs dd{font-size:var(--fs-14)!important;line-height:1.35!important}
+  .listingDetails .description,.listingDetails .detailDescription p{font-size:var(--fs-15)!important;line-height:1.55!important}
+}

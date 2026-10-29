@@ -1,10 +1,11 @@
 "use client";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, LogOut } from "lucide-react";
 import {FormEvent,useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import Header from './Header';
 import Footer from './Footer';
 import {normalizePhone} from '../../lib/rental-details';
+import {formatContact} from '../../lib/contact-mask';
 import {squareAvatar} from '../../lib/avatar-image';
 import UserAvatar from './UserAvatar';
 import PhoneInput from './PhoneInput';
@@ -32,6 +33,11 @@ export default function ProfileSettings(){
   try{const response=await fetch('/api/account/avatar',{method:'DELETE'});if(!response.ok)throw Error();setProfile(current=>current?{...current,avatar_url:null}:current);setNotice('Profil şəkli silindi.');window.dispatchEvent(new Event('kiraye:profile'));}
   catch{setError('Şəkli silmək mümkün olmadı.');}finally{setBusy('');}
  }
+ async function logout(){
+  if(busy)return;setBusy('logout');
+  try{const response=await fetch('/api/auth/host',{method:'DELETE'});if(!response.ok)throw Error();try{sessionStorage.removeItem('kiraye:pending-confirmation');sessionStorage.removeItem('kiraye:login-email');}catch{}window.location.href='/';}
+  catch{setError('Hesabdan çıxmaq mümkün olmadı.');setBusy('');}
+ }
  function reload(){setLoading(true);setError('');window.location.reload();}
  async function submit(event:FormEvent,action:'profile'|'email'|'email_confirm'){
   event.preventDefault();if(!profile||busy)return;setBusy(action);setError('');setNotice('');const actor=identity.current;
@@ -49,17 +55,22 @@ export default function ProfileSettings(){
   {error&&<div role="alert" className="notice error"><span>{error}</span></div>}
   {notice&&<p role="status" className="notice">{notice}</p>}
   {loading?<p role="status">Yüklənir...</p>:!signedIn?<p className="notice"><Link href="/login?next=/account">Davam etmək üçün daxil olun.</Link></p>:profile?<div className="kzAccountGrid">
-   <section className="kzPanel kzPhotoPanel kzPhotoCompact">
+   <section className="kzPanel kzProfileInfo">
     <UserAvatar src={profile.avatar_url} name={profile.name}/>
     <div>
      <strong>{profile.name||'Profil'}</strong>
+     {profile.phone&&<span>{formatContact(profile.phone)}</span>}
+     <span>{profile.email}</span>
      <small>{profile.profile_no?`Profil № ${profile.profile_no}`:''}{profile.profile_no&&profile.created_at?' · ':''}{profile.created_at?`${azDate(profile.created_at)} tarixindən`:''}</small>
-     <div className="kzPhotoActions">
-      <button type="button" className="textButton" disabled={!!busy} onClick={()=>photoInput.current?.click()}>{busy==='photo'?'Yüklənir…':profile.avatar_url?'Şəkli dəyiş':'Şəkil əlavə et'}</button>
-      {profile.avatar_url&&<button type="button" className="textButton danger" disabled={!!busy} onClick={removePhoto}>Sil</button>}
-     </div>
-     <input ref={photoInput} type="file" accept="image/*" hidden onChange={event=>changePhoto(event.target.files?.[0])}/>
     </div>
+   </section>
+   <section className="kzPanel kzPhotoRow">
+    <span>Profil şəkli</span>
+    <div className="kzPhotoActions">
+     {profile.avatar_url&&<button type="button" className="kzButtonGhost" disabled={!!busy} onClick={removePhoto}>Sil</button>}
+     <button type="button" className="kzButtonGhost" disabled={!!busy} onClick={()=>photoInput.current?.click()}>{busy==='photo'?'Yüklənir…':profile.avatar_url?'Dəyiş':'Əlavə et'}</button>
+    </div>
+    <input ref={photoInput} type="file" accept="image/*" hidden onChange={event=>changePhoto(event.target.files?.[0])}/>
    </section>
    <form className="kzPanel listingForm accountForm" onSubmit={event=>submit(event,'profile')}>
     <h2>Şəxsi məlumatlar</h2>
@@ -69,11 +80,12 @@ export default function ProfileSettings(){
    </form>
    <div className="kzPanel listingForm accountForm emailBox">
     <h2>E-poçt</h2>
-    <p className="kzEmailNow">{profile.email}</p>
+    <p className="kzEmailNow">Hazırkı: {profile.email}</p>
     {emailStep===0&&<button type="button" className="kzButtonGhost" onClick={()=>{setEmail('');setEmailStep(1);setError('');setNotice('');}}>E-poçtu dəyiş</button>}
     {emailStep===1&&<form onSubmit={event=>submit(event,'email')}><label>Yeni e-poçt<input type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} required autoComplete="email"/></label><label>Cari şifrə<input type="password" value={emailPassword} onChange={e=>setEmailPassword(e.target.value)} autoComplete="current-password" required maxLength={512}/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email'?'Göndərilir…':'Kod göndər'}</button><button type="button" className="kzButtonGhost" onClick={()=>setEmailStep(0)}>Ləğv et</button></div></form>}
     {emailStep===2&&<form onSubmit={event=>submit(event,'email_confirm')}><p className="muted">6 rəqəmli kod {profile.email} ünvanına göndərildi.</p><label>Kod<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={emailCode} onChange={e=>setEmailCode(e.target.value.replace(/\D/g,''))} required autoComplete="one-time-code"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email_confirm'?'Yoxlanılır…':'Təsdiqlə'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setEmailCode('');}}>Ləğv et</button></div></form>}
    </div>
+   <button type="button" className="kzPanel kzLogoutRow" disabled={busy==='logout'} onClick={logout}><LogOut aria-hidden="true" size={18} strokeWidth={2}/>Hesabdan çıx</button>
   </div>:null}
  </main><Footer/></>;
 }

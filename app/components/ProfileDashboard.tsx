@@ -255,7 +255,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </>}
             </div>
           </div>
-          {screen === "menu" && <button type="button" className="kzMenuRow danger kzLogoutEnd" onClick={logout}><span className="kzMenuIcon logout"><LogOut size={18} strokeWidth={2} /></span><span>Hesabdan çıx</span></button>}
+          
           </>
         )}
         {error && <div className="kzErrorBar" role="alert"><span>{error}</span><button type="button" className="kzButtonGhost" onClick={()=>setReloadKey(key=>key+1)}>Yenidən cəhd et</button></div>}

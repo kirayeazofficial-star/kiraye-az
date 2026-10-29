@@ -57,6 +57,7 @@ export default function ListingDetails({
     },1500);
     return()=>{active=false;clearTimeout(timer);};
   },[item.id,item.owner_id,item.status,item.demo,effectiveOwner]);
+  const [photoRatio, setPhotoRatio] = useState(4 / 3);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -138,7 +139,7 @@ export default function ListingDetails({
             moveImage(event.key === "ArrowLeft" ? -1 : 1);
           }
         }}>
-        <div className="galleryStage" style={{["--bg" as string]:`url("${item.images?.[selectedImage]||"/placeholder.svg"}")`} as CSSProperties}
+        <div className="galleryStage" style={{["--ratio" as string]:String(photoRatio)} as CSSProperties}
           onTouchStart={(event) => {
             swiped.current = false;
             const touch = event.touches.length === 1 ? event.touches[0] : null;
@@ -165,6 +166,7 @@ export default function ListingDetails({
           className="listingMainImage"
           src={item.images?.[selectedImage] || "/placeholder.svg"}
           alt={item.title}
+          onLoad={(e) => { const img = e.currentTarget; if (selectedImage === 0 && img.naturalWidth && img.naturalHeight) setPhotoRatio(Math.min(16 / 9, Math.max(1, img.naturalWidth / img.naturalHeight))); }}
           onError={(e) => {
             e.currentTarget.onerror = null;
             e.currentTarget.src = "/placeholder.svg";
@@ -178,10 +180,6 @@ export default function ListingDetails({
           <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>
           <span className="galleryCounter" aria-live="polite" aria-atomic="true">{selectedImage + 1} / {imageCount}</span>
         </>}
-        <div className="galleryActions">
-          {!effectiveOwner&&<button type="button" aria-label={favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"} aria-pressed={favorite} onClick={toggleFavorite}><NavigationIcon name="heart" filled={favorite}/></button>}
-          <button type="button" aria-label="Elanı paylaş" onClick={share}><Share2 aria-hidden="true" size={20} strokeWidth={1.75} /></button>
-        </div>
         </div>
         {imageCount > 1 && (
           <div className="thumbnails">
@@ -210,11 +208,17 @@ export default function ListingDetails({
           {categoryName(item.category)}
           {item.demo ? " · Nümunə elan" : ""}
         </span>}
+        <div className="kzTitleRow">
         {compact ? (
           <h2 id="detail-title">{item.title}</h2>
         ) : (
           <h1>{item.title}</h1>
         )}
+        <div className="kzTitleActions">
+          {!effectiveOwner&&<button type="button" aria-label={favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"} aria-pressed={favorite} onClick={toggleFavorite}><NavigationIcon name="heart" filled={favorite}/></button>}
+          <button type="button" aria-label="Elanı paylaş" onClick={share}><Share2 aria-hidden="true" size={20} strokeWidth={1.75} /></button>
+        </div>
+        </div>
         <p className="muted">
           <MapPin className="pinIcon" aria-hidden="true" size={14} strokeWidth={2} /> {item.city}
           {item.district ? `, ${item.district}` : ""} ·{" "}

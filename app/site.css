@@ -1709,3 +1709,40 @@ html{-webkit-tap-highlight-color:transparent}
 .kzEmailNow{margin:0 0 10px;font-size:var(--fs-15);font-weight:500;word-break:break-all}
 .kzPhotoCompact>div{min-width:0;width:100%;text-align:left}
 .kzPhotoCompact .kzPhotoActions{justify-content:flex-start!important}
+
+/* ===== Listing gallery, final: one plain photo frame (classified-site style) =====
+   No overlays except the counter/arrows; favourite+share live next to the title.
+   The frame takes the first photo's shape (square … 16:9), so landscape photos fill it. */
+.listingDetails .listingGallery .galleryStage{position:relative!important;display:block!important;width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:var(--ratio,4/3)!important;margin:0!important;padding:0!important;border:0!important;border-radius:12px!important;background:#f1f2f4!important;overflow:hidden!important;isolation:isolate!important;-webkit-mask-image:-webkit-radial-gradient(white,black);transform:translateZ(0)}
+.listingDetails .listingGallery .galleryStage::before,.listingDetails .listingGallery .galleryStage::after{content:none!important;display:none!important}
+.listingDetails .listingGallery .galleryStage .galleryOpen{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:none!important}
+.listingDetails .listingGallery .galleryStage .galleryOpen>img.listingMainImage{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;background:transparent!important;border-radius:0!important;transform:none!important}
+.listingDetails .listingGallery .galleryStage .galleryActions{display:none!important}
+@media (min-width:768px){.listingDetails .listingGallery .galleryStage{max-height:560px!important}}
+@media (max-width:767px){.listingDetails .listingGallery{margin-left:calc(-1*var(--kz-gutter,16px))!important;margin-right:calc(-1*var(--kz-gutter,16px))!important}.listingDetails .listingGallery .galleryStage{border-radius:0!important}}
+.listingDetails .listingGallery .thumbnails{margin-top:8px!important}
+@media (max-width:767px){.listingDetails .listingGallery .thumbnails{padding:0 var(--kz-gutter,16px)!important}}
+/* Title row: title on the left, favourite + share as quiet icon buttons on the right */
+.listingDetails .kzTitleRow{display:flex;align-items:flex-start;gap:10px}
+.listingDetails .kzTitleRow>h1,.listingDetails .kzTitleRow>h2{flex:1;min-width:0;margin:0!important}
+.kzTitleActions{display:flex;gap:6px;flex:none}
+.kzTitleActions button{display:grid;place-items:center;width:40px;height:40px;min-height:0;padding:0;border:1px solid var(--kz-line);border-radius:10px;background:#fff;color:var(--kz-ink);cursor:pointer}
+.kzTitleActions button svg{width:20px;height:20px}
+.kzTitleActions button[aria-pressed=true]{color:#e5383b;border-color:#f5c2c3}
+.kzTitleActions button[aria-pressed=true] svg{fill:currentColor}
+.kzTitleActions button:active{transform:scale(.94)}
+/* Cabinet: "Hesabdan çıx" always right under the menu (not at the end of a long list) */
+@media (max-width:767px){.accountDashboard .cabinetNav.cabinetCards .cabinetNavFoot>.kzMenuRow.kzLogoutNav,.accountDashboard .cabinetNav .cabinetNavFoot>.kzMenuRow.kzLogoutNav{display:flex!important}}
+/* Profile page order: info → photo → personal data → e-mail → sign out */
+.kzProfileInfo{display:grid!important;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:14px 16px!important}
+.kzProfileInfo .kzUserAvatar{width:56px!important;height:56px!important}
+.kzProfileInfo>div{display:grid;gap:2px;min-width:0}
+.kzProfileInfo strong{font-size:var(--fs-16);line-height:1.3}
+.kzProfileInfo span{font-size:var(--fs-14);color:var(--kz-ink);overflow-wrap:anywhere}
+.kzProfileInfo small{font-size:var(--fs-12);color:var(--kz-muted)}
+.kzPhotoRow{display:flex!important;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px!important}
+.kzPhotoRow>span{font-weight:600;font-size:var(--fs-15)}
+.kzPhotoRow .kzPhotoActions{display:flex;gap:8px;margin:0!important}
+.kzPhotoRow .kzButtonGhost{height:36px!important;min-height:0!important;padding:0 14px!important;font-size:var(--fs-14)!important}
+.kzEmailNow{color:var(--kz-muted)}
+.kzLogoutRow{display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;border:1px solid var(--kz-line)!important;background:#fff;color:var(--kz-danger)!important;font:inherit;font-size:var(--fs-15);font-weight:600;cursor:pointer}

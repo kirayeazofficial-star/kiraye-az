@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, ChevronRight, LayoutGrid, Plus, Search, SlidersHorizontal, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Plus, SlidersHorizontal, X } from "lucide-react";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
@@ -34,11 +34,6 @@ import {
   periodName,
 } from "../../lib/marketplace";
 
-const popularSearches: [string, string][] = [
-  ["/kiraye-ev/baki", "Kirayə ev Bakı"], ["/kiraye-ev", "Günlük kirayə ev"], ["/kiraye-masin/baki", "Kirayə maşın Bakı"], ["/kiraye-masin", "Avtomobil kirayəsi"],
-  ["/kiraye-villa", "Kirayə villa və bağ evi"], ["/kiraye-ev/sumqayit", "Kirayə ev Sumqayıt"], ["/kiraye-ev/gence", "Kirayə ev Gəncə"], ["/kiraye-komersiya/baki", "Kirayə ofis Bakı"],
-  ["/kiraye-aletler", "Alət kirayəsi"], ["/kiraye-tedbir", "Tədbir avadanlığı kirayəsi"], ["/kiraye-foto", "Kamera kirayəsi"], ["/kiraye-villa/qebele", "Qəbələdə kirayə ev"],
-];
 export default function Home() {
   const {t} = useLanguage();
   const [listings, setListings] = useState<Listing[]>([]),
@@ -644,10 +639,6 @@ export default function Home() {
             </nav>
           )}
         </section>
-        {browsing && <section className="kzPopular" aria-label="Populyar axtarışlar">
-          <h2>Populyar axtarışlar</h2>
-          <div>{popularSearches.map(([href, label]) => <a key={href} href={href}><Search aria-hidden="true" size={13} strokeWidth={2.25} />{label}</a>)}</div>
-        </section>}
       </main>
       <Footer />
     </>

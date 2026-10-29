@@ -44,6 +44,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [notice, setNotice] = useState(""),
     [statusFilter, setStatusFilter] = useState(() => { const tab = params.get("tab"); return tab && listingTabs.some(([key]) => key === tab) ? tab : "published"; }),
     [reloadKey, setReloadKey] = useState(0),
+    [fullCategories, setFullCategories] = useState<string[]>([]),
     [refreshing, setRefreshing] = useState(false);
   // Tapping the cabinet link while already here reloads the data.
   useEffect(() => {
@@ -76,6 +77,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin."),
       )
       .finally(() => { setLoading(false); setRefreshing(false); });
+  }, [balanceOnly, reloadKey]);
+  // Categories whose free place is used: restoring there will need payment, so say it up front.
+  useEffect(() => {
+    if (balanceOnly) return;
+    fetch("/api/listings/limits", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(data => {
+      if (data?.items) setFullCategories(data.items.filter((item: { remaining: number }) => item.remaining <= 0).map((item: { category: string }) => item.category));
+    }).catch(() => {});
   }, [balanceOnly, reloadKey]);
   const [deleteConfirm,setDeleteConfirm]=useState("");
   async function archive(item: Listing) {
@@ -185,7 +193,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </div>
               <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
                 {listingTabs.map(([status, label]) => (
-                  <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => setStatusFilter(status)}>
+                  <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setNotice(""); setError(""); }}>
                     {label}<b>{listings.filter((x) => matchesTab(x, status)).length}</b>
                   </button>
                 ))}
@@ -217,15 +225,15 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         </p>
                         {x.payment_required && !x.deleted_at && <p className="kzOwnHint">Bu kateqoriyada pulsuz limitiniz dolduğu üçün elan ödəniş gözləyir. Ödənişdən sonra yoxlamaya göndəriləcək.</p>}
                         {current === "rejected" && x.rejection_reason && <p className="kzOwnReason">Səbəb: {x.rejection_reason} Səbəbi aradan qaldırıb elanı redaktə edin.</p>}
-                        {expired && !x.deleted_at && <p className="kzOwnHint">Elanın müddəti bitib. Yenidən yayımlamaq üçün “Bərpa et” seçin.</p>}
-                        {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. Bərpa pulsuz limitdən bir yer istifadə edir.</p>}
+                        {expired && !x.deleted_at && <p className="kzOwnHint">{fullCategories.includes(x.category) ? "Elanın müddəti bitib. Bu kateqoriyada pulsuz limit dolduğu üçün bərpa ödənişli olacaq." : "Elanın müddəti bitib. Yenidən yayımlamaq üçün “Bərpa et” seçin."}</p>}
+                        {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. {fullCategories.includes(x.category) ? "Bu kateqoriyada pulsuz limit dolub — bərpa ödənişli olacaq." : "Bərpa pulsuz limitdən bir yer istifadə edir."}</p>}
                       </div>
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
                             <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin..." : "Ödəniş et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
                           </>
-                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : "Bərpa et"}</button>
+                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : fullCategories.includes(x.category) ? "Ödənişlə bərpa et" : "Bərpa et"}</button>
                           : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Redaktə et</Link>
                           : <>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
@@ -238,7 +246,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   })}
                 </div>
               )}
-              <p className="kzOwnRule">Elanı gündə bir dəfə redaktə etmək olar. Dəyişikliklər yoxlamadan sonra görünür; elanın 30 günlük müddəti dəyişmir.</p>
               </>}
             </div>
           </div></>

@@ -1547,3 +1547,7 @@ input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]){
 .kzCatalogHead button:hover,.kzSheetHead button:hover{background:#eceef2!important}
 .kzActiveFilters button svg,.kzSaved button svg{flex:none}
 .kzOwnerRow{grid-template-columns:1fr!important}
+/* Viewer: the photo always fills the screen width/height (small photos are scaled up too) */
+.kzViewerStage img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important}
+.kzViewerTools button{width:44px!important;height:44px!important;background:rgba(255,255,255,.16)!important}
+.kzViewerTools button svg{width:22px;height:22px;stroke-width:2.25}

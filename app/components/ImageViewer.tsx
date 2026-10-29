@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type View = { scale: number; x: number; y: number };
@@ -117,7 +117,6 @@ export default function ImageViewer({ images, title, index, onChange, onClose }:
     <div className="kzViewerTop">
       <span className="kzViewerCount" role="status">{current + 1} / {images.length}</span>
       <div className="kzViewerTools">
-        <button type="button" onClick={() => zoomTo(view.scale > 1 ? 1 : 2.5)} aria-label={view.scale > 1 ? "Kiçilt" : "Böyüt"}>{view.scale > 1 ? <ZoomOut aria-hidden="true" size={20} strokeWidth={2} /> : <ZoomIn aria-hidden="true" size={20} strokeWidth={2} />}</button>
         <button type="button" onClick={onClose} aria-label="Şəkilləri bağla"><X aria-hidden="true" size={22} strokeWidth={2} /></button>
       </div>
     </div>

@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, ChevronRight, Plus, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -157,7 +157,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <section className="kzProfileCard">
                 <Link href="/account" className="kzProfileAvatarLink" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
                 <h1>{identity||"Profil"}</h1>
-                {profileNumber&&<p>ID: {profileNumber}</p>}
+                {profileNumber&&<p>Profil № {profileNumber}</p>}
                 {accountPhone ? <p>Tel: {formatContact(accountPhone)}</p> : <Link href="/account">Telefon nömrəni əlavə et</Link>}
                 {accountEmail&&<p className="kzProfileEmail">{accountEmail}</p>}
               </section>
@@ -232,7 +232,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
                             {current === "published" && <PromotionOptions label="Reklam et" />}
                           </>}
-                        {!x.deleted_at && <button type="button" className="kzDangerLink" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}>Sil</button>}
+                        {!x.deleted_at && <button type="button" className="kzDangerLink" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}><Trash2 aria-hidden="true" size={15} strokeWidth={2} />Sil</button>}
                       </div>
                       {deleteConfirm===x.id && <div className="deleteListingConfirm" role="group" aria-label="Elanı silməyi təsdiqlə"><p>Elan saytdan çıxarılacaq və «Silinmiş» bölməsinə keçəcək. Silmək pulsuz limiti geri qaytarmır.</p><button type="button" className="kzDangerButton" disabled={!!busy} onClick={()=>archive(x)}>Bəli, sil</button><button type="button" className="kzButtonGhost" disabled={!!busy} onClick={()=>setDeleteConfirm("")}>Ləğv et</button></div>}
                     </article>;

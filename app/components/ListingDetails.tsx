@@ -281,7 +281,7 @@ export default function ListingDetails({
       <div className="listingInfo">
         <h3>Elan haqqında</h3>
         <p className="description">{item.description}</p>
-        {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
+        {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{/* A small number makes a listing look unpopular: visitors see the count from 15 views, the owner always. */}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&(effectiveOwner||Number(publicInfo.views)>=15)&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
 
         {!!item.attributes?.amenities?.length && (
           <div className="amenityTags">

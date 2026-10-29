@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, MessageCircle, SendHorizontal } from "lucide-react";
+import { ChevronLeft, MessageCircle, MoreHorizontal, SendHorizontal } from "lucide-react";
 import {FormEvent,useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";import Header from "../components/Header";import Footer from "../components/Footer";import {publicDate} from "../../lib/public-date";
 import UserAvatar from "../components/UserAvatar";
@@ -13,6 +13,8 @@ export default function MessagesPanel(){
  useEffect(()=>{const wanted=new URLSearchParams(location.search).get('listing')||'';setListing(wanted);if(wanted)fetch(`/api/listing-info?id=${encodeURIComponent(wanted)}`,{cache:'no-store'}).then(r=>r.json()).then(d=>{if(d&&d.mine){location.replace(`/listings/${wanted}`);}}).catch(()=>{});fetch('/api/auth/host',{cache:'no-store'}).then(async r=>{const data=await r.json();if(!r.ok)throw new Error();setUser(data.user?.id||'');}).catch(()=>setError('Hesab məlumatı yoxlanılmadı. Səhifəni yenilə.')).finally(()=>setReady(true));},[]);useEffect(()=>{if(!user)return;void inbox();const timer=setInterval(inbox,15000);const refresh=()=>{void inbox();};window.addEventListener('kiraye:refresh',refresh);return()=>{clearInterval(timer);window.removeEventListener('kiraye:refresh',refresh);};},[user,inbox]);useEffect(()=>{bottom.current?.scrollIntoView({block:'nearest'});},[messages]);
  async function send(event:FormEvent){event.preventDefault();if(busy||!text.trim())return;setBusy(true);setError('');try{if(thread){const sent=await api('send',{thread:thread.id,body:text});setMessages(old=>[...old,sent]);}else{const started=await api('start',{listing,body:text});await inbox();const response=await fetch(`/api/messages?action=thread&thread=${started.thread}`,{cache:'no-store'}),data=await response.json();if(response.ok)await open(data.item);}setText('');}catch(e){setError(explain(e instanceof Error?e.message:''));}finally{setBusy(false);}}
  async function block(){if(!thread||busy)return;setBusy(true);try{await api('block',{thread:thread.id,block:!thread.blocked_by_me});const response=await fetch(`/api/messages?action=thread&thread=${thread.id}`,{cache:'no-store'}),data=await response.json();if(response.ok)setThread(data.item);await inbox();}catch(e){setError(explain(e instanceof Error?e.message:''));}finally{setBusy(false);}}
+ const moreMenu=useRef<HTMLDetailsElement>(null);
+ useEffect(()=>{const close=(event:Event)=>{const menu=moreMenu.current;if(menu?.open&&!menu.contains(event.target as Node))menu.open=false;};document.addEventListener('pointerdown',close);return()=>document.removeEventListener('pointerdown',close);},[]);
  const time=(value:string)=>new Intl.DateTimeFormat('az-AZ',{timeZone:'Asia/Baku',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));
  const day=(value:string)=>publicDate(value).split(',')[0];
  const conversationOpen=!!(thread||listing);
@@ -36,7 +38,13 @@ export default function MessagesPanel(){
         <UserAvatar src={thread.peer_avatar} name={thread.peer_name}/>
         <div className="kzChatWho"><strong>{thread.peer_name}</strong>{thread.listing_active?<Link href={`/listings/${thread.listing_id}`}>{thread.listing_title}</Link>:<span>{thread.listing_title} · aktiv deyil</span>}</div>
         {thread.listing_image&&<Link className="kzChatListingThumb" href={thread.listing_active?`/listings/${thread.listing_id}`:'#'} aria-label="Elana bax"><img src={thread.listing_image} alt=""/></Link>}
-        <button type="button" className="kzChatBlock" disabled={busy} onClick={()=>void block()}>{thread.blocked_by_me?'Bloku götür':'Blokla'}</button>
+        <details className="kzChatMore" ref={moreMenu}>
+         <summary aria-label="Söhbət seçimləri"><MoreHorizontal aria-hidden="true" size={20} strokeWidth={2} /></summary>
+         <div className="kzChatMenu" role="menu">
+          {thread.listing_active&&<Link role="menuitem" href={`/listings/${thread.listing_id}`}>Elana bax</Link>}
+          <button type="button" role="menuitem" className={thread.blocked_by_me?'':'danger'} disabled={busy} onClick={()=>{if(moreMenu.current)moreMenu.current.open=false;void block();}}>{thread.blocked_by_me?'Bloku götür':'İstifadəçini blokla'}</button>
+         </div>
+        </details>
        </>:<div className="kzChatWho"><strong>Elan sahibinə mesaj</strong><span>İlk mesajını aşağıda yaz.</span></div>}
       </header>
       <div className="kzChatHistory">

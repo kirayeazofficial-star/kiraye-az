@@ -5,6 +5,7 @@ import { ArrowRight, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image,
 import BannerManager from "./BannerManager";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
+import { formatContact } from "../../lib/contact-mask";
 import { categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
 import { moderationActions, moderationFields, rejectionReasons, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
 
@@ -155,7 +156,7 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
       <div className="kzAdTableHead" role="row"><span>Ad</span><span>Əlaqə</span><span>Elan</span><span>Qeydiyyat</span><span>Rol</span><span /></div>
       {users.map(user => <div className="kzAdTableRow" role="row" key={user.id}>
         <span className="kzAdPerson"><b aria-hidden="true">{initial(user.display_name || user.email)}</b><span><strong>{user.display_name || "Adsız istifadəçi"}</strong><small>#{user.profile_no}</small></span></span>
-        <span className="kzAdContact"><span>{user.email}</span><small>{user.phone || "Telefon yoxdur"}</small></span>
+        <span className="kzAdContact"><span>{user.email}</span><small>{user.phone ? formatContact(user.phone) : "Telefon yoxdur"}</small></span>
         <span className="kzAdNum" data-label="Elan">{user.listing_count}</span>
         <span data-label="Qeydiyyat">{user.created_at ? adminDate(user.created_at).split(",")[0] : "—"}</span>
         <span>{user.staff_role ? <em className={`kzAdPill${user.staff_role === "leader" ? " strong" : ""}`}>{user.staff_role === "leader" ? "Rəhbər" : "Admin"}</em> : <span className="kzAdMuted">İstifadəçi</span>}</span>
@@ -187,7 +188,7 @@ function StaffManagement() {
     finally { setBusy(false); }
   }
   const person = (account: Member, action?: ReactNode) => <article className="kzAdRow" key={account.id}>
-    <div className="kzAdPerson"><b aria-hidden="true">{initial(account.name || account.email)}</b><span><strong>{account.name || account.email}<em className={`kzAdPill${account.role === "leader" ? " strong" : ""}`}>{staffRoleName(account.role)}</em></strong><small>#{account.profile_no || "—"} · {account.email}{account.phone ? ` · ${account.phone}` : ""}</small>{account.assigned_at && <small>Təyinat: {adminDate(account.assigned_at)}</small>}</span></div>
+    <div className="kzAdPerson"><b aria-hidden="true">{initial(account.name || account.email)}</b><span><strong>{account.name || account.email}<em className={`kzAdPill${account.role === "leader" ? " strong" : ""}`}>{staffRoleName(account.role)}</em></strong><small>#{account.profile_no || "—"} · {account.email}{account.phone ? ` · ${formatContact(account.phone)}` : ""}</small>{account.assigned_at && account.role !== "leader" && <small>Admin təyin edilib: {adminDate(account.assigned_at)}</small>}</span></div>
     {action && <div className="kzAdRowActions">{action}</div>}
   </article>;
   return <Panel title="Komanda">
@@ -341,7 +342,7 @@ export default function AdminWorkspace() {
               <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
               <h3>{item.title}</h3>
               <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
-              <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)} · {item.owner_name || "İstifadəçi"} · {item.contact}</p>
+              <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>
               {item.rejection_reason && <p className="kzAdReason">Əvvəlki səbəb: {item.rejection_reason}</p>}
             </div>
             <div className="kzAdRowActions">
@@ -356,7 +357,7 @@ export default function AdminWorkspace() {
             <div className="kzAdRowMore">
               <details className="kzAdMore"><summary>Ətraflı</summary><div className="kzAdMoreBody">
                 {(item.images?.length || 0) > 0 && <div className="kzAdGallery">{item.images.map(src => <a key={src} href={src} target="_blank" rel="noopener noreferrer"><img src={src} alt="" loading="lazy" /></a>)}</div>}
-                <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Əlaqə</dt><dd>{item.contact}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Sahibi</dt><dd>{item.owner_name || "İstifadəçi"} · {item.owner_email}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
+                <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Sahibi</dt><dd>{item.owner_name || "İstifadəçi"} · {item.owner_email}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
                 <p className="kzAdDescription">{item.description}</p>
                 <p className="kzAdMuted">Sistem ID: {item.id}</p>
               </div></details>

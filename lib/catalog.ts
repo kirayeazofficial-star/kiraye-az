@@ -4,6 +4,7 @@ import type { Listing } from "./marketplace";
 import { scopeRentalFilters, type RentalFilters } from "./rental-details";
 export const PAGE_SIZE = 18;
 export type CatalogQuery = RentalFilters & {
+  notPremium?: boolean;
   category: string;
   owner?: string;
   city: string;
@@ -88,7 +89,7 @@ export async function searchCatalog(input: CatalogQuery) {
   if (input.from && input.until && input.from > input.until)
     return { items: [] as Listing[], total: 0 };
   const params=new URLSearchParams();
-  for(const [key,value] of Object.entries({...input,favorites:favorites?.join(',')??undefined,noDeposit:input.noDeposit?'1':undefined}))if(value!==undefined&&value!==null&&value!==''&&key!=='favorites'&&key!=='noDeposit')params.set(key,String(value));
+  for(const [key,value] of Object.entries({...input,favorites:favorites?.join(',')??undefined,noDeposit:input.noDeposit?'1':undefined}))if(value!==undefined&&value!==null&&value!==''&&key!=='favorites'&&key!=='noDeposit'&&value!==false)params.set(key,String(value));
   if(input.favorites)params.set('favorites',favorites?.join(',')||'');if(input.noDeposit)params.set('noDeposit','1');
   const response=await fetch(`/api/listings?${params}`,{cache:'no-store',signal:AbortSignal.timeout(15000)});const result=await response.json();if(!response.ok)throw new Error(result.error||'unavailable');
   return {items:(result.items as Listing[]).filter(item=>item.status==='published'&&!isListingExpired(item)),total:Number(result.total)||0};

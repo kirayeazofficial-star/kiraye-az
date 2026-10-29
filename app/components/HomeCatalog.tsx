@@ -98,6 +98,8 @@ export default function Home() {
     setLoading(true);
     const timer = setTimeout(() => {
       searchCatalog({
+        // The Premium block above already shows premium listings: keep them out of the plain list.
+        notPremium: !ownerFilter && !onlyFavorites && !category && !query,
         owner:ownerFilter,
         category,
         city,
@@ -330,10 +332,6 @@ export default function Home() {
     noDeposit && { label: t("Depozitsiz"), clear: () => setNoDeposit(false) },
     from && { label: `Başlanğıc: ${from}`, clear: () => setFrom("") },
     until && { label: `Son tarix: ${until}`, clear: () => setUntil("") },
-    onlyFavorites && {
-      label: "Yalnız seçilmişlər",
-      clear: () => setOnlyFavorites(false),
-    },
   ].filter(
     (filter): filter is { label: string; clear: () => void } => !!filter,
   );

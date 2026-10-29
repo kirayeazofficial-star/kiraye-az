@@ -39,7 +39,7 @@ export async function GET(request:NextRequest){
     const page=Math.max(1,Math.min(1000,Number(input.get('page'))||1)),limit=Math.max(1,Math.min(200,Number(input.get('limit'))||18)),offset=(page-1)*limit;
     const promoted=`(promotion_until>now() and promotion_kind is not null)`;
     const bumped=`greatest(created_at,case when bump_count>0 and bump_started<=now() then bump_started+interval '8 hours'*least(bump_count-1,floor(extract(epoch from now()-bump_started)/28800)) end)`;
-    const promotion=input.get('promotion')||'';if(promotion==='vip'||promotion==='premium')where.push(`${promoted} and promotion_kind='${promotion}'`);
+    if(input.get('notPremium')==='true')where.push(`not coalesce(${promoted} and promotion_kind='premium',false)`);const promotion=input.get('promotion')||'';if(promotion==='vip'||promotion==='premium')where.push(`${promoted} and promotion_kind='${promotion}'`);
     const promotedFirst=scope==='public'?`case when ${promoted} and promotion_kind='premium' then 0 when ${promoted} then 1 else 2 end,`:'';
     const order=input.get('sort')==='low'?`${promotedFirst}price asc`:input.get('sort')==='high'?`${promotedFirst}price desc`:`${promotedFirst}${bumped} desc,id desc`;
     const condition=where.length?`where ${where.join(' and ')}`:'';

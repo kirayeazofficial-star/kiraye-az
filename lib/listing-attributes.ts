@@ -49,7 +49,7 @@ export function readListingAttributes(
       "contact_name",
       "return_terms",
       ...(["property", "villa", "commercial"].includes(category)
-        ? ["utilities", "owner_type"]
+        ? ["utilities", "owner_type", "metro"]
         : ["delivery_method", "delivery_fee", "included_items"]),
     ]
       .filter((key) => form.has(key) && String(form.get(key)).trim())

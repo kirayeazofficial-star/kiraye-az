@@ -4,6 +4,8 @@ import {freeLimit} from "../../../lib/host/limits";
 import {hostQuery} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
 import {newId} from "../../../lib/host/security";
+import {locationCategories,publicPoint,validPoint} from "../../../lib/location";
+import type {Listing} from "../../../lib/marketplace";
 
 export const dynamic="force-dynamic";
 const categories=new Set(['property','car','motorcycle','villa','commercial','equipment','clothing','electric','photo','camping','bicycle','event']);
@@ -49,7 +51,8 @@ export async function GET(request:NextRequest){
     const condition=where.length?`where ${where.join(' and ')}`:'';
     const fields=scope==='mine'?`*,(select count(*)::int from public.listing_views v where v.listing_id=public.listings.id) as views`:'*';
     const [rows,total]=await Promise.all([hostQuery(`select ${fields} from public.listings ${condition} order by ${order} limit ${limit} offset ${offset}`,values as never[]),hostQuery<{count:string}>(`select count(*)::text count from public.listings ${condition}`,values as never[])]);
-    return reply({items:rows,total:Number(total[0]?.count||0)});
+    // Visitors get an approximate point unless the owner chose to show the exact address.
+    return reply({items:scope==='mine'?rows:(rows as Listing[]).map(row=>({...row,...publicPoint(row)})),total:Number(total[0]?.count||0)});
   }catch{return reply({error:'LISTINGS_UNAVAILABLE'},503);}
 }
 
@@ -66,7 +69,8 @@ function listingPayload(body:Record<string,unknown>,userId:string){
   const price=numberOrNull(body.price),deposit=numberOrNull(body.deposit)??0,minDays=numberOrNull(body.min_days)??1,images=validImages(body.images,userId);
   if(!categories.has(category)||title.length<10||description.length<30||!city||!periods.has(rentalPeriod)||price===null||price<=0||price>1_000_000||deposit<0||minDays<1||!contact||!images)return null;
   const attributes=body.attributes&&typeof body.attributes==='object'&&!Array.isArray(body.attributes)?body.attributes:{};
-  return{category,title,description,city,contact,rentalPeriod,price,deposit,minDays,images,attributes,district:cleanText(body.district,100),rooms:numberOrNull(body.rooms),area:numberOrNull(body.area_m2),availableFrom:cleanText(body.available_from,10)||null,availableUntil:cleanText(body.available_until,10)||null};
+  const point=locationCategories.includes(category)?validPoint(body.lat,body.lng):null;
+  return{point,exact:!!point&&body.location_exact===true,category,title,description,city,contact,rentalPeriod,price,deposit,minDays,images,attributes,district:cleanText(body.district,100),rooms:numberOrNull(body.rooms),area:numberOrNull(body.area_m2),availableFrom:cleanText(body.available_from,10)||null,availableUntil:cleanText(body.available_until,10)||null};
 }
 
 export async function POST(request:NextRequest){
@@ -77,7 +81,7 @@ export async function POST(request:NextRequest){
     // Over the free limit the listing is still saved, as a draft waiting for payment.
     const limit=await freeLimit(user.id,item.category),paid=limit.remaining<=0;
     const id=newId();
-    await hostQuery(`insert into public.listings(id,owner_id,category,title,description,contact,city,district,price,rental_period,images,status,deposit,min_days,rooms,area_m2,attributes,available_from,available_until,payment_required) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$19,$12,$13,$14,$15,$16,$17,$18,$20)`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,paid?'draft':'pending',paid]);
+    await hostQuery(`insert into public.listings(id,owner_id,category,title,description,contact,city,district,price,rental_period,images,status,deposit,min_days,rooms,area_m2,attributes,available_from,available_until,payment_required,lat,lng,location_exact) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$19,$12,$13,$14,$15,$16,$17,$18,$20,$21,$22,$23)`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,paid?'draft':'pending',paid,item.point?.[0]??null,item.point?.[1]??null,item.exact]);
     if(!paid)await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','submitted',null,'pending')`,[id,user.id]);
     return reply({id,payment_required:paid},201);
   }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}
@@ -93,7 +97,7 @@ export async function PATCH(request:NextRequest){
     const recent=await hostQuery<{recent:string[]}>(`select array(select x from unnest(edit_log) x where x>now()-interval '1 day' order by x)::text[] as recent from public.listings where id=$1 and owner_id=$2`,[id,user.id]);
     const edits=recent[0]?.recent||[];
     if(edits.length>=2)return reply({error:'EDIT_LIMIT',next_edit_at:new Date(Date.parse(edits[0])+86400000).toISOString()},429);
-    const rows=await hostQuery<{id:string;status:string}>(`update public.listings set last_edited_at=now(),edit_log=array_append(array(select x from unnest(edit_log) x where x>now()-interval '1 day'),now()),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil]);
+    const rows=await hostQuery<{id:string;status:string}>(`update public.listings set last_edited_at=now(),edit_log=array_append(array(select x from unnest(edit_log) x where x>now()-interval '1 day'),now()),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,lat=$19,lng=$20,location_exact=$21,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,item.point?.[0]??null,item.point?.[1]??null,item.exact]);
     if(rows[0]?.status==='pending')await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','resubmitted',null,'pending')`,[id,user.id]);
     return rows[0]?reply({id:rows[0].id}):reply({error:'LISTING_NOT_FOUND'},404);
   }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}

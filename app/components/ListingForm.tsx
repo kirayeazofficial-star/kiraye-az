@@ -12,6 +12,8 @@ import DurationField from "./DurationField";
 import ListingCategoryFields from "./ListingCategoryFields";
 import { contactInText, contactInTextMessage } from "../../lib/contact-filter";
 import { editLimitMessage, nextEditAt } from "../../lib/edit-limit";
+import LocationPicker from "./LocationPicker";
+import { locationCategories } from "../../lib/location";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 
 import {
@@ -109,6 +111,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
   const files=useMemo(()=>photos.flatMap(photo=>photo.file?[photo.file]:[]),[photos]);
   const existingImages=useMemo(()=>photos.flatMap(photo=>photo.file?[]:[photo.src]),[photos]);
   const [photoNotice,setPhotoNotice]=useState("");
+  // Optional map location (homes, villas, premises).
+  const [district,setDistrict]=useState(""),[metro,setMetro]=useState(""),[point,setPoint]=useState<[number,number]|null>(null),[exactLocation,setExactLocation]=useState(false);
+  const hasLocation=locationCategories.includes(category);
   const [editBlockedUntil,setEditBlockedUntil]=useState<Date|null>(null);
   const contactKind=contactInText(`${title} ${descriptionText}`);
   const photoSize=(file:File)=>new Promise<{w:number;h:number}|null>(resolve=>{const url=URL.createObjectURL(file);const image=new Image();image.onload=()=>{resolve({w:image.naturalWidth,h:image.naturalHeight});URL.revokeObjectURL(url);};image.onerror=()=>{resolve(null);URL.revokeObjectURL(url);};image.src=url;});
@@ -205,6 +210,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           manualTitle.current = true;
           setCategory(result.item.category);
           setPhotos((result.item.images ?? []).map(photoFromSrc));
+          setDistrict(result.item.district || ""); setMetro(typeof result.item.attributes?.metro === "string" ? result.item.attributes.metro : "");
+          setPoint(result.item.lat != null && result.item.lng != null ? [Number(result.item.lat), Number(result.item.lng)] : null); setExactLocation(!!result.item.location_exact);
           setEditBlockedUntil(nextEditAt((result.item as Listing & { edit_log?: string[] }).edit_log));
         }
       })
@@ -380,8 +387,12 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         description,
         contact: normalizePhone(contact)!,
         city: form.get("city"),
-        district:
-          initial?.city === form.get("city") ? initial.district || "" : "",
+        district: hasLocation
+          ? (city === "Bakı" ? district : (initial?.city === city ? initial.district || "" : ""))
+          : initial?.city === form.get("city") ? initial.district || "" : "",
+        lat: hasLocation ? point?.[0] ?? null : null,
+        lng: hasLocation ? point?.[1] ?? null : null,
+        location_exact: hasLocation && !!point && exactLocation,
         price,
         rental_period: form.get("rental_period"),
         images,
@@ -668,6 +679,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           ayrıca qeyd et.
                         </small>
                       </div>
+                      {hasLocation && city && <LocationPicker city={city} district={district} metro={metro} point={point} exact={exactLocation}
+                        onDistrict={value => { setDistrict(value); queueDraft(); }} onMetro={value => { setMetro(value); queueDraft(); }}
+                        onPoint={value => { setPoint(value); queueDraft(); }} onExact={setExactLocation} />}
                       <h3 className="formSubheading">Məzmun</h3>
                       <label>
                         Elanın başlığı <span className="requiredMark">*</span>

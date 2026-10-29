@@ -1981,3 +1981,31 @@ html{-webkit-tap-highlight-color:transparent}
 .kzPromoCardText small{white-space:normal;line-height:1.25}
 .kzOwnerBox .promotionTrigger.kzPromoCard{flex-direction:column-reverse!important;align-items:flex-start!important;justify-content:flex-start!important;gap:6px!important;padding:10px 10px 9px!important}
 .kzPromoCardText small{white-space:nowrap!important;font-size:12px}
+
+/* ===== Map: listing "Yerləşmə" block and the form picker ===== */
+.kzMap{position:relative;z-index:0;width:100%;height:260px;border:1px solid var(--kz-line);border-radius:14px;overflow:hidden;background:#eef0f3}
+.kzMapListing{height:240px}
+.kzMapPicker{height:280px}
+@media (min-width:768px){.kzMapListing{height:300px}.kzMapPicker{height:320px}}
+.kzMapLoading{animation:kzPulse 1.2s ease-in-out infinite alternate}
+@keyframes kzPulse{from{opacity:.6}to{opacity:1}}
+.kzMap .leaflet-control-attribution{font-size:10px}
+.kzMap .leaflet-control-zoom a{color:var(--kz-ink)}
+.kzMapPin{background:none;border:0}
+.kzMapPin svg{display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.kzLocation{margin:6px 0 16px}
+.kzLocation h3{margin:0 0 10px;font-size:var(--fs-16);font-weight:600}
+.kzLocationChips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.kzLocationChips a{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:999px;background:var(--kz-soft);color:var(--kz-ink);font-size:var(--fs-14);text-decoration:none}
+.kzLocationChips a:hover{background:#e6e8ec}
+.kzLocationFoot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;font-size:var(--fs-13);color:var(--kz-muted)}
+.kzLocationFoot a{flex:none;color:var(--kz-ink);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.kzLocationPicker{margin:4px 0 16px}
+.kzLocationPicker .formSubheading small{font-weight:400;color:var(--kz-muted)}
+.kzLocationHint{margin:0 0 8px;font-size:var(--fs-13);color:var(--kz-muted)}
+.kzLocationTools{display:flex;gap:8px;margin-top:8px}
+.kzLocationTools .kzButtonGhost{display:inline-flex;align-items:center;gap:6px;height:38px!important;min-height:0!important;padding:0 12px!important;font-size:var(--fs-14)!important}
+.kzCheck{display:flex!important;align-items:flex-start;gap:10px;margin-top:10px;font-size:var(--fs-14);font-weight:500;color:var(--kz-ink);cursor:pointer}
+.kzCheck input{flex:none;width:18px;height:18px;margin:2px 0 0;accent-color:var(--kz-accent)}
+.kzCheck small{font-weight:400;color:var(--kz-muted)}
+.kzLocationPicker .formSubheading small{display:inline;margin-left:4px;font-size:var(--fs-13)}

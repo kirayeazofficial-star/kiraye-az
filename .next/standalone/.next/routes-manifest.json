@@ -123,6 +123,12 @@
       "namedRegex": "^/api/admin(?:/)?$"
     },
     {
+      "page": "/api/admin/banners",
+      "regex": "^/api/admin/banners(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/banners(?:/)?$"
+    },
+    {
       "page": "/api/auth/google",
       "regex": "^/api/auth/google(?:/)?$",
       "routeKeys": {},
@@ -151,6 +157,12 @@
       "regex": "^/api/auth/recovery\\-check(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/auth/recovery\\-check(?:/)?$"
+    },
+    {
+      "page": "/api/banners",
+      "regex": "^/api/banners(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/banners(?:/)?$"
     },
     {
       "page": "/api/health",

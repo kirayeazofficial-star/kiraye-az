@@ -2,7 +2,7 @@ import {open,readFile,stat} from "node:fs/promises";
 import path from "node:path";
 import {NextResponse} from "next/server";
 
-const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i,fileName=/^(?:branded-v3-)?[0-9a-f-]{36}\.(jpg|mp4|webm)$/i;
+const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i,fileName=/^(?:branded-v3-|share-)?[0-9a-f-]{36}\.(jpg|mp4|webm)$/i;
 const types:Record<string,string>={jpg:"image/jpeg",mp4:"video/mp4",webm:"video/webm"};
 const cache={"Cache-Control":"public, max-age=31536000, immutable","X-Content-Type-Options":"nosniff"};
 export async function GET(request:Request,{params}:{params:Promise<{owner:string;file:string}>}){

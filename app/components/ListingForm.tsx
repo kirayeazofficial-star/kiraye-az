@@ -1,8 +1,8 @@
 "use client";
-import { Check, ChevronLeft, ChevronRight, Clock, ImagePlus, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Clock, GripVertical, ImagePlus, X } from "lucide-react";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
-import { watermarkPhoto } from "../../lib/photo-watermark";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { sharePreview, watermarkPhoto } from "../../lib/photo-watermark";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -10,6 +10,7 @@ import { listingExamples } from "../../lib/listing-form-options";
 import RentalTermsFields from "./RentalTermsFields";
 import DurationField from "./DurationField";
 import ListingCategoryFields from "./ListingCategoryFields";
+import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 
 import {
   readListingAttributes,
@@ -61,8 +62,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     setPrice(base?.price == null ? "" : String(base.price));
     setDescriptionText(base?.description || "");
     manualTitle.current = !!base;
-    setFiles([]);
-    setExistingImages(base?.images || []);
+    setPhotos((base?.images || []).map(photoFromSrc));
     setPreview(null);
     setError("");
   }
@@ -92,12 +92,20 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [error, setError] = useState(""),
     [success, setSuccess] = useState(false),
     [paymentWaiting, setPaymentWaiting] = useState(false),
-    [files, setFiles] = useState<File[]>([]),
-    [previews, setPreviews] = useState<string[]>([]),
+    [photos, setPhotoList] = useState<ListingPhoto[]>([]),
     [category, setCategory] = useState(""),
     [initial, setInitial] = useState<Listing | null>(null),
-    [existingImages, setExistingImages] = useState<string[]>([]),
     [loadError, setLoadError] = useState(false);
+  // One ordered list for saved photos (src) and newly chosen ones (file + local preview URL).
+  const objectUrls=useRef(new Set<string>());
+  const photoFromSrc=(src:string):ListingPhoto=>({id:src,src});
+  const photoFromFile=(file:File):ListingPhoto=>{const src=URL.createObjectURL(file);objectUrls.current.add(src);return {id:src,src,file};};
+  function setPhotos(next:ListingPhoto[]|((current:ListingPhoto[])=>ListingPhoto[])){
+    setPhotoList(current=>{const value=typeof next==='function'?next(current):next;for(const old of current)if(old.file&&!value.some(item=>item.id===old.id)){URL.revokeObjectURL(old.src);objectUrls.current.delete(old.src);}return value;});
+  }
+  useEffect(()=>()=>{objectUrls.current.forEach(URL.revokeObjectURL);objectUrls.current.clear();},[]);
+  const files=useMemo(()=>photos.flatMap(photo=>photo.file?[photo.file]:[]),[photos]);
+  const existingImages=useMemo(()=>photos.flatMap(photo=>photo.file?[]:[photo.src]),[photos]);
   const [savedDraft,setSavedDraft]=useState<ListingDraft|null>(null);
   const [draftNotice,setDraftNotice]=useState("");
   const draftDirty=useRef(false),draftTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -119,7 +127,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     const attributes=readListingAttributes(savedDraft.category,form);
     setInitial({id:'',owner_id:user,category:savedDraft.category,title:text('title'),city:text('city'),price:Number(text('price'))||0,rental_period:text('rental_period')||'daily',description:text('description'),contact:'',images:[],status:'draft',created_at:'',deposit:Number(text('deposit'))||0,min_days:Number(text('min_days'))||1,rooms:Number(text('rooms'))||undefined,area_m2:Number(text('area_m2'))||undefined,attributes});
     setCategory(savedDraft.category);setTitle(text('title'));manualTitle.current=!!text('title');setCity(text('city'));setPrice(text('price'));setDescriptionText(text('description'));setRentalPeriod(text('rental_period')||'daily');setMinimumUnit(text('min_rental_unit')||'day');
-    setFiles(savedDraft.files.filter(file=>file instanceof File).slice(0,6));setStep(Math.max(1,Math.min(4,savedDraft.step||1)));setFormVersion(value=>value+1);setSavedDraft(null);draftDirty.current=true;
+    setPhotos(savedDraft.files.filter(file=>file instanceof File).slice(0,6).map(photoFromFile));setStep(Math.max(1,Math.min(4,savedDraft.step||1)));setFormVersion(value=>value+1);setSavedDraft(null);draftDirty.current=true;
     setDraftNotice(savedDraft.photosMissing?'Mətn bərpa edildi. Şəkilləri yenidən seç.':'Qaralama bərpa edildi.');
   }
   useEffect(() => {
@@ -131,8 +139,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     setDescriptionText("");
     setCity("");
     setPrice("");
-    setExistingImages([]);
-    setFiles([]);
+    setPhotos([]);
     setError("");
     setLoadError(false);
     setSuccess(false);
@@ -191,18 +198,13 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           setDescriptionText(result.item.description || "");
           manualTitle.current = true;
           setCategory(result.item.category);
-          setExistingImages(result.item.images ?? []);
+          setPhotos((result.item.images ?? []).map(photoFromSrc));
         }
       })
       .catch(() => { if (active) { setLoadError(true); setError("Hesabı yoxlamaq mümkün olmadı."); } })
       .finally(() => { if (active) { clearTimeout(timer); setLoading(false); } });
     return () => { active = false; clearTimeout(timer); };
   }, [listingId]);
-  useEffect(() => {
-    const urls = files.map((f) => URL.createObjectURL(f));
-    setPreviews(urls);
-    return () => urls.forEach(URL.revokeObjectURL);
-  }, [files]);
   function goToStep(next: number) {
     queueDraft();
     setStep(next);
@@ -343,10 +345,14 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     const paths: string[] = [];
     let saved = false;
     try {
-      const images: string[] = [...existingImages];
-      for (const file of files) {
-        const branded = await watermarkPhoto(file);
+      // Upload in the order the user arranged; saved photos keep their address.
+      const images: string[] = [];
+      for (const photo of photos) {
+        if (!photo.file) { images.push(photo.src); continue; }
+        const branded = await watermarkPhoto(photo.file);
         const uploadForm=new FormData();uploadForm.set("file",branded,"listing.jpg");
+        const small = await sharePreview(branded).catch(() => null);
+        if (small) uploadForm.set("share",small,"share.jpg");
         const uploadResponse=await fetch("/api/uploads",{method:"POST",body:uploadForm});
         const uploaded=await uploadResponse.json();
         if (!uploadResponse.ok || !uploaded.path)
@@ -775,76 +781,17 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                               e.target.value = "";
                               return;
                             }
-                            setFiles((current) => [...current, ...selected]);
+                            setPhotos((current) => [...current, ...selected.map(photoFromFile)]);
                             e.target.value = "";
                             setError("");
                           }}
                         />
                       </label>
                       <p className="photoCount" aria-live="polite">
-                        {files.length + existingImages.length} / 6 şəkil · İlk
-                        şəkil elanın üz qabığıdır.
+                        {photos.length} / 6 şəkil · Birinci şəkil elanın əsas şəklidir.
                       </p>
-                      <div className="uploadPreviews">
-                        {existingImages.map((src, i) => (
-                          <div key={src}>
-                            <img src={src} alt={`${i + 1}-ci mövcud şəkil`} />
-                            <button
-                              type="button"
-                              aria-label={`${i + 1}-ci mövcud şəkli sil`}
-                              onClick={() =>
-                                setExistingImages(
-                                  existingImages.filter((x) => x !== src),
-                                )
-                              }
-                            >
-                              <X aria-hidden="true" size={14} strokeWidth={2.5} />
-                            </button>
-                            {i > 0 && (
-                              <button
-                                type="button"
-                                className="coverButton"
-                                onClick={() =>
-                                  setExistingImages([
-                                    src,
-                                    ...existingImages.filter((_, n) => n !== i),
-                                  ])
-                                }
-                              >
-                                Üz qabığı et
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        {previews.map((src, i) => (
-                          <div key={src}>
-                            <img src={src} alt={`${i + 1}-ci seçilən şəkil`} />
-                            <button
-                              type="button"
-                              aria-label={`${i + 1}-ci şəkli sil`}
-                              onClick={() =>
-                                setFiles(files.filter((_, n) => n !== i))
-                              }
-                            >
-                              <X aria-hidden="true" size={14} strokeWidth={2.5} />
-                            </button>
-                            {i > 0 && !existingImages.length && (
-                              <button
-                                type="button"
-                                className="coverButton"
-                                onClick={() =>
-                                  setFiles([
-                                    files[i],
-                                    ...files.filter((_, n) => n !== i),
-                                  ])
-                                }
-                              >
-                                Üz qabığı et
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                      {photos.length > 1 && <p className="kzPhotoHelp">Yerini dəyişmək üçün şəkli <GripVertical className="kzI" aria-hidden="true" size={14} strokeWidth={2.25} /> işarəsindən tutub sürüşdür.</p>}
+                      <PhotoOrganizer photos={photos} onChange={next => { setPhotos(next); queueDraft(); }} />
                     </section>
                     <section data-post-step="4" hidden={step !== 4}>
                       <h2 id="listing-contact" tabIndex={-1}>
@@ -928,8 +875,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           <div>
                             <img
                               src={
-                                existingImages[0] ||
-                                previews[0] ||
+                                photos[0]?.src ||
                                 "/placeholder.svg"
                               }
                               alt="Elanın üz qabığı"

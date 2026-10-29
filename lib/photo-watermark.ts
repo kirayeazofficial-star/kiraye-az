@@ -21,6 +21,24 @@ export async function watermarkPhoto(file: File): Promise<File> {
   } finally { URL.revokeObjectURL(url); }
 }
 
+// Small copy of a (branded) photo for link previews in WhatsApp/Telegram/Facebook: they skip images
+// that are several megabytes, so shares get a ~1200px JPEG of roughly 100–250 KB.
+export async function sharePreview(file: Blob): Promise<Blob> {
+  const url = URL.createObjectURL(file);
+  try {
+    const image = new Image();
+    await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("preview")); image.src = url; });
+    const scale = Math.min(1, 1200 / Math.max(image.naturalWidth, image.naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale)); canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("preview");
+    context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high";
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return await new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("preview")), "image/jpeg", 0.8));
+  } finally { URL.revokeObjectURL(url); }
+}
+
 // Brand mark, bottom-left: one rounded badge — orange "k" tile + "kirayeal.az" in bold — on a soft dark
 // translucent backing, so it reads the same on light and dark photos.
 export function drawBrandMark(context: CanvasRenderingContext2D, width: number, height: number) {

@@ -213,6 +213,12 @@
       "namedRegex": "^/api/listings/submit(?:/)?$"
     },
     {
+      "page": "/api/listings/today",
+      "regex": "^/api/listings/today(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/listings/today(?:/)?$"
+    },
+    {
       "page": "/api/messages",
       "regex": "^/api/messages(?:/)?$",
       "routeKeys": {},

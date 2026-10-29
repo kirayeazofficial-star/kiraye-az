@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
+// Shown only once Google sign-in is configured on the server (GOOGLE_CLIENT_ID/SECRET); until then nothing renders.
 export default function GoogleLogin() {
-  const statusId = useId();
   const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
@@ -13,14 +13,14 @@ export default function GoogleLogin() {
   async function login() {
     if(enabled!==true||busy)return;setBusy(true);setNotice("");window.location.assign('/api/auth/google');
   }
+  if (enabled !== true) return notice ? <p className="notice" role="status">{notice}</p> : null;
   return (
     <div className="googleLogin">
       <button
         type="button"
         className="googleButton"
-        disabled={enabled !== true || busy}
+        disabled={busy}
         onClick={login}
-        aria-describedby={enabled !== true ? statusId : undefined}
       >
         <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
           <path
@@ -42,11 +42,6 @@ export default function GoogleLogin() {
         </svg>
         {busy ? "Google-a yönləndirilir..." : "Google ilə davam et"}
       </button>
-      {enabled !== true && (
-        <p id={statusId} className="mailHelp" role="status">
-          Google ilə giriş müvəqqəti işləmir. E-poçtla davam et.
-        </p>
-      )}
       {notice && (
         <p className="notice" role="status">
           {notice}

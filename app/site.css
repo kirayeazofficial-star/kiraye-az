@@ -1772,3 +1772,21 @@ html{-webkit-tap-highlight-color:transparent}
   .kzSideBanner img,.kzSideBanner video{display:block;width:100%;height:auto;max-height:calc(100vh - 130px);object-fit:cover;border-radius:12px;background:var(--kz-soft)}
   .kzSideBanner small{display:block;margin-top:4px;text-align:center;font-size:11px;color:var(--kz-muted)}
 }
+.kzHome.favoritesView .kzToolbar,.kzHome.favoritesView .kzActiveFilters,.kzHome.favoritesView .kzHint{display:none!important}
+/* Cabinet card actions: Redaktə et | Reklam et | Sil — three buttons of one style; Sil in red outline */
+.accountDashboard .accountListings article .accountItemActions{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.accountDashboard .accountListings article .accountItemActions:has(>:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.accountDashboard .accountListings article .accountItemActions>.kzDangerLink{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;width:100%!important;min-height:38px;padding:0 8px!important;border:1px solid #f5c2c3!important;border-radius:10px!important;background:#fff!important;color:var(--kz-danger)!important;font-weight:600!important;white-space:nowrap}
+.accountDashboard .accountListings article .accountItemActions>.kzDangerLink:hover{background:#fdecec!important}
+@media (min-width:768px){.accountDashboard .accountListings article .accountItemActions,.accountDashboard .accountListings article .accountItemActions:has(>:nth-child(2):last-child){grid-template-columns:1fr!important}}
+/* Admin moderation card: owner on its own line, never cut off */
+.kzAdOwnerLine{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;margin-top:2px!important}
+/* Chat header: block action lives in a quiet "⋯" menu */
+.kzChatMore{position:relative;flex:none}
+.kzChatMore>summary{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;color:var(--kz-ink);cursor:pointer;list-style:none}
+.kzChatMore>summary::-webkit-details-marker{display:none}
+.kzChatMore>summary:hover,.kzChatMore[open]>summary{background:var(--kz-soft)}
+.kzChatMenu{position:absolute;right:0;top:calc(100% + 6px);z-index:30;min-width:200px;padding:6px;border:1px solid var(--kz-line);border-radius:12px;background:#fff;box-shadow:0 10px 30px rgba(16,24,40,.14)}
+.kzChatMenu>a,.kzChatMenu>button{display:flex;align-items:center;width:100%;min-height:42px;padding:0 12px;border:0;border-radius:8px;background:none;color:var(--kz-ink);font:inherit;font-size:var(--fs-14);text-align:left;text-decoration:none;cursor:pointer}
+.kzChatMenu>a:hover,.kzChatMenu>button:hover{background:var(--kz-soft)}
+.kzChatMenu>.danger{color:var(--kz-danger)}

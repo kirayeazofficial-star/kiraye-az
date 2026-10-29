@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
+import { Calculator, ChevronDown, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
@@ -287,13 +287,6 @@ export default function ListingDetails({
         <p className="description">{item.description}</p>
         {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{/* A small number makes a listing look unpopular: visitors see the count from 15 views, the owner always. */}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&(effectiveOwner||Number(publicInfo.views)>=15)&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
 
-        {!!item.attributes?.amenities?.length && (
-          <div className="amenityTags">
-            {item.attributes.amenities.map((a) => (
-              <span key={a}><Check aria-hidden="true" size={14} strokeWidth={2.25} /> {a}</span>
-            ))}
-          </div>
-        )}
         <dl ref={specsList} className={`detailSpecs${specsOpen ? "" : " kzSpecsCollapsed"}`}>
           <div>
             <dt>Kateqoriya</dt>
@@ -364,6 +357,13 @@ export default function ListingDetails({
               </div>
             ) : null;
           })}
+          {/* Amenities as one row of the list (on phones inside "Bütün xüsusiyyətlər") instead of a block of chips. */}
+          {!!item.attributes?.amenities?.length && (
+            <div className="kzSpecWide">
+              <dt>Şərait</dt>
+              <dd>{item.attributes.amenities.join(", ")}</dd>
+            </div>
+          )}
         </dl>
         {specCount > 8 && <button type="button" className="kzSpecsMore" aria-expanded={specsOpen} onClick={() => setSpecsOpen(!specsOpen)}>{specsOpen ? "Daha az göstər" : `Bütün xüsusiyyətlər (${specCount})`}<ChevronDown aria-hidden="true" size={16} strokeWidth={2.25} /></button>}
         {(item.available_from || item.available_until) && (

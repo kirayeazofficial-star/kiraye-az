@@ -1,5 +1,6 @@
 import "server-only";
 import nodemailer from "nodemailer";
+import {codeLetter} from "./email-template";
 
 function required(name:string){const value=process.env[name]?.trim();if(!value)throw new Error(`${name} is missing.`);return value;}
 
@@ -9,10 +10,14 @@ export async function sendVerificationCode(email:string,code:string,purpose:"sig
     host:required("KIRAYE_SMTP_HOST"),port,secure:port===465,
     auth:{user:required("KIRAYE_SMTP_USER"),pass:required("KIRAYE_SMTP_PASSWORD")},
   });
-  const subject=purpose==="recovery"?"Kirayeal.az şifrə yeniləmə kodu":purpose==="email_change"?"Kirayeal.az e-poçt dəyişmə kodu":"Kirayeal.az təsdiq kodu";
+  const subject=purpose==="recovery"?"Şifrə yeniləmə kodu — kirayeal.az":purpose==="email_change"?"E-poçt dəyişmə kodu — kirayeal.az":"Hesab təsdiq kodu — kirayeal.az";
+  const letter=codeLetter({
+    heading:purpose==="recovery"?"Şifrənizi yeniləyin":purpose==="email_change"?"E-poçt ünvanınızı təsdiqləyin":"Hesabınızı təsdiqləyin",
+    intro:purpose==="recovery"?"Şifrəni yeniləmək üçün aşağıdakı kodu saytda müvafiq xanaya yazın.":purpose==="email_change"?"E-poçt ünvanınızı dəyişmək üçün aşağıdakı kodu saytda müvafiq xanaya yazın.":"kirayeal.az-da qeydiyyatı tamamlamaq üçün aşağıdakı kodu saytda müvafiq xanaya yazın.",
+    code,
+    note:"Kod 10 dəqiqə ərzində etibarlıdır.",
+  });
   await transporter.sendMail({
-    from:`Kirayeal.az <${required("KIRAYE_SMTP_USER")}>`,to:email,subject,
-    text:`Təsdiq kodunuz: ${code}\n\nKod 10 dəqiqə ərzində etibarlıdır. Bu sorğunu siz etməmisinizsə məktubu nəzərə almayın.`,
-    html:`<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px"><h2 style="color:#164f48">Kirayeal.az</h2><p>${purpose==="recovery"?"Şifrənizi yeniləmək":purpose==="email_change"?"E-poçt ünvanınızı dəyişmək":"Hesabınızı təsdiqləmək"} üçün kod:</p><p style="font-size:32px;font-weight:700;letter-spacing:8px;color:#ef7048">${code}</p><p>Kod 10 dəqiqə ərzində etibarlıdır.</p></div>`,
+    from:`kirayeal.az <${required("KIRAYE_SMTP_USER")}>`,to:email,subject,text:letter.text,html:letter.html,
   });
 }

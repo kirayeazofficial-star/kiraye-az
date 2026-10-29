@@ -1825,3 +1825,32 @@ html{-webkit-tap-highlight-color:transparent}
 .kzDescBar{flex:1;height:4px;border-radius:999px;background:#e9eaee;overflow:hidden}
 .kzDescBar>span{display:block;height:100%;border-radius:inherit;background:var(--kz-accent);transition:width .2s ease}
 .kzDescProgress small{flex:none;font-size:var(--fs-12);color:var(--kz-muted)}
+
+/* "Add to home screen" strip (phones only, above the header) and its how-to sheet */
+.kzInstall{display:flex;align-items:center;gap:10px;padding:8px 12px 8px 6px;background:#f6f7f9;border-bottom:1px solid var(--kz-line)}
+.kzInstall img{flex:none;width:36px;height:36px;border-radius:9px}
+.kzInstallText{flex:1;min-width:0;display:grid;gap:1px;line-height:1.25}
+.kzInstallText strong{font-size:var(--fs-14);color:var(--kz-ink)}
+.kzInstallText small{font-size:var(--fs-12);color:var(--kz-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kzInstallClose{flex:none;display:grid;place-items:center;width:30px;height:30px;min-height:0!important;margin:0;padding:0;border:0;border-radius:50%;background:none;color:var(--kz-muted);cursor:pointer}
+.kzInstallAdd{flex:none;height:32px;min-height:0!important;margin:0;padding:0 14px;border:0;border-radius:999px;background:var(--kz-accent);color:#fff;font:inherit;font-size:var(--fs-13);font-weight:700;cursor:pointer}
+@media (min-width:768px){.kzInstall{display:none}}
+.kzInstallSheet{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;background:rgba(15,18,22,.45)}
+.kzInstallCard{position:relative;width:100%;max-width:480px;padding:24px 20px calc(20px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;background:#fff;text-align:center;box-shadow:0 -10px 30px rgba(16,24,40,.18)}
+.kzInstallCard>.kzInstallClose{position:absolute;top:10px;right:10px;background:var(--kz-soft)}
+.kzInstallCard>img{width:56px;height:56px;border-radius:14px}
+.kzInstallCard h2{margin:12px 0 14px;font-size:var(--fs-18);color:var(--kz-ink)}
+.kzInstallCard ol{display:grid;gap:10px;margin:0 0 14px;padding:0;list-style:none;text-align:left}
+.kzInstallCard li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--kz-soft);font-size:var(--fs-14);color:var(--kz-ink)}
+.kzInstallCard li svg{display:inline-block;vertical-align:-4px;margin-left:4px;color:#0a84ff}
+.kzInstallNo{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--kz-accent);color:#fff;font-size:12px;font-weight:700}
+.kzInstallCard p{margin:0 0 14px;font-size:var(--fs-13);color:var(--kz-muted)}
+.kzInstallCard .kzButton{width:100%}
+/* Top advert strip (computer): full width above the header, image keeps its own shape */
+.kzTopBanner{display:none}
+@media (min-width:768px){
+  .kzTopBanner{display:block;width:100%;background:var(--kz-soft);line-height:0}
+  .kzTopBanner a{display:block}
+  .kzTopBanner img,.kzTopBanner video{display:block;width:100%;max-height:220px;object-fit:cover}
+}
+@media (min-width:1536px){.kzSideBanner{top:var(--kz-side-top,96px)!important}}

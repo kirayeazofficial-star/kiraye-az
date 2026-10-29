@@ -320,10 +320,10 @@ export default function Login({
               Qeydiyyat və giriş üçün brauzerdə JavaScript-i aktiv et.
             </p>
           </noscript>
-          <nav className="authModeLinks" aria-label="Hesab seçimi">
+          {mode !== "reset" && !verification && <nav className="authModeLinks" aria-label="Hesab seçimi">
             <a href={`/login?next=${encodeURIComponent(next)}`} aria-current={mode === "login" ? "page" : undefined}>Daxil ol</a>
             <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyatdan keç</a>
-          </nav>
+          </nav>}
           {!ready && (
             <p className="notice" role="status">
               Forma hazırlanır. Düymələr açılmırsa, {" "}

@@ -1509,3 +1509,12 @@ video.kzBannerThumb{display:block}
 .galleryStage .galleryOpen{display:block!important}
 .galleryStage .galleryOpen>img.listingMainImage{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;background:transparent!important}
 .detailSide .contactActions .add{white-space:nowrap;font-size:var(--fs-14)!important;gap:6px}
+.status.payment{background:#ebf1ff!important;color:#2f55d4!important}
+/* Tab bar "+" = the header "+" (same flat orange circle, same shadow), sitting inside the bar */
+@media (max-width:767px){
+  .kzTabbar>a.kzTabbarPublish{justify-content:center!important;padding-bottom:0!important}
+  .kzTabPlus{width:clamp(30px,calc(32 * var(--u)),36px)!important;height:clamp(30px,calc(32 * var(--u)),36px)!important;margin-top:0!important;border:0!important;box-shadow:0 2px 8px rgba(255,90,31,.3)!important}
+  .kzTabbar>a .kzTabPlus svg{width:55%!important;height:55%!important;stroke-width:2.25}
+  .kzTabbar>a.kzTabbarPublish[aria-current=page] .kzTabPlus svg{fill:none!important}
+}
+input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]){line-height:normal}

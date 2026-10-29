@@ -707,4 +707,7 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Bəyəndiyin elanın şəklindəki ürək işarəsinə toxun — elan burada saxlanacaq.": ["Нажмите на сердечко на фото объявления — оно сохранится здесь.", "Tap the heart on a listing photo to save it here."],
   "Elanlara bax": ["Смотреть объявления", "View listings"],
   "Bu səhifə tapılmadı": ["Страница не найдена", "Page not found"],
+  "Hər kateqoriyada ayda 1 elan pulsuzdur. Limit dolubsa da elan yerləşdirə bilərsən — o «Ödəniş gözləyir» bölməsinə düşəcək.": ["В каждой категории 1 объявление в месяц бесплатно. Если лимит исчерпан, объявление всё равно можно разместить — оно попадёт в «Ожидает оплаты».", "One listing per category per month is free. Over the limit you can still post — it goes to “Awaiting payment”."],
+  "Ödəniş et": ["Оплатить", "Pay"],
+  "Ödəniş gözləyən elan yoxdur.": ["Нет объявлений, ожидающих оплаты.", "No listings awaiting payment."],
 };

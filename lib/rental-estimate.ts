@@ -59,6 +59,7 @@ export type RentalQuote =
       delivery: number | null;
       total: number;
       monthly: boolean;
+      partialWeek: boolean;
     };
 export function calculateRental(
   item: RentalItem,
@@ -119,9 +120,10 @@ export function calculateRental(
     deposit > 1000000
   )
     return fail("Qiymət və depoziti elan sahibi ilə dəqiqləşdir.");
-  if (weekly && days % 7 !== 0) return fail("Həftəlik tarif üçün tam həftə seç. Qısa müddəti sahibi ilə razılaşdır.");
+  // A weekly price also covers part of a week: the remaining days cost a seventh of the week each.
+  const partialWeek = weekly && days % 7 !== 0;
   const units = monthly ? input.months : weekly ? days / 7 : days;
-  const rentalCents = Math.round(price * 100) * units,
+  const rentalCents = weekly ? Math.round((Math.round(price * 100) * days) / 7) : Math.round(price * 100) * units,
     depositCents = Math.round(deposit * 100);
   let delivery: number | null = 0;
   if (input.delivery || item.attributes?.delivery_method === "Çatdırılma") {
@@ -148,6 +150,7 @@ export function calculateRental(
     units,
     days,
     monthly,
+    partialWeek,
     rental: rentalCents / 100,
     deposit: depositCents / 100,
     delivery,

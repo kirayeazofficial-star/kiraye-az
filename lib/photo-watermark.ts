@@ -40,22 +40,25 @@ export async function sharePreview(file: Blob): Promise<Blob> {
   } finally { URL.revokeObjectURL(url); }
 }
 
-// Brand mark, bottom-left: small see-through "kirayeal.az" (no box) with a soft shadow, so it is
-// readable on light and dark photos without covering them.
+// Brand mark, bottom-left: small "kirayeal.az" in the brand colours on a soft see-through white pill.
+// No shadows or outlines, so it stays crisp and calm on any photo.
 export function drawBrandMark(context: CanvasRenderingContext2D, width: number, height: number) {
   const side = Math.min(width, height);
-  const font = Math.max(12, Math.round(side * 0.032));
-  const margin = Math.max(8, Math.round(side * 0.03));
+  const font = Math.max(12, Math.round(side * 0.03));
+  const margin = Math.max(8, Math.round(side * 0.028));
   const family = brandFamily();
   context.save();
-  context.font = `800 ${font}px ${family}`;
-  context.textBaseline = "alphabetic"; context.textAlign = "left";
-  const name = "kirayeal", nameWidth = context.measureText(name).width;
-  const x = margin, y = height - margin;
-  context.shadowColor = "rgba(0,0,0,0.45)"; context.shadowBlur = Math.round(font * 0.35); context.shadowOffsetY = Math.max(1, Math.round(font * 0.05));
-  context.globalAlpha = 0.72;
-  context.fillStyle = "#ffffff"; context.fillText(name, x, y);
-  context.fillStyle = "#ff7a45"; context.fillText(".az", x + nameWidth, y);
+  context.font = `700 ${font}px ${family}`;
+  context.textBaseline = "middle"; context.textAlign = "left";
+  const name = "kirayeal", nameWidth = context.measureText(name).width, textWidth = nameWidth + context.measureText(".az").width;
+  const padX = Math.round(font * 0.62), boxH = Math.round(font * 1.75), boxW = Math.round(textWidth + padX * 2);
+  const x = margin, y = height - margin - boxH, middle = y + boxH / 2 + font * 0.04;
+  context.fillStyle = "rgba(255,255,255,0.72)";
+  context.beginPath();
+  if (typeof context.roundRect === "function") context.roundRect(x, y, boxW, boxH, boxH / 2); else context.rect(x, y, boxW, boxH);
+  context.fill();
+  context.fillStyle = "rgba(20,63,59,0.92)"; context.fillText(name, x + padX, middle);
+  context.fillStyle = "rgba(240,82,24,0.95)"; context.fillText(".az", x + padX + nameWidth, middle);
   context.restore();
 }
 

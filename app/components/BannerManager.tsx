@@ -8,6 +8,11 @@ type Banner = { id: string; title: string; image_url: string; media_type?: strin
 const placements = { top: "Yuxarı zolaq (kompüter)", side: "Sağ və sol (kompüter)", home: "Ana səhifə, elanların arasında", listing: "Elan səhifəsi" };
 const placementHints = { top: "Bütün səhifələrdə, saytın ən yuxarısında, menyudan əvvəl geniş zolaq. Kompüterdə görünür. Ölçü: 1920×200 (və ya 1200×120).", side: "Eyni reklam səhifənin həm solunda, həm sağında görünür, sürüşdürəndə yerində qalır. Geniş kompüter ekranında (1536px+). Ölçü: 300×900 və ya 160×600.", home: "Ana səhifədə kateqoriyaların altında, bütün ziyarətçilərə (telefonda da) görünür. Ölçü: 1200×300.", listing: "Hər elanın səhifəsində, elan məlumatının altında (telefonda da) görünür. Ölçü: 1200×300." };
 const isVideo = (banner: { image_url: string; media_type?: string }) => banner.media_type === "video" || /\.(mp4|webm)$/i.test(banner.image_url);
+// Readable link in the list: "wa.me (WhatsApp)", "instagram.com/..." or the site path, never a long encoded address.
+function shortLink(link: string) {
+  if (link.startsWith("/")) return link;
+  try { const url = new URL(link); return url.hostname === "wa.me" ? "WhatsApp" : `${url.hostname.replace(/^www\./, "")}${url.pathname === "/" ? "" : decodeURIComponent(url.pathname)}`; } catch { return link; }
+}
 const empty = { id: "", title: "", link_url: "", placement: "home" as Banner["placement"], starts_at: "", ends_at: "", sort_order: "0", active: true };
 const day = (value: string | null) => value ? value.slice(0, 10) : "";
 const show = (value: string | null) => value ? value.slice(0, 10).split("-").reverse().join(".") : "—";
@@ -77,7 +82,7 @@ export default function BannerManager() {
         <div className="kzAdRowMain">
           <div className="kzAdRowTop"><span className={`status ${banner.active ? "published" : "archived"}`}>{banner.active ? "Aktiv" : "Söndürülüb"}</span><span className="kzAdMuted">{placements[banner.placement]}{isVideo(banner) ? " · Video" : ""}</span></div>
           <h3>{banner.title || "Adsız banner"}</h3>
-          <p className="kzAdMuted">{banner.starts_at || banner.ends_at ? `${show(banner.starts_at)} — ${show(banner.ends_at)}` : "Müddətsiz"} · Klik: {banner.clicks}{banner.link_url ? ` · ${banner.link_url}` : ""}</p>
+          <p className="kzAdMuted">{banner.starts_at || banner.ends_at ? `${show(banner.starts_at)} — ${show(banner.ends_at)}` : "Müddətsiz"} · Klik: {banner.clicks}{banner.link_url ? ` · ${shortLink(banner.link_url)}` : ""}</p>
         </div>
         <div className="kzAdRowActions">
           <label className="kzSwitch"><input type="checkbox" checked={banner.active} onChange={() => void toggle(banner)} /><span />{banner.active ? "Açıq" : "Bağlı"}</label>

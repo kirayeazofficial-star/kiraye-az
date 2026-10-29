@@ -62,6 +62,17 @@ export default function ListingDetails({
     return()=>{active=false;clearTimeout(timer);};
   },[item.id,item.owner_id,item.status,item.demo,effectiveOwner]);
   const [photoRatio, setPhotoRatio] = useState(4 / 3);
+  // Phone: the bottom contact bar appears only after the contact buttons in the price box have
+  // scrolled out of view above, and hides again when they are back — it never sits on top of them.
+  const contactBox = useRef<HTMLDivElement>(null);
+  const [stickyShown, setStickyShown] = useState(false);
+  useEffect(() => {
+    const node = contactBox.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => setStickyShown(!entry.isIntersecting && entry.boundingClientRect.top < 0));
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [mounted, ownerReady]);
   const facts = keyFacts(item);
   // On phones a long specification list is cut after 8 rows so "Bənzər elanlar" stays within reach.
   const specsList = useRef<HTMLDListElement>(null);
@@ -187,7 +198,6 @@ export default function ListingDetails({
           {selectedImage > 0 && <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></button>}
           {selectedImage < imageCount - 1 && <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>}
           <span className="galleryCounter" aria-live="polite" aria-atomic="true">{selectedImage + 1} / {imageCount}</span>
-          <button type="button" className="galleryAll" onClick={() => setViewerOpen(true)}>Bütün şəkillər</button>
         </>}
         </div>
         {imageCount > 1 && (
@@ -256,7 +266,7 @@ export default function ListingDetails({
             {item.expires_at && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir</p>}
           </div>
         ) : phone && !item.demo ? (
-          <div className="contactActions">
+          <div className="contactActions" ref={contactBox}>
             {ownerReady&&<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
             {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər"><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
@@ -453,7 +463,7 @@ export default function ListingDetails({
           </p>
         )}
       </div>
-      {mounted && !compact && !effectiveOwner && phone && !item.demo && createPortal(<div className="stickyContact" role="group" aria-label="Əlaqə">
+      {mounted && !compact && !effectiveOwner && phone && !item.demo && createPortal(<div className={`stickyContact${stickyShown ? " shown" : ""}`} role="group" aria-label="Əlaqə" aria-hidden={!stickyShown}>
         {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər</button>}
         {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
       </div>, document.body)}

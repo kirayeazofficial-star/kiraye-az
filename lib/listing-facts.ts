@@ -30,7 +30,6 @@ export function keyFacts(item: Listing): KeyFact[] {
     add(text(a.kind), "növ");
     add(text(a.condition), "vəziyyət");
   }
-  if (facts.length < 3 && Number(item.deposit) === 0 && item.deposit !== null && item.deposit !== undefined) add("Yoxdur", "depozit");
   return facts.length >= 2 ? facts : [];
 }
 

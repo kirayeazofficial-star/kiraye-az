@@ -19,6 +19,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
   const gesture = useRef<{ distance: number; scale: number; startX: number; startY: number; view: View; moved: boolean } | null>(null);
   const lastTap = useRef<{ time: number; x: number; y: number } | null>(null);
   const [view, setView] = useState<View>(still);
+  const keyboardUsed = useRef(false);
   const [drag, setDrag] = useState(0);
   const [pull, setPull] = useState(0); // downward drag that closes the viewer
   const axis = useRef<"x" | "y" | null>(null);
@@ -35,7 +36,8 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     node?.showModal();
     return () => {
       node?.close(); document.body.style.overflow = previousOverflow;
-      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
+      // Give focus back only to keyboard users; after a tap/swipe a focus ring around the photo looked like a stray orange line.
+      if (keyboardUsed.current && previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus({ preventScroll: true });
     };
   }, []);
   useEffect(() => { setView(still); setDrag(0); setPull(0); }, [current]);
@@ -125,6 +127,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
   return <dialog ref={dialog} className="imageViewer kzViewer" aria-label={`${title} — şəkillər`} style={{ ["--kz-pull" as string]: String(pull ? Math.max(0.3, 1 - pull / 450) : 1) } as React.CSSProperties}
     onCancel={event => { event.preventDefault(); onClose(); }}
     onKeyDown={event => {
+      keyboardUsed.current = true;
       if (many && ["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); move(event.key === "ArrowLeft" ? -1 : 1); }
       if (event.key === "+" || event.key === "=") zoomTo(Math.min(MAX, view.scale + 1));
       if (event.key === "-") zoomTo(view.scale - 1);

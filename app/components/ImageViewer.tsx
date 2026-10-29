@@ -8,9 +8,9 @@ const still: View = { scale: 1, x: 0, y: 0 };
 const MAX = 4;
 
 /** Full-screen photo viewer (dialog top layer): swipe between photos, pinch or double-tap to zoom, drag to look around. */
-export default function ImageViewer({ images, title, index, onChange, onClose }: {
+export default function ImageViewer({ images, title, index, onChange, onClose, actions }: {
   images: string[]; title: string; index: number;
-  onChange: (index: number) => void; onClose: () => void;
+  onChange: (index: number) => void; onClose: () => void; actions?: React.ReactNode;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const stage = useRef<HTMLDivElement>(null);
@@ -117,6 +117,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose }:
     <div className="kzViewerTop" tabIndex={-1} autoFocus>
       <span className="kzViewerCount" role="status">{current + 1} / {images.length}</span>
       <div className="kzViewerTools">
+        {actions}
         <button type="button" onClick={onClose} aria-label="Şəkilləri bağla"><X aria-hidden="true" size={22} strokeWidth={2} /></button>
       </div>
     </div>

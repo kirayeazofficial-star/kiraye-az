@@ -710,4 +710,8 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Hər kateqoriyada ayda 1 elan pulsuzdur. Limit dolubsa da elan yerləşdirə bilərsən — o «Ödəniş gözləyir» bölməsinə düşəcək.": ["В каждой категории 1 объявление в месяц бесплатно. Если лимит исчерпан, объявление всё равно можно разместить — оно попадёт в «Ожидает оплаты».", "One listing per category per month is free. Over the limit you can still post — it goes to “Awaiting payment”."],
   "Ödəniş et": ["Оплатить", "Pay"],
   "Ödəniş gözləyən elan yoxdur.": ["Нет объявлений, ожидающих оплаты.", "No listings awaiting payment."],
+  "Hələ əməliyyat yoxdur": ["Пока нет операций", "No transactions yet"],
+  "Balans yükləmə və saytdaxili ödənişlər qoşulandan sonra hər əməliyyat burada görünəcək.": ["После подключения пополнения и оплат все операции появятся здесь.", "Once top-ups and payments are connected, every transaction will appear here."],
+  "Kart əlavə etmək hələ mümkün deyil": ["Добавить карту пока нельзя", "Cards can't be added yet"],
+  "Ödəniş sistemi qoşulandan sonra kartınızı burada təhlükəsiz saxlaya biləcəksiniz.": ["После подключения платёжной системы вы сможете безопасно сохранить карту здесь.", "Once payments are connected you'll be able to save your card here securely."],
 };

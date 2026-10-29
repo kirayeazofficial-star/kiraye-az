@@ -185,7 +185,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
                 {admin && <Link className="kzMenuRow" href="/admin"><span className="kzMenuIcon admin"><ShieldCheck size={18} strokeWidth={2} /></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={18} strokeWidth={1.75} /></Link>}
-                <button type="button" className="kzMenuRow danger" onClick={logout}><span className="kzMenuIcon logout"><LogOut size={18} strokeWidth={2} /></span><span>Hesabdan çıx</span></button>
+                <button type="button" className="kzMenuRow danger kzLogoutNav" onClick={logout}><span className="kzMenuIcon logout"><LogOut size={18} strokeWidth={2} /></span><span>Hesabdan çıx</span></button>
               </div>
             </nav>
             </aside>
@@ -254,7 +254,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               )}
               </>}
             </div>
-          </div></>
+          </div>
+          {screen === "menu" && <button type="button" className="kzMenuRow danger kzLogoutEnd" onClick={logout}><span className="kzMenuIcon logout"><LogOut size={18} strokeWidth={2} /></span><span>Hesabdan çıx</span></button>}
+          </>
         )}
         {error && <div className="kzErrorBar" role="alert"><span>{error}</span><button type="button" className="kzButtonGhost" onClick={()=>setReloadKey(key=>key+1)}>Yenidən cəhd et</button></div>}
       </main>

@@ -1628,3 +1628,36 @@ html{-webkit-tap-highlight-color:transparent}
   .detailSpecs dt,.detailSpecs dd{font-size:var(--fs-14)!important;line-height:1.35!important}
   .listingDetails .description,.listingDetails .detailDescription p{font-size:var(--fs-15)!important;line-height:1.55!important}
 }
+/* Cabinet on phones: "Hesabdan çıx" lives at the very end of the page */
+.kzLogoutEnd{display:none}
+@media (max-width:767px){
+  .accountDashboard .kzLogoutNav{display:none!important}
+  .kzLogoutEnd{display:flex!important;align-items:center;gap:12px;width:100%;min-height:48px;margin:14px 0 4px;padding:0 14px;border:0;border-radius:14px;background:#fff;color:var(--kz-danger)!important;font:inherit;font-size:var(--fs-14);font-weight:600;cursor:pointer;box-shadow:none}
+}
+/* Profile page: messages appear right under the title, not at the bottom */
+.kzAccountPage>.notice{margin:0 0 12px!important}
+@media (max-width:767px){.accountDashboard .cabinetNav .cabinetNavFoot>.kzMenuRow.kzLogoutNav,.accountDashboard .cabinetNav.cabinetCards .cabinetNavFoot>.kzMenuRow.kzLogoutNav{display:none!important}}
+@media (max-width:767px){
+  .accountDashboard .cabinetLayout.screen-menu .kzOwnHead{display:flex!important;align-items:center;justify-content:space-between;margin:0 0 10px!important}
+  .accountDashboard .cabinetLayout.screen-menu .kzOwnHead h2{margin:0!important;font-size:var(--fs-17,17px)!important;font-weight:700}
+  .accountDashboard .cabinetLayout.screen-menu .kzOwnHead .kzButton{display:none!important}
+}
+/* Empty sections: icon + short text, centred */
+.kzEmptyState{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 16px!important;text-align:center}
+.kzEmptyState>h2{align-self:stretch;text-align:left}
+.kzEmptyIcon{display:grid;place-items:center;width:56px;height:56px;margin:4px 0 6px;border-radius:50%;background:var(--kz-soft);color:var(--kz-muted)}
+.kzEmptyState strong{font-size:var(--fs-15);color:var(--kz-ink)}
+.kzEmptyState p{margin:0;max-width:340px;font-size:var(--fs-13);line-height:1.5;color:var(--kz-muted)}
+/* Limits on phones: one line per category, remaining as a badge */
+@media (max-width:767px){
+  .kzLimitRow:not(.head){display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"name left" "meta meta";gap:2px 10px!important;padding:10px 12px!important}
+  .kzLimitRow:not(.head)>span:nth-child(1){grid-area:name;font-weight:600;font-size:var(--fs-14)}
+  .kzLimitRow:not(.head)>span:nth-child(2){display:none!important}
+  .kzLimitRow:not(.head)>span:nth-child(4){grid-area:left;align-self:center;padding:2px 10px;border-radius:999px;font-size:var(--fs-12)!important;font-weight:700}
+  .kzLimitRow:not(.head)>span:nth-child(4)::before{content:"Qalıb: "!important;font-weight:500}
+  .kzLimitRow:not(.head)>span:nth-child(4).ok{background:#e8f6ec;color:#23803d}
+  .kzLimitRow:not(.head)>span:nth-child(4).none{background:#fff4e0;color:#9a5b00}
+  .kzLimitRow:not(.head)>span:nth-child(3),.kzLimitRow:not(.head)>span:nth-child(5){display:inline!important;font-size:var(--fs-12)!important;color:var(--kz-muted)}
+  .kzLimitRow:not(.head)>span:nth-child(3){grid-area:meta}
+  .kzLimitRow:not(.head)>span:nth-child(5){grid-column:1/-1}
+}

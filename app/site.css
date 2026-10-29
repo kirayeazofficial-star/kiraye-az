@@ -1518,3 +1518,32 @@ video.kzBannerThumb{display:block}
   .kzTabbar>a.kzTabbarPublish[aria-current=page] .kzTabPlus svg{fill:none!important}
 }
 input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]){line-height:normal}
+.successPanel.waiting>span{background:#fff4e0!important;color:#b26a00!important}
+
+/* ---- New listing photos: even grid, sharp previews, one clean remove button ---- */
+.uploadPreviews{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px!important;margin-top:4px}
+@media (min-width:768px){.uploadPreviews{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.uploadPreviews>div{position:relative;padding:0!important;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--kz-soft);box-shadow:inset 0 0 0 1px var(--kz-line)}
+.uploadPreviews img{display:block;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:0!important;background:transparent!important}
+.uploadPreviews>div>button:not(.coverButton){position:absolute!important;top:6px!important;right:6px!important;left:auto!important;display:grid!important;place-items:center;width:28px!important;height:28px!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:50%!important;background:rgba(17,20,24,.62)!important;color:#fff!important;box-shadow:0 1px 4px rgba(0,0,0,.25)!important;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);cursor:pointer}
+.uploadPreviews>div>button:not(.coverButton) svg{width:15px;height:15px;stroke-width:2.75}
+.uploadPreviews>div>button:not(.coverButton):active{transform:scale(.92)}
+.uploadPreviews .coverButton{position:absolute!important;left:6px!important;right:auto!important;bottom:6px!important;top:auto!important;width:auto!important;height:24px!important;min-height:0!important;padding:0 8px!important;border:0!important;border-radius:999px!important;background:rgba(255,255,255,.92)!important;color:var(--kz-ink)!important;font-size:var(--fs-11)!important;font-weight:600!important;box-shadow:0 1px 4px rgba(0,0,0,.18)!important}
+.uploadPreviews>div:first-child::after{content:"Üz qabığı";position:absolute;left:6px;bottom:6px;height:22px;padding:0 8px;display:flex;align-items:center;border-radius:999px;background:var(--kz-accent);color:#fff;font-size:var(--fs-11);font-weight:700}
+.photoCount{margin:10px 0 8px!important;font-size:var(--fs-12)!important;color:var(--kz-muted)!important}
+
+/* Success / waiting panel after sending a listing */
+.successPanel{max-width:560px;margin:0 auto;padding:32px 24px!important;border:1px solid var(--kz-line);border-radius:16px!important;background:var(--kz-surface)!important;text-align:center}
+.successPanel>span{display:grid!important;place-items:center;width:56px;height:56px;margin:0 auto 14px!important;border-radius:50%;background:#e8f6ec;color:#23803d!important;font-size:0!important}
+.successPanel>span svg{width:28px;height:28px}
+.successPanel h2{margin:0 0 8px;font-size:var(--fs-20)}
+.successPanel p{margin:0 auto;max-width:440px;font-size:var(--fs-14);line-height:1.55;color:var(--kz-text)!important}
+.successPanel .add{display:inline-flex;margin-top:18px!important}
+.listingForm .uploadZone{display:flex!important;align-items:center;justify-content:center;gap:8px;min-height:84px!important;border:1.5px dashed #d5d9e0!important;border-radius:12px!important;background:var(--kz-soft)!important;color:var(--kz-accent-dark)!important;font-weight:600!important;cursor:pointer}
+.listingForm .uploadZone:hover,.listingForm .uploadZone:focus-within{border-color:var(--kz-accent)!important;background:var(--kz-accent-soft)!important}
+/* Every close (X) button: the same soft round button */
+.kzCatalogHead button,.kzSheetHead button{display:grid!important;place-items:center!important;width:36px!important;height:36px!important;min-height:0!important;padding:0!important;border:0!important;border-radius:50%!important;background:var(--kz-soft)!important;color:var(--kz-ink)!important;box-shadow:none!important;cursor:pointer}
+.kzCatalogHead button svg,.kzSheetHead button svg{width:18px!important;height:18px!important}
+.kzCatalogHead button:hover,.kzSheetHead button:hover{background:#eceef2!important}
+.kzActiveFilters button svg,.kzSaved button svg{flex:none}
+.kzOwnerRow{grid-template-columns:1fr!important}

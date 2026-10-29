@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, ChevronDown, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
+import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
@@ -71,9 +71,8 @@ export default function ListingDetails({
   useEffect(() => { setImage(0); setViewerOpen(false); }, [item.id]);
   useEffect(() => setFavorite(readFavorites().includes(item.id)), [item.id]);
   function moveImage(direction: number) {
-    if (imageCount > 1) setImage((current) =>
-      (Math.min(current, imageCount - 1) + direction + imageCount) % imageCount,
-    );
+    // No wrap-around: at the last photo a further swipe stays on it, like the big classified sites.
+    if (imageCount > 1) setImage((current) => Math.max(0, Math.min(imageCount - 1, Math.min(current, imageCount - 1) + direction)));
   }
   function toggleFavorite() {
     const saved = readFavorites();
@@ -144,7 +143,7 @@ export default function ListingDetails({
             moveImage(event.key === "ArrowLeft" ? -1 : 1);
           }
         }}>
-        <div className="galleryStage" style={{["--ratio" as string]:String(photoRatio)} as CSSProperties}
+        <div className="galleryStage" style={{["--ratio" as string]:String(photoRatio),["--bg" as string]:`url("${item.images?.[selectedImage]||"/placeholder.svg"}")`} as CSSProperties}
           onTouchStart={(event) => {
             swiped.current = false;
             const touch = event.touches.length === 1 ? event.touches[0] : null;
@@ -181,9 +180,10 @@ export default function ListingDetails({
         <PhotoMark src={item.images?.[selectedImage]} />
         <PromotionBadges item={item}/>
         {imageCount > 1 && <>
-          <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></button>
-          <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>
+          {selectedImage > 0 && <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></button>}
+          {selectedImage < imageCount - 1 && <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>}
           <span className="galleryCounter" aria-live="polite" aria-atomic="true">{selectedImage + 1} / {imageCount}</span>
+          <button type="button" className="galleryAll" onClick={() => setViewerOpen(true)}>Bütün şəkillər</button>
         </>}
         </div>
         {imageCount > 1 && (
@@ -222,6 +222,7 @@ export default function ListingDetails({
         <div className="kzTitleActions">
           {!effectiveOwner&&<button type="button" aria-label={favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"} aria-pressed={favorite} onClick={toggleFavorite}><NavigationIcon name="heart" filled={favorite}/></button>}
           <button type="button" aria-label="Elanı paylaş" onClick={share}><Share2 aria-hidden="true" size={20} strokeWidth={1.75} /></button>
+          {!item.demo && !effectiveOwner && !reported && <button type="button" aria-label="Bu elandan şikayət et" title="Şikayət et" onClick={() => { setReport(true); requestAnimationFrame(() => document.getElementById("kz-report")?.scrollIntoView({ behavior: "smooth", block: "center" })); }}><Flag aria-hidden="true" size={19} strokeWidth={1.75} /></button>}
         </div>
         </div>
         <p className="muted">
@@ -390,7 +391,7 @@ export default function ListingDetails({
           </button>
         )}
         {report && !reported && (
-          <form className="reportForm" onSubmit={sendReport}>
+          <form id="kz-report" className="reportForm" onSubmit={sendReport}>
             <h3>Şikayət göndər</h3>
             <label>
               Səbəb

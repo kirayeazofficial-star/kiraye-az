@@ -1854,3 +1854,30 @@ html{-webkit-tap-highlight-color:transparent}
   .kzTopBanner img,.kzTopBanner video{display:block;width:100%;max-height:220px;object-fit:cover}
 }
 @media (min-width:1536px){.kzSideBanner{top:var(--kz-side-top,96px)!important}}
+
+/* ===== Photo viewer: page shows through while pulling down to close; crisp image (no forced layer) ===== */
+.imageViewer.kzViewer{background:rgba(0,0,0,var(--kz-pull,1))!important}
+.imageViewer.kzViewer::backdrop{background:transparent!important}
+.kzViewerStage img{will-change:auto!important}
+
+/* ===== Listing gallery like the big classified sites =====
+   Soft blurred copy of the photo fills empty side space (clipped cleanly, also on iPhone);
+   badges bottom-left, counter bottom-centre, "Bütün şəkillər" bottom-right; dark round arrows. */
+.listingDetails .listingGallery .galleryStage{background:#e9eaee!important}
+.listingDetails .listingGallery .galleryStage::before{content:""!important;display:block!important;position:absolute;inset:0;z-index:0;background:var(--bg) center/cover no-repeat;filter:blur(22px) saturate(1.05);transform:scale(1.18);opacity:.9;pointer-events:none}
+.listingDetails .listingGallery .galleryStage .galleryOpen{z-index:1}
+.listingDetails .listingGallery .galleryStage>.kzPromo{top:12px!important;bottom:auto!important;left:12px!important;z-index:3}
+.listingDetails .listingGallery .galleryCounter{left:50%!important;right:auto!important;bottom:12px!important;transform:translateX(-50%);z-index:3}
+.galleryAll{position:absolute;right:12px;bottom:10px;z-index:3;height:30px;min-height:0!important;margin:0;padding:0 12px;border:0;border-radius:8px;background:rgba(255,255,255,.92);color:var(--kz-ink);font:inherit;font-size:var(--fs-13);font-weight:600;cursor:pointer;box-shadow:0 1px 4px rgba(16,24,40,.18)}
+.galleryAll:hover{background:#fff}
+.listingDetails .listingGallery .galleryStage .galleryArrow{z-index:3;width:44px!important;height:44px!important;border:0!important;border-radius:50%!important;background:rgba(17,20,24,.55)!important;color:#fff!important;box-shadow:none!important}
+.listingDetails .listingGallery .galleryStage .galleryArrow:hover{background:rgba(17,20,24,.75)!important}
+/* Thumbnails: no orange frame — the current one is simply fully visible with a thin dark ring */
+.listingDetails .thumbnails button{border:2px solid transparent!important;opacity:.6}
+.listingDetails .thumbnails button[aria-pressed="true"],.listingDetails .thumbnails button[aria-current="true"]{border-color:var(--kz-ink)!important;opacity:1}
+.listingDetails .thumbnails button:focus-visible{outline:2px solid var(--kz-ink)!important}
+/* Report flag next to favourite/share */
+.kzTitleActions button[aria-label="Bu elandan şikayət et"]:hover{color:var(--kz-danger)}
+/* Listing form: the cover photo is marked by its "Əsas" label only, no orange frame */
+.kzPhotoTile:first-child{box-shadow:none}
+.kzPhotoNotice{margin:0 0 10px;padding:9px 12px;border-radius:10px;background:#fff7e6;border:1px solid #fde3b0;color:#8a5a00;font-size:var(--fs-13)}

@@ -47,7 +47,7 @@ const sections = [
   {
     title: "Şəkillər və əlaqə məlumatları",
     rules: [
-      "Elana əşyanı aydın göstərən 1–6 real şəkil əlavə et. JPG, PNG və WebP qəbul olunur; hər şəkil maksimum 5 MB ola bilər. Başqasının şəkillərindən icazəsiz istifadə etmə.",
+      "Elana əşyanı aydın göstərən 1–6 real şəkil əlavə et. JPG, PNG və WebP qəbul olunur; hər şəkil ən azı 600×400 piksel və maksimum 5 MB olmalıdır. Birinci şəkil kirayə verilən əşyanın özünü göstərməlidir. Başqasının şəkillərindən icazəsiz istifadə etmə.",
       "İşlək e-poçt və istifadəsinə icazən olan telefon nömrəsi göstər. Əlaqə məlumatlarını bunun üçün ayrılmış xanalarda yaz; başqasına narahatlıq yaratmaq məqsədilə onun nömrəsini yerləşdirmək olmaz.",
       "Şəxsiyyət vəsiqəsi, bank kartının həssas məlumatları, PIN/CVV, şifrə və SMS kodlarını elanda və şəkillərdə paylaşma. Hesabına giriş məlumatlarını başqasına vermə.",
     ],

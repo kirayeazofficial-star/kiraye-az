@@ -1,5 +1,5 @@
 "use client";
-import { Check, ChevronLeft, ChevronRight, Clock, GripVertical, ImagePlus, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Clock, ImagePlus, X } from "lucide-react";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
 import { sharePreview, watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -59,7 +59,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     setCategory(base?.category || "");
     setTitle(base?.title || "");
     setCity(base?.city || "");
-    setPrice(base?.price == null ? "" : String(base.price));
+    setPrice(base?.price == null ? "" : String(Number(base.price)));
     setDescriptionText(base?.description || "");
     manualTitle.current = !!base;
     setPhotos((base?.images || []).map(photoFromSrc));
@@ -194,7 +194,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           setRentalPeriod(result.item.rental_period);
           setTitle(result.item.title);
           setCity(result.item.city || "");
-          setPrice(result.item.price == null ? "" : String(result.item.price));
+          setPrice(result.item.price == null ? "" : String(Number(result.item.price)));
           setDescriptionText(result.item.description || "");
           manualTitle.current = true;
           setCategory(result.item.category);
@@ -614,10 +614,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                                 checked={rentalPeriod === option.value}
                                 onChange={() => setRentalPeriod(option.value)}
                               />
-                              <span>
-                                {option.label}
-                                <small>{option.hint}</small>
-                              </span>
+                              <span>{option.label}</span>
                             </label>
                           ))}
                         </div>
@@ -687,11 +684,10 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           rows={5}
                           placeholder={listingExamples[category]?.description}
                         />
-                        <small className={`descriptionCounter${descriptionText.length>0&&descriptionText.length<30?' isIncomplete':''}`}>
-                          {descriptionText.length < 30
-                            ? `Təsviri tamamlamaq üçün daha ${30-descriptionText.length} simvol yaz.`
-                            : `${descriptionText.length} simvol yazılıb · kifayətdir.`}
-                        </small>
+                        {descriptionText.length > 0 && descriptionText.length < 30 && <span className="kzDescProgress" role="status">
+                          <span className="kzDescBar"><span style={{ width: `${Math.round(descriptionText.length / 30 * 100)}%` }} /></span>
+                          <small>Daha {30 - descriptionText.length} simvol</small>
+                        </span>}
                       </label>
                       <details
                         className="optionalRentalTerms"
@@ -788,9 +784,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         />
                       </label>
                       <p className="photoCount" aria-live="polite">
-                        {photos.length} / 6 şəkil · Birinci şəkil elanın əsas şəklidir.
+                        {photos.length} / 6 şəkil{photos.length > 1 ? " · Sıranı dəyişmək üçün şəkli basıb saxlayıb sürüşdürün" : ""}
                       </p>
-                      {photos.length > 1 && <p className="kzPhotoHelp">Yerini dəyişmək üçün şəkli <GripVertical className="kzI" aria-hidden="true" size={14} strokeWidth={2.25} /> işarəsindən tutub sürüşdür.</p>}
                       <PhotoOrganizer photos={photos} onChange={next => { setPhotos(next); queueDraft(); }} />
                     </section>
                     <section data-post-step="4" hidden={step !== 4}>

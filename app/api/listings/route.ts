@@ -95,7 +95,8 @@ export async function DELETE(request:NextRequest){
   try{
     const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
     const id=cleanText((await request.json() as {id?:unknown}).id,36);if(!uuid.test(id))return reply({error:'INVALID_LISTING'},400);
-    const rows=await hostQuery<{id:string}>(`delete from public.listings where id=$1 and owner_id=$2 returning id`,[id,user.id]);
+    const rows=await hostQuery<{id:string}>(`update public.listings set status='archived',deleted_at=now(),promotion_until=null,updated_at=now() where id=$1 and owner_id=$2 and deleted_at is null returning id`,[id,user.id]);
+    if(rows[0])await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','deleted',null,'archived')`,[id,user.id]).catch(()=>{});
     return rows[0]?reply({id}):reply({error:'LISTING_NOT_FOUND'},404);
   }catch{return reply({error:'LISTING_ARCHIVE_FAILED'},503);}
 }

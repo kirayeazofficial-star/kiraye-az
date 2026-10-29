@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { item } = await getPublicListing(id);
   return item
     ? {
-        title: `${item.title} — ${money(item.price)} ₼/${periodName(item.rental_period)} | kirayeal.az`,
+        title: `${item.title} — kirayə ${item.city}, ${money(item.price)} ₼/${periodName(item.rental_period)} | kirayeal.az`,
         description: `${categoryName(item.category)} kirayəsi, ${item.city}: ${item.title}. ${money(item.price)} ₼/${periodName(item.rental_period)}. ${item.description.replace(/\s+/g, " ").slice(0, 110)}`.slice(0, 300),
         alternates: { canonical: `${publicSiteUrl()}/listings/${item.id}` },
         robots: item.demo ? { index: false, follow: false } : undefined,
@@ -55,7 +55,7 @@ export default async function ListingPage({ params }: Props) {
         )}
       </main>
       <Footer />
-      {item && <StructuredData data={{"@context":"https://schema.org","@type":"WebPage",name:item.title,description:item.description.slice(0,300),url:`${publicSiteUrl()}/listings/${item.id}`,inLanguage:"az-AZ",...(item.images?.[0]?.startsWith('https://')?{primaryImageOfPage:{"@type":"ImageObject",url:item.images[0]}}:{})}}/>}
+      {item && <StructuredData data={{"@context":"https://schema.org","@type":"Product",name:item.title,description:item.description.slice(0,500),url:`${publicSiteUrl()}/listings/${item.id}`,category:categoryName(item.category),...(item.images?.[0]?{image:[item.images[0].startsWith("/")?`${publicSiteUrl()}${item.images[0]}`:item.images[0]]}:{}),offers:{"@type":"Offer",price:Number(item.price),priceCurrency:"AZN",availability:"https://schema.org/InStock",businessFunction:"http://purl.org/goodrelations/v1#LeaseOut",areaServed:item.city,url:`${publicSiteUrl()}/listings/${item.id}`}}}/>}
       {item && <StructuredData data={{"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"kirayeal.az",item:publicSiteUrl()},{"@type":"ListItem",position:2,name:item.title,item:`${publicSiteUrl()}/listings/${item.id}`}]}}/>}
     </>
   );

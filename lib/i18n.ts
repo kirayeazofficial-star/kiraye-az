@@ -683,4 +683,13 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Elanı gündə yalnız bir dəfə redaktə etmək olar. Sabah yenidən cəhd edin.": ["Редактировать можно только раз в день. Попробуйте завтра.", "You can edit only once a day. Try tomorrow."],
   "Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.": ["Не удалось сохранить объявление. Проверьте данные и попробуйте снова.", "Couldn't save the listing. Check the details and try again."],
   "Bərpa edildi": ["Восстановлено", "Restored"],
+  "Silinmiş": ["Удалённые", "Deleted"],
+  "Silinib": ["Удалено", "Deleted"],
+  "Silinmiş elan yoxdur.": ["Удалённых объявлений нет.", "No deleted listings."],
+  "Elan saytdan çıxarılacaq və «Silinmiş» bölməsinə keçəcək. Silmək pulsuz limiti geri qaytarmır.": ["Объявление будет снято и перейдёт в «Удалённые». Удаление не возвращает бесплатный лимит.", "The listing will be removed and moved to “Deleted”. Deleting doesn't return the free slot."],
+  "VIP et": ["Сделать VIP", "Make VIP"],
+  "Premium et": ["Сделать Premium", "Make Premium"],
+  "Populyar axtarışlar": ["Популярные запросы", "Popular searches"],
+  "Bütün filtrlərlə axtar": ["Искать со всеми фильтрами", "Search with all filters"],
+  "Bu bölmədə hələ elan yoxdur.": ["В этом разделе пока нет объявлений.", "No listings here yet."],
 };

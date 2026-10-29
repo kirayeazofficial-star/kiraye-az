@@ -1661,3 +1661,9 @@ html{-webkit-tap-highlight-color:transparent}
   .kzLimitRow:not(.head)>span:nth-child(3){grid-area:meta}
   .kzLimitRow:not(.head)>span:nth-child(5){grid-column:1/-1}
 }
+/* Phone field with a fixed +994 prefix */
+.kzPhoneInput{display:flex;align-items:stretch;width:100%;margin-top:5px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;overflow:hidden}
+.kzPhoneInput:focus-within{border-color:var(--kz-accent);box-shadow:0 0 0 3px var(--kz-accent-soft)}
+.kzPhonePrefix{display:flex;align-items:center;padding:0 10px 0 14px;background:var(--kz-soft);border-right:1px solid var(--kz-line);color:var(--kz-ink);font-weight:600;font-size:var(--fs-15);font-variant-numeric:tabular-nums}
+.kzPhoneInput input{flex:1;min-width:0;height:44px!important;margin:0!important;padding:0 12px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;outline:none!important;font-size:var(--fs-15)!important;font-variant-numeric:tabular-nums;letter-spacing:.3px}
+.loginPage .kzPhoneInput input:focus,.kzPhoneInput input:focus{border:0!important;box-shadow:none!important;outline:none!important}.loginPage .kzPhoneInput{margin-top:5px}

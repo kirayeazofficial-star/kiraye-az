@@ -968,3 +968,155 @@ nav.breadcrumb{display:block;margin:0 0 12px;font-size:var(--fs-13);color:var(--
 nav.breadcrumb a{display:inline!important;margin:0!important;padding:0!important;color:var(--kz-text)!important}
 .accountDashboard .cabinetNavFoot .kzMenuRow{color:var(--kz-ink)!important}
 .accountDashboard .cabinetNavFoot .kzMenuRow.danger{color:var(--kz-danger)!important}
+
+/* ======================================================================
+   Fit to screen. Phones: every size follows the screen width (designed at
+   375px, never larger than the 430px version). Desktop: denser, one row.
+   ====================================================================== */
+@media (min-width:1100px){
+  :root{--kz-width:1280px}
+  .kzCategories{grid-template-columns:repeat(12,minmax(0,1fr));gap:12px 8px;margin-bottom:28px}
+  .kzCategories .categoryVisual{width:76px!important;height:76px!important;border-radius:14px}
+  .kzCategories>button>span:last-child{font-size:var(--fs-13)}
+  .kzGrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:20px 16px}
+}
+@media (min-width:1500px){.kzGrid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media (max-width:767px){
+  :root{
+    --u:calc(100vw / 375);
+    --kz-gutter:clamp(12px,calc(14 * var(--u)),16px);
+    --fs-11:clamp(10px,calc(10.5 * var(--u)),12px);
+    --fs-12:clamp(10.5px,calc(11.5 * var(--u)),13px);
+    --fs-13:clamp(11.5px,calc(12.5 * var(--u)),14px);
+    --fs-14:clamp(12px,calc(13.5 * var(--u)),15px);
+    --fs-15:clamp(13px,calc(14 * var(--u)),16px);
+    --fs-16:clamp(13.5px,calc(15 * var(--u)),17px);
+    --fs-18:clamp(15px,calc(16.5 * var(--u)),19px);
+    --fs-20:clamp(16px,calc(18 * var(--u)),21px);
+    --fs-24:clamp(18px,calc(21 * var(--u)),24px);
+    --fs-28:clamp(20px,calc(24 * var(--u)),28px);
+  }
+  /* header */
+  .kzHeaderInner{padding-top:6px;padding-bottom:8px;gap:6px 10px}
+  .kzHeader .kzLogo{top:6px!important;font-size:clamp(19px,calc(21 * var(--u)),24px)!important;line-height:clamp(30px,calc(32 * var(--u)),36px)!important}
+  .kzHeader .mobileMenuButton{width:32px;height:32px}
+  .kzHeader .mobileMenuButton svg{width:clamp(20px,calc(22 * var(--u)),24px)!important;height:clamp(20px,calc(22 * var(--u)),24px)!important}
+  .kzMobilePublish svg,.kzRoundPlus{width:clamp(26px,calc(28 * var(--u)),32px)!important;height:clamp(26px,calc(28 * var(--u)),32px)!important}
+  .kzRoundPlus svg{width:60%!important;height:60%!important}
+  .kzSearch{height:clamp(36px,calc(40 * var(--u)),44px)!important;border-radius:10px!important}
+  .kzSearch input{font-size:16px!important;padding:0 8px!important}
+  .kzSearch>svg{margin-left:10px!important}
+  .kzMain{padding-top:12px}
+  /* categories */
+  .kzCategories{gap:clamp(6px,calc(8 * var(--u)),10px)!important;margin-bottom:18px!important}
+  .kzCategories>button{flex:0 0 clamp(62px,calc(70 * var(--u)),80px)!important;gap:6px!important}
+  .kzCategories .categoryVisual,.kzCatalogTile{width:clamp(56px,calc(64 * var(--u)),74px)!important;height:clamp(56px,calc(64 * var(--u)),74px)!important;border-radius:clamp(12px,calc(14 * var(--u)),16px)!important}
+  .kzCatalogTile svg{width:45%!important;height:45%!important}
+  .kzCategories>button>span:last-child{font-size:var(--fs-12)!important;min-height:2.5em}
+  /* sections and cards */
+  .kzSection{margin-bottom:20px}
+  .kzSectionHead{margin-bottom:10px}
+  .kzSectionHead h2{font-size:var(--fs-18)!important}
+  .kzMore{font-size:var(--fs-14)}
+  .kzSort{height:34px;font-size:var(--fs-13);padding:0 26px 0 10px}
+  .kzToolbar{gap:6px;margin-bottom:12px}
+  .kzChip{height:32px;padding:0 12px;font-size:var(--fs-13)}
+  .kzGrid{gap:clamp(12px,calc(14 * var(--u)),18px) clamp(8px,calc(10 * var(--u)),12px)!important}
+  .kzCardPhoto{border-radius:10px}
+  .kzCardBody{padding-top:6px!important}
+  .kzPrice{font-size:var(--fs-16)!important}
+  .kzPrice small{font-size:var(--fs-12)}
+  .kzCardTitle{font-size:var(--fs-13)!important;margin:2px 0 4px!important}
+  .kzCardMeta{font-size:var(--fs-11)!important}
+  .kzPromo svg{width:13px;height:13px}
+  .kzFavorite{top:6px;right:6px;width:28px!important;height:28px!important}
+  .kzFavorite svg{width:clamp(18px,calc(20 * var(--u)),22px)!important;height:clamp(18px,calc(20 * var(--u)),22px)!important}
+  /* bottom bar */
+  body{padding-bottom:calc(clamp(52px,calc(56 * var(--u)),60px) + env(safe-area-inset-bottom))}
+  .kzTabbar{height:calc(clamp(52px,calc(56 * var(--u)),60px) + env(safe-area-inset-bottom))!important}
+  .kzTabbar>a{font-size:clamp(8.5px,calc(9.5 * var(--u)),10.5px)!important;gap:2px!important}
+  .kzTabbar>a svg{width:clamp(19px,calc(21 * var(--u)),23px)!important;height:clamp(19px,calc(21 * var(--u)),23px)!important}
+  .kzTabPlus{width:clamp(40px,calc(44 * var(--u)),48px)!important;height:clamp(40px,calc(44 * var(--u)),48px)!important;margin-top:calc(-1 * clamp(14px,calc(16 * var(--u)),18px))!important}
+  .kzTabbar>a .kzTabPlus svg{width:50%!important;height:50%!important}
+  .stickyContact{gap:8px!important;padding:8px var(--kz-gutter) calc(8px + env(safe-area-inset-bottom))!important}
+  .stickyContact>*{min-height:clamp(40px,calc(44 * var(--u)),48px)!important;font-size:var(--fs-15)!important;border-radius:10px!important}
+  /* listing page */
+  .listingDetails .galleryArrow{width:34px!important;height:34px!important;font-size:20px!important}
+  .listingDetails .galleryActions button{width:36px!important;height:36px!important}
+  .listingDetails .thumbnails button{width:clamp(56px,calc(64 * var(--u)),72px)!important;height:clamp(42px,calc(48 * var(--u)),54px)!important}
+  .listingDetails:not(.compactDetails) .detailHead h1{font-size:var(--fs-20)!important}
+  .detailSide .detailPrice{font-size:var(--fs-24)!important}
+  .listingInfo .description{font-size:var(--fs-15)}
+  /* cabinet */
+  .kzProfileCard{grid-template-columns:clamp(48px,calc(56 * var(--u)),64px) minmax(0,1fr)!important}
+  .kzProfileCard .kzUserAvatar.large{width:clamp(48px,calc(56 * var(--u)),64px)!important;height:clamp(48px,calc(56 * var(--u)),64px)!important}
+  .kzProfileCard h1{font-size:var(--fs-18)!important}
+  .kzProfileCard p{font-size:var(--fs-13)!important}
+  .kzBalance{padding:12px}
+  .kzBalance strong{font-size:var(--fs-18)}
+  .kzBalanceIcon{width:36px;height:36px}
+  .accountDashboard .cabinetNav.cabinetCards{padding:12px 4px!important}
+  .accountDashboard .cabinetNav.cabinetCards>a .kzNavIcon{width:clamp(40px,calc(46 * var(--u)),52px)!important;height:clamp(40px,calc(46 * var(--u)),52px)!important;border-radius:14px!important}
+  .accountDashboard .cabinetNav.cabinetCards>a{font-size:var(--fs-11)!important}
+  .accountDashboard .cabinetNav.cabinetCards .cabinetNavFoot>.kzMenuRow{min-height:44px!important;font-size:var(--fs-14)!important}
+  .kzMenuIcon{width:30px;height:30px}
+  .accountDashboard .cabinetContent{padding:14px!important}
+  .kzOwnTabs button{min-height:34px;padding:0 10px;font-size:var(--fs-13)}
+  .accountDashboard .accountListings>article{grid-template-columns:clamp(76px,calc(88 * var(--u)),100px) minmax(0,1fr)!important;padding:10px!important;gap:4px 10px!important}
+  .accountDashboard .accountListings h3{font-size:var(--fs-14)!important}
+  .accountDashboard .accountListings>article p{font-size:var(--fs-12)!important}
+  .kzButton,.kzButtonGhost{height:clamp(38px,calc(42 * var(--u)),46px);font-size:var(--fs-14)}
+  main h1{font-size:var(--fs-20)!important}
+  main h2{font-size:var(--fs-18)!important}
+}
+
+/* ---------- Banners ---------- */
+.kzBanners{position:relative;margin:0 0 28px}
+.kzBannerRail{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;border-radius:14px;scrollbar-width:none}
+.kzBannerRail::-webkit-scrollbar{display:none}
+.kzBannerRail>*{flex:0 0 100%;scroll-snap-align:start;display:block;aspect-ratio:4/1;background:var(--kz-soft)}
+.kzBannerRail img{display:block;width:100%;height:100%;object-fit:cover}
+.kzBannerDots{display:flex;justify-content:center;gap:6px;margin-top:8px}
+.kzBannerDots button{width:8px;height:8px;min-height:0;margin:0;padding:0;border:0;border-radius:4px;background:#d5d8de;cursor:pointer;box-shadow:none}
+.kzBannerDots button[aria-current=true]{width:20px;background:var(--kz-accent)}
+.kzBannerTag{position:absolute;top:8px;right:8px;padding:2px 7px;border-radius:5px;background:rgba(0,0,0,.45);color:#fff;font-size:var(--fs-11)}
+.kzListingBanner{grid-column:1/-1}
+.kzListingBanner .kzBanners{margin:8px 0 0}
+@media (max-width:767px){.kzBannerRail{border-radius:10px}.kzBanners{margin-bottom:20px}}
+/* admin banner form */
+.kzBannerForm{display:grid;gap:14px;margin:0 0 16px;padding:16px;border:1px solid var(--kz-line);border-radius:12px;background:var(--kz-soft)}
+.kzBannerPick{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:4/1;min-height:0;margin:0;padding:0;border:2px dashed #c9cdd3;border-radius:12px;background:#fff;color:var(--kz-text);font:inherit;cursor:pointer;overflow:hidden;box-shadow:none}
+.kzBannerPick img{width:100%;height:100%;object-fit:cover}
+.kzBannerPick span{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:var(--fs-14)}
+.kzBannerFields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.kzBannerFields label{display:grid;gap:4px;font-size:var(--fs-13);font-weight:500;color:var(--kz-ink)}
+.kzBannerFields input:not([type=checkbox]),.kzBannerFields select{min-height:40px;padding:0 10px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;font:inherit;font-size:var(--fs-14)}
+.kzBannerFields .kzBannerCheck{display:flex;align-items:center;gap:8px;align-self:end;min-height:40px}
+.kzBannerFields input[type=checkbox]{width:18px;height:18px;accent-color:var(--kz-accent)}
+.kzBannerRow{grid-template-columns:200px minmax(0,1fr) auto!important}
+.kzBannerThumb{width:100%;aspect-ratio:4/1;object-fit:cover;border-radius:8px;background:var(--kz-soft)}
+.kzSwitch{display:flex;align-items:center;gap:8px;font-size:var(--fs-13);cursor:pointer}
+.kzSwitch input{position:absolute;opacity:0;pointer-events:none}
+.kzSwitch span{position:relative;width:36px;height:20px;border-radius:10px;background:#d5d8de;transition:background .15s}
+.kzSwitch span::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+.kzSwitch input:checked+span{background:var(--kz-green)}
+.kzSwitch input:checked+span::after{transform:translateX(16px)}
+.kzAdStats.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kzAdStats small{font-size:var(--fs-12);color:var(--kz-muted)}
+@media (max-width:767px){
+  .kzBannerFields{grid-template-columns:1fr 1fr}
+  .kzBannerFields label:nth-child(-n+3){grid-column:1/-1}
+  .kzBannerRow{grid-template-columns:1fr!important}
+  .kzAdStats.four{grid-template-columns:1fr 1fr}
+}
+.kzEstimate{margin:16px 0;border:1px solid var(--kz-line);border-radius:12px;background:#fff}
+.kzEstimate>summary{display:flex;align-items:center;gap:10px;padding:14px 16px;font-size:var(--fs-15);font-weight:600;color:var(--kz-ink);cursor:pointer;list-style:none}
+.kzEstimate>summary::-webkit-details-marker{display:none}
+.kzEstimate>summary svg{color:#3b6ef5}
+.kzEstimate>summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--kz-muted);border-bottom:2px solid var(--kz-muted);transform:rotate(45deg)}
+.kzEstimate[open]>summary::after{transform:rotate(-135deg)}
+.kzEstimate .rentalEstimator{margin:0!important;border:0!important;border-top:1px solid var(--kz-line)!important;border-radius:0 0 12px 12px!important;background:none!important}
+.kzEstimate .rentalEstimator>h3:first-child,.kzEstimate .rentalEstimator>h2:first-child{display:none}
+.kzBannerRail>*{aspect-ratio:16/3}
+.kzBannerPick,.kzBannerThumb{aspect-ratio:16/3}
+@media (max-width:767px){.kzBannerRail>*{aspect-ratio:3/1}}

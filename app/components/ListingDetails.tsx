@@ -1,10 +1,11 @@
 "use client";
-import { Check, LayoutList, MapPin, Pencil, Share2 } from "lucide-react";
+import { Calculator, Check, LayoutList, MapPin, Pencil, Share2 } from "lucide-react";
 import PromotionOptions from "./PromotionOptions";
 import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
 import { publicDate, publicMonthYear } from "../../lib/public-date";
 import ListingSuggestions from "./ListingSuggestions";
+import BannerStrip from "./BannerStrip";
 import ImageViewer from "./ImageViewer";
 import NavigationIcon from './NavigationIcon';
 import PromotionBadges from "./PromotionBadges";
@@ -357,7 +358,7 @@ export default function ListingDetails({
             . Tarixi əlaqə saxlayaraq dəqiqləşdir.
           </p>
         )}
-        <RentalEstimator key={item.id} item={item} />
+        <details className="kzEstimate"><summary><Calculator aria-hidden="true" size={18} strokeWidth={1.75} />Kirayə xərcini hesabla</summary><RentalEstimator key={item.id} item={item} /></details>
         <p className="safetyNote">
           Kirayə götürəcəyin əşyanı, nəqliyyatı və ya əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini
           yazılı razılaşdır. Platforma hazırda ödəniş qəbul etmir.
@@ -404,6 +405,7 @@ export default function ListingDetails({
         {phoneShown ? <a className="add" href={`tel:${phone}`}>Zəng et</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}>Nömrəni göstər</button>}
         {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
       </div>, document.body)}
+      {!compact && <div className="kzListingBanner"><BannerStrip placement="listing" /></div>}
       {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}
     </div>
   );

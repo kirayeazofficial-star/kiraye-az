@@ -692,4 +692,5 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Populyar axtarışlar": ["Популярные запросы", "Popular searches"],
   "Bütün filtrlərlə axtar": ["Искать со всеми фильтрами", "Search with all filters"],
   "Bu bölmədə hələ elan yoxdur.": ["В этом разделе пока нет объявлений.", "No listings here yet."],
+  "Reklam": ["Реклама", "Ad"],
 };

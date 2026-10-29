@@ -198,7 +198,6 @@ export default function ListingDetails({
           {selectedImage > 0 && <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></button>}
           {selectedImage < imageCount - 1 && <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>}
           <span className="galleryCounter" aria-live="polite" aria-atomic="true">{selectedImage + 1} / {imageCount}</span>
-          <button type="button" className="galleryAll" onClick={() => setViewerOpen(true)}>Bütün şəkillər</button>
         </>}
         </div>
         {imageCount > 1 && (

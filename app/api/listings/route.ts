@@ -1,3 +1,4 @@
+import {contactInText} from "../../../lib/contact-filter";
 import {NextRequest,NextResponse} from "next/server";
 import {freeLimit} from "../../../lib/host/limits";
 import {hostQuery} from "../../../lib/host/db";
@@ -22,7 +23,9 @@ export async function GET(request:NextRequest){
       return rows[0]?reply({item:rows[0]}):reply({error:'LISTING_NOT_FOUND'},404);
     }
     const where:string[]=[],values:unknown[]=[];const add=(sql:string,value:unknown)=>{values.push(value);where.push(sql.replace('?',`$${values.length}`));};
-    if(scope==='mine'){const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);add('owner_id=?',user.id);}
+    if(scope==='mine'){const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);add('owner_id=?',user.id);
+      // Listings left inactive (expired, deleted or rejected) for 180 days are archived for good and no longer listed.
+      where.push(`not coalesce(coalesce(deleted_at,case when status in('expired','archived','rejected') or expires_at<=now() then coalesce(expires_at,updated_at) end)<now()-interval '180 days',false)`);}
     else where.push(`status='published' and (expires_at is null or expires_at>now())`);
     const category=input.get('category')||'';if(categories.has(category))add('category=?',category);
     const owner=input.get('owner')||'';if(uuid.test(owner))add('owner_id=?',owner);
@@ -69,6 +72,7 @@ export async function POST(request:NextRequest){
   try{
     const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
     const body=await request.json() as Record<string,unknown>,item=listingPayload(body,user.id);if(!item)return reply({error:'INVALID_LISTING'},400);
+    if(contactInText(`${item.title} ${item.description}`))return reply({error:'CONTACT_IN_TEXT'},400);
     // Over the free limit the listing is still saved, as a draft waiting for payment.
     const limit=await freeLimit(user.id,item.category),paid=limit.remaining<=0;
     const id=newId();
@@ -83,9 +87,12 @@ export async function PATCH(request:NextRequest){
     const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
     const body=await request.json() as Record<string,unknown>,id=cleanText(body.id,36);if(!uuid.test(id))return reply({error:'INVALID_LISTING'},400);
     const item=listingPayload(body,user.id);if(!item)return reply({error:'INVALID_LISTING'},400);
-    const recent=await hostQuery<{id:string}>(`select id from public.listings where id=$1 and owner_id=$2 and last_edited_at>now()-interval '1 day'`,[id,user.id]);
-    if(recent[0])return reply({error:'EDIT_LIMIT'},429);
-    const rows=await hostQuery<{id:string;status:string}>(`update public.listings set last_edited_at=now(),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil]);
+    if(contactInText(`${item.title} ${item.description}`))return reply({error:'CONTACT_IN_TEXT'},400);
+    // At most two edits in any 24 hours; the answer says exactly when the next edit becomes possible.
+    const recent=await hostQuery<{recent:string[]}>(`select array(select x from unnest(edit_log) x where x>now()-interval '1 day' order by x)::text[] as recent from public.listings where id=$1 and owner_id=$2`,[id,user.id]);
+    const edits=recent[0]?.recent||[];
+    if(edits.length>=2)return reply({error:'EDIT_LIMIT',next_edit_at:new Date(Date.parse(edits[0])+86400000).toISOString()},429);
+    const rows=await hostQuery<{id:string;status:string}>(`update public.listings set last_edited_at=now(),edit_log=array_append(array(select x from unnest(edit_log) x where x>now()-interval '1 day'),now()),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil]);
     if(rows[0]?.status==='pending')await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','resubmitted',null,'pending')`,[id,user.id]);
     return rows[0]?reply({id:rows[0].id}):reply({error:'LISTING_NOT_FOUND'},404);
   }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}

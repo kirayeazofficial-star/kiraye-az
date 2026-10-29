@@ -157,6 +157,7 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Elan yerləşdir": ["Разместить объявление", "Post a listing"],
   "Qaydalar və təhlükəsizlik": ["Правила и безопасность", "Rules and safety"],
   "Məxfilik": ["Конфиденциальность", "Privacy"],
+  "İstifadəçi razılaşması": ["Пользовательское соглашение", "Terms of use"],
   "Kömək": ["Помощь", "Help"],
   "Bizimlə əlaqə": ["Связаться с нами", "Contact us"],
   "Ehtiyacın olanı almalı deyilsən.": ["Не обязательно покупать то, что нужно.", "You don't have to buy what you need."],

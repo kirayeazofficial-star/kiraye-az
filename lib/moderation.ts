@@ -1,5 +1,7 @@
 export const rejectionReasons = [
  "Şəkillər elana uyğun deyil. Zəhmət olmasa düzgün şəkillər əlavə et.",
+ "Birinci şəkil kirayə verilən əşyanın özünü göstərməlidir (tualet, balkon, küçə, sənəd və ya ekran şəkli olmaz). Şəkillərin sırasını dəyişib yenidən göndər.",
+ "Təsvirdə və ya başlıqda telefon nömrəsi, link və ya reklam var. Onları silib elanı yenidən göndər.",
  "Elan yanlış kateqoriyada yerləşdirilib. Uyğun kateqoriyanı seç.",
  "Bu elan təkrar yerləşdirilib. Mövcud elanını redaktə et.",
  "Elan məlumatları natamamdır. Qiymət və kirayə şərtlərini dəqiqləşdir.",

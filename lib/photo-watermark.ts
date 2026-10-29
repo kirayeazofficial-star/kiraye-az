@@ -15,7 +15,7 @@ export async function watermarkPhoto(file: File): Promise<File> {
     // Brand mark: a small dark pill with "kirayeal" in white and ".az" in orange, bottom-left.
     const side = Math.min(canvas.width, canvas.height);
     const font = Math.max(12, Math.round(side * 0.042));
-    const margin = Math.max(6, Math.round(side * 0.03));
+    const margin = Math.max(10, Math.round(side * 0.045));
     context.font = `700 ${font}px "Inter", "Segoe UI", Arial, sans-serif`;
     context.textBaseline = "middle"; context.textAlign = "left";
     const name = "kirayeal", domain = ".az";

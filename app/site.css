@@ -1746,3 +1746,8 @@ html{-webkit-tap-highlight-color:transparent}
 .kzPhotoRow .kzButtonGhost{height:36px!important;min-height:0!important;padding:0 14px!important;font-size:var(--fs-14)!important}
 .kzEmailNow{color:var(--kz-muted)}
 .kzLogoutRow{display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;border:1px solid var(--kz-line)!important;background:#fff;color:var(--kz-danger)!important;font:inherit;font-size:var(--fs-15);font-weight:600;cursor:pointer}
+
+/* Photo viewer: no focus line under the top bar (iPhone drew it on the auto-focused bar), no hint text */
+.kzViewer .kzViewerTop,.kzViewer .kzViewerTop:focus,.kzViewer .kzViewerTop:focus-visible{outline:none!important;box-shadow:none!important;border:0!important}
+.kzViewer:focus,.kzViewer:focus-visible{outline:none!important}
+.kzViewerHint{display:none!important}

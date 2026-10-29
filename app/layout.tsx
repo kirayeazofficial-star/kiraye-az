@@ -23,7 +23,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase:new URL(publicSiteUrl()),
   icons: { icon: [{url:"/icon.svg",type:"image/svg+xml"},{url:"/favicon-48.png",sizes:"48x48",type:"image/png"}], apple: [{url:"/icon-192.png",sizes:"192x192"}] },
-  title: "kirayeal.az — Kirayə elanları",
+  title: "Kirayə Al — kirayeal.az | Kirayə elanları",
   description: "Ev, avtomobil və motosiklet kirayəsi üçün elan platforması.",
   openGraph: { siteName: "kirayeal.az", locale: "az_AZ", type: "website", images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "kirayeal.az — Kirayə üçün bir ünvan" }] },
   twitter: { card: "summary_large_image", images: ["/og-default.jpg"] },
@@ -37,7 +37,7 @@ export default function RootLayout({
       <body>
         <Script src="/browser-compat.js" strategy="beforeInteractive" />
         <LanguageProvider>{children}</LanguageProvider>
-        <StructuredData data={{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":`${publicSiteUrl()}/#organization`,name:"kirayeal.az",url:publicSiteUrl(),logo:`${publicSiteUrl()}/icon-192.png`,email:siteContact.email,telephone:"+994502191145",sameAs:[siteContact.instagram,siteContact.tiktok]},{"@type":"WebSite","@id":`${publicSiteUrl()}/#website`,name:"kirayeal.az",url:publicSiteUrl(),inLanguage:"az-AZ",publisher:{"@id":`${publicSiteUrl()}/#organization`}}]}}/>
+        <StructuredData data={{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":`${publicSiteUrl()}/#organization`,name:"kirayeal.az",alternateName:["Kirayə Al","Kiraye Al","kirayeal"],url:publicSiteUrl(),logo:`${publicSiteUrl()}/icon-192.png`,email:siteContact.email,telephone:"+994502191145",sameAs:[siteContact.instagram,siteContact.tiktok]},{"@type":"WebSite","@id":`${publicSiteUrl()}/#website`,name:"kirayeal.az",alternateName:["Kirayə Al","Kiraye Al az"],potentialAction:{"@type":"SearchAction",target:`${publicSiteUrl()}/?q={search_term_string}#elanlar`,"query-input":"required name=search_term_string"},url:publicSiteUrl(),inLanguage:"az-AZ",publisher:{"@id":`${publicSiteUrl()}/#organization`}}]}}/>
       </body>
     </html>
   );

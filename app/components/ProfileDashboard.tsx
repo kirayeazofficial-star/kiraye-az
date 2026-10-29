@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
+import PaymentDialog from "./PaymentDialog";
 import PromotionOptions from "./PromotionOptions";
 import { activePromotion } from "./PromotionBadges";
 import NavigationIcon from "./NavigationIcon";
@@ -45,6 +46,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [statusFilter, setStatusFilter] = useState(() => { const tab = params.get("tab"); return tab && listingTabs.some(([key]) => key === tab) ? tab : "published"; }),
     [reloadKey, setReloadKey] = useState(0),
     [fullCategories, setFullCategories] = useState<string[]>([]),
+    [payment, setPayment] = useState<{ title: string; text: string } | null>(null),
     [refreshing, setRefreshing] = useState(false);
   // Tapping the cabinet link while already here reloads the data.
   useEffect(() => {
@@ -80,11 +82,11 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   }, [balanceOnly, reloadKey]);
   // Categories whose free place is used: restoring there will need payment, so say it up front.
   useEffect(() => {
-    if (balanceOnly) return;
+    if (balanceOnly || !userId) return;
     fetch("/api/listings/limits", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(data => {
       if (data?.items) setFullCategories(data.items.filter((item: { remaining: number }) => item.remaining <= 0).map((item: { category: string }) => item.category));
     }).catch(() => {});
-  }, [balanceOnly, reloadKey]);
+  }, [balanceOnly, reloadKey, userId]);
   const [deleteConfirm,setDeleteConfirm]=useState("");
   async function archive(item: Listing) {
     if (busy) return;
@@ -104,13 +106,16 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     }
   }
 
+  const paidRestore = () => setPayment({ title: "Ödənişlə bərpa", text: "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yenidən 30 gün yayımlamaq üçün ödəniş lazımdır." });
+  const paidSubmit = () => setPayment({ title: "Ödənişlə göndərmə", text: "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yoxlamaya göndərmək üçün ödəniş lazımdır." });
   async function restore(item: Listing) {
     if (busy) return;
+    if (fullCategories.includes(item.category)) { paidRestore(); return; }
     setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
       const data = await response.json().catch(() => ({}));
-      if (response.status === 429) { setNotice("Bu kateqoriyada pulsuz limitiniz dolub. Elanı ödənişlə bərpa etmək mümkün olacaq — ödəniş sistemi hələ qoşulmayıb."); return; }
+      if (response.status === 429) { setFullCategories(list => [...list, item.category]); paidRestore(); return; }
       if (!response.ok) throw new Error();
       setNotice("Elan yenidən 30 gün müddətinə yayımlandı.");
       setReloadKey(key => key + 1);
@@ -122,7 +127,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
-      if (response.status === 429) { setNotice("Bu kateqoriyada hələ pulsuz yer yoxdur. Elanı ödənişlə göndərmək mümkün olacaq — ödəniş sistemi hələ qoşulmayıb."); return; }
+      if (response.status === 429) { paidSubmit(); return; }
       if (!response.ok) throw new Error();
       setNotice("Elan yoxlamaya göndərildi.");
       setReloadKey(key => key + 1);
@@ -199,6 +204,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 ))}
               </div>
               {notice && <p className="kzOwnNotice" role="status">{notice}</p>}
+              {payment && <PaymentDialog title={payment.title} text={payment.text} onClose={() => setPayment(null)} />}
               {!listings.some((x) => matchesTab(x, statusFilter)) ? (
                 <div className="kzOwnEmpty">
                   <p>{emptyText[statusFilter]}</p>
@@ -225,7 +231,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         </p>
                         {x.payment_required && !x.deleted_at && <p className="kzOwnHint">Bu kateqoriyada pulsuz limitiniz dolduğu üçün elan ödəniş gözləyir. Ödənişdən sonra yoxlamaya göndəriləcək.</p>}
                         {current === "rejected" && x.rejection_reason && <p className="kzOwnReason">Səbəb: {x.rejection_reason} Səbəbi aradan qaldırıb elanı redaktə edin.</p>}
-                        {expired && !x.deleted_at && <p className="kzOwnHint">{fullCategories.includes(x.category) ? "Elanın müddəti bitib. Bu kateqoriyada pulsuz limit dolduğu üçün bərpa ödənişli olacaq." : "Elanın müddəti bitib. Yenidən yayımlamaq üçün “Bərpa et” seçin."}</p>}
+                        {expired && !x.deleted_at && <p className="kzOwnHint">{fullCategories.includes(x.category) ? "Elanın müddəti bitib. Pulsuz limit dolduğu üçün bərpa ödənişlidir." : "Elanın müddəti bitib. Yenidən yayımlamaq üçün “Bərpa et” seçin."}</p>}
                         {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. {fullCategories.includes(x.category) ? "Bu kateqoriyada pulsuz limit dolub — bərpa ödənişli olacaq." : "Bərpa pulsuz limitdən bir yer istifadə edir."}</p>}
                       </div>
                       <div className="accountItemActions">

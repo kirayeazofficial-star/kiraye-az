@@ -1691,3 +1691,21 @@ html{-webkit-tap-highlight-color:transparent}
 .listingDetails .galleryActions button,.listingDetails .galleryStage .galleryArrow{background:#fff!important;border:1px solid rgba(16,24,40,.08)!important;box-shadow:0 2px 6px rgba(16,24,40,.12)!important}
 .listingDetails .galleryCounter{right:12px!important;bottom:12px!important}
 @media (max-width:767px){.listingDetails .galleryStage{border:0!important;border-radius:0!important}}
+
+/* Owner view of own listing: one "Reklam et" + "Redaktə et" row */
+.kzOwnerRow>:only-child{grid-column:1/-1}
+.kzOwnerRow .promotionOptions{margin:0}
+.kzOwnerRow .promotionTrigger{display:flex!important;align-items:center;justify-content:center;gap:6px;height:42px;padding:0 10px;border:0!important;border-radius:10px!important;background:var(--kz-accent)!important;color:#fff!important;font-size:var(--fs-14)!important;font-weight:600!important;list-style:none;cursor:pointer;box-shadow:none!important}
+.kzOwnerRow .promotionTrigger::-webkit-details-marker{display:none}
+
+/* Profile page: compact header row (avatar, name, small links) instead of a big photo block */
+.kzPhotoPanel.kzPhotoCompact{display:grid!important;grid-template-columns:56px 1fr!important;justify-items:start!important;text-align:left!important;align-items:center;gap:14px!important;padding:14px 16px!important}
+.kzPhotoCompact .userAvatar,.kzPhotoCompact>span:first-child{width:56px!important;height:56px!important;font-size:var(--fs-18)!important}
+.kzPhotoCompact strong{display:block;font-size:var(--fs-16)!important;line-height:1.3}
+.kzPhotoCompact small{display:block;margin-top:2px;font-size:var(--fs-13);color:var(--kz-muted)}
+.kzPhotoCompact .kzPhotoActions{display:flex;gap:14px;margin-top:6px}
+.kzPhotoCompact .textButton{min-height:0!important;height:auto;padding:0!important;border:0;background:none;color:var(--kz-accent);font-size:var(--fs-13)!important;font-weight:600;cursor:pointer}
+.kzPhotoCompact .textButton.danger{color:var(--kz-muted)}
+.kzEmailNow{margin:0 0 10px;font-size:var(--fs-15);font-weight:500;word-break:break-all}
+.kzPhotoCompact>div{min-width:0;width:100%;text-align:left}
+.kzPhotoCompact .kzPhotoActions{justify-content:flex-start!important}

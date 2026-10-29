@@ -7,7 +7,8 @@ type View = { scale: number; x: number; y: number };
 const still: View = { scale: 1, x: 0, y: 0 };
 const MAX = 4;
 
-/** Full-screen photo viewer (dialog top layer): swipe between photos, pinch or double-tap to zoom, drag to look around. */
+/** Full-screen photo viewer (dialog top layer): swipe sideways between photos (no wrap-around at the ends),
+ *  swipe down to close, pinch or double-tap to zoom, drag to look around. */
 export default function ImageViewer({ images, title, index, onChange, onClose, actions }: {
   images: string[]; title: string; index: number;
   onChange: (index: number) => void; onClose: () => void; actions?: React.ReactNode;
@@ -19,10 +20,12 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
   const lastTap = useRef<{ time: number; x: number; y: number } | null>(null);
   const [view, setView] = useState<View>(still);
   const [drag, setDrag] = useState(0);
+  const [pull, setPull] = useState(0); // downward drag that closes the viewer
+  const axis = useRef<"x" | "y" | null>(null);
   const [animate, setAnimate] = useState(true);
   const current = Math.min(index, Math.max(0, images.length - 1));
   const many = images.length > 1;
-  const move = (delta: number) => { setView(still); onChange((current + delta + images.length) % images.length); };
+  const move = (delta: number) => { const next = current + delta; if (next < 0 || next >= images.length) return; setView(still); onChange(next); };
 
   useEffect(() => {
     const node = dialog.current;
@@ -35,7 +38,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
       if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus();
     };
   }, []);
-  useEffect(() => { setView(still); setDrag(0); }, [current]);
+  useEffect(() => { setView(still); setDrag(0); setPull(0); }, [current]);
   // Keep the active thumbnail in sight.
   useEffect(() => { dialog.current?.querySelector(".kzViewerThumbs [aria-current=true]")?.scrollIntoView({ block: "nearest", inline: "center" }); }, [current]);
 
@@ -57,10 +60,11 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
   }
 
   function down(event: React.PointerEvent) {
-    event.currentTarget.setPointerCapture(event.pointerId);
+    try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* pointer already released */ }
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     const points = [...pointers.current.values()];
     setAnimate(false);
+    axis.current = null;
     gesture.current = {
       distance: points.length > 1 ? Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y) : 0,
       scale: view.scale, startX: event.clientX, startY: event.clientY, view, moved: false,
@@ -78,8 +82,14 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     }
     const dx = event.clientX - g.startX, dy = event.clientY - g.startY;
     if (Math.abs(dx) > 6 || Math.abs(dy) > 6) g.moved = true;
-    if (view.scale > 1) setView(clamp({ scale: g.view.scale, x: g.view.x + dx, y: g.view.y + dy }));
-    else if (many) setDrag(dx);
+    if (view.scale > 1) { setView(clamp({ scale: g.view.scale, x: g.view.x + dx, y: g.view.y + dy })); return; }
+    // Decide once per gesture whether it is a sideways swipe (next photo) or a downward pull (close).
+    if (!axis.current && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) axis.current = Math.abs(dy) > Math.abs(dx) ? "y" : "x";
+    if (axis.current === "y") setPull(Math.max(0, dy));
+    else if (axis.current === "x" && many) {
+      const atEdge = (dx > 0 && current === 0) || (dx < 0 && current === images.length - 1);
+      setDrag(atEdge ? dx * 0.3 : dx); // gentle resistance where there is no further photo
+    }
   }
   function up(event: React.PointerEvent) {
     pointers.current.delete(event.pointerId);
@@ -92,6 +102,11 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     gesture.current = null;
     setAnimate(true);
     if (view.scale < 1.05) setView(still);
+    if (pull) {
+      if (pull > Math.min(140, (stage.current?.clientHeight || 600) * 0.18)) { onClose(); return; }
+      setPull(0);
+      return;
+    }
     if (drag) {
       const width = stage.current?.clientWidth || 1;
       setDrag(0);
@@ -107,7 +122,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     } else lastTap.current = { time: now, x: event.clientX, y: event.clientY };
   }
 
-  return <dialog ref={dialog} className="imageViewer kzViewer" aria-label={`${title} — şəkillər`}
+  return <dialog ref={dialog} className="imageViewer kzViewer" aria-label={`${title} — şəkillər`} style={{ ["--kz-pull" as string]: String(pull ? Math.max(0.3, 1 - pull / 450) : 1) } as React.CSSProperties}
     onCancel={event => { event.preventDefault(); onClose(); }}
     onKeyDown={event => {
       if (many && ["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); move(event.key === "ArrowLeft" ? -1 : 1); }
@@ -125,11 +140,11 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
       onPointerDown={down} onPointerMove={moveTouch} onPointerUp={up} onPointerCancel={up}
       onWheel={event => { if (event.ctrlKey || Math.abs(event.deltaY) > 0) { zoomTo(Math.max(1, Math.min(MAX, view.scale * (event.deltaY < 0 ? 1.25 : 0.8))), event.clientX, event.clientY); } }}>
       <img src={images[current] || "/placeholder.svg"} alt={`${title} — ${current + 1}-ci şəkil`} draggable={false}
-        style={{ transform: `translate3d(${view.x + drag}px, ${view.y}px, 0) scale(${view.scale})`, transition: animate ? "transform .22s ease" : "none" }}
+        style={{ transform: `translate3d(${view.x + drag}px, ${view.y + pull}px, 0) scale(${view.scale * (pull ? Math.max(0.85, 1 - pull / 1500) : 1)})`, transition: animate ? "transform .22s ease" : "none" }}
         onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/placeholder.svg"; }}/>
       {many && view.scale === 1 && <>
-        <button type="button" className="kzViewerArrow previous" onPointerDown={event => event.stopPropagation()} onClick={() => move(-1)} aria-label="Əvvəlki şəkil"><ChevronLeft aria-hidden="true" size={26} strokeWidth={2} /></button>
-        <button type="button" className="kzViewerArrow next" onPointerDown={event => event.stopPropagation()} onClick={() => move(1)} aria-label="Növbəti şəkil"><ChevronRight aria-hidden="true" size={26} strokeWidth={2} /></button>
+        {current > 0 && <button type="button" className="kzViewerArrow previous" onPointerDown={event => event.stopPropagation()} onClick={() => move(-1)} aria-label="Əvvəlki şəkil"><ChevronLeft aria-hidden="true" size={26} strokeWidth={2} /></button>}
+        {current < images.length - 1 && <button type="button" className="kzViewerArrow next" onPointerDown={event => event.stopPropagation()} onClick={() => move(1)} aria-label="Növbəti şəkil"><ChevronRight aria-hidden="true" size={26} strokeWidth={2} /></button>}
       </>}
     </div>
     <div className="kzViewerBottom">

@@ -106,6 +106,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
   useEffect(()=>()=>{objectUrls.current.forEach(URL.revokeObjectURL);objectUrls.current.clear();},[]);
   const files=useMemo(()=>photos.flatMap(photo=>photo.file?[photo.file]:[]),[photos]);
   const existingImages=useMemo(()=>photos.flatMap(photo=>photo.file?[]:[photo.src]),[photos]);
+  const [photoNotice,setPhotoNotice]=useState("");
+  const photoSize=(file:File)=>new Promise<{w:number;h:number}|null>(resolve=>{const url=URL.createObjectURL(file);const image=new Image();image.onload=()=>{resolve({w:image.naturalWidth,h:image.naturalHeight});URL.revokeObjectURL(url);};image.onerror=()=>{resolve(null);URL.revokeObjectURL(url);};image.src=url;});
   const [savedDraft,setSavedDraft]=useState<ListingDraft|null>(null);
   const [draftNotice,setDraftNotice]=useState("");
   const draftDirty=useRef(false),draftTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -745,7 +747,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         Şəkillər
                       </h2>
                       <p className="muted">
-                        1–6 şəkil · JPG, PNG və ya WebP · hər biri maksimum 5 MB
+                        1–6 şəkil · JPG, PNG və ya WebP · ən azı 600×400 piksel, maksimum 5 MB
                       </p>
                       <label className="uploadZone">
                         <ImagePlus className="kzI kzIL" aria-hidden="true" size={20} strokeWidth={2} /> Şəkilləri seç
@@ -777,15 +779,25 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                               e.target.value = "";
                               return;
                             }
-                            setPhotos((current) => [...current, ...selected.map(photoFromFile)]);
                             e.target.value = "";
                             setError("");
+                            setPhotoNotice("");
+                            // Very small pictures (often copied from the internet) look blurry when opened full screen.
+                            void Promise.all(selected.map(photoSize)).then(sizes => {
+                              const tooSmall = selected.filter((_, i) => sizes[i] && (Math.max(sizes[i]!.w, sizes[i]!.h) < 600 || Math.min(sizes[i]!.w, sizes[i]!.h) < 400));
+                              const accepted = selected.filter(file => !tooSmall.includes(file));
+                              const small = accepted.filter(file => { const size = sizes[selected.indexOf(file)]; return size && Math.max(size.w, size.h) < 1000; });
+                              if (tooSmall.length) setError(`${tooSmall.length} şəkil çox kiçikdir (ən azı 600×400 piksel olmalıdır), əlavə edilmədi. Telefonun kamerası ilə çəkilmiş real şəkil seçin.`);
+                              if (small.length) setPhotoNotice("Bəzi şəkillər kiçik ölçüdədir: tam ekranda bir az bulanıq görünə bilər. Mümkünsə, kamera ilə çəkilmiş orijinal şəkli seçin.");
+                              if (accepted.length) setPhotos((current) => [...current, ...accepted.map(photoFromFile)]);
+                            });
                           }}
                         />
                       </label>
                       <p className="photoCount" aria-live="polite">
                         {photos.length} / 6 şəkil{photos.length > 1 ? " · Sıranı dəyişmək üçün şəkli basıb saxlayıb sürüşdürün" : ""}
                       </p>
+                      {photoNotice && <p className="kzPhotoNotice" role="status">{photoNotice}</p>}
                       <PhotoOrganizer photos={photos} onChange={next => { setPhotos(next); queueDraft(); }} />
                     </section>
                     <section data-post-step="4" hidden={step !== 4}>

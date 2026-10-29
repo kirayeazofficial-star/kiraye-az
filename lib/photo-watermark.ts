@@ -40,39 +40,22 @@ export async function sharePreview(file: Blob): Promise<Blob> {
   } finally { URL.revokeObjectURL(url); }
 }
 
-// Brand mark, bottom-left: one rounded badge — orange "k" tile + "kirayeal.az" in bold — on a soft dark
-// translucent backing, so it reads the same on light and dark photos.
+// Brand mark, bottom-left: small see-through "kirayeal.az" (no box) with a soft shadow, so it is
+// readable on light and dark photos without covering them.
 export function drawBrandMark(context: CanvasRenderingContext2D, width: number, height: number) {
   const side = Math.min(width, height);
-  const font = Math.max(13, Math.round(side * 0.036));
+  const font = Math.max(12, Math.round(side * 0.032));
   const margin = Math.max(8, Math.round(side * 0.03));
   const family = brandFamily();
-  const pad = Math.round(font * 0.3), tile = Math.round(font * 1.32), gap = Math.round(font * 0.38);
-  // Heavy weight plus a thin outline in the same colour: the letters stay solid even where the
-  // device falls back to a font without a heavy weight.
-  const heavy = (text: string, x: number, y: number, color: string, size: number) => {
-    context.fillStyle = color; context.strokeStyle = color;
-    context.lineWidth = Math.max(1, size * 0.03); context.lineJoin = "round";
-    context.strokeText(text, x, y); context.fillText(text, x, y);
-  };
   context.save();
-  context.font = `900 ${font}px ${family}`;
-  const name = "kirayeal", nameWidth = context.measureText(name).width, textWidth = nameWidth + context.measureText(".az").width;
-  const boxH = tile + pad * 2, boxW = Math.round(pad + tile + gap + textWidth + font * 0.62);
-  const x = margin, y = height - margin - boxH, middle = y + boxH / 2;
-  const round = (left: number, top: number, w: number, h: number, r: number) => { context.beginPath(); if (typeof context.roundRect === "function") context.roundRect(left, top, w, h, r); else context.rect(left, top, w, h); };
-  context.fillStyle = "rgba(15,18,22,0.6)"; round(x, y, boxW, boxH, Math.round(boxH * 0.3)); context.fill();
-  context.fillStyle = "#ff5a1f"; round(x + pad, y + pad, tile, tile, Math.round(tile * 0.24)); context.fill();
-  context.textBaseline = "middle";
-  const kSize = Math.round(tile * 0.72);
-  context.textAlign = "center"; context.font = `900 ${kSize}px ${family}`;
-  heavy("k", x + pad + tile / 2, middle + tile * 0.02, "#fff", kSize);
-  context.textAlign = "left"; context.font = `900 ${font}px ${family}`;
-  // A touch of letter spacing keeps heavy letters from running into each other (where supported).
-  if ("letterSpacing" in context) (context as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${(font * 0.01).toFixed(1)}px`;
-  const textX = x + pad + tile + gap;
-  heavy(name, textX, middle, "#fff", font);
-  heavy(".az", textX + nameWidth, middle, "#ff8a57", font);
+  context.font = `800 ${font}px ${family}`;
+  context.textBaseline = "alphabetic"; context.textAlign = "left";
+  const name = "kirayeal", nameWidth = context.measureText(name).width;
+  const x = margin, y = height - margin;
+  context.shadowColor = "rgba(0,0,0,0.45)"; context.shadowBlur = Math.round(font * 0.35); context.shadowOffsetY = Math.max(1, Math.round(font * 0.05));
+  context.globalAlpha = 0.72;
+  context.fillStyle = "#ffffff"; context.fillText(name, x, y);
+  context.fillStyle = "#ff7a45"; context.fillText(".az", x + nameWidth, y);
   context.restore();
 }
 

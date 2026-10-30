@@ -2,7 +2,7 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, CloudUpload, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -431,10 +431,10 @@ function LongText({ text }: { text: string }) {
   </div>;
 }
 
-// Nightly backup to the leader's Google Drive: connect once, then only the result of the last nights.
-type BackupRun = { id: number; started_at: string; finished_at: string | null; ok: boolean | null; db_rows: number | null; db_bytes: number | null; files_new: number; error: string | null };
+// Nightly backup to the leader's Google Drive: connect once, then the state of the last copies.
+type BackupRun = { id: number; started_at: string; finished_at: string | null; heartbeat_at: string | null; ok: boolean | null; db_rows: number | null; db_bytes: number | null; files_new: number; error: string | null; stalled: boolean };
 function BackupStatus() {
-  const [data, setData] = useState<{ connected: boolean; email: string; runs: BackupRun[]; files: { count: number; bytes: number }; google: boolean } | null>(null), [error, setError] = useState("");
+  const [data, setData] = useState<{ connected: boolean; email: string; folder: string | null; runs: BackupRun[]; files: { count: number; bytes: number }; google: boolean } | null>(null), [error, setError] = useState("");
   const load = useCallback(() => { fetch("/api/admin/backup", { cache: "no-store" }).then(r => r.ok ? r.json() : Promise.reject()).then(setData).catch(() => setError("Məlumat yüklənmədi.")); }, []);
   useEffect(() => { load(); }, [load]);
   // Result of connecting Drive arrives in the address (?backup=…); shown once, then the address is cleaned.
@@ -444,31 +444,46 @@ function BackupStatus() {
     if (value) { setNotice(value); window.history.replaceState(null, "", "/admin?section=backup"); }
   }, []);
   useAutoClear(notice === "connected" ? notice : null, () => setNotice(null), 6000);
-  // While a backup is running the status refreshes by itself.
-  useEffect(() => { const running = data?.runs[0] && !data.runs[0].finished_at; if (!running) return; const timer = setTimeout(load, 5000); return () => clearTimeout(timer); }, [data, load]);
-  const size = (bytes: number) => !Number(bytes) ? "0 KB" : bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  const last = data?.runs[0];
+  const running = !!last && !last.finished_at && !last.stalled;
+  // While a copy is being sent the card refreshes by itself.
+  useEffect(() => { if (!running) return; const timer = setTimeout(load, 4000); return () => clearTimeout(timer); }, [running, data, load]);
+  const size = (bytes: number | null) => !Number(bytes) ? "0 KB" : Number(bytes) > 1048576 ? `${(Number(bytes) / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(Number(bytes) / 1024))} KB`;
   async function disconnect() {
     if (!window.confirm("Google Drive ayrılsın? Gecə ehtiyat nüsxələri dayanacaq.")) return;
     await fetch("/api/admin/backup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "disconnect" }) }).catch(() => null);
     load();
   }
-  const last = data?.runs[0];
+  const state = !last ? "none" : running ? "running" : last.ok ? "ok" : "failed";
+  const lastOk = data?.runs.find(run => run.ok);
   return <Panel title="Ehtiyat nüsxə">
-    <p className="kzAdHint">Hər gecə saat 03:00-da bütün baza (istifadəçilər, elanlar, mesajlar) Google Drive-dakı <strong>«kirayeal.az ehtiyat nüsxə»</strong> qovluğuna bir faylda yazılır, yeni şəkillər də ora əlavə olunur. Drive köhnə versiyaları 30 gün saxlayır.</p>
-    {notice === "connected" && <p className="kzAdNotice" role="status">Google Drive qoşuldu. İlk ehtiyat nüsxə indi göndərilir — bir neçə dəqiqəyə Drive-da «kirayeal.az ehtiyat nüsxə» qovluğu görünəcək.</p>}
+    <p className="kzAdHint">Hər gecə saat 03:00-da saytın bütün məlumatı Google Drive-dakı <strong>«kirayeal.az ehtiyat nüsxə»</strong> qovluğuna yazılır.</p>
+    {notice === "connected" && <p className="kzAdNotice" role="status">Google Drive qoşuldu. İlk ehtiyat nüsxə göndərilir.</p>}
     {(notice === "error" || notice === "no-access") && <p className="kzAdError" role="alert">Drive qoşulmadı. Google pəncərəsində Drive icazəsini təsdiqləyin və yenidən cəhd edin.</p>}
     {error && <p className="kzAdError" role="alert">{error}</p>}
-    {data && <div className="kzBackup">
-      <div className="kzBackupRow">
-        <span className={`status ${data.connected ? "published" : "archived"}`}>{data.connected ? "Qoşulub" : "Qoşulmayıb"}</span>
-        <span>{data.connected ? `Google Drive: ${data.email || "hesab"}` : "Google Drive hələ qoşulmayıb"}</span>
-        {data.connected ? <button type="button" className="kzAdLink" onClick={() => void disconnect()}>Ayır</button> : data.google ? <a className="kzAdBtn primary" href="/api/admin/backup/drive">Google Drive-a qoş</a> : <span className="kzAdMuted">Əvvəl serverdə Google girişi qurulmalıdır.</span>}
-      </div>
-      <div className="kzBackupRow">
-        <strong>Son ehtiyat nüsxə:</strong>
-        {!last ? <span className="kzAdMuted">Hələ olmayıb</span> : last.ok ? <span>{adminDate(last.finished_at || last.started_at)} · baza {last.db_rows ?? 0} sətir ({size(last.db_bytes || 0)}){last.files_new ? ` · ${last.files_new} yeni şəkil` : ""}</span> : last.finished_at ? <span className="kzAdError">{adminDate(last.started_at)} · alınmadı: {last.error}</span> : <span>{adminDate(last.started_at)} · gedir…</span>}
-      </div>
-      <div className="kzBackupRow"><strong>Drive-da şəkil və videolar:</strong><span>{data.files.count} fayl · {size(data.files.bytes)}</span></div>
+    {!data ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <div className="kzBk">
+      <section className="kzBkDrive">
+        <span className={`kzBkIcon ${data.connected ? "ok" : ""}`}><HardDrive aria-hidden="true" size={20} strokeWidth={1.9} /></span>
+        <div className="kzBkText"><strong>{data.connected ? "Google Drive qoşulub" : "Google Drive qoşulmayıb"}</strong><small>{data.connected ? data.email || "Google hesabı" : data.google ? "Ehtiyat nüsxə üçün Drive-ı bir dəfə qoşun." : "Əvvəl serverdə Google girişi qurulmalıdır."}</small></div>
+        <div className="kzBkActions">
+          {data.connected && data.folder && <a className="kzAdBtn" href={`https://drive.google.com/drive/folders/${data.folder}`} target="_blank" rel="noopener noreferrer"><ExternalLink aria-hidden="true" size={15} strokeWidth={2} />Drive-da aç</a>}
+          {data.connected ? <button type="button" className="kzAdLink danger" onClick={() => void disconnect()}>Ayır</button> : data.google && <a className="kzAdBtn primary" href="/api/admin/backup/drive">Google Drive-a qoş</a>}
+        </div>
+      </section>
+      {data.connected && <section className={`kzBkStatus ${state}`}>
+        <span className="kzBkIcon">{state === "running" ? <LoaderCircle className="kzSpin" aria-hidden="true" size={22} strokeWidth={2} /> : state === "ok" ? <CircleCheck aria-hidden="true" size={22} strokeWidth={2} /> : state === "failed" ? <TriangleAlert aria-hidden="true" size={22} strokeWidth={2} /> : <Clock aria-hidden="true" size={22} strokeWidth={2} />}</span>
+        <div className="kzBkText">
+          <strong>{state === "running" ? "Ehtiyat nüsxə göndərilir…" : state === "ok" ? "Ehtiyat nüsxə hazırdır" : state === "failed" ? "Son cəhd alınmadı" : "Hələ ehtiyat nüsxə olmayıb"}</strong>
+          <small>{state === "running" ? `Başladı: ${adminDate(last!.started_at)}${last!.db_rows ? ` · baza göndərildi` : ""}${last!.files_new ? ` · ${last!.files_new} şəkil göndərildi` : ""}` : state === "ok" ? adminDate(last!.finished_at || last!.started_at) : state === "failed" ? `${adminDate(last!.started_at)} · ${last!.error || "naməlum səbəb"}` : "İlk nüsxə bu gecə saat 03:00-da göndəriləcək."}</small>
+          {state === "failed" && <small>Sistem bir saat ərzində özü yenidən cəhd edəcək.</small>}
+        </div>
+      </section>}
+      {data.connected && <div className="kzBkStats">
+        <div><Database aria-hidden="true" size={18} strokeWidth={1.9} /><span>Baza</span><strong>{lastOk ? `${Number(lastOk.db_rows || 0)} sətir · ${size(lastOk.db_bytes)}` : "—"}</strong></div>
+        <div><Images aria-hidden="true" size={18} strokeWidth={1.9} /><span>Şəkil və videolar</span><strong>{data.files.count} fayl · {size(data.files.bytes)}</strong></div>
+        <div><Clock aria-hidden="true" size={18} strokeWidth={1.9} /><span>Növbəti nüsxə</span><strong>Bu gecə, 03:00</strong></div>
+      </div>}
+      {data.runs.length > 1 && <details className="kzBkHistory"><summary>Son nüsxələr</summary><ul>{data.runs.map(run => <li key={run.id}><span className={`kzBkDot ${run.ok ? "ok" : !run.finished_at && !run.stalled ? "running" : "failed"}`} />{adminDate(run.started_at)}<em>{run.ok ? `hazırdır · ${run.files_new} yeni şəkil` : !run.finished_at && !run.stalled ? "göndərilir" : run.error || "alınmadı"}</em></li>)}</ul></details>}
     </div>}
   </Panel>;
 }

@@ -8,7 +8,7 @@ import {isLeader} from "../../../../lib/host/staff";
 
 export const dynamic="force-dynamic";
 const reply=(data:unknown,status=200)=>NextResponse.json(data,{status,headers:{"Cache-Control":"no-store"}});
-// The nightly script sits next to app.js (copied there by every deploy); the cron job runs it at 03:00.
+// The backup script sits next to app.js (copied there by every deploy); a cron job checks it every 10 minutes.
 const script=()=>process.env.KIRAYE_APP_DIR?join(process.env.KIRAYE_APP_DIR,"backup-to-drive.mjs"):"";
 async function leader(){const user=await currentUser();return user&&await isLeader(user)?user:null;}
 
@@ -16,12 +16,12 @@ export async function GET(){
   try{
     if(!await leader())return reply({error:"FORBIDDEN"},403);
     const [settings,runs,files]=await Promise.all([
-      hostQuery<{drive_email:string|null;connected_at:string|null;connected:boolean}>(`select drive_email,connected_at,drive_token is not null as connected from public.backup_settings where id=1`),
-      hostQuery(`select id,trigger,started_at,finished_at,ok,db_file,db_bytes,db_rows,files_new,files_bytes,error from public.backup_runs order by started_at desc limit 10`),
+      hostQuery<{drive_email:string|null;connected_at:string|null;root_folder:string|null;connected:boolean}>(`select drive_email,connected_at,root_folder,drive_token is not null as connected from public.backup_settings where id=1`),
+      hostQuery(`select id,trigger,started_at,finished_at,heartbeat_at,ok,db_file,db_bytes,db_rows,files_new,files_bytes,error,(finished_at is null and coalesce(heartbeat_at,started_at)<now()-interval '10 minutes') as stalled from public.backup_runs order by started_at desc limit 6`),
       hostQuery<{count:string;bytes:string}>(`select count(*)::text as count,coalesce(sum(size),0)::text as bytes from public.backup_files`),
     ]);
     const ready=!!script()&&await access(script()).then(()=>true,()=>false);
-    return reply({connected:!!settings[0]?.connected,email:settings[0]?.drive_email||"",connected_at:settings[0]?.connected_at||null,runs,files:{count:Number(files[0]?.count||0),bytes:Number(files[0]?.bytes||0)},ready,google:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)});
+    return reply({connected:!!settings[0]?.connected,email:settings[0]?.drive_email||"",connected_at:settings[0]?.connected_at||null,folder:settings[0]?.root_folder||null,runs,files:{count:Number(files[0]?.count||0),bytes:Number(files[0]?.bytes||0)},ready,google:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)});
   }catch{return reply({error:"BACKUP_UNAVAILABLE"},503);}
 }
 

@@ -29,7 +29,9 @@ export default function SideBanners() {
         if (box.width && box.width < width - 8) { left = Math.min(left, box.left); right = Math.max(right, box.right); }
       });
       if (right <= left) { left = (width - 1280) / 2; right = width - left; }
-      const gap = 16, free = Math.min(left, width - right) - gap * 2, size = Math.min(200, Math.floor(free));
+      // Tall 1:3 adverts also have to fit in the window height, never cropped.
+      const gap = 16, free = Math.min(left, width - right) - gap * 2, tall = (window.innerHeight - Math.max(16, bottom + 20) - 40) / 3;
+      const size = Math.min(200, Math.floor(free), Math.floor(tall));
       root.style.setProperty("--kz-side-w", `${Math.max(0, size)}px`);
       root.style.setProperty("--kz-side-left", `${Math.round((left - size) / 2)}px`);
       root.style.setProperty("--kz-side-right-left", `${Math.round(right + (width - right - size) / 2)}px`);

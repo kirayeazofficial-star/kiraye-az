@@ -4,7 +4,7 @@ import { ImagePlus, Pencil, Trash2 } from "lucide-react";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { bannerJpeg } from "../../lib/banner-image";
 
-type Banner = { id: string; title: string; image_url: string; media_type?: string; link_url: string | null; placement: "home" | "listing" | "top" | "side"; active: boolean; starts_at: string | null; ends_at: string | null; sort_order: number; clicks: number };
+type Banner = { id: string; title: string; image_url: string; media_type?: string; link_url: string | null; placement: "home" | "listing" | "top" | "side"; mobile_url?: string | null; mobile_media_type?: string | null; active: boolean; starts_at: string | null; ends_at: string | null; sort_order: number; clicks: number };
 const placements = { top: "Yuxarı zolaq (kompüter)", side: "Sağ və sol (kompüter)", home: "Ana səhifə, elanların arasında", listing: "Elan səhifəsi" };
 const placementHints = { top: "Bütün səhifələrdə, saytın ən yuxarısında, menyudan əvvəl geniş zolaq. Kompüterdə görünür. Ölçü: 1920×200 (və ya 1200×120).", side: "Eyni reklam səhifənin həm solunda, həm sağında görünür, sürüşdürəndə yerində qalır. Geniş kompüter ekranında (1536px+). Ölçü: 300×900 və ya 160×600.", home: "Ana səhifədə kateqoriyaların altında, bütün ziyarətçilərə (telefonda da) görünür. Ölçü: 1200×300.", listing: "Hər elanın səhifəsində, elan məlumatının altında (telefonda da) görünür. Ölçü: 1200×300." };
 const isVideo = (banner: { image_url: string; media_type?: string }) => banner.media_type === "video" || /\.(mp4|webm)$/i.test(banner.image_url);
@@ -20,7 +20,11 @@ const show = (value: string | null) => value ? value.slice(0, 10).split("-").rev
 export default function BannerManager() {
   const [items, setItems] = useState<Banner[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState(""), [notice, setNotice] = useState("");
   const [form, setForm] = useState(empty), [file, setFile] = useState<File | null>(null), [preview, setPreview] = useState(""), [previewVideo, setPreviewVideo] = useState(false), [open, setOpen] = useState(false), [busy, setBusy] = useState(false);
-  const fileInput = useRef<HTMLInputElement>(null);
+  const fileInput = useRef<HTMLInputElement>(null), phoneInput = useRef<HTMLInputElement>(null);
+  // Optional phone version (2:1) for the home and listing page banners.
+  const [phoneFile, setPhoneFile] = useState<File | null>(null), [phonePreview, setPhonePreview] = useState(""), [phoneVideo, setPhoneVideo] = useState(false), [phoneRemoved, setPhoneRemoved] = useState(false);
+  const phonePlace = form.placement === "home" || form.placement === "listing";
+  useEffect(() => { if (!phoneFile) return; const url = URL.createObjectURL(phoneFile); setPhonePreview(url); setPhoneVideo(phoneFile.type.startsWith("video/")); return () => URL.revokeObjectURL(url); }, [phoneFile]);
   const load = useCallback(async () => {
     setLoading(true);
     try { const response = await fetch("/api/admin/banners", { cache: "no-store" }); const data = await response.json(); if (!response.ok) throw new Error(); setItems(data.items); setError(""); }
@@ -31,6 +35,7 @@ export default function BannerManager() {
   useEffect(() => { if (!file) return; const url = URL.createObjectURL(file); setPreview(url); setPreviewVideo(file.type.startsWith("video/")); return () => URL.revokeObjectURL(url); }, [file]);
   function start(banner?: Banner) {
     setForm(banner ? { id: banner.id, title: banner.title, link_url: banner.link_url || "", placement: banner.placement, starts_at: day(banner.starts_at), ends_at: day(banner.ends_at), sort_order: String(banner.sort_order), active: banner.active } : empty);
+    setPhoneFile(null); setPhonePreview(banner?.mobile_url || ""); setPhoneVideo(banner?.mobile_media_type === "video" || /\.(mp4|webm)$/i.test(banner?.mobile_url || "")); setPhoneRemoved(false);
     setFile(null); setPreview(banner?.image_url || ""); setPreviewVideo(!!banner && isVideo(banner)); setOpen(true); setNotice(""); setError("");
   }
   async function save(event: FormEvent) {
@@ -42,6 +47,8 @@ export default function BannerManager() {
       const body = new FormData();
       Object.entries(form).forEach(([key, value]) => body.append(key, String(value)));
       if (file) { if (file.type.startsWith("video/")) body.append("file", file, file.name); else body.append("file", await bannerJpeg(file), "banner.jpg"); }
+      if (phoneFile && phonePlace) { if (phoneFile.type.startsWith("video/")) body.append("mobile_file", phoneFile, phoneFile.name); else body.append("mobile_file", await bannerJpeg(phoneFile), "banner-phone.jpg"); }
+      if (phoneRemoved && !phoneFile) body.append("remove_mobile", "true");
       const response = await fetch("/api/admin/banners", { method: "POST", body }); const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error === "TOO_LARGE" ? "Fayl çox böyükdür: şəkil 3 MB, video 20 MB-dan böyük olmamalıdır." : data.error === "INVALID_IMAGE" ? "Bu fayl növü qəbul edilmir. JPG, PNG, WebP şəkil və ya MP4 video seçin." : response.status === 413 ? "Fayl serverin qəbul etdiyi ölçüdən böyükdür. Daha kiçik video seçin." : "Banner saxlanmadı. Yenidən cəhd edin.");
       setOpen(false); setNotice(form.id ? "Banner yeniləndi." : "Banner əlavə edildi."); await load();
@@ -60,11 +67,16 @@ export default function BannerManager() {
   }
   return <section className="kzAdPanel">
     <header className="kzAdPanelHead"><h2>Bannerlər</h2><div className="kzAdActions"><button type="button" className="kzAdBtn primary" onClick={() => start()}><ImagePlus aria-hidden="true" size={16} strokeWidth={2} />Banner əlavə et</button></div></header>
-    <div className="kzAdHint kzBannerGuide"><p><strong>Şəkil:</strong> 1600 × 300 piksel, JPG, PNG və ya WebP, 3 MB-a qədər.</p><p><strong>Video:</strong> MP4, eni 1600 × 300 və ya 1280 × 240, 5–15 saniyə, səssiz, 20 MB-a qədər. Video öz-özünə, səssiz və təkrarla oynayır.</p><p>Telefonda banner kiçik görünür — yazını iri, az sözlə yazın.</p></div>
+    <div className="kzAdHint kzBannerGuide"><p><strong>Ana səhifə və elan səhifəsi:</strong> 1200 × 300 (4:1). Telefon üçün ayrıca 720 × 360 (2:1) versiya əlavə etmək tövsiyə olunur.</p><p><strong>Yuxarı zolaq:</strong> 1920 × 200. <strong>Sağ və sol:</strong> 300 × 900.</p><p>Şəkil: JPG, PNG, WebP, 3 MB-a qədər. Video: MP4, 5–15 saniyə, səssiz, 20 MB-a qədər — öz-özünə və təkrarla oynayır. Vacib yazını kənarlara çox yaxın qoymayın.</p></div>
     {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {open && <form className="kzBannerForm" onSubmit={save}>
       <button type="button" className="kzBannerPick" onClick={() => fileInput.current?.click()}>{preview ? previewVideo ? <video src={preview} muted loop autoPlay playsInline /> : <img src={preview} alt="" /> : <span><ImagePlus aria-hidden="true" size={28} strokeWidth={1.5} />Şəkil və ya video seç</span>}</button>
       <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden onChange={event => setFile(event.target.files?.[0] || null)} />
+      {phonePlace && <div className="kzBannerPhone">
+        <button type="button" className="kzBannerPick phone" onClick={() => phoneInput.current?.click()}>{phonePreview && !phoneRemoved ? phoneVideo ? <video src={phonePreview} muted loop autoPlay playsInline /> : <img src={phonePreview} alt="" /> : <span><ImagePlus aria-hidden="true" size={24} strokeWidth={1.5} />Telefon versiyası</span>}</button>
+        <div><strong>Telefon versiyası (istəyə bağlı)</strong><p>720 × 360 (2:1), şəkil və ya video. Telefonda geniş banner çox kiçik görünür — bu versiya varsa, telefonda onu göstəririk.</p>{phonePreview && !phoneRemoved && <button type="button" className="kzAdLink" onClick={() => { setPhoneFile(null); setPhoneRemoved(true); }}>Telefon versiyasını sil</button>}</div>
+        <input ref={phoneInput} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden onChange={event => { setPhoneFile(event.target.files?.[0] || null); setPhoneRemoved(false); }} />
+      </div>}
       <div className="kzBannerFields">
         <label>Ad (yalnız paneldə görünür)<input value={form.title} maxLength={120} onChange={event => setForm({ ...form, title: event.target.value })} placeholder="Məs. Avto icarə — noyabr" /></label>
         <label>Keçid (istəyə bağlı)<input value={form.link_url} maxLength={500} onChange={event => setForm({ ...form, link_url: event.target.value })} placeholder="https://... və ya /kiraye-masin" /></label>
@@ -80,7 +92,7 @@ export default function BannerManager() {
       <div className="kzAdList">{items.map(banner => <article className="kzAdRow kzBannerRow" key={banner.id}>
         {isVideo(banner) ? <video className="kzBannerThumb" src={banner.image_url} muted loop autoPlay playsInline preload="metadata" /> : <img className="kzBannerThumb" src={banner.image_url} alt="" />}
         <div className="kzAdRowMain">
-          <div className="kzAdRowTop"><span className={`status ${banner.active ? "published" : "archived"}`}>{banner.active ? "Aktiv" : "Söndürülüb"}</span><span className="kzAdMuted">{placements[banner.placement]}{isVideo(banner) ? " · Video" : ""}</span></div>
+          <div className="kzAdRowTop"><span className={`status ${banner.active ? "published" : "archived"}`}>{banner.active ? "Aktiv" : "Söndürülüb"}</span><span className="kzAdMuted">{placements[banner.placement]}{isVideo(banner) ? " · Video" : ""}{banner.mobile_url ? " · Telefon versiyası var" : ""}</span></div>
           <h3>{banner.title || "Adsız banner"}</h3>
           <p className="kzAdMuted">{banner.starts_at || banner.ends_at ? `${show(banner.starts_at)} — ${show(banner.ends_at)}` : "Müddətsiz"} · Klik: {banner.clicks}{banner.link_url ? ` · ${shortLink(banner.link_url)}` : ""}</p>
         </div>

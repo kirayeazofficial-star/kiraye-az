@@ -2085,3 +2085,23 @@ html{-webkit-tap-highlight-color:transparent}
   .kzSideBanner.right{left:var(--kz-side-right-left,calc(100vw - 132px))!important}
   .kzSideOff .kzSideBanner{display:none!important}
 }
+/* Bannerlər: çərçivə şəklin öz ölçüsü ilə eynidir (1200×300 = 4:1), heç bir kənar kəsilmir */
+.kzBannerRail>*,.kzBannerPick,.kzBannerThumb{aspect-ratio:4/1!important}
+.kzBannerRail img,.kzBannerRail video{object-fit:cover;object-position:center}
+@media (min-width:1536px){.kzSideBanner img,.kzSideBanner video{max-height:none!important;aspect-ratio:1/3;object-fit:cover}}
+@media (min-width:768px){.kzTopBanner img,.kzTopBanner video{max-height:none!important;height:auto!important;aspect-ratio:48/5;object-fit:cover}}
+/* Telefon versiyası olan banner (2:1) telefonda tam görünür */
+@media (max-width:767px){.kzBanners.phone .kzBannerRail>*{aspect-ratio:2/1!important}}
+.kzBannerPhone{display:grid;grid-template-columns:180px minmax(0,1fr);gap:14px;align-items:center}
+.kzBannerPick.phone{aspect-ratio:2/1!important}
+.kzBannerPick video{width:100%;height:100%;object-fit:cover}
+.kzBannerPhone strong{font-size:14px;font-weight:600;color:var(--kz-ink)}
+.kzBannerPhone p{margin:4px 0 6px;font-size:13px;color:var(--kz-muted);line-height:1.45}
+@media (max-width:560px){.kzBannerPhone{grid-template-columns:1fr}}
+/* Kabinet kart düymələri: hər ekranda bir sətirdə, eyni hündürlükdə */
+.accountDashboard .accountListings article .accountItemActions>*{white-space:nowrap!important;min-width:0}
+@media (max-width:374px){
+  .accountDashboard .accountListings article .accountItemActions{gap:6px!important}
+  .accountDashboard .accountListings article .accountItemActions>*{padding:0 4px!important;font-size:12.5px!important;gap:4px!important}
+  .accountDashboard .accountListings article .accountItemActions>* svg{display:none!important}
+}

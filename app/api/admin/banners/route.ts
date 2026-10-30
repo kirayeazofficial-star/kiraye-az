@@ -45,16 +45,19 @@ export async function POST(request:NextRequest){
     const startsAt=day.test(text(form.get("starts_at"),10))?text(form.get("starts_at"),10):null,endsAt=day.test(text(form.get("ends_at"),10))?text(form.get("ends_at"),10):null;
     const sort=Math.max(0,Math.min(999,Number(text(form.get("sort_order"),4))||0)),active=text(form.get("active"),5)!=="false";
     const media=await saveMedia(form.get("file")),image=media?.url??null,mediaType=media?.type??null;
+    // Optional phone version (home and listing page only); "remove_mobile" clears it.
+    const phone=["home","listing"].includes(placement)?await saveMedia(form.get("mobile_file")):null,dropPhone=text(form.get("remove_mobile"),5)==="true"||!["home","listing"].includes(placement);
     if(id){
       if(!uuid.test(id))return reply({error:"INVALID_BANNER"},400);
-      const old=await hostQuery<{image_url:string}>(`select image_url from public.banners where id=$1`,[id]);if(!old[0])return reply({error:"NOT_FOUND"},404);
+      const old=await hostQuery<{image_url:string;mobile_url:string|null}>(`select image_url,mobile_url from public.banners where id=$1`,[id]);if(!old[0])return reply({error:"NOT_FOUND"},404);
       await hostQuery(`update public.banners set title=$2,link_url=$3,placement=$4,starts_at=$5,ends_at=$6,sort_order=$7,active=$8,image_url=coalesce($9,image_url),media_type=coalesce($10,media_type),updated_at=now() where id=$1`,[id,title,linkUrl,placement,startsAt,endsAt,sort,active,image,mediaType]);
       if(image)await removeImage(old[0].image_url);
+      if(phone||dropPhone){await hostQuery(`update public.banners set mobile_url=$2,mobile_media_type=$3 where id=$1`,[id,phone?.url??null,phone?.type??null]);if(old[0].mobile_url!==phone?.url)await removeImage(old[0].mobile_url);}
       return reply({id});
     }
     if(!image)return reply({error:"IMAGE_REQUIRED"},400);
     const newIdValue=newId();
-    await hostQuery(`insert into public.banners(id,title,image_url,link_url,placement,starts_at,ends_at,sort_order,active,created_by,media_type) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,[newIdValue,title,image,linkUrl,placement,startsAt,endsAt,sort,active,user.id,mediaType]);
+    await hostQuery(`insert into public.banners(id,title,image_url,link_url,placement,starts_at,ends_at,sort_order,active,created_by,media_type,mobile_url,mobile_media_type) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,[newIdValue,title,image,linkUrl,placement,startsAt,endsAt,sort,active,user.id,mediaType,phone?.url??null,phone?.type??null]);
     return reply({id:newIdValue},201);
   }catch(error){const code=(error as Error).message;return reply({error:["TOO_LARGE","INVALID_IMAGE"].includes(code)?code:"BANNER_SAVE_FAILED"},code==="TOO_LARGE"||code==="INVALID_IMAGE"?400:503);}
 }
@@ -71,7 +74,7 @@ export async function DELETE(request:NextRequest){
   if(!sameOrigin(request))return reply({error:"FORBIDDEN"},403);
   try{if(!await staffUser())return reply({error:"FORBIDDEN"},403);
     const body=await request.json() as {id?:string};if(!uuid.test(body.id||""))return reply({error:"INVALID_BANNER"},400);
-    const rows=await hostQuery<{image_url:string}>(`delete from public.banners where id=$1 returning image_url`,[body.id as string]);await removeImage(rows[0]?.image_url);
+    const rows=await hostQuery<{image_url:string;mobile_url:string|null}>(`delete from public.banners where id=$1 returning image_url,mobile_url`,[body.id as string]);await removeImage(rows[0]?.image_url);await removeImage(rows[0]?.mobile_url);
     return reply({ok:true});
   }catch{return reply({error:"BANNER_DELETE_FAILED"},503);}
 }

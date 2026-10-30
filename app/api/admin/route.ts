@@ -174,6 +174,21 @@ export async function POST(request:NextRequest){
       return done?reply({ok:true}):reply({error:"STATUS_CHANGED"},409);
     }
 
+    if(action==="reorder_images"){
+      const id=String(body.id||""),images=Array.isArray(body.images)?body.images.map(String):[];
+      if(!uuid.test(id)||!images.length||images.length>20)return reply({error:"INVALID_ACTION"},400);
+      const done=await hostTransaction(async db=>{
+        const rows=await db.query<{images:string[];owner_id:string;status:string}>(`select images,owner_id,status from public.listings where id=$1 for update`,[id]);
+        const current=rows.rows[0];
+        // Only the order may change: the same photos, each exactly once.
+        if(!current||current.images.length!==images.length||new Set(images).size!==images.length||!images.every((src:string)=>current.images.includes(src)))return false;
+        await db.query(`update public.listings set images=$2,updated_at=now() where id=$1`,[id,images]);
+        await db.query(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status,reason) values($1,$2,$3,'admin','images_reordered',$4,$4,null)`,[id,current.owner_id,auth.user.id,current.status]);
+        return true;
+      });
+      return done?reply({ok:true}):reply({error:"STATUS_CHANGED"},409);
+    }
+
     if(action==="resolve_report"){
       const id=String(body.id||"");if(!uuid.test(id))return reply({error:"INVALID_REPORT"},400);
       const done=await hostTransaction(async db=>{

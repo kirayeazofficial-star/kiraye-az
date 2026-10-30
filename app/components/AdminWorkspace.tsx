@@ -3,6 +3,7 @@ import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
+import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { formatContact } from "../../lib/contact-mask";
@@ -356,7 +357,7 @@ export default function AdminWorkspace() {
             </div>}
             <div className="kzAdRowMore">
               <details className="kzAdMore"><summary>Ətraflı</summary><div className="kzAdMoreBody">
-                {(item.images?.length || 0) > 0 && <div className="kzAdGallery">{item.images.map(src => <a key={src} href={src} target="_blank" rel="noopener noreferrer"><img src={src} alt="" loading="lazy" /></a>)}</div>}
+                {(item.images?.length || 0) > 0 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={() => setRevision(value => value + 1)} />}
                 <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Sahibi</dt><dd>{item.owner_name || "İstifadəçi"} · {item.owner_email}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
                 <p className="kzAdDescription">{item.description}</p>
                 <p className="kzAdMuted">Sistem ID: {item.id}</p>
@@ -374,5 +375,27 @@ export default function AdminWorkspace() {
       {section === "users" && <UserList revision={revision} onListings={ownerListings} />}
       {section === "staff" && role === "leader" && <StaffManagement />}
     </div>
+  </div>;
+}
+
+// Moderator can change only the order of a listing's photos (e.g. a bad cover photo), not the photos themselves.
+function PhotoOrder({ listingId, images, onSaved }: { listingId: string; images: string[]; onSaved: () => void }) {
+  const [photos, setPhotos] = useState<ListingPhoto[]>(() => images.map(src => ({ id: src, src })));
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const changed = photos.some((photo, index) => photo.src !== images[index]);
+  async function save() {
+    setSaving(true); setMessage("");
+    try { await post({ action: "reorder_images", id: listingId, images: photos.map(photo => photo.src) }); setMessage("Sıra saxlanıldı."); onSaved(); }
+    catch { setMessage("Sıra saxlanmadı. Siyahını yenilə və yenidən yoxla."); }
+    finally { setSaving(false); }
+  }
+  return <div className="kzAdPhotos">
+    <p className="kzAdMuted">Şəkli basıb saxla və sürüşdür — birinci şəkil üz qabığıdır.</p>
+    <PhotoOrganizer removable={false} photos={photos} onChange={next => { setPhotos(next); setMessage(""); }} />
+    {(changed || message) && <div className="kzAdCenter start">
+      {changed && <><button type="button" className="kzAdBtn primary" disabled={saving} onClick={() => void save()}>{saving ? "Saxlanılır…" : "Sırayı saxla"}</button><button type="button" className="kzAdBtn" disabled={saving} onClick={() => setPhotos(images.map(src => ({ id: src, src })))}>Geri qaytar</button></>}
+      {message && <span className="kzAdMuted" role="status">{message}</span>}
+    </div>}
   </div>;
 }

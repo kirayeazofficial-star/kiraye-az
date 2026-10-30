@@ -1,6 +1,7 @@
 import {contactInText} from "../../../lib/contact-filter";
 import {NextRequest,NextResponse} from "next/server";
 import {freeLimit} from "../../../lib/host/limits";
+import {isStaff} from "../../../lib/host/staff";
 import {hostQuery} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
 import {newId} from "../../../lib/host/security";
@@ -79,7 +80,8 @@ export async function POST(request:NextRequest){
     const body=await request.json() as Record<string,unknown>,item=listingPayload(body,user.id);if(!item)return reply({error:'INVALID_LISTING'},400);
     if(contactInText(`${item.title} ${item.description}`))return reply({error:'CONTACT_IN_TEXT'},400);
     // Over the free limit the listing is still saved, as a draft waiting for payment.
-    const limit=await freeLimit(user.id,item.category),paid=limit.remaining<=0;
+    // Staff (owner, leader, admins) have no free-listing limit.
+    const paid=await isStaff(user)?false:(await freeLimit(user.id,item.category)).remaining<=0;
     const id=newId();
     await hostQuery(`insert into public.listings(id,owner_id,category,title,description,contact,city,district,price,rental_period,images,status,deposit,min_days,rooms,area_m2,attributes,available_from,available_until,payment_required,lat,lng,location_exact) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$19,$12,$13,$14,$15,$16,$17,$18,$20,$21,$22,$23)`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,paid?'draft':'pending',paid,item.point?.[0]??null,item.point?.[1]??null,item.exact]);
     if(!paid)await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','submitted',null,'pending')`,[id,user.id]);

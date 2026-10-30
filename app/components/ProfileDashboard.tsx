@@ -110,7 +110,19 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const paidRestore = () => setPayment({ title: "Ödənişlə bərpa", text: "Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir. Bərpa edilən elan yenidən 30 gün yayımlanır." });
   const paidSubmit = () => setPayment({ title: "Ödənişlə göndərmə", text: "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yoxlamaya göndərmək üçün ödəniş lazımdır." });
   // Restoring is always a paid step (payments are not connected yet, so this opens the payment notice).
-  function restore() { if (!busy) paidRestore(); }
+  // Ordinary users: a paid step (payment notice). Staff restore their own listings for free.
+  async function restore(item: Listing) {
+    if (busy) return;
+    if (!admin) { paidRestore(); return; }
+    setBusy(item.id); setError(""); setNotice("");
+    try {
+      const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
+      if (!response.ok) throw new Error();
+      setNotice("Elan yenidən 30 gün müddətinə yayımlandı (admin üçün pulsuz).");
+      setReloadKey(key => key + 1);
+    } catch { setError("Elanı bərpa etmək mümkün olmadı. Yenidən cəhd edin."); }
+    finally { setBusy(""); }
+  }
   async function submitWaiting(item: Listing) {
     if (busy) return;
     setBusy(item.id); setError(""); setNotice("");
@@ -208,19 +220,19 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         </p>
                         {x.payment_required && !x.deleted_at && <p className="kzOwnHint">Bu kateqoriyada pulsuz limitiniz dolduğu üçün elan ödəniş gözləyir. Ödənişdən sonra yoxlamaya göndəriləcək.</p>}
                         {current === "rejected" && x.rejection_reason && <p className="kzOwnReason">Səbəb: {x.rejection_reason} Səbəbi aradan qaldırıb elanı redaktə edin.</p>}
-                        {expired && !x.deleted_at && <p className="kzOwnHint">Elanın müddəti bitib. Bərpa ödənişlidir; bərpa olunmayan elan 180 gün sonra arxivə keçir.</p>}
-                        {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. Bərpa ödənişlidir; 180 gün sonra elan arxivə keçir.</p>}
+                        {expired && !x.deleted_at && <p className="kzOwnHint">Elanın müddəti bitib. {admin ? "Bərpa sizin üçün pulsuzdur" : "Bərpa ödənişlidir"}; bərpa olunmayan elan 180 gün sonra arxivə keçir.</p>}
+                        {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. {admin ? "Bərpa sizin üçün pulsuzdur" : "Bərpa ödənişlidir"}; 180 gün sonra elan arxivə keçir.</p>}
                       </div>
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
                             <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin..." : "Ödəniş et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
                           </>
-                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={restore}>Ödənişlə bərpa et</button>
+                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : admin ? "Bərpa et" : "Ödənişlə bərpa et"}</button>
                           : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Redaktə et</Link>
                           : <>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
-                            {current === "published" && <PromotionOptions label="Reklam et" />}
+                            {current === "published" && <PromotionOptions label="Reklam et" listingId={x.id} />}
                           </>}
                         {!x.deleted_at && <button type="button" className="kzDangerLink" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}><Trash2 aria-hidden="true" size={15} strokeWidth={2} />Sil</button>}
                       </div>

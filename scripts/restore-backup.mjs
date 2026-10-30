@@ -50,7 +50,7 @@ try {
     const item = JSON.parse(line);
     if (item.table && Object.keys(item).length === 1) {
       table = item.table; totals[table] = 0;
-      columns = (await db.query(`select to_regclass($1) id`, [table])).rows[0].id ? await writable(table) : "";
+      columns = (await db.query(`select to_regclass($1) as id`, [table])).rows[0].id ? await writable(table) : "";
       continue;
     }
     if (!columns) { skipped++; continue; }
@@ -58,7 +58,7 @@ try {
     added += done.rowCount; totals[table] += done.rowCount;
   }
   // Counters of serial columns continue after the restored rows.
-  const serials = (await db.query(`select table_schema||'.'||table_name t,column_name c,pg_get_serial_sequence(quote_ident(table_schema)||'.'||quote_ident(table_name),column_name) s
+  const serials = (await db.query(`select table_schema||'.'||table_name as t,column_name as c,pg_get_serial_sequence(quote_ident(table_schema)||'.'||quote_ident(table_name),column_name) as s
     from information_schema.columns where table_schema in ('public','auth') and (column_default like 'nextval%' or is_identity='YES')`)).rows;
   for (const { t, c, s } of serials) if (s) await db.query(`select setval($1, greatest(coalesce((select max(${quote(c)}) from ${quote(t)}),0),1))`, [s]);
   await db.query("commit");

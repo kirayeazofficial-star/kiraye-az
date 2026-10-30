@@ -16,9 +16,9 @@ export async function GET(){
   try{
     if(!await leader())return reply({error:"FORBIDDEN"},403);
     const [settings,runs,files]=await Promise.all([
-      hostQuery<{drive_email:string|null;connected_at:string|null;connected:boolean}>(`select drive_email,connected_at,drive_token is not null connected from public.backup_settings where id=1`),
+      hostQuery<{drive_email:string|null;connected_at:string|null;connected:boolean}>(`select drive_email,connected_at,drive_token is not null as connected from public.backup_settings where id=1`),
       hostQuery(`select id,trigger,started_at,finished_at,ok,db_file,db_bytes,db_rows,files_new,files_bytes,error from public.backup_runs order by started_at desc limit 10`),
-      hostQuery<{count:string;bytes:string}>(`select count(*)::text count,coalesce(sum(size),0)::text bytes from public.backup_files`),
+      hostQuery<{count:string;bytes:string}>(`select count(*)::text as count,coalesce(sum(size),0)::text as bytes from public.backup_files`),
     ]);
     const ready=!!script()&&await access(script()).then(()=>true,()=>false);
     return reply({connected:!!settings[0]?.connected,email:settings[0]?.drive_email||"",connected_at:settings[0]?.connected_at||null,runs,files:{count:Number(files[0]?.count||0),bytes:Number(files[0]?.bytes||0)},ready,google:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)});

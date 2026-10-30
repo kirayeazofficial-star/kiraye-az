@@ -42,6 +42,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [error, setError] = useState(""),
     [admin, setAdmin] = useState(false),
     [staffRole, setStaffRole] = useState(""),
+    [leader, setLeader] = useState(false),
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
     [statusFilter, setStatusFilter] = useState(() => { const tab = params.get("tab"); return tab && listingTabs.some(([key]) => key === tab) ? tab : "published"; }),
@@ -60,7 +61,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     fetch('/api/auth/host',{cache:'no-store'})
       .then(async response => {
         const data=await response.json();if(!data.user)return;
-        setUserId(data.user.id);setIdentity(data.user.display_name||data.user.email||'Hesab');setAccountPhone(data.user.phone||'');setAccountEmail(data.user.email||'');
+        setUserId(data.user.id);setLeader(!!data.leader);setIdentity(data.user.display_name||data.user.email||'Hesab');setAccountPhone(data.user.phone||'');setAccountEmail(data.user.email||'');
         const [profileResult,listingsResult]=await Promise.allSettled([
           fetch('/api/account/profile',{cache:'no-store'}).then(result=>result.ok?result.json():Promise.reject()),
           balanceOnly?Promise.resolve(null):loadListings("mine"),
@@ -109,16 +110,16 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
 
   const paidRestore = () => setPayment({ title: "Ödənişlə bərpa", text: "Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir. Bərpa edilən elan yenidən 30 gün yayımlanır." });
   const paidSubmit = () => setPayment({ title: "Ödənişlə göndərmə", text: "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yoxlamaya göndərmək üçün ödəniş lazımdır." });
-  // Restoring is always a paid step (payments are not connected yet, so this opens the payment notice).
-  // Ordinary users: a paid step (payment notice). Staff restore their own listings for free.
+  // Restoring is a paid step (payments are not connected yet, so this opens the payment notice).
+  // Only the leader restores their own listings for free.
   async function restore(item: Listing) {
     if (busy) return;
-    if (!admin) { paidRestore(); return; }
+    if (!leader) { paidRestore(); return; }
     setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
       if (!response.ok) throw new Error();
-      setNotice("Elan yenidən 30 gün müddətinə yayımlandı (admin üçün pulsuz).");
+      setNotice("Elan yenidən 30 gün müddətinə yayımlandı (rəhbər üçün pulsuz).");
       setReloadKey(key => key + 1);
     } catch { setError("Elanı bərpa etmək mümkün olmadı. Yenidən cəhd edin."); }
     finally { setBusy(""); }
@@ -205,7 +206,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     const current = effectiveListingStatus(x), expired = ["expired", "archived"].includes(current);
                     const href = current === "published" ? `/listings/${x.id}` : `/profile/listings/${x.id}`;
                     const promo = activePromotion(x);
-                    return <article key={x.id}>
+                    return <article key={x.id} className={x.deleted_at ? "kzOwnDeleted" : undefined}>
                       <Link href={href} aria-label={`${x.title} — elana bax`} className="ownedPhoto"><img src={x.images?.[0] || "/placeholder.svg"} alt="" /></Link>
                       <div className="kzOwnBody">
                         <div className="kzOwnTop"><span className={`status ${x.deleted_at ? "archived" : x.payment_required ? "payment" : expired ? "expired" : current}`}>{x.deleted_at ? "Silinib" : x.payment_required ? "Ödəniş gözləyir" : statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
@@ -215,21 +216,21 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         <p className="kzOwnDates">
                           {current === "published" && x.expires_at && <span>Aktivdir: {shortDate(x.expires_at)} tarixinədək</span>}
                           {expired && !x.deleted_at && <span>Müddəti bitib: {shortDate(x.expires_at || x.created_at)}</span>}
-                          {current === "pending" && <span>Gözləmədədir. Təsdiqdən sonra yayımlanacaq.</span>}
+                          {current === "pending" && <span>Təsdiqdən sonra yayımlanacaq.</span>}
                           {promo && x.promotion_until && <span>{promo === "premium" ? "Premium" : "VIP"}: {shortDate(x.promotion_until)} tarixinədək</span>}
                         </p>
-                        {x.payment_required && !x.deleted_at && <p className="kzOwnHint">Bu kateqoriyada pulsuz limitiniz dolduğu üçün elan ödəniş gözləyir. Ödənişdən sonra yoxlamaya göndəriləcək.</p>}
-                        {current === "rejected" && x.rejection_reason && <p className="kzOwnReason">Səbəb: {x.rejection_reason} Səbəbi aradan qaldırıb elanı redaktə edin.</p>}
-                        {expired && !x.deleted_at && <p className="kzOwnHint">Elanın müddəti bitib. {admin ? "Bərpa sizin üçün pulsuzdur" : "Bərpa ödənişlidir"}; bərpa olunmayan elan 180 gün sonra arxivə keçir.</p>}
-                        {x.deleted_at && <p className="kzOwnHint">Elan {shortDate(x.deleted_at)} tarixində silinib. {admin ? "Bərpa sizin üçün pulsuzdur" : "Bərpa ödənişlidir"}; 180 gün sonra elan arxivə keçir.</p>}
+                        {x.payment_required && !x.deleted_at && <p className="kzOwnHint">Bu kateqoriyada pulsuz limit dolub. Ödənişdən sonra elan yoxlamaya göndəriləcək.</p>}
+                        {current === "rejected" && x.rejection_reason && <p className="kzOwnReason"><strong>Rədd səbəbi:</strong> {x.rejection_reason}</p>}
+                        {expired && !x.deleted_at && <p className="kzOwnHint">{leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} Bərpa olunmasa, 180 gün sonra arxivə keçir.</p>}
+                        {x.deleted_at && <p className="kzOwnHint">Silinib: {shortDate(x.deleted_at)}. {leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} 180 gün sonra arxivə keçir.</p>}
                       </div>
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
                             <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin..." : "Ödəniş et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
                           </>
-                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : admin ? "Bərpa et" : "Ödənişlə bərpa et"}</button>
-                          : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Redaktə et</Link>
+                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : leader ? "Bərpa et" : "Ödənişlə bərpa et"}</button>
+                          : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Düzəlt və göndər</Link>
                           : <>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
                             {current === "published" && <PromotionOptions label="Reklam et" listingId={x.id} />}

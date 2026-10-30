@@ -75,7 +75,7 @@ export async function GET(request:NextRequest){
       if(day.test(from)&&Number.isFinite(Date.parse(from))){values.push(`${from}T00:00:00+04:00`);where.push(`l.created_at>=$${values.length}::timestamptz`);values.push(`${from}T23:59:59.999999+04:00`);where.push(`l.created_at<=$${values.length}::timestamptz`);}
       const condition=where.length?`where ${where.join(" and ")}`:"";
       const [items,total]=await Promise.all([
-        hostQuery(`select l.*,u.email owner_email,p.display_name owner_name,p.profile_no,(select count(*)::int from public.listing_views v where v.listing_id=l.id) as views from public.listings l join auth.users u on u.id=l.owner_id left join public.profiles p on p.id=l.owner_id ${condition} order by l.created_at desc,l.id desc limit ${PAGE} offset ${(page-1)*PAGE}`,values as never[]),
+        hostQuery(`select l.*,u.email owner_email,p.display_name owner_name,p.profile_no,(select count(*)::int from public.listing_views v where v.listing_id=l.id) as views,(select count(*)::int from public.listings x where x.id<>l.id and x.owner_id<>l.owner_id and x.created_at>now()-interval '180 days' and (x.contact=l.contact or x.images && l.images)) as signal_count from public.listings l join auth.users u on u.id=l.owner_id left join public.profiles p on p.id=l.owner_id ${condition} order by l.created_at desc,l.id desc limit ${PAGE} offset ${(page-1)*PAGE}`,values as never[]),
         hostQuery<{count:string}>(`select count(*)::text count from public.listings l ${condition}`,values as never[]),
       ]);
       return reply({items,total:Number(total[0]?.count||0),pageSize:PAGE,role:auth.role});

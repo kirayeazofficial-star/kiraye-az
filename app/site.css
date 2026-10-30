@@ -2044,3 +2044,15 @@ html{-webkit-tap-highlight-color:transparent}
 .kzPreviewNote{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;font-size:var(--fs-14,14px);line-height:1.45}
 .kzPreviewNote.rejected{background:#fef2f2;border-color:#fecaca;color:#7f1d1d}
 .kzPreviewNote strong{font-weight:600}
+/* Kabinet kartları: rədd səbəbi qutuda, silinmiş elan solğun */
+.kzOwnReason{margin:6px 0 0!important;padding:8px 10px!important;border-radius:8px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b!important;font-size:13px!important;line-height:1.45}
+.kzOwnReason strong{font-weight:600}
+.accountListings article.kzOwnDeleted .ownedPhoto img{filter:grayscale(.6);opacity:.7}
+.accountListings article.kzOwnDeleted h3 a{color:var(--kz-muted,#6b7280)}
+.kzLeaderPromo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 12px;border:1px dashed var(--kz-accent,#ff6a1a);border-radius:12px;background:#fff7ed;font-size:13px;color:#7c2d12}
+.kzAdPill.danger{background:#fef2f2;color:#b91c1c}
+.kzAdRowTop .kzAdPill.danger{margin-left:0}
+.kzAdFacts{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px 12px!important}
+.kzAdDescriptionWrap{display:grid;gap:4px;justify-items:start}
+.kzAdDescription.folded{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.accountListings .kzOwnReason,.accountListings .kzOwnReason strong{color:#991b1b!important}

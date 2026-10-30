@@ -11,7 +11,7 @@ import { categoryName, money, periodName, statusName, type Listing } from "../..
 import { moderationActions, moderationFields, rejectionReasons, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
 
 type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff";
-type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string };
+type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string; signal_count?: number };
 type Counts = { users: number; listings: number; messages: number; reports: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
 type Activity = { id: number; listing_id: string; action: string; new_status: string | null; reason: string | null; created_at: string; actor_name: string | null; title: string | null };
@@ -340,7 +340,7 @@ export default function AdminWorkspace() {
           {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.map(item => <article className="kzAdRow kzAdListing" key={item.id}>
             <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={item.images[0]} alt="" loading="lazy" /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
             <div className="kzAdRowMain">
-              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
+              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
               <h3>{item.title}</h3>
               <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
               <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>
@@ -357,9 +357,10 @@ export default function AdminWorkspace() {
             </div>}
             <div className="kzAdRowMore">
               <details className="kzAdMore"><summary>Ətraflı</summary><div className="kzAdMoreBody">
-                {(item.images?.length || 0) > 0 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={() => setRevision(value => value + 1)} />}
+                {(item.images?.length || 0) === 1 && <div className="kzAdGallery"><a href={item.images[0]} target="_blank" rel="noopener noreferrer"><img src={item.images[0]} alt="" loading="lazy" /></a></div>}
+                {(item.images?.length || 0) > 1 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={() => setRevision(value => value + 1)} />}
                 <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Sahibi</dt><dd>{item.owner_name || "İstifadəçi"} · {item.owner_email}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
-                <p className="kzAdDescription">{item.description}</p>
+                <LongText text={item.description} />
               </div></details>
               <ModerationReview key={`${item.id}-${revision}`} listingId={item.id} onInspect={inspect} />
             </div>
@@ -396,5 +397,15 @@ function PhotoOrder({ listingId, images, onSaved }: { listingId: string; images:
       {changed && <><button type="button" className="kzAdBtn primary" disabled={saving} onClick={() => void save()}>{saving ? "Saxlanılır…" : "Sırayı saxla"}</button><button type="button" className="kzAdBtn" disabled={saving} onClick={() => setPhotos(images.map(src => ({ id: src, src })))}>Geri qaytar</button></>}
       {message && <span className="kzAdMuted" role="status">{message}</span>}
     </div>}
+  </div>;
+}
+
+// Long descriptions start folded to four lines.
+function LongText({ text }: { text: string }) {
+  const [open, setOpen] = useState(false);
+  const long = text.length > 280 || text.split("\n").length > 4;
+  return <div className="kzAdDescriptionWrap">
+    <p className={`kzAdDescription${long && !open ? " folded" : ""}`}>{text}</p>
+    {long && <button type="button" className="kzAdLink" onClick={() => setOpen(value => !value)}>{open ? "Qısalt" : "Davamı"}</button>}
   </div>;
 }

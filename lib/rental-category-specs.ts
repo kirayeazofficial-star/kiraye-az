@@ -22,6 +22,7 @@ const clothingBrands: Record<string, Record<string,string[]>> = {
   "Ziyafət geyimi": { Zara:[], Mango:[], "Adrianna Papell":[], "Sherri Hill":[], "Jovani":[], "Tarik Ediz":[], "Mac Duggal":[], Ipekyol:[], "Fərdi tikiş":[] },
   "Uşaq tədbir geyimi": { "LC Waikiki":[], Koton:[], Zara:[], "H&M":[], Mothercare:[], DeFacto:[] },
 };
+const suitFit = choice("suit_fit","Fason",["Klassik","Slim fit","Smokinq","Üçlük (jiletli)","Digər"]);
 const clothingFields = [
   choice("clothing_size","Geyim ölçüsü",["XS","S","M","L","XL","XXL","XXXL","34","36","38","40","42","44","46","48","50","52","54","56","Ölçüyə uyğun tənzimlənir","Digər"]),
   {key:"size_note",label:"Ölçü haqqında əlavə məlumat",placeholder:"Məsələn: bel 80 sm, boy 175 sm"},
@@ -30,7 +31,7 @@ const clothingFields = [
   choice("cleaning_terms","Təmizləmə şərti",["Qiymətə daxildir","Sahib təmizləyir, ayrıca ödənişlə","Təmiz qaytarılmalıdır","Razılaşma ilə"]),
 ];
 export const rentalCategorySpecs: Record<string,Category> = {
-  clothing: {label:"Geyimin növü", kinds: Object.fromEntries(["Kostyum","Gəlinlik","Ziyafət geyimi","Milli geyim","Uşaq tədbir geyimi","Aksesuar","Digər"].map(kind => [kind,{models:clothingBrands[kind] || {},fields: kind === "Aksesuar" ? [{key:"accessory_size",label:"Ölçü / uyğunluq"}] : clothingFields}]))},
+  clothing: {label:"Geyimin növü", kinds: Object.fromEntries(["Kostyum","Gəlinlik","Ziyafət geyimi","Milli geyim","Uşaq tədbir geyimi","Aksesuar","Digər"].map(kind => [kind,{models:clothingBrands[kind] || {},fields: kind === "Aksesuar" ? [{key:"accessory_size",label:"Ölçü / uyğunluq"}] : kind === "Kostyum" ? [suitFit,...clothingFields] : clothingFields}]))},
   electric: {label:"Elektrik nəqliyyatının növü", kinds:{
     "Elektrik skuter":{models:{Xiaomi:["Electric Scooter 4","Electric Scooter 4 Pro","Mi Electric Scooter Pro 2"],"Segway-Ninebot":["MAX G2","F2","F2 Pro"],KuKirin:["G2","G2 Pro","G2 Max","G3","G4"],Kugoo:["S1","S3","M4","M4 Pro"],NIU:["KQi2 Pro","KQi3 Pro","KQi3 Max"],Dualtron:["Mini","Thunder","Victor"],Inokim:["Light 2","OX","OXO"],Kaabo:["Mantis 10","Wolf Warrior 11"],Apollo:["City","Ghost","Phantom"],Ultron:["X1","X3"],Joyor:["S5","Y5S"],Halten:["RS-01","RS-02"],Kugookirin:["M4","G2"],Ecodrift:["R8","Twin"]},fields:electricFields},
     "Elektrik velosiped":{models:{ENGWE:["EP-2 Pro","Engine Pro","L20"],Fiido:["D11","M1 Pro","D4S"],ADO:["A20","Air 20"],Cube:[],Giant:[],Trek:[],Specialized:[],Merida:[],Scott:[],HIMO:["C20","Z20"],SAMEBIKE:[],Xiaomi:["Mi Smart Electric Folding Bike"],"Segway":["Xafari","Xyber"],"Haibike":[],"Cube Hybrid":[]},fields:[...electricFields,choice("frame_size","Çərçivə ölçüsü",["XS","S","M","L","XL","Digər"])]},

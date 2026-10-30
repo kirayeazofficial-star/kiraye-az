@@ -31,9 +31,9 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
   const [open, setOpen] = useState(false);
   const [chosen, setChosen] = useState<Kind | null>(kind ?? null);
   const [plan, setPlan] = useState(0), [method, setMethod] = useState("card"), [notice, setNotice] = useState(false);
-  // Staff (leader, admins) use every service for free: "Ödə" becomes "Pulsuz aktivləşdir".
+  // The leader uses every service for free: "Ödə" becomes "Pulsuz aktivləşdir".
   const [staff, setStaff] = useState(false), [busy, setBusy] = useState(false), [done, setDone] = useState(""), [failed, setFailed] = useState("");
-  useEffect(() => { if (!open) return; fetch("/api/auth/host", { cache: "no-store" }).then(r => r.json()).then(d => setStaff(!!d.staff)).catch(() => {}); }, [open]);
+  useEffect(() => { if (!open) return; fetch("/api/auth/host", { cache: "no-store" }).then(r => r.json()).then(d => setStaff(!!d.leader)).catch(() => {}); }, [open]);
   async function activate(kindToUse: Kind) {
     if (!listingId || busy) return;
     setBusy(true); setFailed("");
@@ -104,7 +104,7 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
           </div></>}
           <footer className="kzPromoFoot">
             {staff ? <>
-              {done ? <p className="kzPromoDone" role="status">{done}</p> : <p className="kzPromoStaff">Admin və rəhbər üçün bütün xidmətlər pulsuzdur.</p>}
+              {done ? <p className="kzPromoDone" role="status">{done}</p> : <p className="kzPromoStaff">Rəhbər üçün bütün xidmətlər pulsuzdur.</p>}
               {failed && <p className="kzPromoNotice" role="alert">{failed}</p>}
               <button type="button" className="kzPromoPay" disabled={busy || !!done || !listingId} onClick={() => void activate(pack.kind)}>{busy ? "Gözləyin…" : "Pulsuz aktivləşdir"}</button>
             </> : <>

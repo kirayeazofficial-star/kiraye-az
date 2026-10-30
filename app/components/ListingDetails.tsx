@@ -29,6 +29,7 @@ import {
   readFavorites,
 } from "../../lib/marketplace";
 import { normalizePhone, reportReasons } from "../../lib/rental-details";
+import { useAutoClear } from "../../lib/use-auto-clear";
 export default function ListingDetails({
   item,
   compact = false,
@@ -52,6 +53,7 @@ export default function ListingDetails({
     [report, setReport] = useState(false),
     [busy, setBusy] = useState(false),
     [reported, setReported] = useState(false);
+  useAutoClear(notice, () => setNotice(""));
   useEffect(()=>{
     if(item.demo||item.status!=="published")return;
     let active=true;

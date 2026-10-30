@@ -2,7 +2,7 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, CloudUpload, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -10,8 +10,9 @@ import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { formatContact } from "../../lib/contact-mask";
 import { categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
 import { moderationActions, moderationFields, rejectionReasons, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
+import { useAutoClear } from "../../lib/use-auto-clear";
 
-type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff";
+type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup";
 type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string; signal_count?: number };
 type Counts = { users: number; listings: number; messages: number; reports: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
@@ -22,10 +23,10 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", staff: "Komanda" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", staff: "Komanda", backup: "Ehtiyat nüsxə" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
-const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, staff: ShieldCheck };
+const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, staff: ShieldCheck, backup: CloudUpload };
 
 async function api(params: Record<string, string | number>) {
   const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
@@ -191,6 +192,7 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
 function StaffManagement() {
   const [members, setMembers] = useState<Member[]>([]), [events, setEvents] = useState<StaffEvent[]>([]), [cursor, setCursor] = useState<number | null>(null);
   const [query, setQuery] = useState(""), [found, setFound] = useState<Member | null>(null), [matches, setMatches] = useState<Member[]>([]), [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
+  useAutoClear(notice, () => setNotice(""));
   const load = useCallback(async () => { const data = await api({ action: "staff" }); setMembers(data.members); setEvents(data.events); setCursor(data.next); }, []);
   useEffect(() => { load().catch(failure => setError(`Admin siyahısı yüklənmədi.${(failure as { detail?: string }).detail ? ` Texniki kod: ${(failure as { detail?: string }).detail}` : ""}`)); }, [load]);
   async function older() {
@@ -231,6 +233,8 @@ function StaffManagement() {
 
 export default function AdminWorkspace() {
   const [allowed, setAllowed] = useState<boolean | null>(null), [role, setRole] = useState(""), [section, setSection] = useState<Section>("overview");
+  // Coming back from Google Drive (connect) opens the backup section.
+  useEffect(() => { if (new URLSearchParams(window.location.search).get("section") === "backup") setSection("backup"); }, []);
   const [filter, setFilter] = useState("pending"), [items, setItems] = useState<AdminListing[]>([]), [total, setTotal] = useState(0), [page, setPage] = useState(1);
   const [search, setSearch] = useState(""), [query, setQuery] = useState(""), [dateFrom, setDateFrom] = useState(""), [reviewKind, setReviewKind] = useState(""), [owner, setOwner] = useState<{ id: string; name: string } | null>(null);
   const [reasons, setReasons] = useState<Record<string, string>>({}), [rejecting, setRejecting] = useState(""), [revision, setRevision] = useState(0), [loading, setLoading] = useState(false), [busy, setBusy] = useState(""), [error, setError] = useState("");
@@ -277,7 +281,7 @@ export default function AdminWorkspace() {
 
   if (allowed === null) return <p className="kzAdMuted" role="status">İcazə yoxlanılır…</p>;
   if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil ol." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
-  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (item !== "staff" || role === "leader"));
+  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (!["staff", "backup"].includes(item) || role === "leader"));
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0;
   const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : 0;
   const menuNote = (item: Section): { text: string; alert?: boolean } =>
@@ -285,6 +289,7 @@ export default function AdminWorkspace() {
     : item === "reports" ? (openReports ? { text: `${openReports} açıq şikayət`, alert: true } : { text: "Açıq şikayət yoxdur" })
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
+    : item === "backup" ? { text: "Hər gecə Google Drive-a" }
     : { text: "Rəhbər və adminlər" };
 
   return <div className="kzAdm">
@@ -387,6 +392,7 @@ export default function AdminWorkspace() {
       {section === "reports" && <ReportQueue onInspect={inspect} onChange={() => setRevision(x => x + 1)} />}
       {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
       {section === "banners" && <BannerManager />}
+      {section === "backup" && role === "leader" && <BackupStatus />}
       {section === "users" && <UserList revision={revision} onListings={ownerListings} />}
       {section === "staff" && role === "leader" && <StaffManagement />}
     </div>
@@ -423,4 +429,38 @@ function LongText({ text }: { text: string }) {
     <p className={`kzAdDescription${long && !open ? " folded" : ""}`}>{text}</p>
     {long && <button type="button" className="kzAdLink" onClick={() => setOpen(value => !value)}>{open ? "Qısalt" : "Davamı"}</button>}
   </div>;
+}
+
+// Nightly backup to the leader's Google Drive: connect once, then only the result of the last nights.
+type BackupRun = { id: number; started_at: string; finished_at: string | null; ok: boolean | null; db_rows: number | null; db_bytes: number | null; files_new: number; error: string | null };
+function BackupStatus() {
+  const [data, setData] = useState<{ connected: boolean; email: string; runs: BackupRun[]; files: { count: number; bytes: number }; google: boolean } | null>(null), [error, setError] = useState("");
+  const load = useCallback(() => { fetch("/api/admin/backup", { cache: "no-store" }).then(r => r.ok ? r.json() : Promise.reject()).then(setData).catch(() => setError("Məlumat yüklənmədi.")); }, []);
+  useEffect(() => { load(); }, [load]);
+  const notice = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("backup") : null;
+  const size = (bytes: number) => bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  async function disconnect() {
+    if (!window.confirm("Google Drive ayrılsın? Gecə ehtiyat nüsxələri dayanacaq.")) return;
+    await fetch("/api/admin/backup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "disconnect" }) }).catch(() => null);
+    load();
+  }
+  const last = data?.runs[0];
+  return <Panel title="Ehtiyat nüsxə">
+    <p className="kzAdHint">Hər gecə saat 03:00-da bütün baza (istifadəçilər, elanlar, mesajlar) Google Drive-dakı <strong>«kirayeal.az ehtiyat nüsxə»</strong> qovluğuna bir faylda yazılır, yeni şəkillər də ora əlavə olunur. Drive köhnə versiyaları 30 gün saxlayır.</p>
+    {notice === "connected" && <p className="kzAdNotice" role="status">Google Drive qoşuldu.</p>}
+    {(notice === "error" || notice === "no-access") && <p className="kzAdError" role="alert">Drive qoşulmadı. Google pəncərəsində Drive icazəsini təsdiqləyin və yenidən cəhd edin.</p>}
+    {error && <p className="kzAdError" role="alert">{error}</p>}
+    {data && <div className="kzBackup">
+      <div className="kzBackupRow">
+        <span className={`status ${data.connected ? "published" : "archived"}`}>{data.connected ? "Qoşulub" : "Qoşulmayıb"}</span>
+        <span>{data.connected ? `Google Drive: ${data.email || "hesab"}` : "Google Drive hələ qoşulmayıb"}</span>
+        {data.connected ? <button type="button" className="kzAdLink" onClick={() => void disconnect()}>Ayır</button> : data.google ? <a className="kzAdBtn primary" href="/api/admin/backup/drive">Google Drive-a qoş</a> : <span className="kzAdMuted">Əvvəl serverdə Google girişi qurulmalıdır.</span>}
+      </div>
+      <div className="kzBackupRow">
+        <strong>Son ehtiyat nüsxə:</strong>
+        {!last ? <span className="kzAdMuted">Hələ olmayıb</span> : last.ok ? <span>{adminDate(last.finished_at || last.started_at)} · baza {last.db_rows ?? 0} sətir ({size(last.db_bytes || 0)}){last.files_new ? ` · ${last.files_new} yeni şəkil` : ""}</span> : last.finished_at ? <span className="kzAdError">{adminDate(last.started_at)} · alınmadı: {last.error}</span> : <span>{adminDate(last.started_at)} · gedir…</span>}
+      </div>
+      <div className="kzBackupRow"><strong>Drive-da şəkil və videolar:</strong><span>{data.files.count} fayl · {size(data.files.bytes)}</span></div>
+    </div>}
+  </Panel>;
 }

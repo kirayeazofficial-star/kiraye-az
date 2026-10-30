@@ -5,7 +5,7 @@ type Banner = { id: string; title: string; image_url: string; media_type?: strin
 export default function BannerStrip({ placement }: { placement: "home" | "listing" }) {
   const [items, setItems] = useState<Banner[]>([]), [index, setIndex] = useState(0);
   const rail = useRef<HTMLDivElement>(null);
-  // Phones show the banner's phone version (2:1) when it has one; a wide 4:1 banner is too small there.
+  // Phones show the banner's phone version (4:1) when it has one; a wide 8:1 banner is too small there.
   const [phone, setPhone] = useState(false);
   useEffect(() => { const query = window.matchMedia("(max-width: 767px)"); const sync = () => setPhone(query.matches); sync(); query.addEventListener("change", sync); return () => query.removeEventListener("change", sync); }, []);
   useEffect(() => { let active = true; fetch(`/api/banners?placement=${placement}`).then(r => r.json()).then(d => { if (active) setItems(d.items || []); }).catch(() => {}); return () => { active = false; }; }, [placement]);

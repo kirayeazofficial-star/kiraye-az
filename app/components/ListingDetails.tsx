@@ -42,8 +42,9 @@ export default function ListingDetails({
   const [publicInfo,setPublicInfo]=useState<{seller_name?:string;seller_avatar?:string|null;views?:number;mine?:boolean}|null>(null);
   useEffect(()=>{setPhoneShown(false);setPublicInfo(null);if(item.demo||item.status!=="published")return;let active=true;fetch(`/api/listing-info?id=${encodeURIComponent(item.id)}`,{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active&&data&&typeof data==='object'&&!data.error)setPublicInfo(data);}).catch(()=>{});return()=>{active=false;};},[item.id,item.status,item.demo]);
   const [isOwner,setIsOwner]=useState(false);
+  const [isLeader,setIsLeader]=useState(false);
   const [ownerReady,setOwnerReady]=useState(false);
-  useEffect(()=>{let active=true;setOwnerReady(false);fetch('/api/auth/host',{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active)setIsOwner(data.user?.id===item.owner_id);}).catch(()=>{}).finally(()=>{if(active)setOwnerReady(true);});return()=>{active=false;};},[item.owner_id]);
+  useEffect(()=>{let active=true;setOwnerReady(false);fetch('/api/auth/host',{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active){setIsOwner(data.user?.id===item.owner_id);setIsLeader(!!data.leader);}}).catch(()=>{}).finally(()=>{if(active)setOwnerReady(true);});return()=>{active=false;};},[item.owner_id]);
   const effectiveOwner=isOwner||publicInfo?.mine===true;
   const [image, setImage] = useState(0),
     [favorite, setFavorite] = useState(false),
@@ -253,6 +254,10 @@ export default function ListingDetails({
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
         {facts.length > 0 && <dl className="kzKeyFacts">{facts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
+        {isLeader && !effectiveOwner && item.status === "published" && !item.demo && <div className="kzLeaderPromo">
+          <span>Rəhbər: bu elanı pulsuz reklam edə bilərsiniz</span>
+          <PromotionOptions label="Reklam et" listingId={item.id} />
+        </div>}
         {effectiveOwner ? (
           <div className="kzOwnerBox">
             {item.status === "published" && <div className="kzPromoCards">

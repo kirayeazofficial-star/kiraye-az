@@ -44,7 +44,17 @@ export default async function ListingPage({ params }: Props) {
   // A listing that isn't public (pending, rejected, expired…) stays visible to its owner and to staff, with its status shown.
   const preview = !item && !unavailable ? await privateListing(id) : null;
   if (preview) item = preview;
-  if (!item && !unavailable) notFound();
+  // Others get a soft note while a listing waits for review; deleted or expired ones stay "not active".
+  if (!item && !unavailable) {
+    if (!(await waitingForReview(id))) notFound();
+    return <>
+      <Header />
+      <main className="wrap listingDetailPage">
+        <section className="empty"><h1>Bu elan yoxlamadadır</h1><p>Tezliklə açılacaq. Bir az sonra yenidən baxın.</p><Link className="add" href="/">Digər elanlara bax</Link></section>
+      </main>
+      <Footer />
+    </>;
+  }
   return (
     <>
       <Header />
@@ -82,4 +92,12 @@ async function privateListing(id: string): Promise<Listing | null> {
     if (!row || (row.owner_id !== user.id && !(await isStaff(user)))) return null;
     return row;
   } catch { return null; }
+}
+
+async function waitingForReview(id: string): Promise<boolean> {
+  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) return false;
+  try {
+    const rows = await hostQuery<{ id: string }>(`select id from public.listings where id=$1 and status='pending' and deleted_at is null and not coalesce(payment_required,false) limit 1`, [id]);
+    return !!rows[0];
+  } catch { return false; }
 }

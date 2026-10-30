@@ -12,7 +12,7 @@ export async function watermarkPhoto(file: File): Promise<File> {
     context.fillStyle = "#fff"; context.fillRect(0, 0, canvas.width, canvas.height);
     context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high";
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    await document.fonts?.load(`900 32px ${brandFamily()}`).catch(() => undefined);
+    await document.fonts?.load(`600 32px ${brandFamily()}`).catch(() => undefined);
     drawBrandMark(context, canvas.width, canvas.height);
     // Sharp enough to zoom in on, but always under the 5 MB upload limit.
     const encode = (quality: number) => new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Şəkli hazırlamaq mümkün olmadı.")), "image/jpeg", quality));
@@ -40,25 +40,17 @@ export async function sharePreview(file: Blob): Promise<Blob> {
   } finally { URL.revokeObjectURL(url); }
 }
 
-// Brand mark, bottom-left: small "kirayeal.az" in the brand colours on a soft see-through white pill.
-// No shadows or outlines, so it stays crisp and calm on any photo.
+// Brand mark in the centre: small, see-through white "kirayeal.az" with no background, like the
+// big marketplaces use. A faint soft shadow keeps it readable on light photos without drawing the eye.
 export function drawBrandMark(context: CanvasRenderingContext2D, width: number, height: number) {
-  const side = Math.min(width, height);
-  const font = Math.max(12, Math.round(side * 0.03));
-  const margin = Math.max(8, Math.round(side * 0.028));
-  const family = brandFamily();
+  const font = Math.max(14, Math.round(Math.min(width, height * 1.5) * 0.062));
   context.save();
-  context.font = `700 ${font}px ${family}`;
-  context.textBaseline = "middle"; context.textAlign = "left";
-  const name = "kirayeal", nameWidth = context.measureText(name).width, textWidth = nameWidth + context.measureText(".az").width;
-  const padX = Math.round(font * 0.62), boxH = Math.round(font * 1.75), boxW = Math.round(textWidth + padX * 2);
-  const x = margin, y = height - margin - boxH, middle = y + boxH / 2 + font * 0.04;
-  context.fillStyle = "rgba(255,255,255,0.72)";
-  context.beginPath();
-  if (typeof context.roundRect === "function") context.roundRect(x, y, boxW, boxH, boxH / 2); else context.rect(x, y, boxW, boxH);
-  context.fill();
-  context.fillStyle = "rgba(20,63,59,0.92)"; context.fillText(name, x + padX, middle);
-  context.fillStyle = "rgba(240,82,24,0.95)"; context.fillText(".az", x + padX + nameWidth, middle);
+  context.font = `600 ${font}px ${brandFamily()}`;
+  context.textAlign = "center"; context.textBaseline = "middle";
+  if ("letterSpacing" in context) (context as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${Math.round(font * 0.02)}px`;
+  context.shadowColor = "rgba(0,0,0,0.22)"; context.shadowBlur = Math.round(font * 0.14);
+  context.fillStyle = "rgba(255,255,255,0.42)";
+  context.fillText("kirayeal.az", width / 2, height / 2);
   context.restore();
 }
 

@@ -77,6 +77,8 @@ function BrandModelPicker({
   const [otherModel, setOtherModel] = useState(attributes?.model || "");
   const resolvedBrand = brand === "__other__" ? otherBrand.trim() : brand;
   const resolvedModel = model === "__other__" ? otherModel.trim() : model;
+  // Lists with brands only (clothing, camping gear…) have no models to choose: ask for the brand alone.
+  const brandOnly = Object.values(models).every((list) => !list.length);
   function notify(b: string, m: string) {
     if (b) suggest?.(`${b} ${m} kirayəsi`.replace(/\s+/g, " "));
   }
@@ -86,7 +88,7 @@ function BrandModelPicker({
       <input type="hidden" name="model" value={resolvedModel} />
       <div className="formGrid">
         <label>
-          Marka{required && <span className="requiredMark"> *</span>}
+          {brandOnly && !required ? "Marka (istəyə bağlı)" : "Marka"}{required && <span className="requiredMark"> *</span>}
           <select
             aria-label="Marka"
             required={required}
@@ -109,7 +111,7 @@ function BrandModelPicker({
             <option value="__other__">Digər marka</option>
           </select>
         </label>
-        <label>
+        {!brandOnly && <label>
           Model{required && <span className="requiredMark"> *</span>}
           <select
             aria-label="Model"
@@ -133,7 +135,7 @@ function BrandModelPicker({
             ))}
             <option value="__other__">Digər model</option>
           </select>
-        </label>
+        </label>}
       </div>
       {(brand === "__other__" || model === "__other__") && (
         <div className="formGrid">
@@ -561,10 +563,10 @@ function ItemFields({
         {Object.keys(models).length ? <BrandModelPicker models={models} attributes={initial} suggest={suggest} /> : (
           <div className="formGrid">
             <label>Marka (istəyə bağlı)<input name="brand" maxLength={40} defaultValue={initial?.brand} onChange={(event) => suggest(`${event.target.value.trim()} ${kind} kirayəsi`.trim())} placeholder="Markasızdırsa, boş saxla" /></label>
-            <label>Model / kolleksiya (istəyə bağlı)<input name="model" maxLength={60} defaultValue={initial?.model} /></label>
+            {category !== "clothing" && <label>Model / kolleksiya (istəyə bağlı)<input name="model" maxLength={60} defaultValue={initial?.model} /></label>}
           </div>
         )}
-        <SelectField name="condition" label="Vəziyyət" options={["Əla", "Yaxşı", "Qənaətbəxş"]} value={initial?.condition} />
+        <SelectField name="condition" label="Vəziyyət" options={category === "clothing" ? ["Yeni, geyinilməyib", "Az geyinilib, qüsursuz", "Geyinilib, yaxşı vəziyyətdə"] : ["Əla", "Yaxşı", "Qənaətbəxş"]} value={initial?.condition} />
         {category === "clothing" && <SelectField name="color" label="Rəng" options={colors} value={initial?.color} />}
         <p className="muted">Əlavə xüsusiyyətlər istəyə bağlıdır. Dəqiq bilmədiyini boş saxla.</p>
         <div className="formGrid">

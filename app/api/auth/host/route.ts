@@ -1,4 +1,4 @@
-import {isStaff} from "../../../../lib/host/staff";
+import {isLeader,isStaff} from "../../../../lib/host/staff";
 import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../../lib/host/db";
 import {emailCodeHash,newEmailCode,newId,passwordHash,passwordMatches,safeEqual} from "../../../../lib/host/security";
@@ -19,7 +19,7 @@ async function issueCode(userId:string|null,email:string,purpose:"signup"|"recov
 }
 async function ensureOwnerRole(userId:string,email:string){if(email!==ownerEmail)return;await hostTransaction(async client=>{await client.query(`update public.profiles set role='admin',updated_at=now() where id=$1`,[userId]);await client.query(`insert into public.staff_members(user_id,staff_role,assigned_by) values($1,'leader',$1) on conflict(user_id) do update set staff_role='leader'`,[userId]);});}
 
-export async function GET(){const user=await currentUser();return response({user,staff:user?await isStaff(user).catch(()=>false):false});}
+export async function GET(){const user=await currentUser();return response({user,staff:user?await isStaff(user).catch(()=>false):false,leader:user?await isLeader(user).catch(()=>false):false});}
 
 export async function DELETE(){await revokeSession();return response({ok:true});}
 

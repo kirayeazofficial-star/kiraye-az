@@ -447,7 +447,7 @@ function BackupStatus() {
   const last = data?.runs[0];
   return <Panel title="Ehtiyat nüsxə">
     <p className="kzAdHint">Hər gecə saat 03:00-da bütün baza (istifadəçilər, elanlar, mesajlar) Google Drive-dakı <strong>«kirayeal.az ehtiyat nüsxə»</strong> qovluğuna bir faylda yazılır, yeni şəkillər də ora əlavə olunur. Drive köhnə versiyaları 30 gün saxlayır.</p>
-    {notice === "connected" && <p className="kzAdNotice" role="status">Google Drive qoşuldu.</p>}
+    {notice === "connected" && <p className="kzAdNotice" role="status">Google Drive qoşuldu. İlk ehtiyat nüsxə indi göndərilir — bir neçə dəqiqəyə Drive-da «kirayeal.az ehtiyat nüsxə» qovluğu görünəcək.</p>}
     {(notice === "error" || notice === "no-access") && <p className="kzAdError" role="alert">Drive qoşulmadı. Google pəncərəsində Drive icazəsini təsdiqləyin və yenidən cəhd edin.</p>}
     {error && <p className="kzAdError" role="alert">{error}</p>}
     {data && <div className="kzBackup">

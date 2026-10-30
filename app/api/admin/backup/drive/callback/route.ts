@@ -1,4 +1,7 @@
 import {NextRequest,NextResponse} from "next/server";
+import {spawn} from "node:child_process";
+import {existsSync} from "node:fs";
+import {join} from "node:path";
 import {cookies} from "next/headers";
 import {hostQuery} from "../../../../../../lib/host/db";
 import {currentUser} from "../../../../../../lib/host/session";
@@ -25,6 +28,9 @@ export async function GET(request:NextRequest){
     await hostQuery(`insert into public.backup_settings(id,drive_token,drive_email,root_folder,db_folder,files_folder,connected_by,connected_at,updated_at) values(1,$1,$2,null,null,null,$3,now(),now())
       on conflict(id) do update set drive_token=excluded.drive_token,drive_email=excluded.drive_email,root_folder=null,db_folder=null,files_folder=null,connected_by=excluded.connected_by,connected_at=now(),updated_at=now()`,[sealSecret(data.refresh_token),email,user.id]);
     await hostQuery(`delete from public.backup_files`);
+    // The first copy goes to Drive right away; after that the 03:00 cron job keeps it up to date.
+    const script=process.env.KIRAYE_APP_DIR?join(process.env.KIRAYE_APP_DIR,"backup-to-drive.mjs"):"";
+    if(script&&existsSync(script))spawn(process.execPath,[script],{cwd:process.env.KIRAYE_APP_DIR,detached:true,stdio:"ignore",env:process.env}).unref();
     return back("connected");
   }catch(error){console.error("drive connect failed:",(error as Error).message);return back("error");}
 }

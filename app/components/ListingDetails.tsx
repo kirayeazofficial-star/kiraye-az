@@ -276,7 +276,7 @@ export default function ListingDetails({
             {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər"><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary"
-              href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, kirayeal.az saytındakı “${item.title}” elanınızla maraqlanıram.`)}`}
+              href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam!\n\nkirayeal.az saytındakı «${item.title}» elanınızla maraqlanıram.\nElan hələ aktualdırmı?\n\nElan: https://kirayeal.az/listings/${item.id} 🙂`)}`}
               target="_blank"
               rel="noopener noreferrer"
             >

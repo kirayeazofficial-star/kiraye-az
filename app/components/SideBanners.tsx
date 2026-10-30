@@ -17,7 +17,24 @@ export default function SideBanners() {
   // Start just below the header (and below the top advert strip while it is in view).
   useEffect(() => {
     if (!sides.left && !sides.right) return;
-    const place = () => { const bottom = document.querySelector(".kzHeader")?.getBoundingClientRect().bottom ?? 76; document.documentElement.style.setProperty("--kz-side-top", `${Math.max(16, Math.round(bottom) + 20)}px`); };
+    // Banners sit only in the real free space beside the page content (measured, so a scrollbar or a
+    // wider header never lets them cover the page); too little space hides them.
+    const place = () => {
+      const root = document.documentElement, width = root.clientWidth;
+      const bottom = document.querySelector(".kzHeader")?.getBoundingClientRect().bottom ?? 76;
+      root.style.setProperty("--kz-side-top", `${Math.max(16, Math.round(bottom) + 20)}px`);
+      let left = width, right = 0;
+      document.querySelectorAll(".kzHeaderInner, main, main > .wrap, footer .wrap").forEach(node => {
+        const box = node.getBoundingClientRect();
+        if (box.width && box.width < width - 8) { left = Math.min(left, box.left); right = Math.max(right, box.right); }
+      });
+      if (right <= left) { left = (width - 1280) / 2; right = width - left; }
+      const gap = 16, free = Math.min(left, width - right) - gap * 2, size = Math.min(200, Math.floor(free));
+      root.style.setProperty("--kz-side-w", `${Math.max(0, size)}px`);
+      root.style.setProperty("--kz-side-left", `${Math.round((left - size) / 2)}px`);
+      root.style.setProperty("--kz-side-right-left", `${Math.round(right + (width - right - size) / 2)}px`);
+      root.classList.toggle("kzSideOff", size < 120);
+    };
     place();
     const observer = new ResizeObserver(place); observer.observe(document.body); // e.g. the top advert finished loading
     window.addEventListener("scroll", place, { passive: true }); window.addEventListener("resize", place);

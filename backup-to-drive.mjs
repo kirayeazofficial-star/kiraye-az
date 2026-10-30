@@ -1,5 +1,8 @@
-// Nightly backup to the leader's Google Drive, run at 03:00 by a cPanel cron job:
-//   node backup-to-drive.mjs
+// Nightly backup to the leader's Google Drive. A cPanel cron job runs this every 10 minutes;
+// it only works once a day after 03:00 (Baku time), when the leader asked for a copy (Drive just
+// connected), or to finish a copy that the hosting stopped half-way. "node backup-to-drive.mjs now"
+// starts a copy straight away.
+//   node backup-to-drive.mjs [now]
 // 1. The whole database (public + auth schemas) is one file, kirayeal-baza.json.gz, replaced every
 //    night (Drive itself keeps the earlier versions for 30 days under "Manage versions").
 // 2. Uploaded pictures and videos (KIRAYE_STORAGE_ROOT) are sent once each; later runs send only new files.
@@ -150,10 +153,22 @@ async function walk(root, folder = root, found = []) {
   return found;
 }
 
-await db.query(`update public.backup_runs set finished_at=now(),ok=false,error='Yarımçıq qaldı' where finished_at is null and started_at<now()-interval '3 hours'`);
+// A copy that has not reported for 10 minutes was stopped by the hosting: close it, then decide.
+await db.query(`update public.backup_runs set finished_at=now(),ok=false,error='Yarımçıq dayandı — yenidən göndərilir' where finished_at is null and coalesce(heartbeat_at,started_at)<now()-interval '10 minutes'`);
 if ((await db.query(`select 1 from public.backup_runs where finished_at is null`)).rowCount) { console.log("A backup is already running."); await db.end(); process.exit(0); }
-const run = (await db.query(`insert into public.backup_runs(trigger) values('cron') returning id`)).rows[0].id;
-const finish = (fields) => db.query(`update public.backup_runs set finished_at=now(),ok=$2,db_file=$3,db_bytes=$4,db_rows=$5,files_new=$6,files_bytes=$7,error=$8 where id=$1`,
+const state = (await db.query(`select
+    (select run_requested from public.backup_settings where id=1) as requested,
+    exists(select 1 from public.backup_runs where ok and started_at>=(date_trunc('day',now() at time zone 'Asia/Baku')+interval '3 hours') at time zone 'Asia/Baku') as done_today,
+    exists(select 1 from public.backup_runs where not ok and finished_at>now()-interval '1 hour' and error not like 'Yarımçıq%') as failed_recently,
+    coalesce((select not ok and error like 'Yarımçıq%' from public.backup_runs order by started_at desc limit 1),false) as interrupted,
+    extract(hour from now() at time zone 'Asia/Baku')::int as baku_hour`)).rows[0];
+const due = process.argv[2] === "now" || state.requested || state.interrupted || (state.baku_hour >= 3 && !state.done_today && !state.failed_recently);
+if (!due) { await db.end(); process.exit(0); }
+await db.query(`update public.backup_settings set run_requested=false where id=1`);
+const run = (await db.query(`insert into public.backup_runs(trigger,heartbeat_at) values($1,now()) returning id`, [process.argv[2] === "now" ? "manual" : "cron"])).rows[0].id;
+const progress = (fields) => db.query(`update public.backup_runs set heartbeat_at=now(),db_file=$2,db_bytes=$3,db_rows=$4,files_new=$5,files_bytes=$6 where id=$1`,
+  [run, fields.dbFile || null, fields.dbBytes || null, fields.dbRows || null, fields.filesNew || 0, fields.filesBytes || 0]).catch(() => {});
+const finish = (fields) => db.query(`update public.backup_runs set finished_at=now(),heartbeat_at=now(),ok=$2,db_file=$3,db_bytes=$4,db_rows=$5,files_new=$6,files_bytes=$7,error=$8 where id=$1`,
   [run, fields.ok, fields.dbFile || null, fields.dbBytes || null, fields.dbRows || null, fields.filesNew || 0, fields.filesBytes || 0, fields.error || null]);
 
 const result = { ok: false };
@@ -178,6 +193,7 @@ try {
   await drive.upload(DB_FILE, root, body, "application/gzip", await drive.find(DB_FILE, root));
   result.dbFile = DB_FILE; result.dbBytes = body.length;
   await rm(file, { force: true });
+  await progress(result);
 
   // 2. Pictures and videos: only files that are not on Drive yet.
   const storage = process.env.KIRAYE_STORAGE_ROOT || "";
@@ -192,6 +208,7 @@ try {
       const id = await drive.upload(path.replaceAll("/", "__"), filesFolder, content, /\.mp4$/i.test(path) ? "video/mp4" : /\.webm$/i.test(path) ? "video/webm" : /\.jpe?g$/i.test(path) ? "image/jpeg" : "application/octet-stream");
       await db.query(`insert into public.backup_files(path,drive_id,size) values($1,$2,$3) on conflict(path) do update set drive_id=excluded.drive_id,size=excluded.size,uploaded_at=now()`, [path, id, info.size]);
       result.filesNew++; result.filesBytes += info.size;
+      await progress(result);
     }
   }
   result.ok = true;

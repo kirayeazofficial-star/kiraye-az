@@ -21,7 +21,7 @@ export async function POST(request:NextRequest){
     if(!uuid.test(id)||!["bump","vip","premium"].includes(kind)||!Number.isInteger(plan)||plan<0||plan>3)return reply({error:"INVALID_REQUEST"},400);
     if(!await isLeader(user))return reply({error:"PAYMENT_REQUIRED"},402);
     const rows=kind==="bump"
-      ?await hostQuery(`update public.listings set bump_started=now(),bump_count=$3,updated_at=now() where id=$1 and status='published' and deleted_at is null and (expires_at is null or expires_at>now()) returning id`,[id,bumps[plan]])
+      ?await hostQuery(`update public.listings set bump_started=now(),bump_count=$2,updated_at=now() where id=$1 and status='published' and deleted_at is null and (expires_at is null or expires_at>now()) returning id`,[id,bumps[plan]])
       :await hostQuery(`update public.listings set promotion_kind=$2,promotion_until=greatest(case when promotion_kind=$2 then promotion_until end,now())+make_interval(days=>$3::int),bump_started=now(),bump_count=greatest(bump_count,$3::int*3),updated_at=now() where id=$1 and status='published' and deleted_at is null and (expires_at is null or expires_at>now()) returning id`,[id,kind,days[plan]]);
     return rows[0]?reply({ok:true}):reply({error:"NOT_PROMOTABLE"},409);
   }catch{return reply({error:"PROMOTE_FAILED"},503);}

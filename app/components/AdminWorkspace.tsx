@@ -437,8 +437,16 @@ function BackupStatus() {
   const [data, setData] = useState<{ connected: boolean; email: string; runs: BackupRun[]; files: { count: number; bytes: number }; google: boolean } | null>(null), [error, setError] = useState("");
   const load = useCallback(() => { fetch("/api/admin/backup", { cache: "no-store" }).then(r => r.ok ? r.json() : Promise.reject()).then(setData).catch(() => setError("Məlumat yüklənmədi.")); }, []);
   useEffect(() => { load(); }, [load]);
-  const notice = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("backup") : null;
-  const size = (bytes: number) => bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  // Result of connecting Drive arrives in the address (?backup=…); shown once, then the address is cleaned.
+  const [notice, setNotice] = useState<string | null>(null);
+  useEffect(() => {
+    const value = new URLSearchParams(window.location.search).get("backup");
+    if (value) { setNotice(value); window.history.replaceState(null, "", "/admin?section=backup"); }
+  }, []);
+  useAutoClear(notice === "connected" ? notice : null, () => setNotice(null), 6000);
+  // While a backup is running the status refreshes by itself.
+  useEffect(() => { const running = data?.runs[0] && !data.runs[0].finished_at; if (!running) return; const timer = setTimeout(load, 5000); return () => clearTimeout(timer); }, [data, load]);
+  const size = (bytes: number) => !Number(bytes) ? "0 KB" : bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
   async function disconnect() {
     if (!window.confirm("Google Drive ayrılsın? Gecə ehtiyat nüsxələri dayanacaq.")) return;
     await fetch("/api/admin/backup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "disconnect" }) }).catch(() => null);

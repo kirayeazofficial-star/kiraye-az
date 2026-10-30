@@ -6,7 +6,7 @@ import { bannerJpeg } from "../../lib/banner-image";
 
 type Banner = { id: string; title: string; image_url: string; media_type?: string; link_url: string | null; placement: "home" | "listing" | "top" | "side"; mobile_url?: string | null; mobile_media_type?: string | null; active: boolean; starts_at: string | null; ends_at: string | null; sort_order: number; clicks: number };
 const placements = { top: "Yuxarı zolaq (kompüter)", side: "Sağ və sol (kompüter)", home: "Ana səhifə, elanların arasında", listing: "Elan səhifəsi" };
-const placementHints = { top: "Bütün səhifələrdə, saytın ən yuxarısında, menyudan əvvəl geniş zolaq. Kompüterdə görünür. Ölçü: 1920×200 (və ya 1200×120).", side: "Eyni reklam səhifənin həm solunda, həm sağında görünür, sürüşdürəndə yerində qalır. Geniş kompüter ekranında (1536px+). Ölçü: 300×900 və ya 160×600.", home: "Ana səhifədə kateqoriyaların altında, bütün ziyarətçilərə (telefonda da) görünür. Ölçü: 1200×300.", listing: "Hər elanın səhifəsində, elan məlumatının altında (telefonda da) görünür. Ölçü: 1200×300." };
+const placementHints = { top: "Bütün səhifələrdə, saytın ən yuxarısında, menyudan əvvəl geniş zolaq. Kompüterdə görünür. Ölçü: 1920×100.", side: "Eyni reklam səhifənin həm solunda, həm sağında görünür, sürüşdürəndə yerində qalır. Geniş kompüter ekranında (1536px+). Ölçü: 300×900 və ya 160×600.", home: "Ana səhifədə kateqoriyaların altında, bütün ziyarətçilərə (telefonda da) görünür. Ölçü: 1600×200, telefon üçün 720×180.", listing: "Hər elanın səhifəsində, elan məlumatının altında (telefonda da) görünür. Ölçü: 1600×200, telefon üçün 720×180." };
 const isVideo = (banner: { image_url: string; media_type?: string }) => banner.media_type === "video" || /\.(mp4|webm)$/i.test(banner.image_url);
 // Readable link in the list: "wa.me (WhatsApp)", "instagram.com/..." or the site path, never a long encoded address.
 function shortLink(link: string) {
@@ -21,7 +21,7 @@ export default function BannerManager() {
   const [items, setItems] = useState<Banner[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState(""), [notice, setNotice] = useState("");
   const [form, setForm] = useState(empty), [file, setFile] = useState<File | null>(null), [preview, setPreview] = useState(""), [previewVideo, setPreviewVideo] = useState(false), [open, setOpen] = useState(false), [busy, setBusy] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null), phoneInput = useRef<HTMLInputElement>(null);
-  // Optional phone version (2:1) for the home and listing page banners.
+  // Optional phone version (4:1) for the home and listing page banners.
   const [phoneFile, setPhoneFile] = useState<File | null>(null), [phonePreview, setPhonePreview] = useState(""), [phoneVideo, setPhoneVideo] = useState(false), [phoneRemoved, setPhoneRemoved] = useState(false);
   const phonePlace = form.placement === "home" || form.placement === "listing";
   useEffect(() => { if (!phoneFile) return; const url = URL.createObjectURL(phoneFile); setPhonePreview(url); setPhoneVideo(phoneFile.type.startsWith("video/")); return () => URL.revokeObjectURL(url); }, [phoneFile]);
@@ -67,14 +67,14 @@ export default function BannerManager() {
   }
   return <section className="kzAdPanel">
     <header className="kzAdPanelHead"><h2>Bannerlər</h2><div className="kzAdActions"><button type="button" className="kzAdBtn primary" onClick={() => start()}><ImagePlus aria-hidden="true" size={16} strokeWidth={2} />Banner əlavə et</button></div></header>
-    <div className="kzAdHint kzBannerGuide"><p><strong>Ana səhifə və elan səhifəsi:</strong> 1200 × 300 (4:1). Telefon üçün ayrıca 720 × 360 (2:1) versiya əlavə etmək tövsiyə olunur.</p><p><strong>Yuxarı zolaq:</strong> 1920 × 200. <strong>Sağ və sol:</strong> 300 × 900.</p><p>Şəkil: JPG, PNG, WebP, 3 MB-a qədər. Video: MP4, 5–15 saniyə, səssiz, 20 MB-a qədər — öz-özünə və təkrarla oynayır. Vacib yazını kənarlara çox yaxın qoymayın.</p></div>
+    <div className="kzAdHint kzBannerGuide"><p><strong>Ana səhifə və elan səhifəsi:</strong> 1600 × 200 (8:1). Telefon üçün ayrıca 720 × 180 (4:1) versiya əlavə etmək tövsiyə olunur.</p><p><strong>Yuxarı zolaq:</strong> 1920 × 100. <strong>Sağ və sol:</strong> 300 × 900.</p><p>Şəkil: JPG, PNG, WebP, 3 MB-a qədər. Video: MP4, 5–15 saniyə, səssiz, 20 MB-a qədər — öz-özünə və təkrarla oynayır. Vacib yazını kənarlara çox yaxın qoymayın.</p></div>
     {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {open && <form className="kzBannerForm" onSubmit={save}>
       <button type="button" className="kzBannerPick" onClick={() => fileInput.current?.click()}>{preview ? previewVideo ? <video src={preview} muted loop autoPlay playsInline /> : <img src={preview} alt="" /> : <span><ImagePlus aria-hidden="true" size={28} strokeWidth={1.5} />Şəkil və ya video seç</span>}</button>
       <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden onChange={event => setFile(event.target.files?.[0] || null)} />
       {phonePlace && <div className="kzBannerPhone">
         <button type="button" className="kzBannerPick phone" onClick={() => phoneInput.current?.click()}>{phonePreview && !phoneRemoved ? phoneVideo ? <video src={phonePreview} muted loop autoPlay playsInline /> : <img src={phonePreview} alt="" /> : <span><ImagePlus aria-hidden="true" size={24} strokeWidth={1.5} />Telefon versiyası</span>}</button>
-        <div><strong>Telefon versiyası (istəyə bağlı)</strong><p>720 × 360 (2:1), şəkil və ya video. Telefonda geniş banner çox kiçik görünür — bu versiya varsa, telefonda onu göstəririk.</p>{phonePreview && !phoneRemoved && <button type="button" className="kzAdLink" onClick={() => { setPhoneFile(null); setPhoneRemoved(true); }}>Telefon versiyasını sil</button>}</div>
+        <div><strong>Telefon versiyası (istəyə bağlı)</strong><p>720 × 180 (4:1), şəkil və ya video. Telefonda geniş banner çox kiçik görünür — bu versiya varsa, telefonda onu göstəririk.</p>{phonePreview && !phoneRemoved && <button type="button" className="kzAdLink" onClick={() => { setPhoneFile(null); setPhoneRemoved(true); }}>Telefon versiyasını sil</button>}</div>
         <input ref={phoneInput} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden onChange={event => { setPhoneFile(event.target.files?.[0] || null); setPhoneRemoved(false); }} />
       </div>}
       <div className="kzBannerFields">

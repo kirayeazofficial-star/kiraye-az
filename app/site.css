@@ -2105,3 +2105,8 @@ html{-webkit-tap-highlight-color:transparent}
   .accountDashboard .accountListings article .accountItemActions>*{padding:0 4px!important;font-size:12.5px!important;gap:4px!important}
   .accountDashboard .accountListings article .accountItemActions>* svg{display:none!important}
 }
+/* Bannerlər alçaq: elanlara yer qalsın. Kompüter 8:1 (1600×200), telefon versiyası 4:1 (720×180), yuxarı zolaq 1920×100 */
+.kzBannerRail>*,.kzBannerPick,.kzBannerThumb{aspect-ratio:8/1!important}
+@media (max-width:767px){.kzBanners.phone .kzBannerRail>*{aspect-ratio:4/1!important}}
+.kzBannerPick.phone{aspect-ratio:4/1!important}
+@media (min-width:768px){.kzTopBanner img,.kzTopBanner video{aspect-ratio:96/5!important}}

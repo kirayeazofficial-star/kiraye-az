@@ -16,7 +16,7 @@ Kirayə elanları saytı (Next.js 16, React 19, TypeScript). Hostinq.az cPanel-d
 ## Ehtiyat nüsxə (hər gecə Google Drive-a)
 
 - Rəhbər panelində **Ehtiyat nüsxə → Google Drive-a qoş** (bir dəfə). Google OAuth client-də redirect URI: `https://kirayeal.az/api/admin/backup/drive/callback`, layihədə **Google Drive API** aktiv olmalıdır.
-- cPanel → **Cron Jobs**, hər gün 03:00 (server vaxtı ilə):
+- cPanel → **Cron Jobs**, **hər 10 dəqiqədən bir** (`*/10 * * * *`). Skript özü yalnız gündə bir dəfə (Bakı vaxtı ilə 03:00-dan sonra), Drive yenicə qoşulanda və ya yarımçıq qalmış nüsxəni tamamlamaq üçün işləyir:
   `/bin/bash -lc 'source /home/kiraytfg/nodevenv/kirayeal/22/bin/activate && cd /home/kiraytfg/kirayeal && node backup-to-drive.mjs'`
 - Drive-da: `kirayeal.az ehtiyat nüsxə/kirayeal-baza.json.gz` (bütün baza, hər gecə yenilənir; köhnə versiyalar Drive-da 30 gün) və `Şəkillər və videolar/` (yalnız yeni fayllar əlavə olunur).
 - Bərpa (yeni hostinqdə, sayt bir dəfə deploy olunandan sonra, app qovluğunda):

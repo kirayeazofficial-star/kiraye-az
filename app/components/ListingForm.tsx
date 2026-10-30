@@ -415,7 +415,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.");
       const saveResult=await resultResponse.json().catch(()=>({}));
       setPaymentWaiting(!!saveResult.payment_required);
-      if(saveResult.payment_required)setTimeout(()=>{window.location.href='/profile?section=listings&tab=payment';},3500);
       saved = true;
       draftDirty.current=false;
       if(!listingId)void clearListingDraft(user);
@@ -446,11 +445,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           <div>
             
             <h1>{listingId ? "Elanı redaktə et" : "Elan yerləşdir"}</h1>
-            <p className="muted">
-              {listingId
-                ? "Dəyişikliklər saxlanıldıqdan sonra elan yenidən yoxlamaya göndəriləcək."
-                : "Dəqiq məlumat və aydın şəkillər daha çox maraq yaradır."}
-            </p>
+            {listingId && <p className="muted">Dəyişikliklər saxlanıldıqdan sonra elan yenidən yoxlamaya göndəriləcək.</p>}
           </div>
         </div>
         {!loading && !success && !loadError && !user && (
@@ -465,7 +460,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </div>
           </section>
         )}
-        {!success && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></section>}
+        {!success && step === 1 && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></section>}
         {loading ? (
           <section><p role="status">Hesab yoxlanılır...</p>
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
@@ -826,7 +821,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       <p className="photoCount" aria-live="polite">
                         {photos.length} / 6 şəkil{photos.length > 1 ? " · Sıranı dəyişmək üçün şəkli basıb saxlayıb sürüşdürün" : ""}
                       </p>
-                      <p className="kzPhotoRule">Birinci şəkil elanın üz qabığıdır: kirayə verdiyin əşyanın özünü göstərsin — maşının tam görünüşü, evin otağı, əşyanın özü. Tualet, balkon, küçə, sənəd və ya ekran şəkli birinci ola bilməz.</p>
+                      <p className="kzPhotoRule">Qeyd: birinci şəkil elanın üz qabığıdır — əşyanın, maşının və ya otağın özü olsun.</p>
                       {photoNotice && <p className="kzPhotoNotice" role="status">{photoNotice}</p>}
                       <PhotoOrganizer photos={photos} onChange={next => { setPhotos(next); queueDraft(); }} />
                     </section>

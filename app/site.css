@@ -2032,3 +2032,11 @@ html{-webkit-tap-highlight-color:transparent}
 .stickyContact .add,.stickyContact .kzPhoneShown{background:var(--kz-green,#22a45d)!important;border-color:var(--kz-green,#22a45d)!important;color:#fff!important}
 .stickyContact .messageAction{background:#4b7bf5!important;border-color:#4b7bf5!important;color:#fff!important}
 .kzKeyFacts:has(>div:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))}
+.kzStaffFree,.kzPromoStaff{margin:0;padding:10px 12px;border-radius:10px;background:#e8f7ee;border:1px solid #b7e4c7;color:#17803d;font-size:var(--fs-13);font-weight:600}
+.kzPromoDone{margin:0;padding:10px 12px;border-radius:10px;background:#e8f7ee;color:#17803d;font-size:var(--fs-14);font-weight:700;text-align:center}
+.kzPromoPay:disabled{opacity:.6;cursor:default}
+/* Sadə qeyd: şəkil qaydası */
+.kzPhotoRule{margin:0 0 8px!important;padding:0!important;background:none!important;color:var(--kz-muted,#6b7280)!important;font-size:12px!important;line-height:1.45!important}
+.kzReportActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.kzAdPhotos{display:grid;gap:8px;margin-bottom:12px}
+.kzAdPhotos>p{margin:0;font-size:12px}

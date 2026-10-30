@@ -256,9 +256,9 @@ export default function ListingDetails({
         {effectiveOwner ? (
           <div className="kzOwnerBox">
             {item.status === "published" && <div className="kzPromoCards">
-              <PromotionOptions kind="bump" card />
-              <PromotionOptions kind="vip" card />
-              <PromotionOptions kind="premium" card />
+              <PromotionOptions kind="bump" card listingId={item.id} />
+              <PromotionOptions kind="vip" card listingId={item.id} />
+              <PromotionOptions kind="premium" card listingId={item.id} />
             </div>}
             <div className="kzOwnerRow">
               <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
@@ -425,11 +425,6 @@ export default function ListingDetails({
           Kirayə götürəcəyin əşyanı, nəqliyyatı və ya əmlakı görmədən beh göndərmə. Tarix, depozit və qaytarılma şərtlərini
           yazılı razılaşdır. Platforma hazırda ödəniş qəbul etmir.
         </p>
-        {!item.demo && !effectiveOwner && !reported && (
-          <button className="textButton" onClick={() => setReport(!report)}>
-            {report ? "Şikayəti bağla" : "Bu elandan şikayət et"}
-          </button>
-        )}
         {report && !reported && (
           <form id="kz-report" className="reportForm" onSubmit={sendReport}>
             <h3>Şikayət göndər</h3>
@@ -452,9 +447,12 @@ export default function ListingDetails({
                 placeholder="Problemi qısa təsvir et. Şəxsi məlumat yazma."
               />
             </label>
-            <button className="secondary" disabled={busy}>
-              {busy ? "Göndərilir..." : "Şikayəti göndər"}
-            </button>
+            <div className="kzReportActions">
+              <button className="secondary" disabled={busy}>
+                {busy ? "Göndərilir..." : "Şikayəti göndər"}
+              </button>
+              <button type="button" className="textButton" onClick={() => setReport(false)}>Ləğv et</button>
+            </div>
           </form>
         )}
         {notice && (

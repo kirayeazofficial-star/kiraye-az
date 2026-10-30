@@ -6,7 +6,7 @@ export type ListingPhoto = { id: string; src: string; file?: File };
 
 // Photo grid of the listing form. Press and hold a photo (finger) or just drag it (mouse) to change
 // the order; arrow keys work on a focused photo. The first photo is the cover shown on cards.
-export default function PhotoOrganizer({ photos, onChange }: { photos: ListingPhoto[]; onChange: (next: ListingPhoto[]) => void }) {
+export default function PhotoOrganizer({ photos, onChange, removable = true }: { photos: ListingPhoto[]; onChange: (next: ListingPhoto[]) => void; removable?: boolean }) {
   const [dragging, setDragging] = useState<string | null>(null);
   const grid = useRef<HTMLUListElement>(null);
   const latest = useRef(photos);
@@ -57,10 +57,9 @@ export default function PhotoOrganizer({ photos, onChange }: { photos: ListingPh
       onContextMenu={event => event.preventDefault()}
       onKeyDown={event => { if (event.key === "ArrowLeft" || event.key === "ArrowUp") { event.preventDefault(); move(index, index - 1); } if (event.key === "ArrowRight" || event.key === "ArrowDown") { event.preventDefault(); move(index, index + 1); } }}>
       <img src={photo.src} alt="" draggable={false} />
-      {index === 0 && <span className="kzPhotoCover">Əsas</span>}
-      <button type="button" className="kzPhotoRemove" aria-label={`${index + 1}-ci şəkli sil`} onClick={() => onChange(photos.filter(item => item.id !== photo.id))}>
+      {removable && <button type="button" className="kzPhotoRemove" aria-label={`${index + 1}-ci şəkli sil`} onClick={() => onChange(photos.filter(item => item.id !== photo.id))}>
         <X aria-hidden="true" size={13} strokeWidth={2.75} />
-      </button>
+      </button>}
     </li>)}
   </ul>;
 }

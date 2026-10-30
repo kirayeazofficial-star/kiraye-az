@@ -25,12 +25,26 @@ export const packs: Pack[] = [
 
 // Trigger + dialog for paid promotion. With `kind` it opens that service directly; without it the
 // dialog first lets the owner choose a service. `card` renders the trigger as a small price card.
-export default function PromotionOptions({ eligible = true, kind, label, card = false }: { eligible?: boolean; kind?: Kind; label?: string; card?: boolean }) {
+export default function PromotionOptions({ eligible = true, kind, label, card = false, listingId }: { eligible?: boolean; kind?: Kind; label?: string; card?: boolean; listingId?: string }) {
   const id = useId();
   const dialog = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const [chosen, setChosen] = useState<Kind | null>(kind ?? null);
   const [plan, setPlan] = useState(0), [method, setMethod] = useState("card"), [notice, setNotice] = useState(false);
+  // Staff (leader, admins) use every service for free: "Ödə" becomes "Pulsuz aktivləşdir".
+  const [staff, setStaff] = useState(false), [busy, setBusy] = useState(false), [done, setDone] = useState(""), [failed, setFailed] = useState("");
+  useEffect(() => { if (!open) return; fetch("/api/auth/host", { cache: "no-store" }).then(r => r.json()).then(d => setStaff(!!d.staff)).catch(() => {}); }, [open]);
+  async function activate(kindToUse: Kind) {
+    if (!listingId || busy) return;
+    setBusy(true); setFailed("");
+    try {
+      const response = await fetch("/api/listings/promote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: listingId, kind: kindToUse, plan }) });
+      if (!response.ok) throw new Error();
+      setDone(`${packs.find(item => item.kind === kindToUse)?.title} aktivləşdirildi.`);
+      setTimeout(() => window.location.reload(), 1200);
+    } catch { setFailed("Aktivləşdirmək alınmadı. Yenidən cəhd edin."); }
+    finally { setBusy(false); }
+  }
   const own = packs.find(item => item.kind === kind);
   const pack = packs.find(item => item.kind === chosen);
   useEffect(() => {
@@ -41,7 +55,7 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
     document.body.style.overflow = "hidden";
     return () => { node.close(); document.body.style.overflow = previous; };
   }, [open]);
-  const close = () => { setOpen(false); setChosen(kind ?? null); setPlan(0); setNotice(false); };
+  const close = () => { setOpen(false); setChosen(kind ?? null); setPlan(0); setNotice(false); setDone(""); setFailed(""); };
   const Icon = own?.icon ?? Megaphone;
   return <>
     <button type="button" className={`promotionTrigger${kind ? " " + kind : ""}${card ? " kzPromoCard" : ""}`} disabled={!eligible} onClick={() => setOpen(true)}>
@@ -80,18 +94,24 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
               {item.extra && <span className="kzPromoExtra">{item.extra}</span>}
             </label>)}
           </div>
-          <p className="kzPromoSection">Ödəniş üsulunu seçin</p>
+          {!staff && <><p className="kzPromoSection">Ödəniş üsulunu seçin</p>
           <div className="kzPromoList" role="radiogroup" aria-label="Ödəniş üsulu">
             {[["card", "Bank kartı"], ["balance", "Şəxsi hesab (0,00 AZN)"]].map(([value, text]) => <label key={value} className={method === value ? "on" : ""}>
               <input type="radio" name={`${id}-method`} checked={method === value} onChange={() => setMethod(value)} />
               <span className="kzPromoRadio" aria-hidden="true" />
               <span className="kzPromoPlan">{text}</span>
             </label>)}
-          </div>
+          </div></>}
           <footer className="kzPromoFoot">
-            {notice && <p className="kzPromoNotice" role="status">Ödəniş sistemi hələ qoşulmayıb — heç bir məbləğ tutulmadı. Qoşulan kimi bu düymə ilə ödəyə biləcəksiniz.</p>}
-            <button type="button" className="kzPromoPay" onClick={() => setNotice(true)}>Ödə · {pack.plans[plan].price} AZN</button>
-            <p className="kzPromoLegal">«Ödə» düyməsini sıxmaqla kirayeal.az-ın <Link href="/terms">İstifadəçi razılaşmasını</Link> qəbul etmiş olursunuz.</p>
+            {staff ? <>
+              {done ? <p className="kzPromoDone" role="status">{done}</p> : <p className="kzPromoStaff">Admin və rəhbər üçün bütün xidmətlər pulsuzdur.</p>}
+              {failed && <p className="kzPromoNotice" role="alert">{failed}</p>}
+              <button type="button" className="kzPromoPay" disabled={busy || !!done || !listingId} onClick={() => void activate(pack.kind)}>{busy ? "Gözləyin…" : "Pulsuz aktivləşdir"}</button>
+            </> : <>
+              {notice && <p className="kzPromoNotice" role="status">Ödəniş sistemi hələ qoşulmayıb — heç bir məbləğ tutulmadı. Qoşulan kimi bu düymə ilə ödəyə biləcəksiniz.</p>}
+              <button type="button" className="kzPromoPay" onClick={() => setNotice(true)}>Ödə · {pack.plans[plan].price} AZN</button>
+            </>}
+            {!staff && <p className="kzPromoLegal">«Ödə» düyməsini sıxmaqla kirayeal.az-ın <Link href="/terms">İstifadəçi razılaşmasını</Link> qəbul etmiş olursunuz.</p>}
           </footer>
         </>}
       </div>

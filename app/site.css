@@ -2181,3 +2181,21 @@ html{-webkit-tap-highlight-color:transparent}
 .kzBkUnlink{color:#d92d20!important;border-color:#f5c2c3!important;background:#fff!important}
 .kzBkUnlink:hover{background:#fdecec!important}
 @media (max-width:640px){.kzBkActions{display:grid!important;grid-template-columns:1fr 1fr;gap:8px}.kzBkActions .kzAdBtn{justify-content:center;width:100%}}
+.kzAdMenu .tone-backup{--tone:#2f6fe4;--tint:#ebf1ff}
+/* Hesab menyusu: hər bəndin ikonu */
+.accountMenuPanel nav a,.accountMenuPanel nav button{display:flex!important;align-items:center;gap:10px}
+.accountMenuPanel nav svg{flex:none;color:var(--kz-muted)}
+.accountMenuPanel nav a:hover svg{color:var(--kz-accent)}
+/* Əlaqə sətirləri ikonla */
+.kzContactLine{display:inline-flex!important;align-items:center;gap:8px}
+.kzContactLine svg{flex:none;color:var(--kz-accent)}
+.kzSocial a,.siteContact .socialLinks a{display:inline-flex!important;align-items:center;gap:6px}
+/* Elan səhifəsi: Mesaj və WhatsApp düymələri ikonla */
+.kzMsgBtn,.kzWaBtn,.stickyContact .messageAction{display:inline-flex!important;align-items:center;justify-content:center;gap:8px}
+.kzWaBtn{color:#128c4a!important;border-color:#bfe6cf!important;background:#f3fbf6!important}
+.kzWaBtn:hover{background:#e7f7ee!important}
+/* Kabinet və profil düymələrində ikon + yazı bir sırada */
+.accountItemActions .kzButtonGhost,.kzPhotoActions .kzButtonGhost,.kzAccountGrid .kzButtonGhost{display:inline-flex!important;align-items:center;justify-content:center;gap:6px}
+.kzAdNav button:nth-of-type(7) svg{color:#2f6fe4}
+.kzIconBtn{display:inline-flex!important;align-items:center;justify-content:center;gap:8px}
+.accountMenuPanel button[class*="logout"],.accountMenuPanel .accountLogout,.accountMenuPanel button.logout{color:var(--kz-danger,#d92d20)!important}.accountMenuPanel button[class*="logout"] svg,.accountMenuPanel .accountLogout svg,.accountMenuPanel button.logout svg{color:var(--kz-danger,#d92d20)!important}

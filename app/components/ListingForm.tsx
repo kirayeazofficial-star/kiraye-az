@@ -1,5 +1,5 @@
 "use client";
-import { Check, ChevronLeft, ChevronRight, Clock, ImagePlus, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Clock, ImagePlus, RotateCcw, X } from "lucide-react";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
 import { sharePreview, watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -507,10 +507,10 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                 <div className="formReset">
                   <button
                     type="button"
-                    className="textButton"
+                    className="textButton kzIconBtn"
                     onClick={resetForm}
                   >
-                    Sıfırla
+                    <RotateCcw aria-hidden="true" size={14} strokeWidth={2.25} />Sıfırla
                   </button>
                 </div>
                 <nav

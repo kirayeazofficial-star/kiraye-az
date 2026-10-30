@@ -2,6 +2,8 @@
 import { useLanguage } from "./LanguageProvider";
 import { siteContact } from "../../lib/site-contact";
 import Link from "next/link";
+import { Mail, Phone } from "lucide-react";
+import { InstagramIcon, TikTokIcon } from "./BrandIcons";
 export default function Footer() {
   const {t} = useLanguage();
   return (
@@ -29,11 +31,11 @@ export default function Footer() {
         </nav>
         <div>
           <strong>{t("Bizimlə əlaqə")}</strong>
-          <a href={siteContact.phoneHref}>{siteContact.phone}</a>
-          <a href={`mailto:${siteContact.email}`}>{siteContact.email}</a>
+          <a className="kzContactLine" href={siteContact.phoneHref}><Phone aria-hidden="true" size={15} strokeWidth={2} />{siteContact.phone}</a>
+          <a className="kzContactLine" href={`mailto:${siteContact.email}`}><Mail aria-hidden="true" size={15} strokeWidth={2} />{siteContact.email}</a>
           <span className="kzSocial">
-            <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer">TikTok</a>
+            <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={15} />Instagram</a>
+            <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={15} />TikTok</a>
           </span>
         </div>
       </div>

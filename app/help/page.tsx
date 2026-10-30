@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = { title: "Kömək | kirayeal.az", description: "Kirayeal.az-dan istifadə qaydaları, əlaqə və suallar.", alternates: { canonical: "/help" } };
 import SiteContact from "../components/SiteContact";
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 export default function Help() {
@@ -57,8 +58,8 @@ export default function Help() {
             </details>
           ))}
         </div>
-        <Link className="add" href="/new">
-          Elan yerləşdir
+        <Link className="add kzIconBtn" href="/new">
+          <Plus aria-hidden="true" size={18} strokeWidth={2.25} />Elan yerləşdir
         </Link>
       </main>
       <Footer />

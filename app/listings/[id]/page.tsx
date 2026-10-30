@@ -50,7 +50,7 @@ export default async function ListingPage({ params }: Props) {
     return <>
       <Header />
       <main className="wrap listingDetailPage">
-        <section className="empty"><h1>Bu elan yoxlamadadır</h1><p>Tezliklə açılacaq. Bir az sonra yenidən baxın.</p><Link className="add" href="/">Digər elanlara bax</Link></section>
+        <section className="empty"><h1>Bu elan hazırda yoxlamadadır</h1><p>Yoxlama başa çatan kimi elan bu linkdə görünəcək.</p><Link className="add" href="/">Digər elanlara bax</Link></section>
       </main>
       <Footer />
     </>;

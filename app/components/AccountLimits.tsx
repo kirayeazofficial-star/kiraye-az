@@ -10,7 +10,7 @@ export default function AccountLimits(){
  const [items,setItems]=useState<State[]|null>(null),[failed,setFailed]=useState(false),[attempt,setAttempt]=useState(0);
  useEffect(()=>{let live=true;setFailed(false);fetch("/api/listings/limits",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{if(live){setItems(d.items||[]);setUnlimited(!!d.unlimited);}}).catch(()=>{if(live)setFailed(true);});return()=>{live=false;};},[attempt]);
  const byCategory=new Map((items||[]).map(item=>[item.category,item]));
- if(unlimited)return <section className="kzLimits"><h2>Elan limitləri</h2><p className="kzStaffFree">Siz saytın rəhbəri və ya adminisiniz: elan sayına limit yoxdur, irəli çəkmə, VIP, Premium və bərpa sizin üçün pulsuzdur.</p></section>;
+ if(unlimited)return <section className="kzLimits"><h2>Elan limitləri</h2><p className="kzStaffFree">Siz saytın rəhbərisiniz: elan sayına limit yoxdur, irəli çəkmə, VIP, Premium və bərpa sizin üçün pulsuzdur.</p></section>;
  return <section className="kzLimits">
   <h2>Elan limitləri</h2>
   <p className="kzLimitsLead">Hər kateqoriyada ayda {FREE_LISTING_LIMIT} elan pulsuzdur. Limit dolanda da elan yerləşdirə bilərsiniz — elan «Ödəniş gözləyir» bölməsinə düşür. Elanı silmək limiti qaytarmır; rədd edilmiş elan limit sərf etmir.</p>

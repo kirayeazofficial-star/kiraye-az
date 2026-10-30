@@ -22,7 +22,7 @@ const clothingBrands: Record<string, Record<string,string[]>> = {
   "Ziyafət geyimi": { Zara:[], Mango:[], "Adrianna Papell":[], "Sherri Hill":[], "Jovani":[], "Tarik Ediz":[], "Mac Duggal":[], Ipekyol:[], "Fərdi tikiş":[] },
   "Uşaq tədbir geyimi": { "LC Waikiki":[], Koton:[], Zara:[], "H&M":[], Mothercare:[], DeFacto:[] },
 };
-const suitFit = choice("suit_fit","Fason",["Klassik","Slim fit","Smokinq","Üçlük (jiletli)","Digər"]);
+const suitFit = choice("suit_fit","Kostyumun növü",["Klassik kostyum","Dar kəsimli kostyum","Smokinq","Üçlük (jiletli)","Digər"]);
 const clothingFields = [
   choice("clothing_size","Geyim ölçüsü",["XS","S","M","L","XL","XXL","XXXL","34","36","38","40","42","44","46","48","50","52","54","56","Ölçüyə uyğun tənzimlənir","Digər"]),
   {key:"size_note",label:"Ölçü haqqında əlavə məlumat",placeholder:"Məsələn: bel 80 sm, boy 175 sm"},

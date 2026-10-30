@@ -1,5 +1,6 @@
 "use client";
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
@@ -60,31 +61,51 @@ function EventList({ events, onInspect }: { events: ModerationEvent[]; onInspect
   </li>)}</ol>;
 }
 
-function ModerationReview({ listingId, onInspect }: { listingId: string; onInspect: (id: string) => void }) {
-  const [data, setData] = useState<ModerationContext | null>(null), [loading, setLoading] = useState(false), [error, setError] = useState("");
-  async function load() {
-    if (loading || data) return;
-    setLoading(true); setError("");
-    try { setData(await api({ action: "context", id: listingId }) as ModerationContext); }
-    catch { setError("Yoxlama məlumatları yüklənmədi."); }
-    finally { setLoading(false); }
-  }
-  return <details className="kzAdMore" onToggle={event => { if (event.currentTarget.open) void load(); }}><summary>Oxşarlar və sahibi</summary>
-    <div className="kzAdMoreBody">
-      {loading && <p className="kzAdMuted" role="status">Yüklənir…</p>}
-      {error && <p className="kzAdError" role="alert">{error} <button className="kzAdLink" type="button" onClick={() => void load()}>Yenidən yoxla</button></p>}
-      {data && <>
-        <h4>Oxşar elanlar</h4>
-        {!data.signals.length ? <p className="kzAdMuted">Uyğunluq tapılmadı.</p> : <ul className="kzAdPlain">{data.signals.map(signal => <li key={signal.id}><button type="button" className="kzAdLink" onClick={() => onInspect(signal.id)}>{signal.title}</button> <span className="kzAdMuted">· {[signal.owner_id === data.owner.id ? "eyni istifadəçi" : signal.same_phone && "eyni telefon, başqa hesab", signal.same_image && "eyni şəkil", signal.similar_text && "oxşar mətn"].filter(Boolean).join(", ")} · {statusName(signal.status)}</span></li>)}</ul>}
-        <p className="kzAdHint">Son 180 gündəki elanlarla müqayisə edilir. Oxşarlıq qayda pozuntusunun sübutu deyil.</p>
-        <h4>Elan sahibi</h4>
-        <p>{data.owner.name || "Ad qeyd edilməyib"} · qeydiyyat: {adminDate(data.owner.joined_at)} · şikayətlər: {data.reports.open} açıq, {data.reports.resolved} baxılıb</p>
-        {!!data.owner_listings.length && <ul className="kzAdPlain">{data.owner_listings.map(item => <li key={item.id}><button type="button" className="kzAdLink" onClick={() => onInspect(item.id)}>{item.title}</button> <span className="kzAdMuted">· {statusName(item.status)} · {adminDate(item.created_at)}</span></li>)}</ul>}
-        <h4>Son əməliyyatlar</h4>
-        {data.events.length ? <EventList events={data.events} /> : <p className="kzAdMuted">Qeyd yoxdur.</p>}
-      </>}
-    </div>
-  </details>;
+// Everything a moderator needs about one listing, in one sheet (bottom sheet on phones):
+// the listing itself, similar listings by other accounts, and the owner.
+function ReviewSheet({ item, onClose, onInspect, onSaved }: { item: AdminListing; onClose: () => void; onInspect: (id: string) => void; onSaved: () => void }) {
+  const [tab, setTab] = useState<"listing" | "similar" | "owner">("listing");
+  const [data, setData] = useState<ModerationContext | null>(null), [error, setError] = useState("");
+  const load = useCallback(() => { setError(""); api({ action: "context", id: item.id }).then(result => setData(result as ModerationContext)).catch(() => setError("Məlumat yüklənmədi.")); }, [item.id]);
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
+    document.addEventListener("keydown", close); document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", close); document.body.style.overflow = ""; };
+  }, [onClose]);
+  const others = data?.signals.filter(signal => signal.owner_id !== data.owner.id) || [];
+  const reasons = (signal: ModerationContext["signals"][number]) => [signal.same_phone && "Eyni telefon", signal.same_image && "Eyni şəkil", signal.similar_text && "Oxşar mətn"].filter(Boolean) as string[];
+  const tabs: [typeof tab, string][] = [["listing", "Elan"], ["similar", others.length ? `Oxşarlar (${others.length})` : "Oxşarlar"], ["owner", "Sahibi"]];
+  return createPortal(<div className="kzSheetBack" onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
+    <section className="kzSheet" role="dialog" aria-modal="true" aria-label={item.title}>
+      <header className="kzSheetHead"><strong>{item.title}</strong><button type="button" className="kzSheetClose" aria-label="Bağla" onClick={onClose}><X aria-hidden="true" size={18} strokeWidth={2.25} /></button></header>
+      <nav className="kzSheetTabs" role="tablist">{tabs.map(([key, text]) => <button key={key} type="button" role="tab" aria-selected={tab === key} className={tab === key ? "on" : ""} onClick={() => setTab(key)}>{text}</button>)}</nav>
+      <div className="kzSheetBody">
+        {tab === "listing" && <>
+          {(item.images?.length || 0) === 1 && <div className="kzAdGallery"><a href={item.images[0]} target="_blank" rel="noopener noreferrer"><img src={item.images[0]} alt="" loading="lazy" /></a></div>}
+          {(item.images?.length || 0) > 1 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={onSaved} />}
+          <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Qiymət</dt><dd>{money(item.price)} ₼ / {periodName(item.rental_period)}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
+          <LongText text={item.description} />
+          <a className="kzAdLink" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">Elanı saytda aç</a>
+        </>}
+        {tab !== "listing" && !data && !error && <p className="kzAdMuted" role="status">Yüklənir…</p>}
+        {tab !== "listing" && error && <p className="kzAdError" role="alert">{error} <button className="kzAdLink" type="button" onClick={load}>Yenidən yoxla</button></p>}
+        {tab === "similar" && data && <>
+          {!others.length ? <p className="kzSheetOk">Başqa hesablarda oxşar elan tapılmadı.</p> : <ul className="kzSheetList">{others.map(signal => <li key={signal.id}>
+            <button type="button" onClick={() => onInspect(signal.id)}><span>{signal.title}</span><small>{statusName(signal.status)}</small></button>
+            <div className="kzSheetChips">{reasons(signal).map(reason => <em key={reason}>{reason}</em>)}</div>
+          </li>)}</ul>}
+          <p className="kzAdHint">Son 180 gündə başqa hesabların elanları ilə müqayisə olunur. Oxşarlıq özü-özlüyündə pozuntu deyil.</p>
+        </>}
+        {tab === "owner" && data && <>
+          <dl className="kzAdFacts"><div><dt>Ad</dt><dd>{data.owner.name || "Qeyd edilməyib"}</dd></div><div><dt>E-poçt</dt><dd>{item.owner_email}</dd></div><div><dt>Qeydiyyat</dt><dd>{adminDate(data.owner.joined_at)}</dd></div><div><dt>Şikayətlər</dt><dd>{data.reports.open} açıq · {data.reports.resolved} baxılıb</dd></div></dl>
+          <h4>Bu istifadəçinin elanları ({data.owner_listings.length})</h4>
+          <ul className="kzSheetList">{data.owner_listings.map(listing => <li key={listing.id}><button type="button" onClick={() => onInspect(listing.id)}><span>{listing.title}</span><small>{statusName(listing.status)} · {adminDate(listing.created_at)}</small></button></li>)}</ul>
+          {!!data.events.length && <><h4>Son əməliyyatlar</h4><EventList events={data.events} /></>}
+        </>}
+      </div>
+    </section>
+  </div>, document.body);
 }
 
 function ModerationHistory({ revision, onInspect }: { revision: number; onInspect: (id: string) => void }) {
@@ -233,6 +254,7 @@ export default function AdminWorkspace() {
     api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); }).catch(() => {});
   }, [allowed, revision]);
 
+  const [details, setDetails] = useState<AdminListing | null>(null);
   async function moderate(item: AdminListing, status: "published" | "rejected") {
     if (busy || loading) return;
     const reason = reasons[item.id]?.trim() || "";
@@ -355,20 +377,13 @@ export default function AdminWorkspace() {
               <textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reasons[item.id] ?? ""} onChange={event => setReasons({ ...reasons, [item.id]: event.target.value })} placeholder="Elan sahibinə görünəcək səbəb (ən azı 10 simvol)" />
               <div className="kzAdCenter start"><button type="button" className="kzAdBtn danger solid" disabled={!!busy || (reasons[item.id]?.trim().length || 0) < 10} onClick={() => void moderate(item, "rejected")}>Rədd et</button><button type="button" className="kzAdBtn" onClick={() => setRejecting("")}>Ləğv et</button></div>
             </div>}
-            <div className="kzAdRowMore">
-              <details className="kzAdMore"><summary>Ətraflı</summary><div className="kzAdMoreBody">
-                {(item.images?.length || 0) === 1 && <div className="kzAdGallery"><a href={item.images[0]} target="_blank" rel="noopener noreferrer"><img src={item.images[0]} alt="" loading="lazy" /></a></div>}
-                {(item.images?.length || 0) > 1 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={() => setRevision(value => value + 1)} />}
-                <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Sahibi</dt><dd>{item.owner_name || "İstifadəçi"} · {item.owner_email}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
-                <LongText text={item.description} />
-              </div></details>
-              <ModerationReview key={`${item.id}-${revision}`} listingId={item.id} onInspect={inspect} />
-            </div>
+            <button type="button" className="kzAdDetailsBtn" onClick={() => setDetails(item)}>Ətraflı bax{(item.signal_count || 0) > 0 && <span className="kzAdDot" aria-label="oxşar elan var" />}</button>
           </article>)}</div>}
           {total > PAGE && <nav className="kzAdPager" aria-label="Elan səhifələri"><button type="button" className="kzAdBtn" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page} / {Math.ceil(total / PAGE)}</span><button type="button" className="kzAdBtn" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
         </>}
       </Panel>}
 
+      {details && <ReviewSheet item={details} onClose={() => setDetails(null)} onInspect={id => { setDetails(null); inspect(id); }} onSaved={() => setRevision(value => value + 1)} />}
       {section === "reports" && <ReportQueue onInspect={inspect} onChange={() => setRevision(x => x + 1)} />}
       {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
       {section === "banners" && <BannerManager />}

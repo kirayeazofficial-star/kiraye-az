@@ -102,9 +102,9 @@ class Drive {
 
 // Tables in an order that respects foreign keys, so a restore can insert them one after another.
 async function tablesInOrder() {
-  const tables = (await db.query(`select table_schema||'.'||table_name name from information_schema.tables
-    where table_schema in ('public','auth') and table_type='BASE TABLE' and table_name not like 'backup\\_%' order by 1`)).rows.map((row) => row.name);
-  const links = (await db.query(`select cn.nspname||'.'||c.relname child, pn.nspname||'.'||p.relname parent from pg_constraint k
+  const tables = (await db.query(`select table_schema||'.'||table_name as tbl from information_schema.tables
+    where table_schema in ('public','auth') and table_type='BASE TABLE' and table_name not like 'backup\\_%' order by 1`)).rows.map((row) => row.tbl);
+  const links = (await db.query(`select cn.nspname||'.'||c.relname as child, pn.nspname||'.'||p.relname as parent from pg_constraint k
     join pg_class c on c.oid=k.conrelid join pg_namespace cn on cn.oid=c.relnamespace
     join pg_class p on p.oid=k.confrelid join pg_namespace pn on pn.oid=p.relnamespace where k.contype='f'`)).rows;
   const ordered = [], seen = new Set(), visiting = new Set();
@@ -131,8 +131,8 @@ async function dumpDatabase(file) {
   for (const table of tables) {
     await write(JSON.stringify({ table }));
     for (let offset = 0; ; offset += 2000) {
-      const chunk = (await db.query(`select row_to_json(t)::text row from ${quote(table)} t order by ctid limit 2000 offset ${offset}`)).rows;
-      for (const { row } of chunk) await write(row);
+      const chunk = (await db.query(`select row_to_json(t)::text as doc from ${quote(table)} as t order by ctid limit 2000 offset ${offset}`)).rows;
+      for (const { doc } of chunk) await write(doc);
       rows += chunk.length;
       if (chunk.length < 2000) break;
     }

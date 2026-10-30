@@ -17,6 +17,9 @@ for (const name of [".env.production.local", ".env.local", ".env.production", ".
   }
 }
 
+// Lets the leader panel start a backup with the script that lives next to this file.
+process.env.KIRAYE_APP_DIR = process.env.KIRAYE_APP_DIR || __dirname;
+
 const server = join(__dirname, ".next", "standalone", "server.js");
 if (!existsSync(server)) {
   console.error("Production build is missing. Deploy the 'site' branch from cPanel Git Version Control.");

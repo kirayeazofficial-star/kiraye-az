@@ -123,6 +123,24 @@
       "namedRegex": "^/api/admin(?:/)?$"
     },
     {
+      "page": "/api/admin/backup",
+      "regex": "^/api/admin/backup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/backup(?:/)?$"
+    },
+    {
+      "page": "/api/admin/backup/drive",
+      "regex": "^/api/admin/backup/drive(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/backup/drive(?:/)?$"
+    },
+    {
+      "page": "/api/admin/backup/drive/callback",
+      "regex": "^/api/admin/backup/drive/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/backup/drive/callback(?:/)?$"
+    },
+    {
       "page": "/api/admin/banners",
       "regex": "^/api/admin/banners(?:/)?$",
       "routeKeys": {},

@@ -40,17 +40,17 @@ export async function sharePreview(file: Blob): Promise<Blob> {
   } finally { URL.revokeObjectURL(url); }
 }
 
-// Brand mark in the centre: small, see-through white "kirayeal.az" with no background, like the
-// big marketplaces use. A faint soft shadow keeps it readable on light photos without drawing the eye.
+// Brand mark in the centre, the way bina.az does it: small capital "KIRAYEAL.AZ" in faint
+// see-through white, no background. A barely visible shadow keeps it readable on white walls.
 export function drawBrandMark(context: CanvasRenderingContext2D, width: number, height: number) {
-  const font = Math.max(14, Math.round(Math.min(width, height * 1.5) * 0.062));
+  const font = Math.max(12, Math.round(Math.min(width, height * 1.5) * 0.05));
   context.save();
   context.font = `600 ${font}px ${brandFamily()}`;
   context.textAlign = "center"; context.textBaseline = "middle";
-  if ("letterSpacing" in context) (context as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${Math.round(font * 0.02)}px`;
-  context.shadowColor = "rgba(0,0,0,0.22)"; context.shadowBlur = Math.round(font * 0.14);
-  context.fillStyle = "rgba(255,255,255,0.42)";
-  context.fillText("kirayeal.az", width / 2, height / 2);
+  if ("letterSpacing" in context) (context as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${Math.round(font * 0.08)}px`;
+  context.shadowColor = "rgba(0,0,0,0.12)"; context.shadowBlur = Math.round(font * 0.1);
+  context.fillStyle = "rgba(255,255,255,0.34)";
+  context.fillText("KIRAYEAL.AZ", width / 2, height / 2);
   context.restore();
 }
 

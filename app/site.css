@@ -2078,3 +2078,10 @@ html{-webkit-tap-highlight-color:transparent}
 .kzSheetList button small{color:var(--kz-muted,#6b7280);font-size:12px}
 .kzSheetChips{display:flex;flex-wrap:wrap;gap:6px}
 .kzSheetChips em{padding:2px 8px;border-radius:6px;background:#fef2f2;color:#b91c1c;font-size:12px;font-style:normal;font-weight:600}
+/* Yan reklamlar: yeri JS ilə ölçülür (SideBanners), səhifənin üstünə düşmür */
+@media (min-width:1536px){
+  .kzSideBanner{width:var(--kz-side-w,120px)!important;right:auto!important}
+  .kzSideBanner.left{left:var(--kz-side-left,12px)!important}
+  .kzSideBanner.right{left:var(--kz-side-right-left,calc(100vw - 132px))!important}
+  .kzSideOff .kzSideBanner{display:none!important}
+}

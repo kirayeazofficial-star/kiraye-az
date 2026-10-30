@@ -90,7 +90,19 @@ export default function RentalEstimator({ item }: { item: Listing }) {
   const dateLabel = (value: string) => value.split("-").reverse().join(".");
   const message =
     quote.error === null
-      ? `Salam, “${item.title}” elanını ${dateLabel(quote.start)}–${dateLabel(quote.end)} tarixləri üçün kirayələmək istəyirəm. ${duration} ${durationUnit === "month" ? "ay" : durationUnit === "week" ? "həftə" : "gün"}${durationUnit === "month" && !quote.monthly ? ` (${quote.units} ${periodName(item.rental_period)} hesabı)` : ""}: ${money(quote.rental)} AZN, depozit: ${money(quote.deposit)} AZN.${includeDelivery ? ` Çatdırılma istəyirəm (${quote.delivery === null ? "qiyməti razılaşdıraq" : `${money(quote.delivery)} AZN`}).` : ""} Bu tarixlər uyğundur? Son qiymət və qaytarılma şərtlərini dəqiqləşdirək.`
+      ? [
+          "Salam!",
+          "",
+          `«${item.title}» elanınızla bağlı yazıram.`,
+          `Tarix: ${dateLabel(quote.start)} – ${dateLabel(quote.end)} (${duration} ${durationUnit === "month" ? "ay" : durationUnit === "week" ? "həftə" : "gün"}${durationUnit === "month" && !quote.monthly ? `, ${quote.units} ${periodName(item.rental_period)} hesabı` : ""})`,
+          `Kirayə haqqı: ${money(quote.rental)} AZN`,
+          `Depozit: ${money(quote.deposit)} AZN`,
+          ...(includeDelivery ? [`Çatdırılma: ${quote.delivery === null ? "qiyməti razılaşdıraq" : `${money(quote.delivery)} AZN`}`] : []),
+          "",
+          "Bu tarixlər sizə uyğundurmu? Son qiyməti və qaytarılma şərtlərini dəqiqləşdirək.",
+          "",
+          `Elan: https://kirayeal.az/listings/${item.id} 🙏`,
+        ].join("\n")
       : "";
   return (
     <section className="rentalEstimator" aria-label="Kirayə xərcini hesabla">
@@ -149,7 +161,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
                 className="secondary"
                 target="_blank"
                 rel="noopener noreferrer"
-                href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam, “${item.title}” elanını ${duration} ${durationUnit === "month" ? "ay" : durationUnit === "week" ? "həftə" : "gün"} müddətinə kirayə götürmək istəyirəm. Bu müddət mümkündürmü? Qiyməti və şərtləri dəqiqləşdirək.`)}`}
+                href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam!\n\n«${item.title}» elanınızı ${duration} ${durationUnit === "month" ? "ay" : durationUnit === "week" ? "həftə" : "gün"} müddətinə kirayə götürmək istəyirəm.\nBu müddət sizə uyğundurmu? Qiymət və şərtləri dəqiqləşdirə bilərikmi?\n\nElan: https://kirayeal.az/listings/${item.id} 🙏`)}`}
               >
                 Seçilən müddəti sahibi ilə dəqiqləşdir
               </a>

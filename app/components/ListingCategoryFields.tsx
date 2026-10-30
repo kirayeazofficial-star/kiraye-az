@@ -79,6 +79,9 @@ function BrandModelPicker({
   const resolvedModel = model === "__other__" ? otherModel.trim() : model;
   // Lists with brands only (clothing, camping gear…) have no models to choose: ask for the brand alone.
   const brandOnly = Object.values(models).every((list) => !list.length);
+  // A brand without a model list (e.g. Cube bicycles): type the model instead of an empty select.
+  const brandModels = Object.prototype.hasOwnProperty.call(models, resolvedBrand) ? models[resolvedBrand] : [];
+  const typedModel = !brandOnly && !!resolvedBrand && !brandModels.length;
   function notify(b: string, m: string) {
     if (b) suggest?.(`${b} ${m} kirayəsi`.replace(/\s+/g, " "));
   }
@@ -111,7 +114,12 @@ function BrandModelPicker({
             <option value="__other__">Digər marka</option>
           </select>
         </label>
-        {!brandOnly && <label>
+        {typedModel && <label>
+          {required ? "Model" : "Model (istəyə bağlı)"}{required && <span className="requiredMark"> *</span>}
+          <input aria-label="Model" required={required} maxLength={60} value={otherModel} placeholder="Modelin adını yazın"
+            onChange={(event) => { setModel(event.target.value.trim() ? "__other__" : ""); setOtherModel(event.target.value); notify(resolvedBrand, event.target.value); }} />
+        </label>}
+        {!brandOnly && !typedModel && <label>
           Model{required && <span className="requiredMark"> *</span>}
           <select
             aria-label="Model"
@@ -137,7 +145,7 @@ function BrandModelPicker({
           </select>
         </label>}
       </div>
-      {(brand === "__other__" || model === "__other__") && (
+      {(brand === "__other__" || (model === "__other__" && !typedModel)) && (
         <div className="formGrid">
           {brand === "__other__" && (
             <label>
@@ -155,7 +163,7 @@ function BrandModelPicker({
               />
             </label>
           )}
-          {model === "__other__" && (
+          {model === "__other__" && !typedModel && (
             <label>
               Digər model
               <input
@@ -560,7 +568,7 @@ function ItemFields({
         value={kind} required onChange={(value) => { setKind(value); suggest(value ? `${value} kirayəsi` : ""); setPowerSource(value === attributes?.kind ? String(attributes?.power_source || "") : ""); }} />
       {!kind && <p className="muted">Əvvəl növü seç. Sonra yalnız həmin məhsula uyğun suallar açılacaq.</p>}
       {kind && <div key={kind}>
-        {Object.keys(models).length ? <BrandModelPicker models={models} attributes={initial} suggest={suggest} /> : (
+        {Object.keys(models).length ? <BrandModelPicker models={models} attributes={initial} suggest={suggest} /> : category === "event" ? null : (
           <div className="formGrid">
             <label>Marka (istəyə bağlı)<input name="brand" maxLength={40} defaultValue={initial?.brand} onChange={(event) => suggest(`${event.target.value.trim()} ${kind} kirayəsi`.trim())} placeholder="Markasızdırsa, boş saxla" /></label>
             {category !== "clothing" && <label>Model / kolleksiya (istəyə bağlı)<input name="model" maxLength={60} defaultValue={initial?.model} /></label>}

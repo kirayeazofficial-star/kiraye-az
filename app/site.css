@@ -2056,3 +2056,25 @@ html{-webkit-tap-highlight-color:transparent}
 .kzAdDescriptionWrap{display:grid;gap:4px;justify-items:start}
 .kzAdDescription.folded{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .accountListings .kzOwnReason,.accountListings .kzOwnReason strong{color:#991b1b!important}
+/* Moderasiya: "Ətraflı bax" pəncərəsi (telefonda aşağıdan açılır) */
+.kzAdDetailsBtn{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:0;border:0;background:none;color:var(--kz-accent);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.kzAdDot{width:8px;height:8px;border-radius:50%;background:#dc2626}
+.kzSheetBack{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;background:rgba(15,23,42,.45)}
+.kzSheet{display:flex;flex-direction:column;width:100%;max-width:640px;max-height:88vh;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.15);overflow:hidden}
+@media (min-width:720px){.kzSheetBack{align-items:center}.kzSheet{border-radius:16px;max-height:84vh}}
+.kzSheetHead{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
+.kzSheetHead strong{flex:1;min-width:0;font-size:16px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kzSheetClose{display:grid;place-items:center;width:34px;height:34px;flex:none;border:0;border-radius:50%;background:var(--kz-soft,#f3f4f6);color:var(--kz-text,#111);cursor:pointer}
+.kzSheetTabs{display:flex;gap:6px;padding:0 16px 10px;border-bottom:1px solid var(--kz-line,#e5e7eb)}
+.kzSheetTabs button{flex:1;height:36px;border:0;border-radius:10px;background:var(--kz-soft,#f3f4f6);color:var(--kz-text,#374151);font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.kzSheetTabs button.on{background:var(--kz-ink,#111827);color:#fff}
+.kzSheetBody{display:grid;gap:12px;align-content:start;padding:14px 16px calc(18px + env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
+.kzSheetBody h4{margin:6px 0 0;font-size:14px;font-weight:600}
+.kzSheetOk{margin:0;padding:12px;border-radius:10px;background:#f0fdf4;color:#166534;font-size:14px}
+.kzSheetList{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.kzSheetList li{display:grid;gap:6px;padding:10px 12px;border:1px solid var(--kz-line,#e5e7eb);border-radius:12px}
+.kzSheetList button{display:grid;gap:2px;padding:0;border:0;background:none;text-align:left;font:inherit;cursor:pointer}
+.kzSheetList button span{color:var(--kz-text,#111);font-size:14px;font-weight:600;line-height:1.35}
+.kzSheetList button small{color:var(--kz-muted,#6b7280);font-size:12px}
+.kzSheetChips{display:flex;flex-wrap:wrap;gap:6px}
+.kzSheetChips em{padding:2px 8px;border-radius:6px;background:#fef2f2;color:#b91c1c;font-size:12px;font-style:normal;font-weight:600}

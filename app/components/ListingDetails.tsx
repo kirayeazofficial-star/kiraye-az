@@ -1,5 +1,6 @@
 "use client";
-import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2 } from "lucide-react";
+import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, MessageCircle, Pencil, Phone, Share2 } from "lucide-react";
+import { WhatsAppIcon } from "./BrandIcons";
 import PromotionOptions from "./PromotionOptions";
 import dynamic from "next/dynamic";
 const ListingMap = dynamic(() => import("./LocationMap"), { ssr: false, loading: () => <div className="kzMap kzMapLoading kzMapListing" /> });
@@ -274,15 +275,15 @@ export default function ListingDetails({
           </div>
         ) : phone && !item.demo ? (
           <div className="contactActions" ref={contactBox}>
-            {ownerReady&&<Link className="secondary" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
+            {ownerReady&&<Link className="secondary kzMsgBtn" href={`/messages?listing=${encodeURIComponent(item.id)}`}><MessageCircle aria-hidden="true" size={17} strokeWidth={2.1} />Mesaj yaz</Link>}
             {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər"><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
-              className="secondary"
+              className="secondary kzWaBtn"
               href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam!\n\nkirayeal.az saytındakı «${item.title}» elanınızla maraqlanıram.\nElan hələ aktualdırmı?\n\nElan: https://kirayeal.az/listings/${item.id} 🙂`)}`}
               target="_blank"
               rel="noopener noreferrer"
             >
-               WhatsApp
+              <WhatsAppIcon size={17} />WhatsApp
             </a>
           </div>
         ) : (
@@ -470,7 +471,7 @@ export default function ListingDetails({
       </div>
       {mounted && !compact && !effectiveOwner && phone && !item.demo && createPortal(<div className={`stickyContact${stickyShown ? " shown" : ""}`} role="group" aria-label="Əlaqə" aria-hidden={!stickyShown}>
         {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər</button>}
-        {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}>Mesaj yaz</Link>}
+        {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}><MessageCircle aria-hidden="true" size={17} strokeWidth={2.1} />Mesaj yaz</Link>}
       </div>, document.body)}
       {/* Similar listings right after the details, before the banner, so a visitor who does not like this one moves on. */}
       {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}

@@ -1,6 +1,6 @@
 "use client";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { ChevronLeft, ChevronRight, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -200,7 +200,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 <div className="kzOwnEmpty">
                   <EmptyArt kind="listings" />
                   <p>{emptyText[statusFilter]}</p>
-                  {(statusFilter === "published" || !listings.length) && <Link className="kzButton" href="/new">Elan yerləşdir</Link>}
+                  {(statusFilter === "published" || !listings.length) && <Link className="kzButton kzIconBtn" href="/new"><Plus aria-hidden="true" size={16} strokeWidth={2.25} />Elan yerləşdir</Link>}
                 </div>
               ) : (
                 <div className="accountListings">
@@ -229,12 +229,12 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
                             <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin..." : "Ödəniş et"}</button>
-                            <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
+                            <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>
                           </>
                           : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : leader ? "Bərpa et" : "Ödənişlə bərpa et"}</button>
                           : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Düzəlt və göndər</Link>
                           : <>
-                            <Link className="kzButtonGhost" href={`/edit/${x.id}`}>Redaktə et</Link>
+                            <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>
                             {current === "published" && <PromotionOptions label="Reklam et" listingId={x.id} />}
                           </>}
                         {!x.deleted_at && <button type="button" className="kzDangerLink" disabled={!!busy} onClick={() => setDeleteConfirm(x.id)}><Trash2 aria-hidden="true" size={15} strokeWidth={2} />Sil</button>}

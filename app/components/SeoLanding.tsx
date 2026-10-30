@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { SlidersHorizontal } from "lucide-react";
 import Header from "./Header";
 import Footer from "./Footer";
-import ListingCard from "./ListingCard";
+import FavoriteGrid from "./FavoriteGrid";
 import StructuredData from "./StructuredData";
 import { seoCategories, type SeoCategorySlug } from "../../lib/seo-categories";
 import { seoCities, type SeoCitySlug } from "../../lib/seo-cities";
@@ -30,9 +31,9 @@ export default async function SeoLanding({ landing, city }: { landing: SeoCatego
         {(Object.keys(seoCities) as SeoCitySlug[]).map(slug => <Link key={slug} href={`/${landing}/${slug}`} aria-current={slug === city ? "page" : undefined}>{seoCities[slug].name}</Link>)}
       </nav>
       <h2>{place ? `${place.in} son elanlar` : "Son kirayə elanları"}</h2>
-      {items.length ? <div className="kzGrid">{items.map(item => <ListingCard key={item.id} item={item} />)}</div>
+      {items.length ? <FavoriteGrid items={items} />
         : <p className="kzNotice">{unavailable ? "Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin." : "Bu bölmədə hələ elan yoxdur."} <Link href="/new">Elan yerləşdir</Link></p>}
-      <p><Link className="kzButtonGhost" href={`/?category=${page.category}#elanlar`}>Bütün filtrlərlə axtar</Link></p>
+      <p><Link className="kzButtonGhost kzIconBtn" href={`/?category=${page.category}#elanlar`}><SlidersHorizontal aria-hidden="true" size={16} strokeWidth={2} />Bütün filtrlərlə axtar</Link></p>
       <section className="seoGuidance"><h2>{page.title} seçərkən nəyə baxmalı?</h2><p>{page.intro}</p></section>
     </main>
     <Footer />

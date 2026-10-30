@@ -1,5 +1,5 @@
 "use client";
-import { AlertCircle, CheckCircle2, ChevronLeft, LogOut } from "lucide-react";
+import { AlertCircle, Camera, CheckCircle2, ChevronLeft, LogOut, Mail, Trash2 } from "lucide-react";
 import {FormEvent,useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import Header from './Header';
@@ -69,8 +69,8 @@ export default function ProfileSettings(){
    <section className="kzPanel kzPhotoRow">
     <span>Profil şəkli</span>
     <div className="kzPhotoActions">
-     {profile.avatar_url&&<button type="button" className="kzButtonGhost" disabled={!!busy} onClick={removePhoto}>Sil</button>}
-     <button type="button" className="kzButtonGhost" disabled={!!busy} onClick={()=>photoInput.current?.click()}>{busy==='photo'?'Yüklənir…':profile.avatar_url?'Dəyiş':'Əlavə et'}</button>
+     {profile.avatar_url&&<button type="button" className="kzButtonGhost" disabled={!!busy} onClick={removePhoto}><Trash2 aria-hidden="true" size={15} strokeWidth={2} />Sil</button>}
+     <button type="button" className="kzButtonGhost" disabled={!!busy} onClick={()=>photoInput.current?.click()}><Camera aria-hidden="true" size={15} strokeWidth={2} />{busy==='photo'?'Yüklənir…':profile.avatar_url?'Dəyiş':'Əlavə et'}</button>
     </div>
     <input ref={photoInput} type="file" accept="image/*" hidden onChange={event=>changePhoto(event.target.files?.[0])}/>
    </section>
@@ -85,7 +85,7 @@ export default function ProfileSettings(){
    <div className="kzPanel listingForm accountForm emailBox">
     <h2>E-poçt</h2>
     <p className="kzEmailNow">Hazırkı: {profile.email}</p>
-    {emailStep===0&&<button type="button" className="kzButtonGhost" onClick={()=>{setEmail('');setEmailStep(1);setError('');setNotice('');}}>E-poçtu dəyiş</button>}
+    {emailStep===0&&<button type="button" className="kzButtonGhost" onClick={()=>{setEmail('');setEmailStep(1);setError('');setNotice('');}}><Mail aria-hidden="true" size={16} strokeWidth={2} />E-poçtu dəyiş</button>}
     {emailStep===1&&<form onSubmit={event=>submit(event,'email')}><label>Yeni e-poçt<input type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} required autoComplete="email"/></label><label>Cari şifrə<input type="password" value={emailPassword} onChange={e=>setEmailPassword(e.target.value)} autoComplete="current-password" required maxLength={512}/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email'?'Göndərilir…':'Kod göndər'}</button><button type="button" className="kzButtonGhost" onClick={()=>setEmailStep(0)}>Ləğv et</button></div></form>}
     {emailStep===2&&<form onSubmit={event=>submit(event,'email_confirm')}><p className="muted">6 rəqəmli kod {profile.email} ünvanına göndərildi.</p><label>Kod<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={emailCode} onChange={e=>setEmailCode(e.target.value.replace(/\D/g,''))} required autoComplete="one-time-code"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email_confirm'?'Yoxlanılır…':'Təsdiqlə'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setEmailCode('');}}>Ləğv et</button></div></form>}
    </div>

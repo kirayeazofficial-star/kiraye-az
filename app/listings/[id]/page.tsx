@@ -9,6 +9,10 @@ import ListingDetails from "../../components/ListingDetails";
 import { getPublicListing } from "../../../lib/public-listing";
 import { shareImagePath } from "../../../lib/share-image";
 import { publicSiteUrl } from "../../../lib/site-url";
+import { currentUser } from "../../../lib/host/session";
+import { isStaff } from "../../../lib/host/staff";
+import { hostQuery } from "../../../lib/host/db";
+import { statusName, type Listing } from "../../../lib/marketplace";
 import { money, periodName } from "../../../lib/marketplace";
 type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -34,7 +38,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 export default async function ListingPage({ params }: Props) {
   const { id } = await params;
-  const { item, unavailable } = await getPublicListing(id);
+  const result = await getPublicListing(id);
+  const unavailable = result.unavailable;
+  let item = result.item;
+  // A listing that isn't public (pending, rejected, expired…) stays visible to its owner and to staff, with its status shown.
+  const preview = !item && !unavailable ? await privateListing(id) : null;
+  if (preview) item = preview;
   if (!item && !unavailable) notFound();
   return (
     <>
@@ -43,6 +52,7 @@ export default async function ListingPage({ params }: Props) {
         <p className="breadcrumb">
           <Link href="/">Ana səhifə</Link>{item ? <> / {categoryName(item.category)}</> : null}
         </p>
+        {preview && <p className={`kzPreviewNote ${preview.status}`} role="status"><strong>{preview.deleted_at ? "Silinib" : statusName(preview.status)}</strong> · {preview.status === "pending" && !preview.deleted_at ? "Təsdiqdən sonra hamıya görünəcək. İndi yalnız elan sahibi və adminlər görür." : "Bu elan hamıya görünmür. Yalnız elan sahibi və adminlər görür."}</p>}
         {item ? (
           <ListingDetails item={item} />
         ) : (
@@ -56,8 +66,20 @@ export default async function ListingPage({ params }: Props) {
         )}
       </main>
       <Footer />
-      {item && <StructuredData data={{"@context":"https://schema.org","@type":"Product",name:item.title,description:item.description.slice(0,500),url:`${publicSiteUrl()}/listings/${item.id}`,category:categoryName(item.category),...(item.images?.[0]?{image:[item.images[0].startsWith("/")?`${publicSiteUrl()}${item.images[0]}`:item.images[0]]}:{}),offers:{"@type":"Offer",price:Number(item.price),priceCurrency:"AZN",availability:"https://schema.org/InStock",businessFunction:"http://purl.org/goodrelations/v1#LeaseOut",areaServed:item.city,url:`${publicSiteUrl()}/listings/${item.id}`}}}/>}
-      {item && <StructuredData data={{"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"kirayeal.az",item:publicSiteUrl()},{"@type":"ListItem",position:2,name:item.title,item:`${publicSiteUrl()}/listings/${item.id}`}]}}/>}
+      {item && !preview && <StructuredData data={{"@context":"https://schema.org","@type":"Product",name:item.title,description:item.description.slice(0,500),url:`${publicSiteUrl()}/listings/${item.id}`,category:categoryName(item.category),...(item.images?.[0]?{image:[item.images[0].startsWith("/")?`${publicSiteUrl()}${item.images[0]}`:item.images[0]]}:{}),offers:{"@type":"Offer",price:Number(item.price),priceCurrency:"AZN",availability:"https://schema.org/InStock",businessFunction:"http://purl.org/goodrelations/v1#LeaseOut",areaServed:item.city,url:`${publicSiteUrl()}/listings/${item.id}`}}}/>}
+      {item && !preview && <StructuredData data={{"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"kirayeal.az",item:publicSiteUrl()},{"@type":"ListItem",position:2,name:item.title,item:`${publicSiteUrl()}/listings/${item.id}`}]}}/>}
     </>
   );
+}
+
+async function privateListing(id: string): Promise<Listing | null> {
+  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) return null;
+  try {
+    const user = await currentUser();
+    if (!user) return null;
+    const rows = await hostQuery<Listing & { deleted_at?: string | null }>(`select l.*,p.created_at::text seller_since from public.listings l left join public.profiles p on p.id=l.owner_id where l.id=$1 limit 1`, [id]);
+    const row = rows[0];
+    if (!row || (row.owner_id !== user.id && !(await isStaff(user)))) return null;
+    return row;
+  } catch { return null; }
 }

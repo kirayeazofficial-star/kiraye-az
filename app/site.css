@@ -2040,3 +2040,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzReportActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .kzAdPhotos{display:grid;gap:8px;margin-bottom:12px}
 .kzAdPhotos>p{margin:0;font-size:12px}
+/* Elan hamıya görünmür: sahib və admin üçün vəziyyət qeydi */
+.kzPreviewNote{margin:0 0 12px;padding:10px 14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;font-size:var(--fs-14,14px);line-height:1.45}
+.kzPreviewNote.rejected{background:#fef2f2;border-color:#fecaca;color:#7f1d1d}
+.kzPreviewNote strong{font-weight:600}

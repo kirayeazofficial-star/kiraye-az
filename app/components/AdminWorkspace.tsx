@@ -75,7 +75,7 @@ function ModerationReview({ listingId, onInspect }: { listingId: string; onInspe
       {error && <p className="kzAdError" role="alert">{error} <button className="kzAdLink" type="button" onClick={() => void load()}>Yenidən yoxla</button></p>}
       {data && <>
         <h4>Oxşar elanlar</h4>
-        {!data.signals.length ? <p className="kzAdMuted">Uyğunluq tapılmadı.</p> : <ul className="kzAdPlain">{data.signals.map(signal => <li key={signal.id}><button type="button" className="kzAdLink" onClick={() => onInspect(signal.id)}>{signal.title}</button> <span className="kzAdMuted">· {[signal.same_phone && "eyni nömrə", signal.same_image && "eyni şəkil", signal.similar_text && "oxşar mətn"].filter(Boolean).join(", ")} · {statusName(signal.status)}</span></li>)}</ul>}
+        {!data.signals.length ? <p className="kzAdMuted">Uyğunluq tapılmadı.</p> : <ul className="kzAdPlain">{data.signals.map(signal => <li key={signal.id}><button type="button" className="kzAdLink" onClick={() => onInspect(signal.id)}>{signal.title}</button> <span className="kzAdMuted">· {[signal.owner_id === data.owner.id ? "eyni istifadəçi" : signal.same_phone && "eyni telefon, başqa hesab", signal.same_image && "eyni şəkil", signal.similar_text && "oxşar mətn"].filter(Boolean).join(", ")} · {statusName(signal.status)}</span></li>)}</ul>}
         <p className="kzAdHint">Son 180 gündəki elanlarla müqayisə edilir. Oxşarlıq qayda pozuntusunun sübutu deyil.</p>
         <h4>Elan sahibi</h4>
         <p>{data.owner.name || "Ad qeyd edilməyib"} · qeydiyyat: {adminDate(data.owner.joined_at)} · şikayətlər: {data.reports.open} açıq, {data.reports.resolved} baxılıb</p>
@@ -360,7 +360,6 @@ export default function AdminWorkspace() {
                 {(item.images?.length || 0) > 0 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={() => setRevision(value => value + 1)} />}
                 <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Sahibi</dt><dd>{item.owner_name || "İstifadəçi"} · {item.owner_email}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
                 <p className="kzAdDescription">{item.description}</p>
-                <p className="kzAdMuted">Sistem ID: {item.id}</p>
               </div></details>
               <ModerationReview key={`${item.id}-${revision}`} listingId={item.id} onInspect={inspect} />
             </div>

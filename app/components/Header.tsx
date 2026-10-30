@@ -51,6 +51,8 @@ export default function Header() {
     const here = target === "home" ? pathname === "/" && !favoritesPage : target === "favorites" ? favoritesPage : target === "messages" ? pathname === "/messages" : pathname === "/profile";
     if (!here) return;
     event.preventDefault();
+    // Deep inside the cabinet (a tab or sub-section): go back to the cabinet start, freshly loaded.
+    if (target === "account" && window.location.search) { window.location.href = "/profile"; return; }
     window.scrollTo({ top: 0, behavior: "smooth" });
     window.dispatchEvent(new Event("kiraye:refresh"));
   };

@@ -201,6 +201,12 @@
       "namedRegex": "^/api/listings/limits(?:/)?$"
     },
     {
+      "page": "/api/listings/promote",
+      "regex": "^/api/listings/promote(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/listings/promote(?:/)?$"
+    },
+    {
       "page": "/api/listings/restore",
       "regex": "^/api/listings/restore(?:/)?$",
       "routeKeys": {},

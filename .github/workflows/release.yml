@@ -35,6 +35,8 @@ jobs:
           cp scripts/install-release.mjs /tmp/release/install-release.mjs
           cp scripts/run-host-migrations.mjs /tmp/release/run-host-migrations.mjs
           cp scripts/import-legacy.mjs /tmp/release/import-legacy.mjs
+          cp scripts/backup-to-drive.mjs /tmp/release/backup-to-drive.mjs
+          cp scripts/restore-backup.mjs /tmp/release/restore-backup.mjs
           cp -r host /tmp/release/host
           cp deploy/release.cpanel.yml /tmp/release/.cpanel.yml
           printf '{"commit":"%s","buildId":"%s"}\n' "$GITHUB_SHA" "$(cat .next/BUILD_ID)" > /tmp/release/RELEASE.json

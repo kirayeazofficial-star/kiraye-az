@@ -1,4 +1,5 @@
 "use client";
+import { useAutoClear } from "../../lib/use-auto-clear";
 import { ChevronLeft, ChevronRight, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -50,6 +51,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [fullCategories, setFullCategories] = useState<string[]>([]),
     [payment, setPayment] = useState<{ title: string; text: string } | null>(null),
     [refreshing, setRefreshing] = useState(false);
+  useAutoClear(notice, () => setNotice(""));
   // Tapping the cabinet link while already here reloads the data.
   useEffect(() => {
     const refresh = () => setReloadKey(key => key + 1);

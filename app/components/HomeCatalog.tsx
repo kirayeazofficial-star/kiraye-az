@@ -1,4 +1,5 @@
 "use client";
+import { useAutoClear } from "../../lib/use-auto-clear";
 import { ChevronLeft, ChevronRight, LayoutGrid, Plus, SlidersHorizontal, X } from "lucide-react";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
@@ -43,6 +44,7 @@ export default function Home() {
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
     [demo, setDemo] = useState(false);
+  useAutoClear(notice, () => setNotice(""));
   const [savedSearches,setSavedSearches] = useState<SavedSearch[]>([]);
   const [kindFilter, setKindFilter] = useState("");
   const [todayCount, setTodayCount] = useState(0);

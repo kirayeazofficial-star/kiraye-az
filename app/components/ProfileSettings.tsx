@@ -9,12 +9,14 @@ import {formatContact} from '../../lib/contact-mask';
 import {squareAvatar} from '../../lib/avatar-image';
 import UserAvatar from './UserAvatar';
 import PhoneInput from './PhoneInput';
+import { useAutoClear } from "../../lib/use-auto-clear";
 type Profile={profile_no:number;name:string;phone:string;email:string;role:string;staff_role:string|null;phone_changes:number;email_changes:number;phone_remaining:number;email_remaining:number;phone_verified:false;pending_email:string|null;created_at?:string|null;avatar_url?:string|null};
 const azMonths=['yanvar','fevral','mart','aprel','may','iyun','iyul','avqust','sentyabr','oktyabr','noyabr','dekabr'];
 function azDate(iso:string){const d=new Date(iso);return`${d.getDate()} ${azMonths[d.getMonth()]} ${d.getFullYear()}`}
 const messages:Record<string,string>={reauth_failed:'Cari şifrə düzgün deyil.',recent_login_required:'Telefon və ya e-poçt dəyişikliyi üçün cari şifrənizi yazın.',phone_limit_reached:'Telefon üçün üç dəyişiklik haqqı bitib. Dəstəyə müraciət edin.',email_limit_reached:'E-poçt üçün üç dəyişiklik haqqı bitib. Dəstəyə müraciət edin.',invalid_profile:'Ad-soyad və düzgün Azərbaycan telefon nömrəsi tələb olunur.',invalid_email:'Düzgün e-poçt ünvanı yazın.',rate_limited:'Çox cəhd edilib. 15 dəqiqə sonra yenidən yoxlayın.',mail_delivery_failed:'Təsdiq məktubu göndərilmədi. E-poçt dəyişdirilməyib; göndəriş xidməti yoxlanmalıdır.',email_change_failed:'E-poçt dəyişikliyi alınmadı. Ünvanı və təsdiq imkanını yoxlayın.',invalid_code:'Kod yanlışdır və ya vaxtı bitib.',email_taken:'Bu e-poçt artıq istifadə olunur.',same_email:'Bu, hazırkı e-poçtundur.',email_change_not_started:'E-poçt dəyişikliyi başlamadı. Ünvanı yoxlayın və ya dəstəyə müraciət edin.',provider_reauth_required:'Bu hesab üçün giriş provayderi ilə yenidən təsdiq tələb olunur.',sign_in_required:'Hesabınıza yenidən daxil olun.',profile_unavailable:'Profil xidməti hazır deyil. Heç bir uğur təsdiqlənmədi.'};
 export default function ProfileSettings(){
  const [profile,setProfile]=useState<Profile|null>(null),[name,setName]=useState(''),[phone,setPhone]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[emailPassword,setEmailPassword]=useState(''),[loading,setLoading]=useState(true),[signedIn,setSignedIn]=useState(false),[busy,setBusy]=useState(''),[notice,setNotice]=useState(''),[error,setError]=useState(''),[where,setWhere]=useState('');
+ useAutoClear(notice, () => setNotice(""));
  const identity=useRef('');const [emailStep,setEmailStep]=useState<0|1|2>(0),[emailCode,setEmailCode]=useState('');
  function accept(value:Profile){setProfile(current=>({...value,avatar_url:value.avatar_url!==undefined?value.avatar_url:current?.avatar_url,created_at:value.created_at||current?.created_at}));setName(value.name||'');setPhone(value.phone||'');setEmail(value.pending_email||value.email||'');}
  useEffect(()=>{let active=true;

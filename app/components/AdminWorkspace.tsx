@@ -2,7 +2,7 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -450,7 +450,7 @@ function BackupStatus() {
   useEffect(() => { if (!running) return; const timer = setTimeout(load, 4000); return () => clearTimeout(timer); }, [running, data, load]);
   const size = (bytes: number | null) => !Number(bytes) ? "0 KB" : Number(bytes) > 1048576 ? `${(Number(bytes) / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(Number(bytes) / 1024))} KB`;
   async function disconnect() {
-    if (!window.confirm("Google Drive ayrılsın? Gecə ehtiyat nüsxələri dayanacaq.")) return;
+    if (!window.confirm("Google Drive ayrılsın? Drive-dakı fayllar silinmir, amma yeni ehtiyat nüsxələri dayanacaq.")) return;
     await fetch("/api/admin/backup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "disconnect" }) }).catch(() => null);
     load();
   }
@@ -467,7 +467,7 @@ function BackupStatus() {
         <div className="kzBkText"><strong>{data.connected ? "Google Drive qoşulub" : "Google Drive qoşulmayıb"}</strong><small>{data.connected ? data.email || "Google hesabı" : data.google ? "Ehtiyat nüsxə üçün Drive-ı bir dəfə qoşun." : "Əvvəl serverdə Google girişi qurulmalıdır."}</small></div>
         <div className="kzBkActions">
           {data.connected && data.folder && <a className="kzAdBtn" href={`https://drive.google.com/drive/folders/${data.folder}`} target="_blank" rel="noopener noreferrer"><ExternalLink aria-hidden="true" size={15} strokeWidth={2} />Drive-da aç</a>}
-          {data.connected ? <button type="button" className="kzAdLink danger" onClick={() => void disconnect()}>Ayır</button> : data.google && <a className="kzAdBtn primary" href="/api/admin/backup/drive">Google Drive-a qoş</a>}
+          {data.connected ? <button type="button" className="kzAdBtn kzBkUnlink" onClick={() => void disconnect()}><Unlink aria-hidden="true" size={15} strokeWidth={2} />Drive-ı ayır</button> : data.google && <a className="kzAdBtn primary" href="/api/admin/backup/drive">Google Drive-a qoş</a>}
         </div>
       </section>
       {data.connected && <section className={`kzBkStatus ${state}`}>

@@ -2177,3 +2177,7 @@ html{-webkit-tap-highlight-color:transparent}
   .kzBkStats>div+div{border-top:1px solid var(--kz-line)}
   .kzBkStats span{flex:1;font-size:13px}
 }
+.kzBkActions .kzAdBtn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;white-space:nowrap}
+.kzBkUnlink{color:#d92d20!important;border-color:#f5c2c3!important;background:#fff!important}
+.kzBkUnlink:hover{background:#fdecec!important}
+@media (max-width:640px){.kzBkActions{display:grid!important;grid-template-columns:1fr 1fr;gap:8px}.kzBkActions .kzAdBtn{justify-content:center;width:100%}}

@@ -694,6 +694,8 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Elan saytdan çıxarılacaq və «Silinmiş» bölməsinə keçəcək. Silmək pulsuz limiti geri qaytarmır.": ["Объявление будет снято и перейдёт в «Удалённые». Удаление не возвращает бесплатный лимит.", "The listing will be removed and moved to “Deleted”. Deleting doesn't return the free slot."],
   "VIP et": ["Сделать VIP", "Make VIP"],
   "Premium et": ["Сделать Premium", "Make Premium"],
+  "Elanı Premium et!": ["Сделайте объявление Premium!", "Make your listing Premium!"],
+  "Elanınız bu blokda, hamıdan öndə görünsün": ["Ваше объявление — в этом блоке, впереди всех", "Show your listing here, ahead of all others"],
   "Populyar axtarışlar": ["Популярные запросы", "Popular searches"],
   "Bütün filtrlərlə axtar": ["Искать со всеми фильтрами", "Search with all filters"],
   "Bu bölmədə hələ elan yoxdur.": ["В этом разделе пока нет объявлений.", "No listings here yet."],

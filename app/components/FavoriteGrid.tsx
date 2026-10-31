@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { readFavorites, type Listing } from "../../lib/marketplace";
 import ListingCard from "./ListingCard";
 // Listing cards with the same heart (favourites) button as the main catalogue, kept in sync with it.
-export default function FavoriteGrid({ items }: { items: Listing[] }) {
+export default function FavoriteGrid({ items, lead }: { items: Listing[]; lead?: ReactNode }) {
   const [favorites, setFavorites] = useState<string[]>([]);
   useEffect(() => {
     const sync = () => setFavorites(readFavorites());
@@ -16,5 +16,5 @@ export default function FavoriteGrid({ items }: { items: Listing[] }) {
     setFavorites(next);
     try { localStorage.setItem("kiraye-favorites", JSON.stringify(next)); window.dispatchEvent(new Event("kiraye:favorites")); } catch { /* private mode: heart still toggles for this page */ }
   }
-  return <div className="kzGrid">{items.map(item => <ListingCard key={item.id} item={item} favorite={favorites.includes(item.id)} onFavorite={item.demo ? undefined : () => toggle(item.id)} />)}</div>;
+  return <div className="kzGrid">{lead}{items.map(item => <ListingCard key={item.id} item={item} favorite={favorites.includes(item.id)} onFavorite={item.demo ? undefined : () => toggle(item.id)} />)}</div>;
 }

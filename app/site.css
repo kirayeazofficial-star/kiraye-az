@@ -2446,3 +2446,12 @@ html{-webkit-tap-highlight-color:transparent}
   .kzStoreTools .kzSortMenu,.kzStoreTools>div{margin-left:auto}
 }
 .kzStoreMain .kzCard,.kzStoreMain article{min-width:0}
+
+/* Premium blokunda ilk kart: «Elanı Premium et!» */
+.kzPromoTile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:100%;padding:20px 14px;border:1px solid var(--kz-line);border-radius:14px;background:#fff;text-align:center;text-decoration:none;color:var(--kz-ink);transition:box-shadow .15s}
+.kzPromoTile:hover{box-shadow:0 6px 20px rgba(17,24,39,.08)}
+.kzPromoTile>span{display:grid;place-items:center;width:64px;height:64px;border-radius:50%;background:#fff6e0;color:#f2a516}
+.kzPromoTile strong{font-size:16px;font-weight:700}
+.kzPromoTile small{font-size:13px;line-height:1.4;color:var(--kz-muted)}
+.kzPromoTile em{display:block;width:100%;max-width:200px;margin-top:4px;padding:11px 12px;border-radius:12px;background:var(--kz-accent);color:#fff;font-size:14px;font-style:normal;font-weight:700}
+@media (max-width:640px){.kzPromoTile{padding:14px 10px;gap:8px}.kzPromoTile>span{width:52px;height:52px}.kzPromoTile strong{font-size:15px}.kzPromoTile small{font-size:12px}.kzPromoTile em{padding:9px 10px;font-size:13px}}

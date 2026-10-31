@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CalendarDays, Clock, LayoutList, MessageCircle } from "lucide-react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -37,7 +37,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function SellerPage({ params }: Props) {
-  const data = await seller((await params).id).catch(() => null);
+  const id = (await params).id;
+  // An owner with an active store is shown as that store.
+  const store = uuid.test(id) ? await hostQuery<{ slug: string }>(`select slug from public.stores where owner_id=$1 and status='active' and active_until>now()`, [id]).catch(() => []) : [];
+  if (store[0]) redirect(`/magaza/${store[0].slug}`);
+  const data = await seller(id).catch(() => null);
   if (!data) notFound();
   const asked = Number(data.reply?.asked || 0), replied = Number(data.reply?.replied || 0);
   const rate = asked >= 2 ? Math.round(replied / asked * 100) : null;

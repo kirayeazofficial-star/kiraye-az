@@ -3,8 +3,8 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
 import type { Map as LeafletMap, Marker } from "leaflet";
 
-const tiles = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const tiles = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const pinHtml = '<svg width="34" height="44" viewBox="0 0 34 44" aria-hidden="true"><path d="M17 43s15-14.6 15-26A15 15 0 0 0 2 17c0 11.4 15 26 15 26z" fill="#ff5a1f" stroke="#fff" stroke-width="2.5"/><circle cx="17" cy="17" r="5.5" fill="#fff"/></svg>';
 
 // Map of a listing (read-only) or a picker (editable): tap/click puts the pin, the pin can be dragged.
@@ -26,7 +26,7 @@ export default function LocationMap({ lat, lng, exact = true, editable = false, 
       const touch = window.matchMedia("(pointer: coarse)").matches;
       const start: [number, number] = lat !== null && lng !== null ? [lat, lng] : centre ?? [40.4093, 49.8671];
       const instance = L.map(box.current, { center: start, zoom: lat !== null ? (exact || editable ? zoom : 14) : 12, scrollWheelZoom: false, dragging: editable || !touch, attributionControl: true, zoomControl: true });
-      L.tileLayer(tiles, { attribution, subdomains: "abcd", maxZoom: 19 }).addTo(instance);
+      L.tileLayer(tiles, { attribution, maxZoom: 19 }).addTo(instance);
       const icon = L.divIcon({ html: pinHtml, className: "kzMapPin", iconSize: [34, 44], iconAnchor: [17, 43] });
       const place = (point: [number, number]) => {
         if (marker.current) marker.current.setLatLng(point);

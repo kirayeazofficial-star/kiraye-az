@@ -2,7 +2,7 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, Ban, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -12,7 +12,7 @@ import { categoryName, money, periodName, statusName, type Listing } from "../..
 import { moderationActions, moderationFields, rejectionReasons, riskWords, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
 import { useAutoClear } from "../../lib/use-auto-clear";
 
-type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup";
+type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup" | "stores";
 type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string; signal_count?: number };
 type Counts = { users: number; listings: number; messages: number; reports: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
@@ -23,10 +23,10 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", staff: "Komanda", backup: "Ehtiyat nüsxə" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", staff: "Komanda", backup: "Ehtiyat nüsxə" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", user_blocked: "İstifadəçi bloklandı", user_unblocked: "Blok götürüldü", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
-const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, staff: ShieldCheck, backup: CloudUpload };
+const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, staff: ShieldCheck, backup: CloudUpload };
 
 async function api(params: Record<string, string | number>) {
   const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
@@ -335,6 +335,7 @@ export default function AdminWorkspace() {
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
     : item === "backup" ? { text: "Hər gecə Google Drive-a" }
+    : item === "stores" ? { text: "Müraciətlər və paketlər" }
     : { text: "Rəhbər və adminlər" };
 
   return <div className="kzAdm">
@@ -439,6 +440,7 @@ export default function AdminWorkspace() {
       {section === "reports" && <ReportQueue onInspect={inspect} onChange={() => setRevision(x => x + 1)} />}
       {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
       {section === "banners" && <BannerManager />}
+      {section === "stores" && <StoreAdmin leader={role === "leader"} />}
       {section === "backup" && role === "leader" && <BackupStatus />}
       {section === "users" && <UserList revision={revision} onListings={ownerListings} />}
       {section === "staff" && role === "leader" && <StaffManagement />}
@@ -532,5 +534,59 @@ function BackupStatus() {
       </div>}
       {data.runs.length > 1 && <details className="kzBkHistory"><summary>Son nüsxələr</summary><ul>{data.runs.map(run => <li key={run.id}><span className={`kzBkDot ${run.ok ? "ok" : !run.finished_at && !run.stalled ? "running" : "failed"}`} />{adminDate(run.started_at)}<em>{run.ok ? `hazırdır · ${run.files_new} yeni şəkil` : !run.finished_at && !run.stalled ? "göndərilir" : run.error || "alınmadı"}</em></li>)}</ul></details>}
     </div>}
+  </Panel>;
+}
+
+// Stores: applications to approve, active stores to extend or stop, and the package prices (leader).
+type AdminStore = { id: string; slug: string; name: string; logo_url: string | null; phone: string; address: string; plan: string; plan_name: string; plan_price: string; status: string; active_until: string | null; reject_reason: string | null; owner_email: string; owner_name: string | null; created_at: string };
+type AdminPlan = { id: string; name: string; price: string; listing_limit: number | null; free_bumps: number; featured: boolean };
+function StoreAdmin({ leader }: { leader: boolean }) {
+  const [items, setItems] = useState<AdminStore[]>([]), [plans, setPlans] = useState<AdminPlan[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState("");
+  useAutoClear(notice, () => setNotice(""));
+  const load = useCallback(() => api({ action: "stores" }).then(data => { setItems(data.items); setPlans(data.plans); }).catch(() => setError("Mağazalar yüklənmədi.")).finally(() => setLoading(false)), []);
+  useEffect(() => { void load(); }, [load]);
+  async function decide(store: AdminStore, decision: "activate" | "reject" | "stop", days = 30) {
+    const reason = decision === "reject" ? window.prompt("Rədd səbəbi (mağaza sahibinə görünəcək):", "Məlumatlar natamamdır. Loqo, ünvan və telefonu əlavə edin.") : "";
+    if (decision === "reject" && (!reason || reason.trim().length < 5)) return;
+    if (decision === "stop" && !window.confirm(`«${store.name}» mağazası dayandırılsın?`)) return;
+    setBusy(store.id); setError("");
+    try { await post({ action: "store_decide", id: store.id, decision, days, reason }); setNotice(decision === "activate" ? `Mağaza ${days} gün aktivləşdirildi.` : decision === "reject" ? "Müraciət rədd edildi." : "Mağaza dayandırıldı."); await load(); }
+    catch { setError("Dəyişiklik saxlanmadı."); } finally { setBusy(""); }
+  }
+  async function savePlan(plan: AdminPlan, form: HTMLFormElement) {
+    const data = new FormData(form); setBusy(plan.id); setError("");
+    try { await post({ action: "store_plan", id: plan.id, price: Number(data.get("price")), listing_limit: String(data.get("limit") || ""), free_bumps: Number(data.get("bumps") || 0) }); setNotice(`«${plan.name}» paketi yeniləndi.`); await load(); }
+    catch { setError("Paket saxlanmadı. Rəqəmləri yoxlayın."); } finally { setBusy(""); }
+  }
+  const statusText: Record<string, string> = { pending: "Müraciət", active: "Aktiv", rejected: "Rədd edilib", expired: "Dayandırılıb" };
+  return <Panel title="Mağazalar">
+    {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
+    <p className="kzAdHint">Mağaza sahibi kabinetdən müraciət edir. Ödənişi aldıqdan sonra «Aktivləşdir» basın — mağaza seçilən müddətə açılır, elanlarında «Mağaza» nişanı görünür və limiti paketə görə artır.</p>
+    {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : !items.length ? <Empty title="Hələ mağaza müraciəti yoxdur" text="Müraciət gələndə burada görünəcək." /> :
+      <div className="kzAdList">{items.map(store => { const live = store.status === "active" && !!store.active_until && Date.parse(store.active_until) > Date.now(); return <article className="kzAdRow kzStoreRow" key={store.id}>
+        <span className="kzStoreRowLogo">{store.logo_url ? <img src={store.logo_url} alt="" /> : <b>{store.name.charAt(0).toUpperCase()}</b>}</span>
+        <div className="kzAdRowMain">
+          <div className="kzAdRowTop"><span className={`status ${live ? "published" : store.status === "pending" ? "pending" : "archived"}`}>{live ? "Aktiv" : statusText[store.status] || store.status}</span><span className="kzAdMuted">{store.plan_name} · {Number(store.plan_price)} ₼/ay</span></div>
+          <h3>{store.name}</h3>
+          <p className="kzAdMuted">{store.owner_name || "İstifadəçi"} · {store.owner_email}{store.phone ? ` · ${store.phone}` : ""}</p>
+          {live && <p className="kzAdMuted">{adminDate(store.active_until!).split(",")[0]} tarixinədək · <a className="kzAdLink" href={`/magaza/${store.slug}`} target="_blank" rel="noopener noreferrer">Səhifəyə bax</a></p>}
+          {store.reject_reason && store.status === "rejected" && <p className="kzAdReason">Səbəb: {store.reject_reason}</p>}
+        </div>
+        <div className="kzAdRowActions kzStoreActions">
+          <select aria-label="Müddət" defaultValue="30" id={`days-${store.id}`}><option value="30">30 gün</option><option value="90">90 gün</option><option value="180">180 gün</option><option value="365">1 il</option></select>
+          <button type="button" className="kzAdBtn success" disabled={busy === store.id} onClick={() => void decide(store, "activate", Number((document.getElementById(`days-${store.id}`) as HTMLSelectElement)?.value || 30))}><Check aria-hidden="true" size={15} strokeWidth={2.4} />{live ? "Uzat" : "Aktivləşdir"}</button>
+          {store.status === "pending" && <button type="button" className="kzAdBtn danger" disabled={busy === store.id} onClick={() => void decide(store, "reject")}><X aria-hidden="true" size={15} strokeWidth={2.4} />Rədd et</button>}
+          {live && <button type="button" className="kzAdBtn danger" disabled={busy === store.id} onClick={() => void decide(store, "stop")}><Ban aria-hidden="true" size={14} strokeWidth={2.2} />Dayandır</button>}
+        </div>
+      </article>; })}</div>}
+    {leader && <><h3 className="kzAdSubhead">Paketlər və qiymətlər</h3>
+      <div className="kzPlanEdit">{plans.map(plan => <form key={plan.id} onSubmit={event => { event.preventDefault(); void savePlan(plan, event.currentTarget); }}>
+        <strong>{plan.name}</strong>
+        <label>Qiymət, ₼/ay<input name="price" type="number" min="0" step="0.01" defaultValue={Number(plan.price)} required /></label>
+        <label>Elan limiti (kateqoriya üzrə)<input name="limit" type="number" min="1" placeholder="Limitsiz" defaultValue={plan.listing_limit ?? ""} /></label>
+        <label>Pulsuz irəli çək / ay<input name="bumps" type="number" min="0" defaultValue={plan.free_bumps} /></label>
+        <button className="kzAdBtn primary" disabled={busy === plan.id}>Yadda saxla</button>
+      </form>)}</div>
+      <p className="kzAdHint kzPlanHint">Qiymətləri tap.az / bina.az mağaza paketlərinə baxaraq təyin edin (məsələn, onlardan 30% aşağı). «Limit» boş qalsa, paket limitsizdir.</p></>}
   </Panel>;
 }

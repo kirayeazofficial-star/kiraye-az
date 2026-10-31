@@ -89,6 +89,17 @@ export default function Header() {
             </nav>}
           </div>
           <form className="kzSearch" action="/" method="get" role="search" aria-label={t("Axtarış")} onSubmit={event=>{
+            // A listing number ("10000004" or "№ 10000004") opens that listing straight away.
+            const number = query.trim().replace(/^№\s*/, "");
+            if (/^\d{8}$/.test(number)) {
+              event.preventDefault();
+              void fetch(`/api/listings?scope=public&number=${number}&limit=1`).then(r => r.json()).then(data => {
+                const found = data.items?.[0];
+                if (found) window.location.href = `/listings/${found.id}`;
+                else window.location.href = `/?q=${encodeURIComponent(number)}#elanlar`;
+              }).catch(() => { window.location.href = `/?q=${encodeURIComponent(number)}#elanlar`; });
+              return;
+            }
             if (pathname !== "/") return;
             // The home catalog searches in place, keeping the chosen filters.
             event.preventDefault();

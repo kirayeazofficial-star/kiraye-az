@@ -1,5 +1,6 @@
 "use client";
-import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, ImageDown, MessageCircle, Pencil, Phone, Share2 } from "lucide-react";
+import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, ImageDown, MessageCircle, Pencil, Phone, Share2, Store, TrendingDown } from "lucide-react";
+import { storeOpenState } from "../../lib/store-hours";
 import { WhatsAppIcon } from "./BrandIcons";
 import PromotionOptions from "./PromotionOptions";
 import dynamic from "next/dynamic";
@@ -28,6 +29,7 @@ import {
   money,
   periodName,
   readFavorites,
+  loweredFrom,
 } from "../../lib/marketplace";
 import { normalizePhone, reportReasons } from "../../lib/rental-details";
 import { useAutoClear } from "../../lib/use-auto-clear";
@@ -257,6 +259,7 @@ export default function ListingDetails({
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
+        {loweredFrom(item) && <p className="kzPriceDrop"><TrendingDown aria-hidden="true" size={16} strokeWidth={2.2} />Qiymət endirildi: <s>{money(loweredFrom(item)!)} ₼</s> → <b>{money(item.price)} ₼</b></p>}
         {(() => { const other = ([["daily", "price_daily"], ["weekly", "price_weekly"], ["monthly", "price_monthly"]] as const).filter(([period, key]) => period !== item.rental_period && Number(item.attributes?.[key]) > 0); return other.length ? <p className="kzOtherPriceLine">{other.map(([period, key]) => <span key={key}>{money(Number(item.attributes?.[key]))} ₼ <small>/ {periodName(period)}</small></span>)}</p> : null; })()}
         {facts.length > 0 && <dl className="kzKeyFacts">{facts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
         {isLeader && !effectiveOwner && item.status === "published" && !item.demo && <div className="kzLeaderPromo">
@@ -304,7 +307,19 @@ export default function ListingDetails({
             </Link>
           </div>
         )}
-        {!item.demo && item.owner_id && !effectiveOwner && <section className="sellerCard">
+        {!item.demo && item.owner_id && !effectiveOwner && item.store && (() => { const open = storeOpenState(item.store.open_from, item.store.open_to); return <section className="kzStoreCard">
+          <div className="kzStoreCardTop">
+            <div>
+              <strong>{item.store.name}</strong>
+              {open && <small className={open.open ? "open" : "closed"}>{open.text}</small>}
+              {item.store.listings ? <a href={`/magaza/${item.store.slug}`}>{item.store.listings} elan</a> : null}
+            </div>
+            <span className="kzStoreCardLogo">{item.store.logo_url ? <img src={item.store.logo_url} alt="" /> : <b>{item.store.name.charAt(0).toUpperCase()}</b>}</span>
+          </div>
+          <a className="kzButtonGhost kzIconBtn" href={`/magaza/${item.store.slug}`}><Store aria-hidden="true" size={16} strokeWidth={2} />Mağazaya keç</a>
+          {item.store.address && <p className="kzStoreCardAddress"><MapPin aria-hidden="true" size={15} strokeWidth={2} />{item.store.address}</p>}
+        </section>; })()}
+        {!item.demo && item.owner_id && !effectiveOwner && !item.store && <section className="sellerCard">
           <UserAvatar src={publicInfo?.seller_avatar} name={publicInfo?.seller_name||item.attributes?.contact_name||'E'} className="sellerAvatar"/>
           <div>
             <strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong>

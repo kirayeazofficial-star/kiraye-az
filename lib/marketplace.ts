@@ -106,6 +106,9 @@ export type Listing = {
   promotion_kind?: "vip"|"premium"|null;
   promotion_until?: string|null;
   deleted_at?: string | null;
+  previous_price?: number | string | null;
+  price_lowered_at?: string | null;
+  store?: { name: string; slug: string; logo_url: string | null; address?: string; open_from?: string | null; open_to?: string | null; listings?: number } | null;
   payment_required?: boolean;
   review_kind?: "new" | "edited";
   seller_since?: string;
@@ -286,4 +289,10 @@ export function readFavorites(): string[] {
   } catch {
     return [];
   }
+}
+// "Qiymət endirildi": the old price for 30 days after the owner lowered it.
+export function loweredFrom(item: Pick<Listing, "price" | "previous_price" | "price_lowered_at">): number | null {
+  const old = Number(item.previous_price);
+  if (!old || !item.price_lowered_at || old <= Number(item.price)) return null;
+  return Date.now() - Date.parse(item.price_lowered_at) < 30 * 86400000 ? old : null;
 }

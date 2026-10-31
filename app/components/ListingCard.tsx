@@ -1,4 +1,5 @@
 "use client";
+import { loweredFrom } from "../../lib/marketplace";
 import { useLanguage } from "./LanguageProvider";
 import PromotionBadges from "./PromotionBadges";
 import NavigationIcon from './NavigationIcon';
@@ -25,9 +26,10 @@ export default function ListingCard({
         <span className="kzCardPhoto" style={{["--bg" as string]:`url("${item.images?.[0] || "/placeholder.svg"}")`} as React.CSSProperties}>
           <img src={item.images?.[0] || "/placeholder.svg"} alt="" loading="lazy" onError={event=>{if(!event.currentTarget.src.endsWith('/placeholder.svg'))event.currentTarget.src='/placeholder.svg';}} />
           {item.demo&&<span className="kzBadge">{t("Nümunə")}</span>}
+          {item.store && <em className="kzCardStore" title={item.store.name}>Mağaza</em>}
         </span>
         <span className="kzCardBody">
-          <strong className="kzPrice">{money(item.price)} ₼ <small>/ {t(periodName(item.rental_period))}</small></strong>
+          <strong className="kzPrice">{money(item.price)} ₼ <small>/ {t(periodName(item.rental_period))}</small>{loweredFrom(item) && <s className="kzOldPrice">{money(loweredFrom(item)!)} ₼</s>}</strong>
           <span className="kzCardTitle">{item.title}</span>
           <span className="kzCardMeta">
             <span>{item.city}{!item.demo && <>, {publicDate(item.created_at)}</>}</span>

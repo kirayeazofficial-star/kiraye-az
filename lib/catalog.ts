@@ -6,6 +6,8 @@ export const PAGE_SIZE = 18;
 export type CatalogQuery = RentalFilters & {
   notPremium?: boolean;
   kind?: string;
+  metro?: string;
+  complex?: string;
   category: string;
   owner?: string;
   city: string;

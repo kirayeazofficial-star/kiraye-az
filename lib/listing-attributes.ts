@@ -33,7 +33,7 @@ export function readListingAttributes(
     bicycle: [...vehicle, "kind", "frame_size", "wheel_size"],
     equipment: ["kind", "brand", "model", "condition"],
     event: ["kind", "condition", "capacity"],
-    property: ["kind", "building_type", "repair", "floor", "total_floors", "bathrooms"],
+    property: ["kind", "building_type", "complex", "repair", "floor", "total_floors", "bathrooms"],
     villa: ["kind", "bathrooms", "total_floors"],
     commercial: ["kind"],
   };
@@ -69,6 +69,7 @@ export function readListingAttributes(
     delete attributes.engine_cc;
   if (category === "property" && attributes.kind !== "Mənzil") {
     delete attributes.building_type;
+    delete attributes.complex;
     delete attributes.repair;
     delete attributes.floor;
     delete attributes.total_floors;

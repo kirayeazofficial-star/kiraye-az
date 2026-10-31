@@ -35,6 +35,9 @@ export async function GET(request:NextRequest){
     const city=(input.get('city')||'').slice(0,80);if(city)add('city=?',city);
     const period=input.get('period')||'';if(periods.has(period))add('rental_period=?',period);
     for(const [key,op] of [['min','>='],['max','<=']] as const){const raw=(input.get(key)||'').trim();const number=Number(raw);if(raw&&Number.isFinite(number)&&number>=0)add(`price${op}?`,number);}
+    // Homes: metro station and residential complex (stored in attributes).
+    const metro=(input.get('metro')||'').slice(0,40);if(metro)add("attributes->>'metro'=?",metro);
+    const complex=(input.get('complex')||'').trim().replace(/[%_]/g,'').slice(0,60);if(complex)add("attributes->>'complex' ilike ?",`%${complex}%`);
     const rooms=input.get('rooms')||'';if(rooms==='4+')add('rooms>=?',4);else if(/^\d+$/.test(rooms))add('rooms=?',Number(rooms));
     const area=Number(input.get('area'));if(Number.isFinite(area)&&area>0)add('area_m2>=?',area);
     const brand=(input.get('brand')||'').replace(/[%_]/g,'').slice(0,40);if(brand)add(`attributes->>'brand' ilike ?`,`%${brand}%`);
@@ -42,7 +45,10 @@ export async function GET(request:NextRequest){
     if(input.get('noDeposit')==='1')where.push('deposit=0');
     const kind=(input.get('kind')||'').slice(0,60);if(kind){values.push(kind);where.push(`(attributes->>'kind'=$${values.length} or attributes->>'body_type'=$${values.length})`);}
     const favorites=(input.get('favorites')||'').split(',').filter(id=>uuid.test(id)).slice(0,200);if(input.has('favorites')){if(!favorites.length)return reply({items:[],total:0});values.push(favorites);where.push(`id=any($${values.length}::uuid[])`);}
-    const query=(input.get('query')||'').trim().slice(0,120);for(const token of query.split(/\s+/).filter(Boolean).slice(0,8)){values.push(`%${token.replace(/[%_]/g,'')}%`);where.push(`(title ilike $${values.length} or city ilike $${values.length} or coalesce(district,'') ilike $${values.length} or coalesce(attributes->>'brand','') ilike $${values.length} or coalesce(attributes->>'model','') ilike $${values.length})`);}
+    // Listing number search: "10000004" or "№ 10000004".
+    const number=(input.get('number')||'').replace(/\D/g,'');if(/^\d{8}$/.test(number)){values.push(number);where.push(`listing_no=$${values.length}::bigint`);}
+    const rawQuery=(input.get('query')||'').trim().replace(/^№\s*/,'');if(/^\d{8}$/.test(rawQuery)&&!number){values.push(rawQuery);where.push(`listing_no=$${values.length}::bigint`);}
+    const query=/^\d{8}$/.test(rawQuery)?'':(input.get('query')||'').trim().slice(0,120);for(const token of query.split(/\s+/).filter(Boolean).slice(0,8)){values.push(`%${token.replace(/[%_]/g,'')}%`);where.push(`(title ilike $${values.length} or city ilike $${values.length} or coalesce(district,'') ilike $${values.length} or coalesce(attributes->>'brand','') ilike $${values.length} or coalesce(attributes->>'model','') ilike $${values.length})`);}
     const page=Math.max(1,Math.min(1000,Number(input.get('page'))||1)),limit=Math.max(1,Math.min(200,Number(input.get('limit'))||18)),offset=(page-1)*limit;
     const promoted=`(promotion_until>now() and promotion_kind is not null)`;
     const bumped=`greatest(created_at,case when bump_count>0 and bump_started<=now() then bump_started+interval '8 hours'*least(bump_count-1,floor(extract(epoch from now()-bump_started)/28800)) end)`;
@@ -50,7 +56,7 @@ export async function GET(request:NextRequest){
     const promotedFirst=scope==='public'?`case when ${promoted} and promotion_kind='premium' then 0 when ${promoted} then 1 else 2 end,`:'';
     const order=input.get('sort')==='low'?`${promotedFirst}price asc`:input.get('sort')==='high'?`${promotedFirst}price desc`:`${promotedFirst}${bumped} desc,id desc`;
     const condition=where.length?`where ${where.join(' and ')}`:'';
-    const fields=scope==='mine'?`*,(select count(*)::int from public.listing_views v where v.listing_id=public.listings.id) as views`:'*';
+    const fields=scope==='mine'?`*,(select count(*)::int from public.listing_views v where v.listing_id=public.listings.id) as views`:`*,(select json_build_object('name',s.name,'slug',s.slug,'logo_url',s.logo_url) from public.stores s where s.owner_id=public.listings.owner_id and s.status='active' and s.active_until>now()) as store`;
     const [rows,total]=await Promise.all([hostQuery(`select ${fields} from public.listings ${condition} order by ${order} limit ${limit} offset ${offset}`,values as never[]),hostQuery<{count:string}>(`select count(*)::text count from public.listings ${condition}`,values as never[])]);
     // Visitors get an approximate point unless the owner chose to show the exact address.
     return reply({items:scope==='mine'?rows:(rows as Listing[]).map(row=>({...row,...publicPoint(row)})),total:Number(total[0]?.count||0)});
@@ -102,7 +108,7 @@ export async function PATCH(request:NextRequest){
     const leader=await isLeader(user);
     if(leader)await hostQuery(`update public.listings set payment_required=false where id=$1 and owner_id=$2`,[id,user.id]);
     if(!leader&&edits.length>=2)return reply({error:'EDIT_LIMIT',next_edit_at:new Date(Date.parse(edits[0])+86400000).toISOString()},429);
-    const rows=await hostQuery<{id:string;status:string}>(`update public.listings set last_edited_at=now(),edit_log=array_append(array(select x from unnest(edit_log) x where x>now()-interval '1 day'),now()),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,lat=$19,lng=$20,location_exact=$21,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,item.point?.[0]??null,item.point?.[1]??null,item.exact]);
+    const rows=await hostQuery<{id:string;status:string}>(`update public.listings set last_edited_at=now(),edit_log=array_append(array(select x from unnest(edit_log) x where x>now()-interval '1 day'),now()),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,previous_price=case when $9<price then price when $9>price then null else previous_price end,price_lowered_at=case when $9<price then now() when $9>price then null else price_lowered_at end,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,lat=$19,lng=$20,location_exact=$21,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,item.point?.[0]??null,item.point?.[1]??null,item.exact]);
     if(rows[0]?.status==='pending')await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','resubmitted',null,'pending')`,[id,user.id]);
     return rows[0]?reply({id:rows[0].id}):reply({error:'LISTING_NOT_FOUND'},404);
   }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}

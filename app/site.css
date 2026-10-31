@@ -2567,3 +2567,50 @@ html{-webkit-tap-highlight-color:transparent}
 .kzLimitSwitch .kzPaySwitchIcon{background:#eef0ff;color:#6366f1}.kzLimitSwitch.on .kzPaySwitchIcon{background:#e3f5ea;color:#1f8a4c}
 @media (max-width:860px){.kzLimitSwitch{flex-direction:row!important;align-items:center!important}}
 @media (max-width:480px){.kzPaySwitch,.kzLimitSwitch{flex-wrap:wrap}.kzPaySwitch>div,.kzLimitSwitch>div{flex:1 1 calc(100% - 130px)}}
+/* Kabinet → Mağaza: dar ekranlarda (320–360 px) heç nə kənara çıxmasın */
+.kzStore{grid-template-columns:minmax(0,1fr)!important;min-width:0}
+.kzStore>*,.kzStoreForm>*,.kzPlans>*{min-width:0}
+.kzStoreForm{grid-template-columns:minmax(0,1fr)!important}
+.kzStoreForm .formGrid>*,.kzStoreForm>label,.kzStoreHours,.kzStoreHours>div>*{min-width:0}
+@media (max-width:640px){.kzStoreForm .formGrid{grid-template-columns:minmax(0,1fr)!important}.kzStoreHours input{padding-left:8px!important;padding-right:8px!important;font-size:15px}}
+.kzStoreHours{grid-template-columns:minmax(0,1fr)!important}
+.kzStoreHours>div{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important}
+.kzStoreHours input{width:100%!important;min-width:0!important}
+/* Telefonda toxunma sahələri: ən azı ~36–44 px (Apple və Google tövsiyəsi), görünüş dəyişmir */
+@media (max-width:767px){
+  .mobileMenuButton{min-width:40px!important;min-height:40px!important;display:inline-grid!important;place-items:center}
+  .kzLogo,.logo{display:inline-block;padding-top:10px!important;padding-bottom:10px!important;margin-top:-10px;margin-bottom:-10px}
+  .kzFooter a{display:inline-block;padding-top:7px;padding-bottom:7px}
+  .kzFooter .kzContactLine{padding-top:7px;padding-bottom:7px}
+  .kzFavorite{position:relative}
+  .kzFavorite::after{content:"";position:absolute;inset:-8px}
+  .textButton{min-height:36px}
+  .kzMore,.kzMoreLink{display:inline-flex;align-items:center;min-height:36px}
+}
+@media (max-width:767px){.kzStoreCard a:not(.kzButtonGhost){display:inline-block;padding:6px 0}}
+/* Elanlar başlığı: dar telefonda (≤420 px) başlıq tam sətirdə, «Xəritə» və sıralama altda; söz ortadan bölünmür */
+#elanlar>.kzSectionHead h2{overflow-wrap:normal!important;word-break:normal!important;hyphens:none}
+@media (max-width:420px){
+  #elanlar>.kzSectionHead{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:10px!important}
+  #elanlar>.kzSectionHead>div:first-child{flex:1 1 100%!important;min-width:0}
+  #elanlar>.kzSectionHead>.kzMapToggle{margin-left:0!important}
+  #elanlar>.kzSectionHead>*:last-child{margin-left:auto}
+}
+/* Kabinet kart düymələrində ikon heç vaxt sıxılmasın: telefonda (≤479 px) ikon gizli, böyük ekranda tam ölçüdə */
+.accountDashboard .accountListings article .accountItemActions>* svg{flex:none!important;width:15px;height:15px}
+@media (max-width:479px){.accountDashboard .accountListings article .accountItemActions>* svg{display:none!important}}
+/* Planşet (768–1023 px): kabinetdə yan menyu olduğu üçün məzmun dardır — kartlar telefon düzülüşündə */
+@media (min-width:768px) and (max-width:1023px){
+  .accountDashboard .accountListings article{grid-template-columns:104px minmax(0,1fr)!important}
+  .accountDashboard .accountListings article .accountItemActions{grid-column:1/-1!important;min-width:0!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .accountDashboard .accountListings article .accountItemActions:has(>:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .accountDashboard .accountListings article .accountItemActions:has(>:only-child){grid-template-columns:1fr!important}
+  .kzPlans{grid-template-columns:minmax(0,1fr)!important}
+  .kzStoreForm .formGrid{grid-template-columns:minmax(0,1fr)!important}
+  .kzStoreStatus{flex-wrap:wrap;align-items:flex-start}.kzStoreStatus>div{flex:1 1 calc(100% - 54px)}.kzStoreStatus>a{width:100%;justify-content:center}
+}
+@media (min-width:768px) and (max-width:1023px){
+  .accountDashboard .accountListings article .accountItemActions{width:100%!important;max-width:none!important;justify-self:stretch!important;align-self:start!important;margin-top:4px}
+  .accountDashboard .accountListings article .accountItemActions>*{justify-content:center!important}
+}
+@media (max-width:767px){.formReset .textButton{height:36px!important;padding:0 6px!important}}

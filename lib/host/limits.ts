@@ -2,6 +2,9 @@ import "server-only";
 import {hostQuery} from "./db";
 import {FREE_LISTING_LIMIT,LIMIT_WINDOW_DAYS} from "../listing-limit";
 import {activeStore} from "./stores";
+import {limitRules} from "./limit-rules";
+import {categories} from "../marketplace";
+import {groupOf,limitGroups} from "../limit-rules";
 
 export type LimitState={category:string;limit:number;used:number;pending:number;remaining:number;next_free_at:string|null};
 
@@ -18,6 +21,22 @@ export async function freeLimits(ownerId:string,category?:string):Promise<LimitS
       from placed p full join waiting w on w.category=p.category`,[ownerId,LIMIT_WINDOW_DAYS]);
   // An active store raises the limit to its package (null = no limit).
   const store=await activeStore(ownerId);
+  const rules=store?null:await limitRules();
+  if(rules?.enabled){
+    // Group rule: one window per group of categories; "paid" categories never have a free place.
+    const byCategory=new Map(rows.map(row=>[row.category,row]));
+    const states=categories.map(({id})=>{
+      const paid=rules.paid.includes(id),group=limitGroups.find(item=>item.id===groupOf(id))!;
+      const members=group.categories.filter(cat=>!rules.paid.includes(cat)).map(cat=>byCategory.get(cat)).filter(Boolean) as typeof rows;
+      const used=paid?Number(byCategory.get(id)?.used||0):members.reduce((sum,row)=>sum+Number(row.used),0);
+      const pending=paid?Number(byCategory.get(id)?.pending||0):members.reduce((sum,row)=>sum+Number(row.pending),0);
+      const oldest=members.map(row=>row.oldest).filter(Boolean).sort()[0]||null;
+      const limit=paid?0:rules.free[group.id];
+      const next=!paid&&oldest?new Date(Date.parse(oldest)+LIMIT_WINDOW_DAYS*86400000).toISOString():null;
+      return{category:id,limit,used,pending,remaining:Math.max(0,limit-used-pending),next_free_at:!paid&&used+pending>=limit?next:null};
+    });
+    return category?states.filter(state=>state.category===category):states;
+  }
   const LIMIT=store?(store.listing_limit??100000):FREE_LISTING_LIMIT;
   const states=rows.map(row=>{
     const used=Number(row.used),pending=Number(row.pending);

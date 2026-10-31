@@ -38,6 +38,8 @@ const limitMessage=(_next?:string|null)=>"Bu kateqoriyada pulsuz limitiniz dolub
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const [step, setStep] = useState(1);
   const [canModerate, setCanModerate] = useState(false);
+  // A listing that has been published keeps its category (it cannot be turned into another item).
+  const [categoryLocked, setCategoryLocked] = useState(false);
   const [rentalPeriod, setRentalPeriod] = useState("daily");
   const submitLock = useRef(false);
   const manualTitle = useRef(false);
@@ -209,6 +211,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           setDescriptionText(result.item.description || "");
           manualTitle.current = true;
           setCategory(result.item.category);
+          setCategoryLocked(!!result.item.first_published_at);
           setPhotos((result.item.images ?? []).map(photoFromSrc));
           setDistrict(result.item.district || ""); setMetro(typeof result.item.attributes?.metro === "string" ? result.item.attributes.metro : "");
           setPoint(result.item.lat != null && result.item.lng != null ? [Number(result.item.lat), Number(result.item.lng)] : null); setExactLocation(!!result.item.location_exact);
@@ -410,7 +413,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       };
       const resultResponse=await fetch("/api/listings",{method:listingId?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(listingId?{...payload,id:listingId}:payload)});
       if(resultResponse.status===429&&listingId){const data=await resultResponse.json().catch(()=>({}));const next=data.next_edit_at?new Date(data.next_edit_at):null;if(next)setEditBlockedUntil(next);throw new Error(editLimitMessage(next));}
-      if(resultResponse.status===400){const data=await resultResponse.clone().json().catch(()=>({}));if(data.error==="CONTACT_IN_TEXT")throw new Error(contactInTextMessage(contactInText(`${title} ${description}`)||"phone"));}
+      if(resultResponse.status===400){const data=await resultResponse.clone().json().catch(()=>({}));if(data.error==="CONTACT_IN_TEXT")throw new Error(contactInTextMessage(contactInText(`${title} ${description}`)||"phone"));if(data.error==="LOCKED_FIELDS")throw new Error("Dərc olunmuş elanın kateqoriyası və əlaqə nömrəsi dəyişdirilmir. Başqa əşya üçün yeni elan yerləşdirin.");}
       if(resultResponse.status===429){const data=await resultResponse.json().catch(()=>({}));throw new Error(limitMessage(data.next_free_at));}
       if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.");
       const saveResult=await resultResponse.json().catch(()=>({}));
@@ -472,6 +475,12 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <Link className="add" href={paymentWaiting ? "/profile?section=listings&tab=payment" : "/profile?section=listings&tab=pending"}>
               {paymentWaiting ? "Ödəniş gözləyir bölməsinə keç" : "Elanlarıma keç"}
             </Link>
+            {/* Limit full: opening a store is usually cheaper than paying for every extra listing. */}
+            {paymentWaiting && <div className="kzStoreOffer">
+              <strong>Çox elan verirsiniz? Mağaza açın</strong>
+              <small>Hər kateqoriyada daha çox elan, ayda pulsuz irəli çək, öz mağaza səhifəniz və elanlarda «Mağaza» nişanı. Ayda 14,99 ₼-dan.</small>
+              <Link className="secondary" href="/profile?section=store">Mağaza paketlərinə bax</Link>
+            </div>}
           </section>
         ) : loadError ? (
           <div className="error" role="alert">
@@ -543,6 +552,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                     <select
                       aria-label="Kateqoriya"
                       required
+                      disabled={categoryLocked}
                       value={category}
                       onChange={(e) => {
                         setCategory(e.target.value);
@@ -561,6 +571,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         </option>
                       ))}
                     </select>
+                    {categoryLocked && <small className="muted">Dərc olunmuş elanın kateqoriyası dəyişdirilmir. Başqa əşya üçün yeni elan yerləşdirin.</small>}
                   </label>
                   {!category && (
                     <p className="muted">

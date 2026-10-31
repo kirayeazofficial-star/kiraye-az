@@ -8,11 +8,12 @@ import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { formatContact } from "../../lib/contact-mask";
-import { categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
+import { categories, categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
+import { cleanLimitRules, limitGroups, type LimitRules } from "../../lib/limit-rules";
 import { moderationActions, moderationFields, rejectionReasons, riskWords, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
 import { useAutoClear } from "../../lib/use-auto-clear";
 
-type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup" | "stores";
+type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup" | "stores" | "limits";
 type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string; signal_count?: number };
 type Counts = { users: number; listings: number; messages: number; reports: number; stores?: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
@@ -23,10 +24,10 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", staff: "Komanda", backup: "Ehtiyat nüsxə" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", limits: "Limitlər", staff: "Komanda", backup: "Ehtiyat nüsxə" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", user_blocked: "İstifadəçi bloklandı", user_unblocked: "Blok götürüldü", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
-const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, staff: ShieldCheck, backup: CloudUpload };
+const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, limits: SlidersHorizontal, staff: ShieldCheck, backup: CloudUpload };
 
 async function api(params: Record<string, string | number>) {
   const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
@@ -326,7 +327,7 @@ export default function AdminWorkspace() {
 
   if (allowed === null) return <p className="kzAdMuted" role="status">İcazə yoxlanılır…</p>;
   if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil ol." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
-  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (!["staff", "backup"].includes(item) || role === "leader"));
+  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (!["staff", "backup", "limits"].includes(item) || role === "leader"));
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0, storeRequests = counts?.stores || 0;
   const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : item === "stores" ? storeRequests : 0;
   const menuNote = (item: Section): { text: string; alert?: boolean } =>
@@ -335,6 +336,7 @@ export default function AdminWorkspace() {
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
     : item === "backup" ? { text: "Hər gecə Google Drive-a" }
+    : item === "limits" ? { text: "Pulsuz elan qaydası" }
     : item === "stores" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: "Müraciətlər və paketlər" })
     : { text: "Rəhbər və adminlər" };
 
@@ -445,6 +447,7 @@ export default function AdminWorkspace() {
       {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
       {section === "banners" && <BannerManager />}
       {section === "stores" && <StoreAdmin leader={role === "leader"} />}
+      {section === "limits" && role === "leader" && <LimitAdmin />}
       {section === "backup" && role === "leader" && <BackupStatus />}
       {section === "users" && <UserList revision={revision} onListings={ownerListings} />}
       {section === "staff" && role === "leader" && <StaffManagement />}
@@ -570,7 +573,7 @@ function StoreAdmin({ leader }: { leader: boolean }) {
       <div className="kzAdList">{items.map(store => { const live = store.status === "active" && !!store.active_until && Date.parse(store.active_until) > Date.now(); return <article className="kzAdRow kzStoreRow" key={store.id}>
         <span className="kzStoreRowLogo">{store.logo_url ? <img src={store.logo_url} alt="" /> : <b>{store.name.charAt(0).toUpperCase()}</b>}</span>
         <div className="kzAdRowMain">
-          <div className="kzAdRowTop"><span className={`status ${live ? "published" : store.status === "pending" ? "pending" : "archived"}`}>{live ? "Aktiv" : store.status === "active" ? "Müddəti bitib" : statusText[store.status] || store.status}</span><span className="kzAdMuted">{store.plan_name} · {Number(store.plan_price)} ₼/ay</span></div>
+          <div className="kzAdRowTop"><span className={`status ${live ? "published" : store.status === "pending" ? "pending" : "archived"}`}>{live ? "Aktiv" : store.status === "active" ? "Müddəti bitib" : statusText[store.status] || store.status}</span><span className="kzAdMuted">{store.plan_name} · {Number(store.plan_price).toLocaleString("ru-RU")} ₼/ay</span></div>
           <h3>{store.name}</h3>
           <p className="kzAdMuted">{store.owner_name || "İstifadəçi"} · {store.owner_email}{store.phone ? ` · ${store.phone}` : ""}</p>
           {store.description && <p className="kzStoreRowText">{store.description}</p>}
@@ -594,5 +597,44 @@ function StoreAdmin({ leader }: { leader: boolean }) {
         <button className="kzAdBtn primary" disabled={busy === plan.id}>Yadda saxla</button>
       </form>)}</div>
       <p className="kzAdHint kzPlanHint">«Elan limiti» boş qalsa, paket limitsizdir. Dəyişiklik aktiv mağazalara növbəti uzatmadan tətbiq olunur.</p></>}
+  </Panel>;
+}
+
+// Leader → "Limitlər": the free listing rule. Off = one free listing per category (as now);
+// on = one free listing per group, and the ticked categories always paid.
+function LimitAdmin() {
+  const [rules, setRules] = useState<LimitRules | null>(null), [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
+  useAutoClear(notice, () => setNotice(""));
+  useEffect(() => { api({ action: "limit_rules" }).then(data => setRules(cleanLimitRules(data.rules))).catch(() => setError("Ayarlar yüklənmədi.")); }, []);
+  async function save(next: LimitRules) {
+    setBusy(true); setError("");
+    try { await post({ action: "save_limit_rules", rules: next }); setRules(next); setNotice(next.enabled ? "Yeni limit qaydası açıqdır." : "Ayarlar saxlanıldı. Qayda bağlıdır."); }
+    catch { setError("Ayarlar saxlanmadı."); } finally { setBusy(false); }
+  }
+  const name = (id: string) => categories.find(item => item.id === id)?.name || id;
+  return <Panel title="Limitlər">
+    {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
+    {!rules ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
+      <div className={`kzLimitSwitch${rules.enabled ? " on" : ""}`}>
+        <div><strong>Yeni limit qaydası: {rules.enabled ? "Açıq" : "Bağlı"}</strong>
+          <small>{rules.enabled ? "Hər qrupda 30 gündə aşağıdakı sayda pulsuz elan; seçilmiş kateqoriyalar həmişə ödənişlidir." : "İndi hər kateqoriyada 30 gündə 1 pulsuz elan verilir. Ödəniş sistemi qoşulanda qaydanı açın."}</small></div>
+        <button type="button" className={`kzAdBtn ${rules.enabled ? "danger" : "success"}`} disabled={busy} onClick={() => { if (rules.enabled || window.confirm("Yeni limit qaydası açılsın? Limitdən artıq elanlar «Ödəniş gözləyir» bölməsinə düşəcək.")) void save({ ...rules, enabled: !rules.enabled }); }}>{rules.enabled ? "Bağla" : "Aç"}</button>
+      </div>
+      <h3 className="kzAdSub">Qruplar üzrə pulsuz elan (30 gün)</h3>
+      <div className="kzLimitGroups">
+        {limitGroups.map(group => <label key={group.id} className="kzLimitGroup">
+          <span><strong>{group.name}</strong><small>{group.categories.filter(id => !rules.paid.includes(id)).map(name).join(", ") || "Hamısı ödənişli"}</small></span>
+          <input type="number" min="0" max="100" value={rules.free[group.id]} onChange={event => setRules({ ...rules, free: { ...rules.free, [group.id]: Math.max(0, Math.min(100, Number(event.target.value) || 0)) } })} aria-label={`${group.name}: pulsuz elan sayı`} />
+        </label>)}
+      </div>
+      <h3 className="kzAdSub">Həmişə ödənişli kateqoriyalar</h3>
+      <div className="kzLimitPaid">
+        {categories.map(item => <label key={item.id} className={rules.paid.includes(item.id) ? "on" : ""}>
+          <input type="checkbox" checked={rules.paid.includes(item.id)} onChange={event => setRules({ ...rules, paid: event.target.checked ? [...rules.paid, item.id] : rules.paid.filter(id => id !== item.id) })} />{item.name}
+        </label>)}
+      </div>
+      <p className="kzAdHint">0 yazsanız, həmin qrupda pulsuz elan olmur. Mağazası olanlara bu qayda aid deyil — onların limiti paketə görədir. Rəhbər üçün limit yoxdur.</p>
+      <button type="button" className="kzAdBtn primary" disabled={busy} onClick={() => void save(rules)}>{busy ? "Saxlanılır…" : "Yadda saxla"}</button>
+    </>}
   </Panel>;
 }

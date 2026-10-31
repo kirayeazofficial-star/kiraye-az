@@ -31,12 +31,17 @@ for (const name of [".env.production.local", ".env.local", ".env.production", ".
   }
 }
 
-const { Client } = createRequire(join(appDir, ".next", "standalone", "package.json"))("pg");
+const requireFromApp = createRequire(join(appDir, ".next", "standalone", "package.json"));
+const { Client } = requireFromApp("pg");
 const db = new Client({
   host: process.env.KIRAYE_DB_HOST, port: Number(process.env.KIRAYE_DB_PORT || 5432), database: process.env.KIRAYE_DB_NAME,
   user: process.env.KIRAYE_DB_USER, password: process.env.KIRAYE_DB_PASSWORD, connectionTimeoutMillis: 15000,
 });
 await db.connect();
+
+// E-mail notices (expiring listings, saved searches, weekly report) ride on the same cron job.
+try { const { runNotices } = await import("./notify-tasks.mjs"); await runNotices(db, requireFromApp); }
+catch (error) { console.error("Notices failed:", String(error?.message || error).slice(0, 200)); }
 
 // Same key scheme as lib/host/backup-secret.ts.
 function openSecret(sealed) {

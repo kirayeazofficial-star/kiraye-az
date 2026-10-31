@@ -56,6 +56,14 @@
       "namedRegex": "^/profile/listings/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/satici/[id]",
+      "regex": "^/satici/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/satici/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/[landing]",
       "regex": "^/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -247,6 +255,12 @@
       "regex": "^/api/messages(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/messages(?:/)?$"
+    },
+    {
+      "page": "/api/saved-searches",
+      "regex": "^/api/saved\\-searches(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/saved\\-searches(?:/)?$"
     },
     {
       "page": "/api/uploads",

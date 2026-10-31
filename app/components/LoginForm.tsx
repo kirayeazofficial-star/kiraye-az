@@ -389,7 +389,7 @@ export default function Login({
                   onInvalid={(event) => {
                     const field = event.target as HTMLInputElement;
                     setNotice(
-                      field.name === "full_name" ? "Ad və soyadını yaz." : field.name === "contact_phone" ? "+994-dən sonra 0 olmadan 9 rəqəm yaz (məsələn: 501234567)." : field.name === "email"
+                      field.name === "full_name" ? "Ad və soyadını yaz." : field.type === "tel" ? "+994-dən sonra 0 olmadan 9 rəqəm yaz (məsələn: 50 123 45 67)." : field.name === "email"
                         ? "Düzgün e-poçt ünvanı yaz."
                         : mode === "signup"
                           ? "Ən azı 8 simvoldan ibarət şifrə yaz."

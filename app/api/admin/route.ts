@@ -116,7 +116,7 @@ export async function GET(request:NextRequest){
 
     // Stores: applications and active stores, plus the packages (prices are edited by the leader).
     if(action==="stores"){
-      const items=await hostQuery(`select s.*,u.email owner_email,p.display_name owner_name,pl.name plan_name,pl.price::text plan_price from public.stores s join auth.users u on u.id=s.owner_id left join public.profiles p on p.id=s.owner_id join public.store_plans pl on pl.id=s.plan order by case s.status when 'pending' then 0 when 'active' then 1 else 2 end,s.updated_at desc limit 200`);
+      const items=await hostQuery(`select s.*,u.email owner_email,p.display_name owner_name,pl.name as plan_name,(case when s.terms_set then s.terms_price else pl.price end)::text as plan_price,(select count(*)::int from public.listings l where l.owner_id=s.owner_id and l.status='published' and l.deleted_at is null) as listings from public.stores s join auth.users u on u.id=s.owner_id left join public.profiles p on p.id=s.owner_id join public.store_plans pl on pl.id=s.plan order by case s.status when 'pending' then 0 when 'active' then 1 else 2 end,s.updated_at desc limit 200`);
       const plans=await hostQuery(`select id,name,price::text price,listing_limit,free_bumps,featured from public.store_plans order by sort`);
       return reply({items,plans,role:auth.role});
     }

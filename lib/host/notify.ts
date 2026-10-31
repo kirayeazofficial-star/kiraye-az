@@ -27,3 +27,21 @@ export async function notifyNewMessage(threadId:string,authorId:string){
     }));
   }catch(error){console.error("message notice failed:",(error as Error).message);}
 }
+
+// A rejected listing: the owner gets the reason by e-mail (sent always — it is about their own listing).
+export async function notifyRejected(listingId:string,reason:string){
+  try{
+    const rows=await hostQuery<{owner:string;email:string;name:string|null;title:string;no:string|null}>(`select l.owner_id as owner,u.email,p.display_name as name,l.title,l.listing_no::text as no
+      from public.listings l join auth.users u on u.id=l.owner_id left join public.profiles p on p.id=l.owner_id where l.id=$1`,[listingId]);
+    const row=rows[0];if(!row?.email)return;
+    if(!await claim(row.owner,"rejected",`${listingId}:${Math.floor(Date.now()/60000)}`))return;
+    await sendLetter(row.email,`Elanınız rədd edildi — «${row.title}»`.slice(0,120),noticeLetter({
+      heading:"Elanınız rədd edildi",
+      name:row.name,
+      intro:`«${row.title}»${row.no?` (№ ${row.no})`:""} elanınız yoxlamadan keçmədi və saytda dərc olunmadı. Səbəbi aşağıda göstərilib. Elanı düzəldib yenidən yoxlamaya göndərə bilərsiniz.`,
+      rows:[{label:`Səbəb: ${reason}`}],
+      button:{text:"Elanı düzəlt",href:`/edit/${listingId}`},
+      note:"Elan yerləşdirmə qaydaları ilə saytın «Qaydalar» bölməsində tanış ola bilərsiniz. Sualınız olarsa, kirayeal.az@gmail.com ünvanına elan nömrəsini qeyd etməklə yazın.",
+    }));
+  }catch(error){console.error("rejection notice failed:",(error as Error).message);}
+}

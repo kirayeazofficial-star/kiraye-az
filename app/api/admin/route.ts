@@ -1,6 +1,7 @@
 import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
+import {notifyRejected} from "../../../lib/host/notify";
 
 export const dynamic="force-dynamic";
 const ownerEmail="kirayeal.az@gmail.com";
@@ -179,6 +180,7 @@ export async function POST(request:NextRequest){
         if(status==="published"&&before.rows[0]&&!before.rows[0].first_published_at)await db.query(`insert into public.listing_placements(owner_id,listing_id,category) values($1,$2,$3)`,[before.rows[0].owner_id,id,before.rows[0].category]);
         return true;
       });
+      if(done&&status==="rejected")void notifyRejected(id,reason);
       return done?reply({ok:true}):reply({error:"STATUS_CHANGED"},409);
     }
 

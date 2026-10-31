@@ -17,11 +17,11 @@ export async function POST(request:NextRequest){
     const id=String((await request.json() as {id?:unknown}).id||"");if(!uuid.test(id))return reply({error:"INVALID_LISTING"},400);
     const leader=await isLeader(user);
     const result=await hostTransaction(async db=>{
-      const rows=await db.query<{category:string}>(`select category from public.listings where id=$1 and owner_id=$2 and payment_required and status='draft' and deleted_at is null for update`,[id,user.id]);
+      const rows=await db.query<{category:string;status:string}>(`select category,status from public.listings where id=$1 and owner_id=$2 and payment_required and status in ('draft','rejected','pending') and deleted_at is null for update`,[id,user.id]);
       const item=rows.rows[0];if(!item)return"NOT_WAITING";
       if(!leader&&(await freeLimit(user.id,item.category)).remaining<=0)return"LIMIT_REACHED";
-      await db.query(`update public.listings set status='pending',payment_required=false,updated_at=now() where id=$1`,[id]);
-      await db.query(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','submitted','draft','pending')`,[id,user.id]);
+      await db.query(`update public.listings set status='pending',payment_required=false,review_kind=case when status='rejected' then 'edited' else review_kind end,updated_at=now() where id=$1`,[id]);
+      await db.query(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','submitted',$3,'pending')`,[id,user.id,item.status]);
       return"OK";
     });
     return result==="OK"?reply({ok:true}):reply({error:result},result==="LIMIT_REACHED"?429:409);

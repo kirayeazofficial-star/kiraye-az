@@ -2199,3 +2199,27 @@ html{-webkit-tap-highlight-color:transparent}
 .kzAdNav button:nth-of-type(7) svg{color:#2f6fe4}
 .kzIconBtn{display:inline-flex!important;align-items:center;justify-content:center;gap:8px}
 .accountMenuPanel button[class*="logout"],.accountMenuPanel .accountLogout,.accountMenuPanel button.logout{color:var(--kz-danger,#d92d20)!important}.accountMenuPanel button[class*="logout"] svg,.accountMenuPanel .accountLogout svg,.accountMenuPanel button.logout svg{color:var(--kz-danger,#d92d20)!important}
+/* Moderasiya kartı: düymələr ikonla, "Ətraflı bax" tam enli və bir sətirdə */
+.kzAdRowActions .kzAdBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.kzAdRowActions:has(>.kzAdBtn:only-child) .kzAdBtn{grid-column:1/-1}
+.kzAdDetailsBtn{grid-column:1/-1;display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;height:40px;margin-top:10px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;color:var(--kz-ink)!important;font-size:14px!important;font-weight:600!important;white-space:nowrap}
+.kzAdDetailsBtn:hover{background:var(--kz-soft)!important}
+.kzAdDetailsBtn svg{color:var(--kz-accent)}
+/* Pəncərədəki tablar: saytdakı digər tablar kimi (açıq fon, ağ seçilmiş) */
+.kzSheetTabs{gap:4px!important;margin:0 16px 10px;padding:4px!important;border:0!important;border-radius:12px;background:var(--kz-soft,#f3f4f6)}
+.kzSheetTabs button{height:34px!important;border-radius:9px!important;background:transparent!important;color:var(--kz-muted,#6b7280)!important}
+.kzSheetTabs button.on{background:#fff!important;color:var(--kz-ink,#111)!important;box-shadow:0 1px 3px rgba(16,24,40,.12)}
+.kzSheetHead{border-bottom:0!important}
+/* Yan menyu: telefonda aşağıdakı əlaqə hissəsi brauzer zolağının altında qalmasın */
+.siteMenuPanel.kzSide{height:100dvh!important;max-height:100dvh;overflow-y:auto!important;padding-bottom:calc(28px + env(safe-area-inset-bottom))!important}
+.siteMenuPanel.kzSide nav a{min-height:44px!important}
+/* Ana səhifə: üstünlüklər zolağı */
+.kzPerks{display:flex;gap:8px;margin:0 0 22px;padding:0;list-style:none;overflow-x:auto;scrollbar-width:none}
+.kzPerks::-webkit-scrollbar{display:none}
+.kzPerks li{flex:1 0 auto;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--kz-line);border-radius:12px;background:#fff;font-size:13px;font-weight:600;color:var(--kz-ink);white-space:nowrap}
+.kzPerks span{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#fff1ec;color:var(--kz-accent)}
+.kzPerks li:nth-child(2) span{background:#e9f7ef;color:#1f8a4c}.kzPerks li:nth-child(3) span{background:#ebf1ff;color:#2f6fe4}
+@media (max-width:767px){.kzPerks{margin:-6px -16px 16px;padding:0 16px}.kzPerks li{flex:0 0 auto;padding:7px 10px;font-size:12px}.kzPerks span{width:24px;height:24px}.kzPerks svg{width:15px;height:15px}}
+.kzPerks{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}
+.kzPerks li{flex:none;justify-content:center;min-width:0}
+@media (max-width:767px){.kzPerks{margin:-4px 0 16px!important;padding:0!important;gap:6px}.kzPerks li{flex-direction:column;gap:4px;padding:8px 4px;font-size:11.5px;text-align:center;white-space:normal;line-height:1.2}}

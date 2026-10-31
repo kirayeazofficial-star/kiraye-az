@@ -132,6 +132,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     try {
       const response = await fetch("/api/listings/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
       if (response.status === 429) { paidSubmit(); return; }
+      if (response.status === 409) { setError("Bu elan artıq ödəniş gözləmir. Siyahı yeniləndi."); setReloadKey(key => key + 1); return; }
       if (!response.ok) throw new Error();
       setNotice("Elan yoxlamaya göndərildi.");
       setReloadKey(key => key + 1);
@@ -221,14 +222,14 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                           {current === "pending" && <span>Təsdiqdən sonra yayımlanacaq.</span>}
                           {promo && x.promotion_until && <span>{promo === "premium" ? "Premium" : "VIP"}: {shortDate(x.promotion_until)} tarixinədək</span>}
                         </p>
-                        {x.payment_required && !x.deleted_at && <p className="kzOwnHint">Bu kateqoriyada pulsuz limit dolub. Ödənişdən sonra elan yoxlamaya göndəriləcək.</p>}
+                        {x.payment_required && !x.deleted_at && <p className="kzOwnHint">{leader ? "Rəhbər üçün limit yoxdur — elanı pulsuz yoxlamaya göndərin." : "Bu kateqoriyada pulsuz limit dolub. Ödənişdən sonra elan yoxlamaya göndəriləcək."}</p>}
                         {current === "rejected" && x.rejection_reason && <p className="kzOwnReason"><strong>Rədd səbəbi:</strong> {x.rejection_reason}</p>}
                         {expired && !x.deleted_at && <p className="kzOwnHint">{leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} Bərpa olunmasa, 180 gün sonra arxivə keçir.</p>}
                         {x.deleted_at && <p className="kzOwnHint">Silinib: {shortDate(x.deleted_at)}. {leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} 180 gün sonra arxivə keçir.</p>}
                       </div>
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
-                            <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin..." : "Ödəniş et"}</button>
+                            <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin..." : leader ? "Göndər" : "Ödəniş et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>
                           </>
                           : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : leader ? "Bərpa et" : "Ödənişlə bərpa et"}</button>

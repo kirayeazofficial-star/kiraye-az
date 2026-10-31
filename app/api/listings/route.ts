@@ -98,7 +98,10 @@ export async function PATCH(request:NextRequest){
     // At most two edits in any 24 hours; the answer says exactly when the next edit becomes possible.
     const recent=await hostQuery<{recent:string[]}>(`select array(select x from unnest(edit_log) x where x>now()-interval '1 day' order by x)::text[] as recent from public.listings where id=$1 and owner_id=$2`,[id,user.id]);
     const edits=recent[0]?.recent||[];
-    if(edits.length>=2)return reply({error:'EDIT_LIMIT',next_edit_at:new Date(Date.parse(edits[0])+86400000).toISOString()},429);
+    // The leader has no limits: no edit limit, and a listing that was waiting for payment goes to review.
+    const leader=await isLeader(user);
+    if(leader)await hostQuery(`update public.listings set payment_required=false where id=$1 and owner_id=$2`,[id,user.id]);
+    if(!leader&&edits.length>=2)return reply({error:'EDIT_LIMIT',next_edit_at:new Date(Date.parse(edits[0])+86400000).toISOString()},429);
     const rows=await hostQuery<{id:string;status:string}>(`update public.listings set last_edited_at=now(),edit_log=array_append(array(select x from unnest(edit_log) x where x>now()-interval '1 day'),now()),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,lat=$19,lng=$20,location_exact=$21,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,item.point?.[0]??null,item.point?.[1]??null,item.exact]);
     if(rows[0]?.status==='pending')await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','resubmitted',null,'pending')`,[id,user.id]);
     return rows[0]?reply({id:rows[0].id}):reply({error:'LISTING_NOT_FOUND'},404);

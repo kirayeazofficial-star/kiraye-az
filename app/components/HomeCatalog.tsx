@@ -1,6 +1,6 @@
 "use client";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { ChevronLeft, ChevronRight, LayoutGrid, Plus, SlidersHorizontal, X } from "lucide-react";
+import { BadgeCheck, ChevronLeft, ChevronRight, Handshake, LayoutGrid, Plus, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
@@ -375,6 +375,11 @@ export default function Home() {
             </button>
           ))}
         </section>
+        {!onlyFavorites && !category && !query && <ul className="kzPerks" aria-label={t("Niyə kirayeal.az")}>
+          <li><span><BadgeCheck aria-hidden="true" size={18} strokeWidth={2} /></span>{t("Pulsuz elan")}</li>
+          <li><span><Handshake aria-hidden="true" size={18} strokeWidth={2} /></span>{t("Vasitəçisiz")}</li>
+          <li><span><ShieldCheck aria-hidden="true" size={18} strokeWidth={2} /></span>{t("Yoxlanılmış elanlar")}</li>
+        </ul>}
         {browsing && <BannerStrip placement="home" />}
         <SideBanners />
         {browsing && <ListingSuggestions premiumOnly/>}

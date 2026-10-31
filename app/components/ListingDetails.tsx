@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, MessageCircle, Pencil, Phone, Share2 } from "lucide-react";
+import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, ImageDown, MessageCircle, Pencil, Phone, Share2 } from "lucide-react";
 import { WhatsAppIcon } from "./BrandIcons";
 import PromotionOptions from "./PromotionOptions";
 import dynamic from "next/dynamic";
@@ -54,6 +54,7 @@ export default function ListingDetails({
     [report, setReport] = useState(false),
     [busy, setBusy] = useState(false),
     [reported, setReported] = useState(false);
+  const [cardBusy, setCardBusy] = useState(false);
   useAutoClear(notice, () => setNotice(""));
   useEffect(()=>{
     if(item.demo||item.status!=="published")return;
@@ -271,6 +272,7 @@ export default function ListingDetails({
             </div>}
             <div className="kzOwnerRow">
               <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
+              {item.status === "published" && <button type="button" className="kzButtonGhost" disabled={cardBusy} onClick={() => { setCardBusy(true); void import("../../lib/share-card").then(m => m.shareCard(item)).catch(() => setNotice("Şəkli hazırlamaq mümkün olmadı.")).finally(() => setCardBusy(false)); }}><ImageDown aria-hidden="true" size={16} strokeWidth={1.75} />{cardBusy ? "Hazırlanır…" : "Status üçün şəkil"}</button>}
             </div>
             {item.expires_at && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir</p>}
           </div>

@@ -29,7 +29,7 @@ export async function GET(request:NextRequest){
     if(scope==='mine'){const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);add('owner_id=?',user.id);
       // Listings left inactive (expired, deleted or rejected) for 180 days are archived for good and no longer listed.
       where.push(`not coalesce(coalesce(deleted_at,case when status in('expired','archived','rejected') or expires_at<=now() then coalesce(expires_at,updated_at) end)<now()-interval '180 days',false)`);}
-    else where.push(`status='published' and (expires_at is null or expires_at>now())`);
+    else where.push(`status='published' and (expires_at is null or expires_at>now()) and not exists(select 1 from auth.users bu where bu.id=owner_id and bu.disabled_at is not null)`);
     const category=input.get('category')||'';if(categories.has(category))add('category=?',category);
     const owner=input.get('owner')||'';if(uuid.test(owner))add('owner_id=?',owner);
     const city=(input.get('city')||'').slice(0,80);if(city)add('city=?',city);

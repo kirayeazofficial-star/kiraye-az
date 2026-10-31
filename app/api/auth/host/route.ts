@@ -28,8 +28,10 @@ export async function POST(request:NextRequest){
     const body=await request.json(),action=String(body.action||"");
     if(action==="login"){
       const email=cleanEmail(body.email),password=String(body.password||"");
-      const rows=await hostQuery<{id:string;password_hash:string|null;email_confirmed_at:string|null}>(`select id,password_hash,email_confirmed_at from auth.users where lower(email)=lower($1) and disabled_at is null limit 1`,[email]);
+      const rows=await hostQuery<{id:string;password_hash:string|null;email_confirmed_at:string|null;blocked:boolean}>(`select id,password_hash,email_confirmed_at,disabled_at is not null as blocked from auth.users where lower(email)=lower($1) order by disabled_at nulls first limit 1`,[email]);
       const user=rows[0];if(!user||!user.password_hash||!await passwordMatches(password,user.password_hash))return response({error:"INVALID_CREDENTIALS"},401);
+      // A blocked account learns why it cannot sign in only after the right password.
+      if(user.blocked)return response({error:"ACCOUNT_BLOCKED"},403);
       if(!user.email_confirmed_at)return response({error:"EMAIL_NOT_CONFIRMED"},403);
       await ensureOwnerRole(user.id,email);
       return response({session:await createSession(user.id,body.remember!==false)});

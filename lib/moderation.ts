@@ -16,3 +16,10 @@ export type ModerationContext = {
  reports:{open:number;resolved:number};events:ModerationEvent[];
  signals:{id:string;title:string;owner_id:string;status:string;same_phone:boolean;same_image:boolean;similar_text:boolean}[];
 };
+// Phrases often used in prepayment scams. Only a hint for staff: "əvvəlcədən ödəniş almıram" also
+// matches, so a person always decides.
+const riskPhrases = ["əvvəlcədən ödəniş", "evvelceden odenis", "qabaqcadan ödəniş", "öncədən ödəniş", "ön ödəniş", "beh göndər", "beh at", "kartla göndər", "karta göndər", "kartıma", "kartima", "kart nömrə", "kart nomre", "pul köçür", "köçürmə edin", "m10", "предоплат", "переведите", "на карту"];
+export function riskWords(...texts: (string | null | undefined)[]) {
+  const text = texts.filter(Boolean).join(" ").toLocaleLowerCase("az");
+  return riskPhrases.filter(phrase => text.includes(phrase));
+}

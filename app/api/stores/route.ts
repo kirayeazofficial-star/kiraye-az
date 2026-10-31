@@ -5,6 +5,8 @@ import {sameOrigin} from "../../../lib/server-request";
 import {hostQuery} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
 import {newId} from "../../../lib/host/security";
+import {paymentsEnabled} from "../../../lib/host/site-flags";
+import {isLeader} from "../../../lib/host/staff";
 import {activeStore,storePlans,storeSlug,type Store} from "../../../lib/host/stores";
 
 export const runtime="nodejs";export const dynamic="force-dynamic";
@@ -34,6 +36,8 @@ export async function POST(request:NextRequest){
   if(!sameOrigin(request))return reply({error:"FORBIDDEN"},403);
   try{
     const user=await currentUser();if(!user)return reply({error:"SIGN_IN_REQUIRED"},401);
+    // Paid services off: an active store can still edit its page, but no new applications or plan changes.
+    if(!await paymentsEnabled()&&!await isLeader(user)&&!await activeStore(user.id))return reply({error:"PAYMENTS_OFF"},403);
     const form=await request.formData();
     const name=text(form.get("name"),60),description=text(form.get("description"),600),phone=text(form.get("phone"),32),address=text(form.get("address"),120),hours=text(form.get("hours"),60);
     const plan=text(form.get("plan"),20),slug=storeSlug(text(form.get("slug"),40)||name);

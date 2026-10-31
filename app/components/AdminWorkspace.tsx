@@ -2,7 +2,7 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, ListChecks, UserRound, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, Flag, ListChecks, UserRound, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -24,7 +24,7 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", limits: "Limitlər", staff: "Komanda", backup: "Ehtiyat nüsxə" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", limits: "Ödəniş və limitlər", staff: "Komanda", backup: "Ehtiyat nüsxə" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", user_blocked: "İstifadəçi bloklandı", user_unblocked: "Blok götürüldü", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
 const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, limits: SlidersHorizontal, staff: ShieldCheck, backup: CloudUpload };
@@ -336,7 +336,7 @@ export default function AdminWorkspace() {
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
     : item === "backup" ? { text: "Hər gecə Google Drive-a" }
-    : item === "limits" ? { text: "Pulsuz elan qaydası" }
+    : item === "limits" ? { text: "Ödənişli xidmətlər və pulsuz elan" }
     : item === "stores" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: "Müraciətlər və paketlər" })
     : { text: "Rəhbər və adminlər" };
 
@@ -603,22 +603,36 @@ function StoreAdmin({ leader }: { leader: boolean }) {
 // Leader → "Limitlər": the free listing rule. Off = one free listing per category (as now);
 // on = one free listing per group, and the ticked categories always paid.
 function LimitAdmin() {
-  const [rules, setRules] = useState<LimitRules | null>(null), [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
+  const [rules, setRules] = useState<LimitRules | null>(null), [payments, setPayments] = useState<boolean | null>(null), [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
   useAutoClear(notice, () => setNotice(""));
-  useEffect(() => { api({ action: "limit_rules" }).then(data => setRules(cleanLimitRules(data.rules))).catch(() => setError("Ayarlar yüklənmədi.")); }, []);
+  useEffect(() => { api({ action: "limit_rules" }).then(data => { setRules(cleanLimitRules(data.rules)); setPayments(data.payments !== false); }).catch(() => setError("Ayarlar yüklənmədi.")); }, []);
   async function save(next: LimitRules) {
     setBusy(true); setError("");
     try { await post({ action: "save_limit_rules", rules: next }); setRules(next); setNotice(next.enabled ? "Yeni limit qaydası açıqdır." : "Ayarlar saxlanıldı. Qayda bağlıdır."); }
     catch { setError("Ayarlar saxlanmadı."); } finally { setBusy(false); }
   }
+  async function switchPayments() {
+    const next = !payments;
+    if (!next && !window.confirm("Bütün ödənişli xidmətlər dayandırılsın? İstifadəçilər «Reklam et», VIP, Premium, ödənişli bərpa və mağaza müraciəti düymələrini görməyəcək.")) return;
+    setBusy(true); setError("");
+    try { await post({ action: "save_payments", enabled: next }); setPayments(next); setNotice(next ? "Ödənişli xidmətlər açıldı." : "Ödənişli xidmətlər dayandırıldı."); }
+    catch { setError("Dəyişiklik saxlanmadı."); } finally { setBusy(false); }
+  }
   const name = (id: string) => categories.find(item => item.id === id)?.name || id;
-  return <Panel title="Limitlər">
+  return <Panel title="Ödəniş və limitlər">
+    {payments !== null && <div className={`kzPaySwitch${payments ? " on" : ""}`}>
+      <span className="kzPaySwitchIcon"><CreditCard aria-hidden="true" size={22} strokeWidth={2} /></span>
+      <div><strong>Ödənişli xidmətlər: {payments ? "Açıq" : "Dayandırılıb"}</strong>
+        <small>{payments ? "İrəli çək, VIP, Premium, ödənişli yerləşdirmə, bərpa və mağaza paketləri istifadəçilərə görünür." : "İstifadəçilər heç bir ödənişli düymə görmür. Aktiv mağazalar və artıq alınmış xidmətlər müddəti bitənədək işləyir. Sizin üçün hər şey pulsuzdur."}</small></div>
+      <button type="button" role="switch" aria-checked={payments} aria-label="Ödənişli xidmətlər" className="kzToggle" disabled={busy} onClick={() => void switchPayments()}><i aria-hidden="true" /></button>
+    </div>}
     {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {!rules ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
       <div className={`kzLimitSwitch${rules.enabled ? " on" : ""}`}>
+        <span className="kzPaySwitchIcon"><SlidersHorizontal aria-hidden="true" size={22} strokeWidth={2} /></span>
         <div><strong>Yeni limit qaydası: {rules.enabled ? "Açıq" : "Bağlı"}</strong>
           <small>{rules.enabled ? "Hər qrupda 30 gündə aşağıdakı sayda pulsuz elan; seçilmiş kateqoriyalar həmişə ödənişlidir." : "İndi hər kateqoriyada 30 gündə 1 pulsuz elan verilir. Ödəniş sistemi qoşulanda qaydanı açın."}</small></div>
-        <button type="button" className={`kzAdBtn ${rules.enabled ? "danger" : "success"}`} disabled={busy} onClick={() => { if (rules.enabled || window.confirm("Yeni limit qaydası açılsın? Limitdən artıq elanlar «Ödəniş gözləyir» bölməsinə düşəcək.")) void save({ ...rules, enabled: !rules.enabled }); }}>{rules.enabled ? "Bağla" : "Aç"}</button>
+        <button type="button" role="switch" aria-checked={rules.enabled} aria-label="Yeni limit qaydası" className="kzToggle" disabled={busy} onClick={() => { if (rules.enabled || window.confirm("Yeni limit qaydası açılsın? Limitdən artıq elanlar «Ödəniş gözləyir» bölməsinə düşəcək.")) void save({ ...rules, enabled: !rules.enabled }); }}><i aria-hidden="true" /></button>
       </div>
       <h3 className="kzAdSub">Qruplar üzrə pulsuz elan (30 gün)</h3>
       <div className="kzLimitGroups">

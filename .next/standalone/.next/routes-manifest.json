@@ -271,6 +271,12 @@
       "namedRegex": "^/api/saved\\-searches(?:/)?$"
     },
     {
+      "page": "/api/settings",
+      "regex": "^/api/settings(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/settings(?:/)?$"
+    },
+    {
       "page": "/api/stores",
       "regex": "^/api/stores(?:/)?$",
       "routeKeys": {},

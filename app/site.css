@@ -2213,13 +2213,3 @@ html{-webkit-tap-highlight-color:transparent}
 /* Yan menyu: telefonda aşağıdakı əlaqə hissəsi brauzer zolağının altında qalmasın */
 .siteMenuPanel.kzSide{height:100dvh!important;max-height:100dvh;overflow-y:auto!important;padding-bottom:calc(28px + env(safe-area-inset-bottom))!important}
 .siteMenuPanel.kzSide nav a{min-height:44px!important}
-/* Ana səhifə: üstünlüklər zolağı */
-.kzPerks{display:flex;gap:8px;margin:0 0 22px;padding:0;list-style:none;overflow-x:auto;scrollbar-width:none}
-.kzPerks::-webkit-scrollbar{display:none}
-.kzPerks li{flex:1 0 auto;display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--kz-line);border-radius:12px;background:#fff;font-size:13px;font-weight:600;color:var(--kz-ink);white-space:nowrap}
-.kzPerks span{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#fff1ec;color:var(--kz-accent)}
-.kzPerks li:nth-child(2) span{background:#e9f7ef;color:#1f8a4c}.kzPerks li:nth-child(3) span{background:#ebf1ff;color:#2f6fe4}
-@media (max-width:767px){.kzPerks{margin:-6px -16px 16px;padding:0 16px}.kzPerks li{flex:0 0 auto;padding:7px 10px;font-size:12px}.kzPerks span{width:24px;height:24px}.kzPerks svg{width:15px;height:15px}}
-.kzPerks{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible}
-.kzPerks li{flex:none;justify-content:center;min-width:0}
-@media (max-width:767px){.kzPerks{margin:-4px 0 16px!important;padding:0!important;gap:6px}.kzPerks li{flex-direction:column;gap:4px;padding:8px 4px;font-size:11.5px;text-align:center;white-space:normal;line-height:1.2}}

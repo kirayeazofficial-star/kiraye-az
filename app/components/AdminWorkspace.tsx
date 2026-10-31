@@ -64,7 +64,18 @@ function EventList({ events, onInspect }: { events: ModerationEvent[]; onInspect
 
 // Everything a moderator needs about one listing, in one sheet (bottom sheet on phones):
 // the listing itself, similar listings by other accounts, and the owner.
-function ReviewSheet({ item, onClose, onInspect, onSaved }: { item: AdminListing; onClose: () => void; onInspect: (id: string) => void; onSaved: () => void }) {
+function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, position }: { item: AdminListing; onClose: () => void; onInspect: (id: string) => void; onSaved: () => void; onDecide?: (status: "published" | "rejected", reason: string) => Promise<boolean>; onNext?: () => void; position?: string }) {
+  // Decide right here: approve, or reject with one tap on a ready reason; then the next listing opens.
+  const [rejectOpen, setRejectOpen] = useState(false), [reason, setReason] = useState(""), [deciding, setDeciding] = useState(false), [decideError, setDecideError] = useState("");
+  useEffect(() => { setRejectOpen(false); setReason(""); setDecideError(""); }, [item.id]);
+  async function decide(status: "published" | "rejected", why = "") {
+    if (!onDecide || deciding) return;
+    setDeciding(true); setDecideError("");
+    const ok = await onDecide(status, why);
+    setDeciding(false);
+    if (!ok) { setDecideError("Saxlanmadı. Yenidən cəhd edin."); return; }
+    if (onNext) onNext(); else onClose();
+  }
   const [tab, setTab] = useState<"listing" | "similar" | "owner">("listing");
   const [data, setData] = useState<ModerationContext | null>(null), [error, setError] = useState("");
   const load = useCallback(() => { setError(""); api({ action: "context", id: item.id }).then(result => setData(result as ModerationContext)).catch(() => setError("Məlumat yüklənmədi.")); }, [item.id]);
@@ -105,6 +116,20 @@ function ReviewSheet({ item, onClose, onInspect, onSaved }: { item: AdminListing
           {!!data.events.length && <><h4>Son əməliyyatlar</h4><EventList events={data.events} /></>}
         </>}
       </div>
+      {onDecide && <footer className="kzSheetFoot">
+        {decideError && <p className="kzAdError" role="alert">{decideError}</p>}
+        {rejectOpen ? <>
+          <p className="kzSheetFootLabel">Səbəbi seçin — elan dərhal rədd olunacaq:</p>
+          <div className="kzReasonChips">{rejectionReasons.map(text => <button key={text} type="button" disabled={deciding} onClick={() => void decide("rejected", text)}>{text.split(/[.(]/)[0].trim()}</button>)}</div>
+          <div className="kzSheetFootRow"><input value={reason} maxLength={500} onChange={event => setReason(event.target.value)} placeholder="Və ya öz səbəbinizi yazın (ən azı 10 simvol)" aria-label="Rədd səbəbi" />
+            <button type="button" className="kzAdBtn danger solid" disabled={deciding || reason.trim().length < 10} onClick={() => void decide("rejected", reason.trim())}>Rədd et</button>
+            <button type="button" className="kzAdBtn" onClick={() => setRejectOpen(false)}>Geri</button></div>
+        </> : <div className="kzSheetFootRow">
+          {["pending", "rejected"].includes(item.status) && <button type="button" className="kzAdBtn success" disabled={deciding} onClick={() => void decide("published")}><Check aria-hidden="true" size={16} strokeWidth={2.4} />Təsdiqlə</button>}
+          {["pending", "published"].includes(item.status) && <button type="button" className="kzAdBtn danger" disabled={deciding} onClick={() => setRejectOpen(true)}><X aria-hidden="true" size={16} strokeWidth={2.4} />{item.status === "published" ? "Yayımdan çıxar" : "Rədd et"}</button>}
+          {onNext && <button type="button" className="kzAdBtn kzNextBtn" onClick={onNext}>Növbəti{position ? ` (${position})` : ""}<ChevronRight aria-hidden="true" size={16} strokeWidth={2.2} /></button>}
+        </div>}
+      </footer>}
     </section>
   </div>, document.body);
 }
@@ -259,17 +284,18 @@ export default function AdminWorkspace() {
   }, [allowed, revision]);
 
   const [details, setDetails] = useState<AdminListing | null>(null);
-  async function moderate(item: AdminListing, status: "published" | "rejected") {
-    if (busy || loading) return;
-    const reason = reasons[item.id]?.trim() || "";
-    if (status === "rejected" && reason.length < 10) { setRejecting(item.id); return; }
+  async function moderate(item: AdminListing, status: "published" | "rejected", given?: string): Promise<boolean> {
+    if (busy || loading) return false;
+    const reason = (given ?? reasons[item.id])?.trim() || "";
+    if (status === "rejected" && reason.length < 10) { setRejecting(item.id); return false; }
     setBusy(item.id); setError("");
     try {
       await post({ action: "moderate", id: item.id, status, from: item.status, reason });
       setReasons(current => { const next = { ...current }; delete next[item.id]; return next; });
       setRejecting("");
       setRevision(value => value + 1);
-    } catch { setError("Dəyişiklik saxlanmadı. Siyahını yenilə və yenidən yoxla."); }
+      return true;
+    } catch { setError("Dəyişiklik saxlanmadı. Siyahını yenilə və yenidən yoxla."); return false; }
     finally { setBusy(""); }
   }
   function open(next: Section) { setSection(next); setError(""); window.scrollTo({ top: 0 }); }
@@ -388,7 +414,9 @@ export default function AdminWorkspace() {
         </>}
       </Panel>}
 
-      {details && <ReviewSheet item={details} onClose={() => setDetails(null)} onInspect={id => { setDetails(null); inspect(id); }} onSaved={() => setRevision(value => value + 1)} />}
+      {details && (() => { const index = items.findIndex(entry => entry.id === details.id), next = index >= 0 ? items[index + 1] : undefined;
+        return <ReviewSheet item={details} onClose={() => setDetails(null)} onInspect={id => { setDetails(null); inspect(id); }} onSaved={() => setRevision(value => value + 1)}
+          onDecide={(status, reason) => moderate(details, status, reason)} onNext={next ? () => setDetails(next) : undefined} position={index >= 0 ? `${index + 1}/${items.length}` : undefined} />; })()}
       {section === "reports" && <ReportQueue onInspect={inspect} onChange={() => setRevision(x => x + 1)} />}
       {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
       {section === "banners" && <BannerManager />}

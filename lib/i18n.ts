@@ -13,6 +13,8 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Mənim kartlarım": ["Мои карты", "My cards"],
   "Limitlər": ["Лимиты", "Limits"],
   "Hesabdan çıx": ["Выйти", "Sign out"],
+  "Xəritə": ["Карта", "Map"],
+  "Siyahı": ["Список", "List"],
   "Yayımlanmış": ["Опубликовано", "Published"],
   "Yoxlanılır": ["На проверке", "Under review"],
   "Elanlarım": ["Мои объявления", "My listings"],

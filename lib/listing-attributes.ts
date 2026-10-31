@@ -48,6 +48,9 @@ export function readListingAttributes(
       ...(keys[category] || []),
       "contact_name",
       "return_terms",
+      "price_daily",
+      "price_weekly",
+      "price_monthly",
       ...(["property", "villa", "commercial"].includes(category)
         ? ["utilities", "owner_type", "metro"]
         : ["delivery_method", "delivery_fee", "included_items"]),
@@ -56,6 +59,10 @@ export function readListingAttributes(
       .map((key) => [key, String(form.get(key)).trim()]),
   );
   if (attributes.power_source !== "Akkumulyator") delete attributes.battery_voltage;
+  // The main price already covers the chosen period; extra prices are only for the other periods.
+  const mainPeriod = String(form.get("rental_period") || "");
+  for (const [period, key] of [["daily", "price_daily"], ["weekly", "price_weekly"], ["monthly", "price_monthly"]] as const)
+    if (period === mainPeriod || !(Number(attributes[key]) > 0)) delete attributes[key];
   if (!["Çatdırılma", "Hər ikisi"].includes(attributes.delivery_method || ""))
     delete attributes.delivery_fee;
   if (category === "car" && attributes.fuel === "Elektrik")
@@ -148,6 +155,9 @@ export function validateListingAttributes(
   )
     return "Buraxılış ilini düzgün seçin.";
   if ((attributes.included_items?.length || 0) > 250 || (attributes.return_terms?.length || 0) > 450) return "Əlavə şərtlərin mətni çox uzundur.";
+  for (const key of ["price_daily", "price_weekly", "price_monthly"] as const)
+    if (attributes[key] !== undefined && (!Number.isFinite(Number(attributes[key])) || Number(attributes[key]) < 1 || Number(attributes[key]) > 1000000))
+      return "Əlavə qiymətləri 1–1 000 000 ₼ aralığında yazın.";
   if (
     attributes.delivery_fee !== undefined &&
     (!Number.isFinite(Number(attributes.delivery_fee)) ||

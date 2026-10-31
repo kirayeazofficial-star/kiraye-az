@@ -1,6 +1,8 @@
 "use client";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { ChevronLeft, ChevronRight, LayoutGrid, Plus, SlidersHorizontal, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon, Plus, SlidersHorizontal, X } from "lucide-react";
+import dynamic from "next/dynamic";
+const ListingsMap = dynamic(() => import("./ListingsMap"), { ssr: false, loading: () => <div className="kzMap kzMapBig kzMapLoading" /> });
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
@@ -47,6 +49,7 @@ export default function Home() {
   useAutoClear(notice, () => setNotice(""));
   const [savedSearches,setSavedSearches] = useState<SavedSearch[]>([]);
   const [kindFilter, setKindFilter] = useState("");
+  const [mapView, setMapView] = useState(false);
   const [todayCount, setTodayCount] = useState(0);
   useEffect(() => { fetch("/api/listings/today").then(r => r.json()).then(d => setTodayCount(Number(d.count) || 0)).catch(() => {}); }, []);
   const [category, setCategory] = useState(""),
@@ -296,7 +299,15 @@ export default function Home() {
     setGearbox("");
   }
   function rememberFilters() {
-    try { setSavedSearches(saveSearch({query,category,city,period,min,max,sort,rooms,area,brand,gearbox,from,until,noDeposit},[query,category&&categoryName(category),city,period&&periodName(period)].filter(Boolean).join(" · ")||"Bütün elanlar")); }
+    try {
+      const next = saveSearch({query,category,city,period,min,max,sort,rooms,area,brand,gearbox,from,until,noDeposit},[query,category&&categoryName(category),city,period&&periodName(period)].filter(Boolean).join(" · ")||"Bütün elanlar");
+      setSavedSearches(next);
+      // Signed in: the search is also kept on the server and new matching listings are e-mailed.
+      const entry = next[0];
+      if (entry) void fetch("/api/saved-searches", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(entry) })
+        .then(response => setNotice(response.ok ? "Axtarış yadda saxlanıldı. Uyğun yeni elan çıxanda e-poçtla xəbər verəcəyik." : "Axtarış yadda saxlanıldı. Yeni elanlar barədə məktub almaq üçün hesaba daxil olun."))
+        .catch(() => {});
+    }
     catch { setNotice("Axtarışı bu brauzerdə saxlamaq mümkün olmadı."); }
   }
   function restoreFilters(item:SavedSearch) {
@@ -395,6 +406,7 @@ export default function Home() {
                   : `${demo ? filtered.length : total} ${demo ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
               </p>
             </div>
+            <button type="button" className={`kzMapToggle${mapView ? " on" : ""}`} aria-pressed={mapView} onClick={() => setMapView(value => !value)}>{mapView ? <LayoutGrid aria-hidden="true" size={16} strokeWidth={2} /> : <MapIcon aria-hidden="true" size={16} strokeWidth={2} />}{mapView ? t("Siyahı") : t("Xəritə")}</button>
             <SortMenu
               label={t("Sıralama")}
               value={sort}
@@ -432,7 +444,7 @@ export default function Home() {
             >
               {t("Depozitsiz")}
             </button>
-            {savedSearches.map(item=><span className="kzChip kzSaved" key={item.id}><button type="button" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" aria-label={`${item.label} axtarışını sil`} onClick={()=>setSavedSearches(removeSavedSearch(item.id))}><X aria-hidden="true" size={13} strokeWidth={2.25} /></button></span>)}
+            {savedSearches.map(item=><span className="kzChip kzSaved" key={item.id}><button type="button" onClick={()=>restoreFilters(item)}>{item.label}</button><button type="button" aria-label={`${item.label} axtarışını sil`} onClick={()=>{setSavedSearches(removeSavedSearch(item.id));void fetch("/api/saved-searches",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:item.id})}).catch(()=>{});}}><X aria-hidden="true" size={13} strokeWidth={2.25} /></button></span>)}
           </div>
           {activeFilters.length > 0 && (
             <div className="kzActiveFilters" aria-label="Seçilmiş filtrlər">
@@ -605,6 +617,8 @@ export default function Home() {
                 <div className="kzSkeleton" key={i} />
               ))}
             </div>
+          ) : mapView ? (
+            <ListingsMap items={filtered} />
           ) : (
             <div className="kzGrid">
               {filtered.map((x) => (

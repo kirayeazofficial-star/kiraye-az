@@ -1,5 +1,5 @@
 "use client";
-import { AlertCircle, Camera, CheckCircle2, ChevronLeft, LogOut, Mail, Trash2 } from "lucide-react";
+import { AlertCircle, Bell, Camera, CheckCircle2, ChevronLeft, LogOut, Mail, Trash2 } from "lucide-react";
 import {FormEvent,useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import Header from './Header';
@@ -10,13 +10,16 @@ import {squareAvatar} from '../../lib/avatar-image';
 import UserAvatar from './UserAvatar';
 import PhoneInput from './PhoneInput';
 import { useAutoClear } from "../../lib/use-auto-clear";
-type Profile={profile_no:number;name:string;phone:string;email:string;role:string;staff_role:string|null;phone_changes:number;email_changes:number;phone_remaining:number;email_remaining:number;phone_verified:false;pending_email:string|null;created_at?:string|null;avatar_url?:string|null};
+type Profile={email_notifications?:boolean;profile_no:number;name:string;phone:string;email:string;role:string;staff_role:string|null;phone_changes:number;email_changes:number;phone_remaining:number;email_remaining:number;phone_verified:false;pending_email:string|null;created_at?:string|null;avatar_url?:string|null};
 const azMonths=['yanvar','fevral','mart','aprel','may','iyun','iyul','avqust','sentyabr','oktyabr','noyabr','dekabr'];
 function azDate(iso:string){const d=new Date(iso);return`${d.getDate()} ${azMonths[d.getMonth()]} ${d.getFullYear()}`}
 const messages:Record<string,string>={reauth_failed:'Cari şifrə düzgün deyil.',recent_login_required:'Telefon və ya e-poçt dəyişikliyi üçün cari şifrənizi yazın.',phone_limit_reached:'Telefon üçün üç dəyişiklik haqqı bitib. Dəstəyə müraciət edin.',email_limit_reached:'E-poçt üçün üç dəyişiklik haqqı bitib. Dəstəyə müraciət edin.',invalid_profile:'Ad-soyad və düzgün Azərbaycan telefon nömrəsi tələb olunur.',invalid_email:'Düzgün e-poçt ünvanı yazın.',rate_limited:'Çox cəhd edilib. 15 dəqiqə sonra yenidən yoxlayın.',mail_delivery_failed:'Təsdiq məktubu göndərilmədi. E-poçt dəyişdirilməyib; göndəriş xidməti yoxlanmalıdır.',email_change_failed:'E-poçt dəyişikliyi alınmadı. Ünvanı və təsdiq imkanını yoxlayın.',invalid_code:'Kod yanlışdır və ya vaxtı bitib.',email_taken:'Bu e-poçt artıq istifadə olunur.',same_email:'Bu, hazırkı e-poçtundur.',email_change_not_started:'E-poçt dəyişikliyi başlamadı. Ünvanı yoxlayın və ya dəstəyə müraciət edin.',provider_reauth_required:'Bu hesab üçün giriş provayderi ilə yenidən təsdiq tələb olunur.',sign_in_required:'Hesabınıza yenidən daxil olun.',profile_unavailable:'Profil xidməti hazır deyil. Heç bir uğur təsdiqlənmədi.'};
 export default function ProfileSettings(){
  const [profile,setProfile]=useState<Profile|null>(null),[name,setName]=useState(''),[phone,setPhone]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[emailPassword,setEmailPassword]=useState(''),[loading,setLoading]=useState(true),[signedIn,setSignedIn]=useState(false),[busy,setBusy]=useState(''),[notice,setNotice]=useState(''),[error,setError]=useState(''),[where,setWhere]=useState('');
  useAutoClear(notice, () => setNotice(""));
+ async function toggleNotices(enabled:boolean){if(!profile)return;setBusy('notify');setError('');const previous=profile.email_notifications;setProfile({...profile,email_notifications:enabled});
+  try{const response=await fetch('/api/account/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'notifications',enabled})});if(!response.ok)throw new Error();setNotice(enabled?'Bildirişlər açıldı.':'Bildirişlər söndürüldü.');}
+  catch{setProfile({...profile,email_notifications:previous});setError('Dəyişiklik saxlanmadı. Yenidən cəhd edin.');}finally{setBusy('');}}
  const identity=useRef('');const [emailStep,setEmailStep]=useState<0|1|2>(0),[emailCode,setEmailCode]=useState('');
  function accept(value:Profile){setProfile(current=>({...value,avatar_url:value.avatar_url!==undefined?value.avatar_url:current?.avatar_url,created_at:value.created_at||current?.created_at}));setName(value.name||'');setPhone(value.phone||'');setEmail(value.pending_email||value.email||'');}
  useEffect(()=>{let active=true;
@@ -90,6 +93,11 @@ export default function ProfileSettings(){
     {emailStep===2&&<form onSubmit={event=>submit(event,'email_confirm')}><p className="muted">6 rəqəmli kod {profile.email} ünvanına göndərildi.</p><label>Kod<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={emailCode} onChange={e=>setEmailCode(e.target.value.replace(/\D/g,''))} required autoComplete="one-time-code"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email_confirm'?'Yoxlanılır…':'Təsdiqlə'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setEmailCode('');}}>Ləğv et</button></div></form>}
    </div>
    <div className="kzEmailStatus">{status('email')}</div>
+   <section className="kzPanel kzNotifyRow">
+    <span className="kzNotifyIcon"><Bell aria-hidden="true" size={18} strokeWidth={2}/></span>
+    <div><strong>E-poçt bildirişləri</strong><small>Yeni mesaj, elanın müddətinin bitməsi və yadda saxlanan axtarışa uyğun yeni elanlar.</small></div>
+    <label className="kzSwitch"><input type="checkbox" checked={profile.email_notifications!==false} disabled={busy==='notify'} onChange={event=>void toggleNotices(event.target.checked)}/><span/></label>
+   </section>
    <button type="button" className="kzPanel kzLogoutRow" disabled={busy==='logout'} onClick={logout}><LogOut aria-hidden="true" size={18} strokeWidth={2}/>Hesabdan çıx</button>
   </div>:null}
  </main><Footer/></>;

@@ -64,7 +64,7 @@ try {
   await rename(fresh, join(target, ".next"));
   await copyFile(join(source, "app.js"), join(target, "app.js"));
   // Backup tools live next to app.js: the 03:00 cron job runs backup-to-drive.mjs from there.
-  for (const name of ["backup-to-drive.mjs", "restore-backup.mjs"])
+  for (const name of ["backup-to-drive.mjs", "notify-tasks.mjs", "restore-backup.mjs"])
     if (await exists(join(source, name))) await copyFile(join(source, name), join(target, name));
   await writeFile(join(target, "DEPLOYED-RELEASE.json"), JSON.stringify({ ...meta, buildId, created_at: stamp }, null, 2));
   await mkdir(join(target, "tmp"), { recursive: true });

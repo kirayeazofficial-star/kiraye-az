@@ -539,7 +539,7 @@ function BackupStatus() {
 }
 
 // Stores: applications to approve, active stores to extend or stop, and the package prices (leader).
-type AdminStore = { id: string; slug: string; name: string; logo_url: string | null; phone: string; address: string; plan: string; plan_name: string; plan_price: string; status: string; active_until: string | null; reject_reason: string | null; owner_email: string; owner_name: string | null; created_at: string };
+type AdminStore = { id: string; slug: string; name: string; logo_url: string | null; phone: string; address: string; plan: string; plan_name: string; plan_price: string; status: string; active_until: string | null; reject_reason: string | null; owner_email: string; owner_name: string | null; created_at: string; description?: string; open_from?: string | null; open_to?: string | null; listings?: number };
 type AdminPlan = { id: string; name: string; price: string; listing_limit: number | null; free_bumps: number; featured: boolean };
 function StoreAdmin({ leader }: { leader: boolean }) {
   const [items, setItems] = useState<AdminStore[]>([]), [plans, setPlans] = useState<AdminPlan[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState("");
@@ -567,10 +567,12 @@ function StoreAdmin({ leader }: { leader: boolean }) {
       <div className="kzAdList">{items.map(store => { const live = store.status === "active" && !!store.active_until && Date.parse(store.active_until) > Date.now(); return <article className="kzAdRow kzStoreRow" key={store.id}>
         <span className="kzStoreRowLogo">{store.logo_url ? <img src={store.logo_url} alt="" /> : <b>{store.name.charAt(0).toUpperCase()}</b>}</span>
         <div className="kzAdRowMain">
-          <div className="kzAdRowTop"><span className={`status ${live ? "published" : store.status === "pending" ? "pending" : "archived"}`}>{live ? "Aktiv" : statusText[store.status] || store.status}</span><span className="kzAdMuted">{store.plan_name} · {Number(store.plan_price)} ₼/ay</span></div>
+          <div className="kzAdRowTop"><span className={`status ${live ? "published" : store.status === "pending" ? "pending" : "archived"}`}>{live ? "Aktiv" : store.status === "active" ? "Müddəti bitib" : statusText[store.status] || store.status}</span><span className="kzAdMuted">{store.plan_name} · {Number(store.plan_price)} ₼/ay</span></div>
           <h3>{store.name}</h3>
           <p className="kzAdMuted">{store.owner_name || "İstifadəçi"} · {store.owner_email}{store.phone ? ` · ${store.phone}` : ""}</p>
-          {live && <p className="kzAdMuted">{adminDate(store.active_until!).split(",")[0]} tarixinədək · <a className="kzAdLink" href={`/magaza/${store.slug}`} target="_blank" rel="noopener noreferrer">Səhifəyə bax</a></p>}
+          {store.description && <p className="kzStoreRowText">{store.description}</p>}
+          <p className="kzAdMuted">{[store.address, store.open_from && store.open_to ? `${store.open_from}–${store.open_to}` : "", `${store.listings ?? 0} aktiv elan`].filter(Boolean).join(" · ")}</p>
+          <p className="kzAdMuted">{live ? `${adminDate(store.active_until!).split(",")[0]} tarixinədək · ` : store.status === "active" && store.active_until ? `${adminDate(store.active_until).split(",")[0]} tarixində bitib · ` : ""}<a className="kzAdLink" href={`/magaza/${store.slug}${live ? "" : "?preview=1"}`} target="_blank" rel="noopener noreferrer">{live ? "Səhifəyə bax" : "Necə görünəcək — bax"}</a></p>
           {store.reject_reason && store.status === "rejected" && <p className="kzAdReason">Səbəb: {store.reject_reason}</p>}
         </div>
         <div className="kzAdRowActions kzStoreActions">
@@ -588,6 +590,6 @@ function StoreAdmin({ leader }: { leader: boolean }) {
         <label>Pulsuz irəli çək / ay<input name="bumps" type="number" min="0" defaultValue={plan.free_bumps} /></label>
         <button className="kzAdBtn primary" disabled={busy === plan.id}>Yadda saxla</button>
       </form>)}</div>
-      <p className="kzAdHint kzPlanHint">Qiymətləri tap.az / bina.az mağaza paketlərinə baxaraq təyin edin (məsələn, onlardan 30% aşağı). «Limit» boş qalsa, paket limitsizdir.</p></>}
+      <p className="kzAdHint kzPlanHint">«Elan limiti» boş qalsa, paket limitsizdir. Dəyişiklik aktiv mağazalara növbəti uzatmadan tətbiq olunur.</p></>}
   </Panel>;
 }

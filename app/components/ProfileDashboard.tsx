@@ -191,7 +191,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 <Link className="kzButton" href="/new"><Plus className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Yeni elan</Link>
               </div>
               <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
-                {listingTabs.map(([status, label]) => (
+                {/* Empty tabs are hidden (Aktiv and Gözləmədə always stay), so the row stays short. */}
+                {listingTabs.filter(([status]) => status === "published" || status === "pending" || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => (
                   <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setNotice(""); setError(""); }}>
                     {label}<b>{listings.filter((x) => matchesTab(x, status)).length}</b>
                   </button>

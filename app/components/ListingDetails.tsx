@@ -30,6 +30,7 @@ import {
   periodName,
   readFavorites,
   loweredFrom,
+  shownAt,
 } from "../../lib/marketplace";
 import { normalizePhone, reportReasons } from "../../lib/rental-details";
 import { useAutoClear } from "../../lib/use-auto-clear";
@@ -251,7 +252,7 @@ export default function ListingDetails({
           {item.district ? `, ${item.district}` : ""} ·{" "}
           {item.demo
             ? "Nümunə"
-            : publicDate(item.created_at)}
+            : publicDate(shownAt(item))}
         </p>
       </div>
       <div className="detailSide">
@@ -332,7 +333,7 @@ export default function ListingDetails({
       <div className="listingInfo">
         <h3>Elan haqqında</h3>
         <p className="description">{item.description}</p>
-        {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{(()=>{const updated=(item as Listing&{updated_at?:string}).updated_at||item.created_at;return updated&&Number.isFinite(Date.parse(updated))?<span>Yeniləndi: {publicDate(updated)}</span>:null;})()}{/* A small number makes a listing look unpopular: visitors see the count from 15 views, the owner always. */}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&(effectiveOwner||Number(publicInfo.views)>=15)&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
+        {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{(()=>{const edited=(item as Listing&{updated_at?:string}).updated_at||item.created_at,lifted=shownAt(item),updated=Date.parse(lifted)>Date.parse(edited)?lifted:edited;return updated&&Number.isFinite(Date.parse(updated))?<span>Yeniləndi: {publicDate(updated)}</span>:null;})()}{/* A small number makes a listing look unpopular: visitors see the count from 15 views, the owner always. */}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&(effectiveOwner||Number(publicInfo.views)>=15)&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
 
         <dl ref={specsList} className={`detailSpecs${specsOpen ? "" : " kzSpecsCollapsed"}`}>
           <div>

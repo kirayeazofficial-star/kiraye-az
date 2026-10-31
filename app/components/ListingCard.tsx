@@ -1,5 +1,5 @@
 "use client";
-import { loweredFrom } from "../../lib/marketplace";
+import { loweredFrom, shownAt } from "../../lib/marketplace";
 import { useLanguage } from "./LanguageProvider";
 import PromotionBadges from "./PromotionBadges";
 import NavigationIcon from './NavigationIcon';
@@ -32,7 +32,7 @@ export default function ListingCard({
           <strong className="kzPrice">{money(item.price)} ₼ <small>/ {t(periodName(item.rental_period))}</small>{loweredFrom(item) && <s className="kzOldPrice">{money(loweredFrom(item)!)} ₼</s>}</strong>
           <span className="kzCardTitle">{item.title}</span>
           <span className="kzCardMeta">
-            <span>{item.city}{!item.demo && <>, {publicDate(item.created_at)}</>}</span>
+            <span>{item.city}{!item.demo && <>, {publicDate(shownAt(item))}</>}</span>
             <PromotionBadges item={item}/>
           </span>
         </span>

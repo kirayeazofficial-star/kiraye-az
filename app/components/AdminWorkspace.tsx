@@ -2,14 +2,14 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, Ban, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { formatContact } from "../../lib/contact-mask";
 import { categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
-import { moderationActions, moderationFields, rejectionReasons, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
+import { moderationActions, moderationFields, rejectionReasons, riskWords, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
 import { useAutoClear } from "../../lib/use-auto-clear";
 
 type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup";
@@ -17,7 +17,7 @@ type AdminListing = Listing & { listing_no?: number | string; owner_email: strin
 type Counts = { users: number; listings: number; messages: number; reports: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
 type Activity = { id: number; listing_id: string; action: string; new_status: string | null; reason: string | null; created_at: string; actor_name: string | null; title: string | null };
-type User = { id: string; email: string; display_name: string; phone: string; profile_no: number; staff_role?: string; listing_count: number; created_at?: string };
+type User = { id: string; email: string; display_name: string; phone: string; profile_no: number; staff_role?: string; listing_count: number; created_at?: string; blocked?: boolean; blocked_reason?: string | null };
 type Report = { id: string; report_no: number | string; reason: string; message: string; status: string; created_at: string; resolved_at?: string | null; resolved_by?: string | null; listing_id: string; title: string; listing_no?: number | string; reporter_email?: string };
 type Member = { id: string; name: string | null; email: string; phone?: string; profile_no?: number; role: string; confirmed?: boolean; assigned_at?: string | null };
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
@@ -25,7 +25,7 @@ type StaffEvent = { id: number; action: string; created_at: string; actor_email?
 const PAGE = 24;
 const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", staff: "Komanda", backup: "Ehtiyat nüsxə" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
-const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
+const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", user_blocked: "İstifadəçi bloklandı", user_unblocked: "Blok götürüldü", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
 const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, staff: ShieldCheck, backup: CloudUpload };
 
 async function api(params: Record<string, string | number>) {
@@ -97,6 +97,7 @@ function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, posi
           {(item.images?.length || 0) === 1 && <div className="kzAdGallery"><a href={item.images[0]} target="_blank" rel="noopener noreferrer"><img src={item.images[0]} alt="" loading="lazy" /></a></div>}
           {(item.images?.length || 0) > 1 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={onSaved} />}
           <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Qiymət</dt><dd>{money(item.price)} ₼ / {periodName(item.rental_period)}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
+          {riskWords(item.title, item.description).length > 0 && <p className="kzRiskNote"><TriangleAlert aria-hidden="true" size={16} strokeWidth={2.2} />Mətndə şübhəli ifadə var: <b>{riskWords(item.title, item.description).join(", ")}</b>. Kontekstə baxın — «almıram» kimi inkar da ola bilər.</p>}
           <LongText text={item.description} />
           <a className="kzAdLink" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">Elanı saytda aç</a>
         </>}
@@ -192,6 +193,21 @@ function ReportQueue({ onInspect, onChange }: { onInspect: (id: string) => void;
 
 function UserList({ revision, onListings }: { revision: number; onListings: (user: User) => void }) {
   const [query, setQuery] = useState(""), [users, setUsers] = useState<User[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState("");
+  const [busy, setBusy] = useState(""), [notice, setNotice] = useState("");
+  useAutoClear(notice, () => setNotice(""));
+  // Block: the account cannot sign in and its listings disappear from the site until unblocked.
+  async function block(user: User, blocked: boolean) {
+    const reason = blocked ? window.prompt(`«${user.display_name || user.email}» bloklansın? Hesaba girə bilməyəcək, elanları saytdan gizlənəcək.\n\nSəbəbi yazın (istifadəçiyə görünmür):`, "Saxtakarlıq / qaydaların pozulması") : "";
+    if (blocked && (reason === null || reason.trim().length < 5)) return;
+    if (!blocked && !window.confirm(`«${user.display_name || user.email}» hesabının bloku götürülsün?`)) return;
+    setBusy(user.id); setError("");
+    try {
+      await post({ action: "block_user", id: user.id, blocked, reason: reason || "" });
+      setUsers(current => current.map(item => item.id === user.id ? { ...item, blocked, blocked_reason: blocked ? reason : null } : item));
+      setNotice(blocked ? "İstifadəçi bloklandı." : "Blok götürüldü.");
+    } catch (failure) { setError((failure as { code?: string }).code === "STAFF_PROTECTED" ? "Admin və rəhbər hesabını bloklamaq olmaz." : "Dəyişiklik saxlanmadı."); }
+    finally { setBusy(""); }
+  }
   useEffect(() => {
     let active = true; setLoading(true);
     const timer = setTimeout(() => api({ action: "users", query }).then(data => { if (active) { setUsers(data.items); setError(""); } }).catch(() => { if (active) setError("İstifadəçilər yüklənmədi."); }).finally(() => { if (active) setLoading(false); }), 250);
@@ -199,7 +215,7 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
   }, [query, revision]);
   return <Panel title="İstifadəçilər" actions={<span className="kzAdMuted">{users.length >= 100 ? "Son 100 hesab" : `${users.length} hesab`}</span>}>
     <div className="kzAdFilters kzAdInline"><input type="text" inputMode="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Ad, e-poçt, telefon, №" aria-label="İstifadəçi axtar" /></div>
-    {error && <p className="kzAdError" role="alert">{error}</p>}
+    {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
     {loading && !users.length ? <p className="kzAdMuted" role="status">Yüklənir…</p> : !users.length ? <Empty title="İstifadəçi tapılmadı" /> : <div className="kzAdTable kzAdUsers" role="table" aria-label="İstifadəçilər">
       <div className="kzAdTableHead" role="row"><span>Ad</span><span>Əlaqə</span><span>Elan</span><span>Qeydiyyat</span><span>Rol</span><span /></div>
       {users.map(user => <div className="kzAdTableRow" role="row" key={user.id}>
@@ -207,8 +223,11 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
         <span className="kzAdContact"><span>{user.email}</span><small>{user.phone ? formatContact(user.phone) : "Telefon yoxdur"}</small></span>
         <span className="kzAdNum" data-label="Elan">{user.listing_count}</span>
         <span data-label="Qeydiyyat">{user.created_at ? adminDate(user.created_at).split(",")[0] : "—"}</span>
-        <span>{user.staff_role ? <em className={`kzAdPill${user.staff_role === "leader" ? " strong" : ""}`}>{user.staff_role === "leader" ? "Rəhbər" : "Admin"}</em> : <span className="kzAdMuted">İstifadəçi</span>}</span>
-        <span className="kzAdRowEnd"><button type="button" className="kzAdBtn small" disabled={!user.listing_count} onClick={() => onListings(user)}>Elanları</button></span>
+        <span>{user.staff_role ? <em className={`kzAdPill${user.staff_role === "leader" ? " strong" : ""}`}>{user.staff_role === "leader" ? "Rəhbər" : "Admin"}</em> : user.blocked ? <em className="kzAdPill danger" title={user.blocked_reason || ""}>Bloklanıb</em> : <span className="kzAdMuted">İstifadəçi</span>}</span>
+        <span className="kzAdRowEnd"><button type="button" className="kzAdBtn small" disabled={!user.listing_count} onClick={() => onListings(user)}>Elanları</button>
+          {!user.staff_role && (user.blocked
+            ? <button type="button" className="kzAdBtn small" disabled={busy === user.id} onClick={() => void block(user, false)}>Bloku götür</button>
+            : <button type="button" className="kzAdBtn small danger" disabled={busy === user.id} onClick={() => void block(user, true)}><Ban aria-hidden="true" size={14} strokeWidth={2.2} />Blokla</button>)}</span>
       </div>)}
     </div>}
   </Panel>;
@@ -393,7 +412,7 @@ export default function AdminWorkspace() {
           {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.map(item => <article className="kzAdRow kzAdListing" key={item.id}>
             <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={item.images[0]} alt="" loading="lazy" /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
             <div className="kzAdRowMain">
-              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
+              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{riskWords(item.title, item.description).length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${riskWords(item.title, item.description).join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {riskWords(item.title, item.description)[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
               <h3>{item.title}</h3>
               <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
               <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>

@@ -9,6 +9,7 @@ export function authErrorMessage(error: unknown) {
   const hostMessages: Record<string, string> = {
     ACCOUNT_EXISTS: "Bu e-poçtla hesab artıq var. “Daxil ol” bölməsindən giriş et, şifrəni unutmusansa “Şifrəni unutdum” seç.",
     INVALID_CREDENTIALS: "E-poçt və ya şifrə düzgün deyil.",
+    ACCOUNT_BLOCKED: "Hesabınız sayt qaydalarının pozulmasına görə bloklanıb. Sual üçün kirayeal.az@gmail.com ünvanına yazın.",
     EMAIL_NOT_CONFIRMED: "E-poçtun hələ təsdiqlənməyib. Aşağıdan yeni təsdiq kodu istə.",
     INVALID_CODE: "Kod düzgün deyil və ya vaxtı bitib. Yeni kod istə.",
     INVALID_INPUT: "Məlumatları yoxla: ad və soyad, düzgün e-poçt, telefon və ən azı 8 simvolluq şifrə yaz.",

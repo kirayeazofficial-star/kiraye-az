@@ -115,7 +115,7 @@ export async function GET(request:NextRequest){
 
     if(action==="users"){
       const query=param(request,"query").replace(/[%_]/g,"").slice(0,100);
-      const items=await hostQuery(`select u.id,u.email,u.email_confirmed_at,u.created_at,p.display_name,p.phone,p.profile_no,p.role,s.staff_role,(select count(*)::int from public.listings l where l.owner_id=u.id) listing_count from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where ($1='' or u.email ilike '%'||$1||'%' or p.display_name ilike '%'||$1||'%' or p.profile_no::text ilike '%'||$1||'%' or regexp_replace(p.phone,'\D','','g') ilike '%'||regexp_replace($1,'\D','','g')||'%' and regexp_replace($1,'\D','','g')<>'') order by u.created_at desc limit 100`,[query]);
+      const items=await hostQuery(`select u.id,u.email,u.email_confirmed_at,u.created_at,p.display_name,p.phone,p.profile_no,p.role,s.staff_role,u.disabled_at is not null as blocked,u.blocked_reason,(select count(*)::int from public.listings l where l.owner_id=u.id) listing_count from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where ($1='' or u.email ilike '%'||$1||'%' or p.display_name ilike '%'||$1||'%' or p.profile_no::text ilike '%'||$1||'%' or regexp_replace(p.phone,'\D','','g') ilike '%'||regexp_replace($1,'\D','','g')||'%' and regexp_replace($1,'\D','','g')<>'') order by u.created_at desc limit 100`,[query]);
       return reply({items,role:auth.role});
     }
 
@@ -198,6 +198,21 @@ export async function POST(request:NextRequest){
         return true;
       });
       return done?reply({ok:true}):reply({error:"ALREADY_RESOLVED"},409);
+    }
+
+    // Block / unblock an account (admins and the leader). Staff accounts and the owner cannot be blocked.
+    if(action==="block_user"){
+      const id=String(body.id||""),blocked=body.blocked===true,reason=String(body.reason||"").trim().slice(0,300);
+      if(!uuid.test(id)||id===auth.user.id||(blocked&&reason.length<5))return reply({error:"INVALID_ACTION"},400);
+      const target=await hostQuery<{email:string;staff_role:string|null}>(`select u.email,s.staff_role from auth.users u left join public.staff_members s on s.user_id=u.id where u.id=$1`,[id]);
+      if(!target[0])return reply({error:"USER_NOT_FOUND"},404);
+      if(target[0].staff_role||target[0].email.toLowerCase()===ownerEmail)return reply({error:"STAFF_PROTECTED"},409);
+      await hostTransaction(async db=>{
+        await db.query(`update auth.users set disabled_at=case when $2 then now() else null end,blocked_reason=case when $2 then $3 else null end,blocked_by=case when $2 then $4::uuid else null end where id=$1`,[id,blocked,reason,auth.user.id]);
+        if(blocked)await db.query(`update auth.sessions set revoked_at=now() where user_id=$1 and revoked_at is null`,[id]);
+        await db.query(`insert into public.staff_events(actor_id,target_id,action) values($1,$2,$3)`,[auth.user.id,id,blocked?"user_blocked":"user_unblocked"]);
+      });
+      return reply({ok:true});
     }
 
     if(action==="set_staff"){

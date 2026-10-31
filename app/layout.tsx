@@ -3,6 +3,7 @@ import { publicSiteUrl } from "../lib/site-url";
 import { siteContact } from "../lib/site-contact";
 import { LanguageProvider } from "./components/LanguageProvider";
 import InstallPrompt from "./components/InstallPrompt";
+import Toaster from "./components/Toaster";
 import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/inter";
@@ -40,6 +41,7 @@ export default function RootLayout({
         <Script src="/browser-compat.js" strategy="beforeInteractive" />
         <InstallPrompt />
         <LanguageProvider>{children}</LanguageProvider>
+        <Toaster />
         <StructuredData data={{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":`${publicSiteUrl()}/#organization`,name:"kirayeal.az",alternateName:["Kirayə Al","Kiraye Al","kirayeal"],url:publicSiteUrl(),logo:`${publicSiteUrl()}/icon-192.png`,email:siteContact.email,telephone:"+994502191145",sameAs:[siteContact.instagram,siteContact.tiktok]},{"@type":"WebSite","@id":`${publicSiteUrl()}/#website`,name:"kirayeal.az",alternateName:["Kirayə Al","Kiraye Al az"],potentialAction:{"@type":"SearchAction",target:`${publicSiteUrl()}/?q={search_term_string}#elanlar`,"query-input":"required name=search_term_string"},url:publicSiteUrl(),inLanguage:"az-AZ",publisher:{"@id":`${publicSiteUrl()}/#organization`}}]}}/>
       </body>
     </html>

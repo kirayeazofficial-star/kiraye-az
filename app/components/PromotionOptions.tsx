@@ -3,6 +3,8 @@ import { ArrowUp, ChevronLeft, ChevronRight, Crown, Gem, Megaphone, X, type Luci
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { paidVisible, useSiteFlags } from "../../lib/use-site-flags";
+import { toast } from "../../lib/toast";
 
 type Kind = "bump" | "vip" | "premium";
 type Plan = { label: string; price: string; extra?: string };
@@ -27,6 +29,7 @@ export const packs: Pack[] = [
 // dialog first lets the owner choose a service. `card` renders the trigger as a small price card.
 export default function PromotionOptions({ eligible = true, kind, label, card = false, listingId }: { eligible?: boolean; kind?: Kind; label?: string; card?: boolean; listingId?: string }) {
   const id = useId();
+  const flags = useSiteFlags();
   const dialog = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const [chosen, setChosen] = useState<Kind | null>(kind ?? null);
@@ -44,7 +47,8 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
       const response = await fetch("/api/listings/promote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: listingId, kind: "store_bump" }) });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error === "NO_FREE_BUMPS" ? "Bu ay üçün pulsuz irəli çəkmələr bitib." : "İrəli çəkmək alınmadı. Yenidən cəhd edin.");
-      setDone("Elan irəli çəkildi."); setTimeout(() => window.location.reload(), 1200);
+      toast("Elan pulsuz irəli çəkildi.", { afterReload: true });
+      setDone("ok"); window.location.reload();
     } catch (problem) { setFailed(problem instanceof Error ? problem.message : "İrəli çəkmək alınmadı."); }
     finally { setBusy(false); }
   }
@@ -54,8 +58,10 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
     try {
       const response = await fetch("/api/listings/promote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: listingId, kind: kindToUse, plan }) });
       if (!response.ok) throw new Error();
-      setDone(`${packs.find(item => item.kind === kindToUse)?.title} aktivləşdirildi.`);
-      setTimeout(() => window.location.reload(), 1200);
+      // The dialog closes at once; the green message (with ✕) appears after the page refreshes.
+      const title = packs.find(item => item.kind === kindToUse)?.title;
+      toast(kindToUse === "bump" ? "Elan irəli çəkildi." : `Elan ${title} edildi.`, { afterReload: true });
+      setDone("ok"); window.location.reload();
     } catch { setFailed("Aktivləşdirmək alınmadı. Yenidən cəhd edin."); }
     finally { setBusy(false); }
   }
@@ -71,6 +77,8 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
   }, [open]);
   const close = () => { setOpen(false); setChosen(kind ?? null); setPlan(0); setNotice(false); setDone(""); setFailed(""); };
   const Icon = own?.icon ?? Megaphone;
+  // Paid services switched off by the leader: no button at all (the leader still sees it).
+  if (!paidVisible(flags)) return null;
   return <>
     <button type="button" className={`promotionTrigger${kind ? " " + kind : ""}${card ? " kzPromoCard" : ""}`} disabled={!eligible} onClick={() => setOpen(true)}>
       {card && own ? <><span className="kzPromoCardText"><strong>{label ?? own.title}</strong><small>{own.from} AZN-dən</small></span><Icon aria-hidden="true" size={18} strokeWidth={2} /></>
@@ -96,8 +104,8 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
           <p className="kzPromoDesc">{pack.description}</p>
           {pack.kind === "bump" && !staff && storeBumps && listingId && <div className="kzPromoStore">
             <div><strong>Mağaza paketi</strong><small>Bu ay {storeBumps.left} / {storeBumps.total} pulsuz irəli çək qalıb</small></div>
-            <button type="button" className="kzPromoPay" disabled={busy || !!done || storeBumps.left < 1} onClick={() => void storeBump()}>{busy ? "Gözləyin…" : "Pulsuz irəli çək"}</button>
-            {done && <p className="kzPromoDone" role="status">{done}</p>}{failed && <p className="kzPromoNotice" role="alert">{failed}</p>}
+            <button type="button" className="kzPromoPay" disabled={busy || !!done || storeBumps.left < 1} onClick={() => void storeBump()}>{busy || done ? "Gözləyin…" : "Pulsuz irəli çək"}</button>
+            {failed && <p className="kzPromoNotice" role="alert">{failed}</p>}
           </div>}
           {pack.bonus && <div className="kzPromoBonus">
             <span className="kzPromoBonusTag">BONUS</span>
@@ -123,9 +131,9 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
           </div></>}
           <footer className="kzPromoFoot">
             {staff ? <>
-              {done ? <p className="kzPromoDone" role="status">{done}</p> : <p className="kzPromoStaff">Rəhbər üçün bütün xidmətlər pulsuzdur.</p>}
+              <p className="kzPromoStaff">Rəhbər üçün bütün xidmətlər pulsuzdur.</p>
               {failed && <p className="kzPromoNotice" role="alert">{failed}</p>}
-              <button type="button" className="kzPromoPay" disabled={busy || !!done || !listingId} onClick={() => void activate(pack.kind)}>{busy ? "Gözləyin…" : "Pulsuz aktivləşdir"}</button>
+              <button type="button" className="kzPromoPay" disabled={busy || !!done || !listingId} onClick={() => void activate(pack.kind)}>{busy || done ? "Gözləyin…" : "Pulsuz aktivləşdir"}</button>
             </> : <>
               {notice && <p className="kzPromoNotice" role="status">Ödəniş sistemi hələ qoşulmayıb — heç bir məbləğ tutulmadı. Qoşulan kimi bu düymə ilə ödəyə biləcəksiniz.</p>}
               <button type="button" className="kzPromoPay" onClick={() => setNotice(true)}>Ödə · {pack.plans[plan].price} AZN</button>

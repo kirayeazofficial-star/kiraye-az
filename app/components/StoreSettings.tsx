@@ -5,6 +5,7 @@ import { Check, Clock, ExternalLink, ImagePlus, Store as StoreIcon, TriangleAler
 import { squareAvatar } from "../../lib/avatar-image";
 import { bannerJpeg } from "../../lib/banner-image";
 import { useAutoClear } from "../../lib/use-auto-clear";
+import { paidVisible, useSiteFlags } from "../../lib/use-site-flags";
 
 type Plan = { id: string; name: string; price: string; listing_limit: number | null; free_bumps: number; featured: boolean };
 type Store = { slug: string; name: string; description: string; logo_url: string | null; cover_url: string | null; open_from: string | null; open_to: string | null; phone: string; address: string; hours: string; plan: string; status: string; active_until: string | null; reject_reason: string | null };
@@ -15,6 +16,7 @@ const day = (value: string | null) => value ? new Date(value).toLocaleDateString
 export default function StoreSettings() {
   const [store, setStore] = useState<Store | null>(null), [plans, setPlans] = useState<Plan[]>([]), [loading, setLoading] = useState(true), [terms, setTerms] = useState<Terms>(null);
   const [plan, setPlan] = useState("business"), [logo, setLogo] = useState<File | null>(null), [preview, setPreview] = useState(""), [cover, setCover] = useState<File | null>(null), [coverPreview, setCoverPreview] = useState("");
+  const flags = useSiteFlags();
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
   useAutoClear(notice, () => setNotice(""));
   const load = () => fetch("/api/stores?mine=1", { cache: "no-store" }).then(r => r.json()).then(data => { setStore(data.store); setPlans(data.plans || []); setTerms(data.terms || null); if (data.store) setPlan(data.store.plan); }).catch(() => setError("Məlumat yüklənmədi.")).finally(() => setLoading(false));
@@ -31,7 +33,7 @@ export default function StoreSettings() {
       if (cover) body.set("cover", await bannerJpeg(cover), "cover.jpg"); else body.delete("cover");
       const response = await fetch("/api/stores", { method: "POST", body });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error === "SLUG_TAKEN" ? "Bu ünvan artıq başqa mağazadadır. Başqa ad seçin." : data.error === "INVALID_NAME" ? "Mağazanın adı ən azı 3 hərf olmalıdır." : "Mağaza saxlanmadı. Yenidən cəhd edin.");
+      if (!response.ok) throw new Error(data.error === "SLUG_TAKEN" ? "Bu ünvan artıq başqa mağazadadır. Başqa ad seçin." : data.error === "INVALID_NAME" ? "Mağazanın adı ən azı 3 hərf olmalıdır." : data.error === "PAYMENTS_OFF" ? "Mağaza müraciətləri müvəqqəti qəbul olunmur." : "Mağaza saxlanmadı. Yenidən cəhd edin.");
       setLogo(null); setCover(null); setNotice(data.status === "pending" ? "Müraciət göndərildi. Administrasiya yoxlayıb aktivləşdirəndə mağazanız açılacaq." : "Dəyişikliklər saxlanıldı.");
       await load();
     } catch (problem) { setError(problem instanceof Error ? problem.message : "Mağaza saxlanmadı."); }
@@ -48,6 +50,7 @@ export default function StoreSettings() {
       </div>
       {active && <Link className="kzButtonGhost kzIconBtn" href={`/magaza/${store.slug}`}><ExternalLink aria-hidden="true" size={15} strokeWidth={2} />Mağazaya bax</Link>}
     </div>}
+    {flags && !paidVisible(flags) && !active && <div className="kzStoreStatus pending"><span><Clock aria-hidden="true" size={18} strokeWidth={2.2} /></span><div><strong>Mağaza müraciətləri müvəqqəti qəbul olunmur</strong><small>Ödənişli xidmətlər hazırda dayandırılıb. Yenidən açıldıqda bu bölmədən müraciət edə biləcəksiniz.</small></div></div>}
     {!store && <div className="kzStoreIntro"><span><StoreIcon aria-hidden="true" size={22} strokeWidth={2} /></span><div><strong>Öz mağazanızı açın</strong><small>Mağaza səhifəsi, loqo, ünvan və iş saatları, elanlarda «Mağaza» nişanı və daha çox elan limiti. Rent a car, alət icarəsi, geyim salonu, telefon dükanı — hər kəs aça bilər.</small></div></div>}
     <div className="kzPlans" role="radiogroup" aria-label="Paket">
       {plans.map(item => <label key={item.id} className={`kzPlan${plan === item.id ? " on" : ""}${item.featured ? " featured" : ""}`}>
@@ -80,7 +83,7 @@ export default function StoreSettings() {
       </div>
       <label>Ünvan<input name="address" maxLength={120} defaultValue={store?.address} placeholder="Bakı, Nəsimi r., ..." /></label>
       {error && <p className="kzFormError" role="alert">{error}</p>}{notice && <p className="kzFormNotice" role="status">{notice}</p>}
-      <button className="kzButton" disabled={busy}>{busy ? "Göndərilir…" : store ? "Yadda saxla" : "Müraciət göndər"}</button>
+      <button className="kzButton" disabled={busy || (!!flags && !paidVisible(flags) && !active)}>{busy ? "Göndərilir…" : store ? "Yadda saxla" : "Müraciət göndər"}</button>
       <p className="muted">Ödəniş sistemi qoşulana qədər mağazanı administrasiya aktivləşdirir. Müraciətdən sonra sizinlə əlaqə saxlanılacaq.</p>
     </form>
   </section>;

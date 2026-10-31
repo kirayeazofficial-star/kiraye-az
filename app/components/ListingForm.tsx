@@ -11,6 +11,7 @@ import RentalTermsFields from "./RentalTermsFields";
 import DurationField from "./DurationField";
 import ListingCategoryFields from "./ListingCategoryFields";
 import { contactInText, contactInTextMessage } from "../../lib/contact-filter";
+import { paidVisible, useSiteFlags } from "../../lib/use-site-flags";
 import { editLimitMessage, nextEditAt } from "../../lib/edit-limit";
 import LocationPicker from "./LocationPicker";
 import { locationCategories } from "../../lib/location";
@@ -37,6 +38,7 @@ const limitDate=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{ti
 const limitMessage=(_next?:string|null)=>"Bu kateqoriyada pulsuz limitiniz dolub.";
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const [step, setStep] = useState(1);
+  const flags = useSiteFlags();
   const [canModerate, setCanModerate] = useState(false);
   // A listing that has been published keeps its category (it cannot be turned into another item).
   const [categoryLocked, setCategoryLocked] = useState(false);
@@ -476,7 +478,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
               {paymentWaiting ? "Ödəniş gözləyir bölməsinə keç" : "Elanlarıma keç"}
             </Link>
             {/* Limit full: opening a store is usually cheaper than paying for every extra listing. */}
-            {paymentWaiting && <div className="kzStoreOffer">
+            {paymentWaiting && paidVisible(flags) && <div className="kzStoreOffer">
               <strong>Çox elan verirsiniz? Mağaza açın</strong>
               <small>Hər kateqoriyada daha çox elan, ayda pulsuz irəli çək, öz mağaza səhifəniz və elanlarda «Mağaza» nişanı. Ayda 14,99 ₼-dan.</small>
               <Link className="secondary" href="/profile?section=store">Mağaza paketlərinə bax</Link>

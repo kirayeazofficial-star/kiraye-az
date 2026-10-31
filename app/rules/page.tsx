@@ -91,6 +91,17 @@ export default async function Rules() {
         <p><strong>8.5.</strong> Müddəti bitmiş, silinmiş və ya rədd edilmiş elan 180 gün ərzində bərpa olunmazsa, birdəfəlik arxivə keçir və kabinetdə görünmür.</p>
         <p><strong>8.6.</strong> Ödəniş sistemi hələ qoşulmayıb: ödənişli addımlarda heç bir məbləğ tutulmur. Qiymətlər ödəniş aktivləşdirilməzdən əvvəl göstəriləcək.</p>
       </section>
+      <section id="odenis-ve-geri-qaytarma">
+        <h2>9. Ödəniş və geri qaytarma</h2>
+        <p><strong>9.1.</strong> Ödənişli xidmətlər (irəli çəkmə, VIP, Premium, ödənişli yerləşdirmə, bərpa və mağaza paketləri) ödəniş təsdiqləndiyi andan tətbiq olunur. Xidmətin qiyməti, müddəti və nə verdiyi ödənişdən əvvəl göstərilir.</p>
+        <p><strong>9.2.</strong> Elan hələ yoxlamadadırsa, ödənilmiş xidmət elan dərc olunduğu andan başlayır. Elan rədd edilərsə və xidmət tətbiq olunmayıbsa, ödənilən məbləğ şəxsi hesab balansına qaytarılır.</p>
+        <p><strong>9.3.</strong> Artıq göstərilmiş və ya başlamış xidmətin haqqı geri qaytarılmır. Xidmətin başlama vaxtı dəyişdirilə və xidmət başqa elana keçirilə bilməz.</p>
+        <p><strong>9.4.</strong> Qayda pozuntusuna görə dayandırılan və ya silinən elana tətbiq olunmuş ödənişli xidmətlərin haqqı geri qaytarılmır.</p>
+        <p><strong>9.5.</strong> Texniki səbəbdən (saytın xətası) xidmət göstərilməyibsə, ödənilən məbləğ tam həcmdə şəxsi hesab balansına, müraciət əsasında isə ödəniş edilən karta qaytarılır. Karta qaytarma bankdan asılı olaraq 3–10 iş günü çəkə bilər.</p>
+        <p><strong>9.6.</strong> Mağaza paketi müddət bitənədək qüvvədədir. Paket aktivləşdirildikdən sonra ödənilən məbləğ geri qaytarılmır; müddət bitdikdə istifadə olunmamış pulsuz irəli çəkmələr və digər komponentlər sıfırlanır.</p>
+        <p><strong>9.7.</strong> Şəxsi hesab balansındakı vəsait yalnız sayt daxilində xidmətlərə xərclənə bilər və nağd pula çevrilmir.</p>
+        <p><strong>9.8.</strong> Ödənişlə bağlı sual və ya etiraz üçün elan nömrəsini və ödəniş tarixini göstərərək kirayeal.az@gmail.com ünvanına yazın. Müraciətlərə 3 iş günü ərzində baxılır.</p>
+      </section>
       <p><Link href="/help">Suallar və kömək</Link> · <Link href="/new">Elan yerləşdir</Link></p>
     </main>
     <Footer />

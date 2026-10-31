@@ -3,6 +3,7 @@ import {hostQuery,hostTransaction} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
 import {notifyRejected} from "../../../lib/host/notify";
 import {limitRules,saveLimitRules} from "../../../lib/host/limit-rules";
+import {paymentsEnabled,setPaymentsEnabled} from "../../../lib/host/site-flags";
 import {cleanLimitRules} from "../../../lib/limit-rules";
 
 export const dynamic="force-dynamic";
@@ -120,7 +121,7 @@ export async function GET(request:NextRequest){
     // Free listing rules (leader only): groups, always-paid categories and the on/off switch.
     if(action==="limit_rules"){
       if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
-      return reply({rules:await limitRules()});
+      return reply({rules:await limitRules(),payments:await paymentsEnabled()});
     }
 
     // Stores: applications and active stores, plus the packages (prices are edited by the leader).
@@ -226,6 +227,11 @@ export async function POST(request:NextRequest){
         :decision==="reject"?`update public.stores set status='rejected',reject_reason=$2,updated_at=now() where id=$1 returning id`
         :`update public.stores set status='expired',active_until=now(),updated_at=now() where id=$1 returning id`,decision==="stop"?[id]:[id,decision==="activate"?days:reason]);
       return rows[0]?reply({ok:true}):reply({error:"NOT_FOUND"},404);
+    }
+    if(action==="save_payments"){
+      if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
+      await setPaymentsEnabled(body.enabled===true);
+      return reply({ok:true});
     }
     if(action==="save_limit_rules"){
       if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);

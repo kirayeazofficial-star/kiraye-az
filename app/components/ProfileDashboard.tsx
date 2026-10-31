@@ -15,6 +15,7 @@ import NavigationIcon from "./NavigationIcon";
 import AccountLimits from "./AccountLimits";
 import StoreSettings from "./StoreSettings";
 import BalancePreview from "../components/BalancePreview";
+import { paidVisible, useSiteFlags } from "../../lib/use-site-flags";
 import UserAvatar from "./UserAvatar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -112,8 +113,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     }
   }
 
-  const paidRestore = () => setPayment({ title: "Ödənişlə bərpa", text: "Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir. Bərpa edilən elan yenidən 30 gün yayımlanır." });
-  const paidSubmit = () => setPayment({ title: "Ödənişlə göndərmə", text: "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yoxlamaya göndərmək üçün ödəniş lazımdır." });
+  const paidRestore = () => setPayment({ title: "Ödənişlə bərpa", text: paidVisible(flags) ? "Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir. Bərpa edilən elan yenidən 30 gün yayımlanır." : "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
+  const paidSubmit = () => setPayment({ title: "Ödənişlə göndərmə", text: paidVisible(flags) ? "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yoxlamaya göndərmək üçün ödəniş lazımdır." : "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
   // Restoring is a paid step (payments are not connected yet, so this opens the payment notice).
   // Only the leader restores their own listings for free.
   async function restore(item: Listing) {
@@ -141,6 +142,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     } catch { setError("Elanı göndərmək mümkün olmadı. Yenidən cəhd edin."); }
     finally { setBusy(""); }
   }
+  const flags = useSiteFlags();
   // Store status for the "open a store" advice (people with many listings, without a store).
   useEffect(() => { if (!userId) return; fetch("/api/stores?mine=1", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => setHasStore(!!d?.terms)).catch(() => setHasStore(null)); }, [userId]);
   const matchesTab=(item:Listing,status:string)=>{if(status==="deleted")return !!item.deleted_at;if(item.deleted_at)return false;if(status==="payment")return !!item.payment_required;if(item.payment_required)return false;const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);return current===status;};
@@ -193,7 +195,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 <h2>Elanlarım{refreshing && <span className="kzSpinner" role="status" aria-label="Yenilənir" />}</h2>
                 <Link className="kzButton" href="/new"><Plus className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Yeni elan</Link>
               </div>
-              {!leader && hasStore === false && listings.filter((x) => !x.deleted_at).length >= 3 && <div className="kzStoreTip">
+              {!leader && paidVisible(flags) && hasStore === false && listings.filter((x) => !x.deleted_at).length >= 3 && <div className="kzStoreTip">
                 <span><Store aria-hidden="true" size={20} strokeWidth={2} /></span>
                 <div><strong>Çox elan verirsiniz? Mağaza açın</strong><small>Hər kateqoriyada daha çox elan, ayda pulsuz irəli çək, öz mağaza səhifəniz və elanlarda «Mağaza» nişanı. Ayda 14,99 ₼-dan.</small></div>
                 <Link className="kzButtonGhost" href="/profile?section=store">Paketlərə bax</Link>

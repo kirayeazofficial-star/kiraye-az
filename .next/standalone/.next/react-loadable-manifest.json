@@ -1,9 +1,9 @@
 {
   "app/components/HomeCatalog.tsx -> ./ListingsMap": {
-    "id": 5604,
+    "id": 8641,
     "files": [
       "static/css/7e7e9cbf75be1334.css",
-      "static/chunks/5604.4fb07430588fa5a1.js"
+      "static/chunks/8641.ab32a154d2bef341.js"
     ]
   },
   "app/components/ListingDetails.tsx -> ../../lib/share-card": {
@@ -17,7 +17,7 @@
     "id": 3710,
     "files": [
       "static/css/7e7e9cbf75be1334.css",
-      "static/chunks/3710.5bd9e556d6342850.js"
+      "static/chunks/3710.451d19481f1c2818.js"
     ]
   },
   "app/components/ListingsMap.tsx -> leaflet": {
@@ -36,7 +36,7 @@
     "id": 3710,
     "files": [
       "static/css/7e7e9cbf75be1334.css",
-      "static/chunks/3710.5bd9e556d6342850.js"
+      "static/chunks/3710.451d19481f1c2818.js"
     ]
   }
 }

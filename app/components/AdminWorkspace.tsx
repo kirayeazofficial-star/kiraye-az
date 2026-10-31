@@ -2,7 +2,7 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, Flag, ListChecks, UserRound, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -341,7 +341,7 @@ export default function AdminWorkspace() {
   return <div className="kzAdm">
     <nav className="kzAdNav" aria-label="Panel bölmələri">
       {sections.map(item => <button key={item} type="button" aria-pressed={section === item} onClick={() => open(item)}>{(() => { const SectionIcon = icons[item]; return <SectionIcon aria-hidden="true" size={20} strokeWidth={1.75} />; })()}<span>{sectionLabels[item]}</span>{!!badge(item) && <b>{badge(item)}</b>}</button>)}
-      <Link className="kzAdNavBack" href="/profile"><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Şəxsi kabinet</Link>
+      <Link className="kzAdNavBack" href="/profile"><UserRound aria-hidden="true" size={19} strokeWidth={2} />Şəxsi kabinet</Link>
     </nav>
     <div className="kzAdContent">
       {section !== "overview" && <button type="button" className="kzAdBack" onClick={() => open(section === "history" ? "moderation" : "overview")}><ChevronLeft aria-hidden="true" size={20} strokeWidth={2} />{section === "history" ? "Elanlar" : "Panel"}</button>}
@@ -358,9 +358,12 @@ export default function AdminWorkspace() {
         </nav>
         <Panel title="Görüləcək işlər" className="kzAdTodoPanel">
           <div className="kzAdTodo">
-            <button type="button" className={pending ? "attention" : ""} onClick={() => showListings("pending")}><b>{pending}</b><span>{pending ? "elan yoxlama gözləyir" : "yoxlanılacaq elan yoxdur"}</span><em>Bax<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></em></button>
-            <button type="button" className={openReports ? "warn" : ""} onClick={() => open("reports")}><b>{openReports}</b><span>{openReports ? "açıq şikayət" : "açıq şikayət yoxdur"}</span><em>Bax<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></em></button>
-            <button type="button" className={storeRequests ? "attention" : ""} onClick={() => open("stores")}><b>{storeRequests}</b><span>{storeRequests ? "mağaza müraciəti" : "mağaza müraciəti yoxdur"}</span><em>Bax<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></em></button>
+            {([[pending, "Yoxlama gözləyən elan", "attention", ListChecks, () => showListings("pending")], [openReports, "Açıq şikayət", "warn", Flag, () => open("reports")], [storeRequests, "Mağaza müraciəti", "attention", Store, () => open("stores")]] as const).map(([count, label, tone, Icon, go]) =>
+              <button type="button" key={label} className={count ? tone : "done"} onClick={go}>
+                <span className="kzAdTodoIcon"><Icon aria-hidden="true" size={20} strokeWidth={2} /></span>
+                <span className="kzAdTodoText"><small>{label}</small><b>{count}</b></span>
+                <ChevronRight className="kzAdTodoGo" aria-hidden="true" size={18} strokeWidth={2.25} />
+              </button>)}
           </div>
         </Panel>
         <Panel title="Statistika" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" onClick={() => setRevision(x => x + 1)}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>

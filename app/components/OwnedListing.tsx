@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { finishWithin } from "../../lib/auth-return";
 import type { Listing } from "../../lib/marketplace";
-import PromotionOptions from "./PromotionOptions";
 import ListingDetails from "./ListingDetails";
 export default function OwnedListing({ id }: { id: string }) {
   const [item, setItem] = useState<Listing | null>(null);
@@ -32,13 +31,7 @@ export default function OwnedListing({ id }: { id: string }) {
     <p role="status">Elan yüklənir...</p>
   ) : item ? (
     <>
-      <p className="notice">
-        Şəxsi önbaxış: bu elan{" "}
-        {item.status === "pending" ? "yoxlamadadır" : "kabinetindədir"}. Yalnız
-        yayımlanmış elanlar hamıya göstərilir.
-      </p>
       <ListingDetails item={item} />
-      <PromotionOptions eligible={item.status === "published"} />
     </>
   ) : (
     <section className="empty">

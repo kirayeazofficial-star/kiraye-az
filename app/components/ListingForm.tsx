@@ -475,6 +475,12 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <Link className="add" href={paymentWaiting ? "/profile?section=listings&tab=payment" : "/profile?section=listings&tab=pending"}>
               {paymentWaiting ? "Ödəniş gözləyir bölməsinə keç" : "Elanlarıma keç"}
             </Link>
+            {/* Limit full: opening a store is usually cheaper than paying for every extra listing. */}
+            {paymentWaiting && <div className="kzStoreOffer">
+              <strong>Çox elan verirsiniz? Mağaza açın</strong>
+              <small>Hər kateqoriyada daha çox elan, ayda pulsuz irəli çək, öz mağaza səhifəniz və elanlarda «Mağaza» nişanı. Ayda 14,99 ₼-dan.</small>
+              <Link className="secondary" href="/profile?section=store">Mağaza paketlərinə bax</Link>
+            </div>}
           </section>
         ) : loadError ? (
           <div className="error" role="alert">

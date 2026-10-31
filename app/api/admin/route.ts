@@ -2,6 +2,8 @@ import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
 import {notifyRejected} from "../../../lib/host/notify";
+import {limitRules,saveLimitRules} from "../../../lib/host/limit-rules";
+import {cleanLimitRules} from "../../../lib/limit-rules";
 
 export const dynamic="force-dynamic";
 const ownerEmail="kirayeal.az@gmail.com";
@@ -115,6 +117,12 @@ export async function GET(request:NextRequest){
       return reply({items,pageSize:REPORT_PAGE,role:auth.role});
     }
 
+    // Free listing rules (leader only): groups, always-paid categories and the on/off switch.
+    if(action==="limit_rules"){
+      if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
+      return reply({rules:await limitRules()});
+    }
+
     // Stores: applications and active stores, plus the packages (prices are edited by the leader).
     if(action==="stores"){
       const items=await hostQuery(`select s.*,u.email owner_email,p.display_name owner_name,pl.name as plan_name,(case when s.terms_set then s.terms_price else pl.price end)::text as plan_price,(select count(*)::int from public.listings l where l.owner_id=s.owner_id and l.status='published' and l.deleted_at is null) as listings from public.stores s join auth.users u on u.id=s.owner_id left join public.profiles p on p.id=s.owner_id join public.store_plans pl on pl.id=s.plan order by case s.status when 'pending' then 0 when 'active' then 1 else 2 end,s.updated_at desc limit 200`);
@@ -218,6 +226,11 @@ export async function POST(request:NextRequest){
         :decision==="reject"?`update public.stores set status='rejected',reject_reason=$2,updated_at=now() where id=$1 returning id`
         :`update public.stores set status='expired',active_until=now(),updated_at=now() where id=$1 returning id`,decision==="stop"?[id]:[id,decision==="activate"?days:reason]);
       return rows[0]?reply({ok:true}):reply({error:"NOT_FOUND"},404);
+    }
+    if(action==="save_limit_rules"){
+      if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
+      await saveLimitRules(cleanLimitRules(body.rules));
+      return reply({ok:true});
     }
     if(action==="store_plan"){
       if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);

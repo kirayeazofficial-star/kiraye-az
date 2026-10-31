@@ -45,6 +45,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [admin, setAdmin] = useState(false),
     [staffRole, setStaffRole] = useState(""),
     [leader, setLeader] = useState(false),
+    [hasStore, setHasStore] = useState<boolean | null>(null),
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
     [statusFilter, setStatusFilter] = useState(() => { const tab = params.get("tab"); return tab && listingTabs.some(([key]) => key === tab) ? tab : "published"; }),
@@ -140,6 +141,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     } catch { setError("Elanı göndərmək mümkün olmadı. Yenidən cəhd edin."); }
     finally { setBusy(""); }
   }
+  // Store status for the "open a store" advice (people with many listings, without a store).
+  useEffect(() => { if (!userId) return; fetch("/api/stores?mine=1", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => setHasStore(!!d?.terms)).catch(() => setHasStore(null)); }, [userId]);
   const matchesTab=(item:Listing,status:string)=>{if(status==="deleted")return !!item.deleted_at;if(item.deleted_at)return false;if(status==="payment")return !!item.payment_required;if(item.payment_required)return false;const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);return current===status;};
   return (
     <>
@@ -190,6 +193,11 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 <h2>Elanlarım{refreshing && <span className="kzSpinner" role="status" aria-label="Yenilənir" />}</h2>
                 <Link className="kzButton" href="/new"><Plus className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Yeni elan</Link>
               </div>
+              {!leader && hasStore === false && listings.filter((x) => !x.deleted_at).length >= 3 && <div className="kzStoreTip">
+                <span><Store aria-hidden="true" size={20} strokeWidth={2} /></span>
+                <div><strong>Çox elan verirsiniz? Mağaza açın</strong><small>Hər kateqoriyada daha çox elan, ayda pulsuz irəli çək, öz mağaza səhifəniz və elanlarda «Mağaza» nişanı. Ayda 14,99 ₼-dan.</small></div>
+                <Link className="kzButtonGhost" href="/profile?section=store">Paketlərə bax</Link>
+              </div>}
               <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
                 {/* Empty tabs are hidden (Aktiv and Gözləmədə always stay), so the row stays short. */}
                 {listingTabs.filter(([status]) => status === "published" || status === "pending" || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => (

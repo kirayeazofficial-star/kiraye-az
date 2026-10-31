@@ -2508,3 +2508,33 @@ html{-webkit-tap-highlight-color:transparent}
 .kzOwnerStatus.off{background:#f1f2f4;color:#4b5563}
 /* WhatsApp düyməsi yaşıl düymə ilə eyni endə (asimmetriya olmasın) */
 .contactActions .kzWaBtn{width:100%;justify-content:center}
+
+.kzLimitCats{display:block;margin-top:2px;font-size:12px;font-weight:400;color:var(--kz-muted)}
+/* Rəhbər paneli: «Limitlər» bölməsi (menyuda 7-ci) — ikon rəngləri sıraya görə */
+.kzAdNav button:nth-of-type(7) svg{color:#6366f1}.kzAdNav button:nth-of-type(8) svg{color:#e9a514}.kzAdNav button:nth-of-type(9) svg{color:#2f6fe4}
+.kzLimitSwitch{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 18px;padding:16px;border:1px solid var(--kz-line);border-radius:14px;background:#f8f9fb}
+.kzLimitSwitch.on{border-color:#cdebd8;background:#f6fcf8}
+.kzLimitSwitch div{display:grid;gap:4px;min-width:0}.kzLimitSwitch strong{font-size:15px;color:var(--kz-ink)}.kzLimitSwitch small{font-size:13px;line-height:1.45;color:var(--kz-muted)}
+.kzLimitSwitch .kzAdBtn{flex:none;min-width:96px;justify-content:center}
+.kzLimitGroups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px}
+.kzLimitGroup{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--kz-line);border-radius:12px;background:#fff}
+.kzLimitGroup span{display:grid;gap:2px;min-width:0}.kzLimitGroup strong{font-size:14px;color:var(--kz-ink)}.kzLimitGroup small{font-size:12px;line-height:1.4;color:var(--kz-muted)}
+.kzLimitGroup input{width:64px!important;height:38px;margin:0!important;text-align:center;border:1px solid var(--kz-line);border-radius:10px;font:inherit;font-size:15px;font-weight:600}
+.kzLimitPaid{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.kzLimitPaid label{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 12px;border:1px solid var(--kz-line);border-radius:18px;background:#fff;font-size:14px;cursor:pointer}
+.kzLimitPaid label.on{border-color:#ffd2bf;background:#fff6f1;color:var(--kz-accent-dark,#c2410c)}
+.kzLimitPaid input{width:16px;height:16px;margin:0;accent-color:var(--kz-accent)}
+@media (max-width:860px){.kzLimitGroups{grid-template-columns:1fr}.kzLimitSwitch{flex-direction:column;align-items:stretch}}
+.kzAdMenu .tone-limits{--tone:#6366f1;--tint:#eef0ff}
+
+.kzStoreOffer{display:grid;gap:6px;justify-items:center;margin:18px auto 0;padding:14px 16px;max-width:460px;border:1px dashed #f3b9a1;border-radius:14px;background:#fff8f4;text-align:center}
+.kzStoreOffer strong{font-size:15px;color:var(--kz-ink)}.kzStoreOffer small{font-size:13px;line-height:1.5;color:var(--kz-muted)}
+.kzStoreOffer .secondary{margin-top:4px}
+
+/* Kabinet: çox elanı olana mağaza məsləhəti (elanda nişan yoxdur, yalnız burada) */
+.kzStoreTip{display:flex;align-items:center;gap:12px;margin:0 0 14px;padding:12px 14px;border:1px solid #f6d3e1;border-radius:14px;background:#fff7fa}
+.kzStoreTip>span{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:12px;background:#fdecf3;color:#d9467a}
+.kzStoreTip>div{display:grid;gap:2px;flex:1;min-width:0}.kzStoreTip strong{font-size:14px;color:var(--kz-ink)}.kzStoreTip small{font-size:13px;line-height:1.45;color:var(--kz-muted)}
+.kzStoreTip .kzButtonGhost{flex:none}
+@media (max-width:640px){.kzStoreTip{flex-wrap:wrap}.kzStoreTip>div{flex:1 1 calc(100% - 52px)}.kzStoreTip .kzButtonGhost{width:100%;justify-content:center}}
+.kzLimitsLead a{color:var(--kz-accent);font-weight:600;text-decoration:none}

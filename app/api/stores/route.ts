@@ -5,7 +5,7 @@ import {sameOrigin} from "../../../lib/server-request";
 import {hostQuery} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
 import {newId} from "../../../lib/host/security";
-import {storePlans,storeSlug,type Store} from "../../../lib/host/stores";
+import {activeStore,storePlans,storeSlug,type Store} from "../../../lib/host/stores";
 
 export const runtime="nodejs";export const dynamic="force-dynamic";
 const root=process.env.KIRAYE_STORAGE_ROOT||"";
@@ -17,8 +17,10 @@ export async function GET(request:NextRequest){
   try{
     if(request.nextUrl.searchParams.get("mine")){
       const user=await currentUser();if(!user)return reply({error:"SIGN_IN_REQUIRED"},401);
-      const [store,plans]=await Promise.all([hostQuery<Store>(`select * from public.stores where owner_id=$1`,[user.id]),storePlans()]);
-      return reply({store:store[0]||null,plans});
+      const [store,plans,active]=await Promise.all([hostQuery<Store>(`select * from public.stores where owner_id=$1`,[user.id]),storePlans(),activeStore(user.id)]);
+      // Terms of the current paid period: they stay as activated even if the leader changes the package later.
+      const terms=active?{listing_limit:active.listing_limit,free_bumps:active.free_bumps,bumps_left:active.bumps_left,price:(active as {terms_price?:string|null}).terms_price??null}:null;
+      return reply({store:store[0]||null,plans,terms});
     }
     const items=await hostQuery(`select s.slug,s.name,s.logo_url,s.address,p.featured,(select count(*)::int from public.listings l where l.owner_id=s.owner_id and l.status='published' and l.deleted_at is null and (l.expires_at is null or l.expires_at>now())) as listings
       from public.stores s join public.store_plans p on p.id=s.plan join auth.users u on u.id=s.owner_id

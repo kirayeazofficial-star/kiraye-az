@@ -14,7 +14,7 @@ import { useAutoClear } from "../../lib/use-auto-clear";
 
 type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup" | "stores";
 type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string; signal_count?: number };
-type Counts = { users: number; listings: number; messages: number; reports: number; statuses: Record<string, number> };
+type Counts = { users: number; listings: number; messages: number; reports: number; stores?: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
 type Activity = { id: number; listing_id: string; action: string; new_status: string | null; reason: string | null; created_at: string; actor_name: string | null; title: string | null };
 type User = { id: string; email: string; display_name: string; phone: string; profile_no: number; staff_role?: string; listing_count: number; created_at?: string; blocked?: boolean; blocked_reason?: string | null };
@@ -327,15 +327,15 @@ export default function AdminWorkspace() {
   if (allowed === null) return <p className="kzAdMuted" role="status">İcazə yoxlanılır…</p>;
   if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil ol." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
   const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (!["staff", "backup"].includes(item) || role === "leader"));
-  const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0;
-  const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : 0;
+  const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0, storeRequests = counts?.stores || 0;
+  const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : item === "stores" ? storeRequests : 0;
   const menuNote = (item: Section): { text: string; alert?: boolean } =>
     item === "moderation" ? (pending ? { text: `${pending} elan yoxlama gözləyir`, alert: true } : { text: "Yoxlanılacaq elan yoxdur" })
     : item === "reports" ? (openReports ? { text: `${openReports} açıq şikayət`, alert: true } : { text: "Açıq şikayət yoxdur" })
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
     : item === "backup" ? { text: "Hər gecə Google Drive-a" }
-    : item === "stores" ? { text: "Müraciətlər və paketlər" }
+    : item === "stores" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: "Müraciətlər və paketlər" })
     : { text: "Rəhbər və adminlər" };
 
   return <div className="kzAdm">
@@ -360,6 +360,7 @@ export default function AdminWorkspace() {
           <div className="kzAdTodo">
             <button type="button" className={pending ? "attention" : ""} onClick={() => showListings("pending")}><b>{pending}</b><span>{pending ? "elan yoxlama gözləyir" : "yoxlanılacaq elan yoxdur"}</span><em>Bax<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></em></button>
             <button type="button" className={openReports ? "warn" : ""} onClick={() => open("reports")}><b>{openReports}</b><span>{openReports ? "açıq şikayət" : "açıq şikayət yoxdur"}</span><em>Bax<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></em></button>
+            <button type="button" className={storeRequests ? "attention" : ""} onClick={() => open("stores")}><b>{storeRequests}</b><span>{storeRequests ? "mağaza müraciəti" : "mağaza müraciəti yoxdur"}</span><em>Bax<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></em></button>
           </div>
         </Panel>
         <Panel title="Statistika" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" onClick={() => setRevision(x => x + 1)}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>

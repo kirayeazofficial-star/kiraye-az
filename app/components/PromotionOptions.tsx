@@ -33,7 +33,21 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
   const [plan, setPlan] = useState(0), [method, setMethod] = useState("card"), [notice, setNotice] = useState(false);
   // The leader uses every service for free: "Ödə" becomes "Pulsuz aktivləşdir".
   const [staff, setStaff] = useState(false), [busy, setBusy] = useState(false), [done, setDone] = useState(""), [failed, setFailed] = useState("");
-  useEffect(() => { if (!open) return; fetch("/api/auth/host", { cache: "no-store" }).then(r => r.json()).then(d => setStaff(!!d.leader)).catch(() => {}); }, [open]);
+  // Store owners have free bumps in their package (per month).
+  const [storeBumps, setStoreBumps] = useState<{ left: number; total: number } | null>(null);
+  useEffect(() => { if (!open) return; fetch("/api/auth/host", { cache: "no-store" }).then(r => r.json()).then(d => setStaff(!!d.leader)).catch(() => {});
+    fetch("/api/stores?mine=1", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => setStoreBumps(d?.terms?.free_bumps ? { left: d.terms.bumps_left, total: d.terms.free_bumps } : null)).catch(() => {}); }, [open]);
+  async function storeBump() {
+    if (!listingId || busy) return;
+    setBusy(true); setFailed("");
+    try {
+      const response = await fetch("/api/listings/promote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: listingId, kind: "store_bump" }) });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error === "NO_FREE_BUMPS" ? "Bu ay üçün pulsuz irəli çəkmələr bitib." : "İrəli çəkmək alınmadı. Yenidən cəhd edin.");
+      setDone("Elan irəli çəkildi."); setTimeout(() => window.location.reload(), 1200);
+    } catch (problem) { setFailed(problem instanceof Error ? problem.message : "İrəli çəkmək alınmadı."); }
+    finally { setBusy(false); }
+  }
   async function activate(kindToUse: Kind) {
     if (!listingId || busy) return;
     setBusy(true); setFailed("");
@@ -80,6 +94,11 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
           </button>)}
         </div> : <>
           <p className="kzPromoDesc">{pack.description}</p>
+          {pack.kind === "bump" && !staff && storeBumps && listingId && <div className="kzPromoStore">
+            <div><strong>Mağaza paketi</strong><small>Bu ay {storeBumps.left} / {storeBumps.total} pulsuz irəli çək qalıb</small></div>
+            <button type="button" className="kzPromoPay" disabled={busy || !!done || storeBumps.left < 1} onClick={() => void storeBump()}>{busy ? "Gözləyin…" : "Pulsuz irəli çək"}</button>
+            {done && <p className="kzPromoDone" role="status">{done}</p>}{failed && <p className="kzPromoNotice" role="alert">{failed}</p>}
+          </div>}
           {pack.bonus && <div className="kzPromoBonus">
             <span className="kzPromoBonusTag">BONUS</span>
             <div><small>Əvvəl</small><s>{pack.bonus.before}</s></div>

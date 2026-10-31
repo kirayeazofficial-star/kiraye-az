@@ -3,6 +3,21 @@ import { useState } from "react";
 import type { Listing } from "../../lib/marketplace";
 import { isProperty } from "../../lib/rental-details";
 import { SelectField } from "./ListingCategoryFields";
+// Ready sentences for the most common terms; they only fill the text, which stays editable.
+const itemTerms = [
+  "Depozit əşya qaytarılanda tam geri verilir.",
+  "Gecikən hər gün üçün günlük kirayə haqqı tutulur.",
+  "Zədə olarsa, təmir xərci depozitdən çıxılır.",
+  "Əşya təmiz və tam dəstlə qaytarılmalıdır.",
+  "24 saat əvvəl xəbər verməklə pulsuz ləğv etmək olar.",
+];
+const propertyTerms = [
+  "Depozit çıxış zamanı, əmlak yoxlanandan sonra qaytarılır.",
+  "Kommunal ödənişlər çıxışdan əvvəl hesablanır.",
+  "Zərər olarsa, təmir xərci depozitdən çıxılır.",
+  "Erkən çıxış barədə ən azı 15 gün əvvəl xəbər verilməlidir.",
+  "Ev heyvanı razılaşma ilə.",
+];
 export default function RentalTermsFields({
   category,
   attributes,
@@ -11,6 +26,7 @@ export default function RentalTermsFields({
   attributes?: Listing["attributes"];
 }) {
   const [method, setMethod] = useState(attributes?.delivery_method || "");
+  const [terms, setTerms] = useState(String(attributes?.return_terms || ""));
   return (
     <div className="rentalTermsFields">
       {isProperty(category) ? (
@@ -102,10 +118,19 @@ export default function RentalTermsFields({
           name="return_terms"
           maxLength={450}
           rows={3}
-          defaultValue={attributes?.return_terms}
+          value={terms}
+          onChange={(event) => setTerms(event.target.value)}
           placeholder="Depozit nə vaxt qaytarılır? Gecikmə, zərər və ləğv necə razılaşdırılır?"
         />
       </label>
+      <div className="kzTermChips" aria-label="Hazır şərtlər">
+        <span>Hazır şərtlər — toxunun, mətnə əlavə olunsun:</span>
+        {(isProperty(category) ? propertyTerms : itemTerms).map((term) => {
+          const used = terms.includes(term);
+          return <button key={term} type="button" className={used ? "on" : ""} aria-pressed={used}
+            onClick={() => setTerms((current) => used ? current.replace(term, "").replace(/\s{2,}/g, " ").trim() : `${current.trim()} ${term}`.trim().slice(0, 450))}>{term}</button>;
+        })}
+      </div>
     </div>
   );
 }

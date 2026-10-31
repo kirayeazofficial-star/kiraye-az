@@ -25,17 +25,21 @@ export async function GET(){
   try{const rows=await hostQuery<{staff_role:string}>(`select staff_role from public.staff_members where user_id=$1`,[user.id]);staff_role=rows[0]?.staff_role||null;}catch{}
   let avatar_url:string|null=null;
   try{const rows=await hostQuery<{avatar_url:string|null}>(`select avatar_url from public.profiles where id=$1`,[user.id]);avatar_url=rows[0]?.avatar_url||null;}catch{}
+  let email_notifications=true;
+  try{const rows=await hostQuery<{email_notifications:boolean}>(`select email_notifications from public.profiles where id=$1`,[user.id]);if(rows[0])email_notifications=rows[0].email_notifications!==false;}catch{}
   let created_at:string|null=null;
   try{const ts=await hostQuery<{created_at:string}>(`select created_at from auth.users where id=$1`,[user.id]);created_at=ts[0]?.created_at||null;}catch{}
-  return reply({profile:{profile_no,name:user.display_name||user.email.split('@')[0]||'İstifadəçi',display_name:user.display_name||'',phone:user.phone||'',email:user.email,role,staff_role,phone_changes:0,email_changes:0,phone_remaining:3,email_remaining:3,phone_verified:false,pending_email:null,created_at,avatar_url}});
+  return reply({profile:{profile_no,name:user.display_name||user.email.split('@')[0]||'İstifadəçi',display_name:user.display_name||'',phone:user.phone||'',email:user.email,role,staff_role,phone_changes:0,email_changes:0,phone_remaining:3,email_remaining:3,phone_verified:false,pending_email:null,created_at,avatar_url,email_notifications}});
  }catch(error){console.error('profile get',error);return reply({code:'profile_unavailable',stage:'session'},503);}
 }
 export async function POST(request:Request){
  if(!sameOrigin(request))return reply({code:'forbidden'},403);
  try{
-  const input=await request.json();if(!input||!['profile','email','email_confirm'].includes(input.action))return reply({code:'invalid_request'},400);
+  const input=await request.json();if(!input||!['profile','email','email_confirm','notifications'].includes(input.action))return reply({code:'invalid_request'},400);
   const user=await currentUser();if(!user)return reply({code:'sign_in_required'},401);
   await ensureProfile(user);
+  // E-mail notices on or off (new messages, expiring listings, saved searches).
+  if(input.action==='notifications'){await hostQuery(`update public.profiles set email_notifications=$2,updated_at=now() where id=$1`,[user.id,input.enabled===true]);return reply({ok:true,email_notifications:input.enabled===true});}
   const attempts=await hostQuery<{attempts:number}>(`insert into public.profile_change_attempts(user_id,attempts) values($1,1) on conflict(user_id) do update set attempts=case when profile_change_attempts.started_at<now()-interval '15 minutes' then 1 else profile_change_attempts.attempts+1 end,started_at=case when profile_change_attempts.started_at<now()-interval '15 minutes' then now() else profile_change_attempts.started_at end returning attempts`,[user.id]);if(attempts[0].attempts>8)return reply({code:'rate_limited'},429);
   const cleanNew=String(input.email||'').trim().toLowerCase();
   if(input.action==='email_confirm'){

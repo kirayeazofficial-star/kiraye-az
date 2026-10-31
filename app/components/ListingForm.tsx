@@ -673,6 +673,15 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           Elan bu qiymətlə göstəriləcək. Depozit varsa, aşağıda
                           ayrıca qeyd et.
                         </small>
+                        <details className="kzOtherPrices" open={["price_daily", "price_weekly", "price_monthly"].some(key => !!initial?.attributes?.[key])}>
+                          <summary>Başqa müddətlər üçün qiymət (istəyə bağlı)</summary>
+                          <div className="formGrid">
+                            {([["daily", "price_daily", "Günlük"], ["weekly", "price_weekly", "Həftəlik"], ["monthly", "price_monthly", "Aylıq"]] as const).filter(([period]) => period !== rentalPeriod).map(([period, key, label]) => <label key={key}>{label} qiymət
+                              <div className="priceInputWrap"><input name={key} aria-label={`${label} qiymət`} type="number" inputMode="decimal" min="1" max="1000000" step="0.01" defaultValue={String(initial?.attributes?.[key] || "")} placeholder="Məsələn, 250" /><span>₼ / {periodName(period)}</span></div>
+                            </label>)}
+                          </div>
+                          <p className="muted">Məsələn, günlük 50 ₼, həftəlik 300 ₼. Uzun müddətə endirim edirsinizsə, burada yazın.</p>
+                        </details>
                       </div>
                       {hasLocation && city && <LocationPicker city={city} district={district} metro={metro} point={point} exact={exactLocation}
                         onDistrict={value => { setDistrict(value); queueDraft(); }} onMetro={value => { setMetro(value); queueDraft(); }}

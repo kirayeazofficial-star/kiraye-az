@@ -256,6 +256,7 @@ export default function ListingDetails({
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
         </strong>
+        {(() => { const other = ([["daily", "price_daily"], ["weekly", "price_weekly"], ["monthly", "price_monthly"]] as const).filter(([period, key]) => period !== item.rental_period && Number(item.attributes?.[key]) > 0); return other.length ? <p className="kzOtherPriceLine">{other.map(([period, key]) => <span key={key}>{money(Number(item.attributes?.[key]))} ₼ <small>/ {periodName(period)}</small></span>)}</p> : null; })()}
         {facts.length > 0 && <dl className="kzKeyFacts">{facts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
         {isLeader && !effectiveOwner && item.status === "published" && !item.demo && <div className="kzLeaderPromo">
           <span>Rəhbər: bu elanı pulsuz reklam edə bilərsiniz</span>
@@ -307,7 +308,7 @@ export default function ListingDetails({
             <strong>{publicInfo?.seller_name||item.attributes?.contact_name||'Elan sahibi'}</strong>
             {typeof item.attributes?.owner_type === "string" && item.attributes.owner_type && <span className="kzOwnerType">{item.attributes.owner_type}</span>}
             {item.seller_since && Number.isFinite(Date.parse(item.seller_since)) && <small>{publicMonthYear(item.seller_since)} tarixindən saytdadır</small>}
-            <a href={`/?owner=${encodeURIComponent(item.owner_id)}#elanlar`}>Bütün elanları<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></a>
+            <a href={`/satici/${encodeURIComponent(item.owner_id)}`}>Profil və bütün elanları<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></a>
           </div>
         </section>}
       </div>

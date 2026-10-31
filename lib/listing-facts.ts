@@ -37,7 +37,7 @@ export function keyFacts(item: Listing): KeyFact[] {
 export function typeOptions(category: string): string[] {
   if (category === "property") return ["Mənzil", "Həyət evi", "Otaq"];
   if (category === "villa") return ["Villa", "Bağ evi", "Kottec"];
-  if (category === "commercial") return ["Ofis", "Mağaza", "Anbar", "Qaraj", "Obyekt"];
+  if (category === "commercial") return ["Ofis", "Mağaza", "Anbar", "Qaraj", "Ticarət obyekti"];
   if (category === "car") return ["Sedan", "Hetçbek", "Universal", "SUV / Krossover", "Minivan", "Mikroavtobus", "Pikap"];
   const kinds = rentalCategorySpecs[category]?.kinds;
   return kinds ? Object.keys(kinds).filter(kind => kind !== "Digər") : [];

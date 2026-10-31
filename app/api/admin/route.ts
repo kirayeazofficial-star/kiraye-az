@@ -113,6 +113,13 @@ export async function GET(request:NextRequest){
       return reply({items,pageSize:REPORT_PAGE,role:auth.role});
     }
 
+    // Stores: applications and active stores, plus the packages (prices are edited by the leader).
+    if(action==="stores"){
+      const items=await hostQuery(`select s.*,u.email owner_email,p.display_name owner_name,pl.name plan_name,pl.price::text plan_price from public.stores s join auth.users u on u.id=s.owner_id left join public.profiles p on p.id=s.owner_id join public.store_plans pl on pl.id=s.plan order by case s.status when 'pending' then 0 when 'active' then 1 else 2 end,s.updated_at desc limit 200`);
+      const plans=await hostQuery(`select id,name,price::text price,listing_limit,free_bumps,featured from public.store_plans order by sort`);
+      return reply({items,plans,role:auth.role});
+    }
+
     if(action==="users"){
       const query=param(request,"query").replace(/[%_]/g,"").slice(0,100);
       const items=await hostQuery(`select u.id,u.email,u.email_confirmed_at,u.created_at,p.display_name,p.phone,p.profile_no,p.role,s.staff_role,u.disabled_at is not null as blocked,u.blocked_reason,(select count(*)::int from public.listings l where l.owner_id=u.id) listing_count from auth.users u join public.profiles p on p.id=u.id left join public.staff_members s on s.user_id=u.id where ($1='' or u.email ilike '%'||$1||'%' or p.display_name ilike '%'||$1||'%' or p.profile_no::text ilike '%'||$1||'%' or regexp_replace(p.phone,'\D','','g') ilike '%'||regexp_replace($1,'\D','','g')||'%' and regexp_replace($1,'\D','','g')<>'') order by u.created_at desc limit 100`,[query]);
@@ -198,6 +205,23 @@ export async function POST(request:NextRequest){
         return true;
       });
       return done?reply({ok:true}):reply({error:"ALREADY_RESOLVED"},409);
+    }
+
+    if(action==="store_decide"){
+      const id=String(body.id||""),decision=String(body.decision||""),days=Math.max(1,Math.min(366,Number(body.days)||30)),reason=String(body.reason||"").trim().slice(0,300);
+      if(!uuid.test(id)||!["activate","reject","stop"].includes(decision)||(decision==="reject"&&reason.length<5))return reply({error:"INVALID_ACTION"},400);
+      const rows=await hostQuery(decision==="activate"
+        ?`update public.stores set status='active',reject_reason=null,active_until=greatest(coalesce(active_until,now()),now())+make_interval(days=>$2::int),updated_at=now() where id=$1 returning id`
+        :decision==="reject"?`update public.stores set status='rejected',reject_reason=$2,updated_at=now() where id=$1 returning id`
+        :`update public.stores set status='expired',active_until=now(),updated_at=now() where id=$1 returning id`,decision==="stop"?[id]:[id,decision==="activate"?days:reason]);
+      return rows[0]?reply({ok:true}):reply({error:"NOT_FOUND"},404);
+    }
+    if(action==="store_plan"){
+      if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
+      const id=String(body.id||""),price=Number(body.price),limit=body.listing_limit===null||body.listing_limit===""?null:Number(body.listing_limit),bumps=Number(body.free_bumps)||0;
+      if(!["start","business","premium"].includes(id)||!(price>=0&&price<=100000)||(limit!==null&&!(Number.isInteger(limit)&&limit>0&&limit<=100000))||!(bumps>=0&&bumps<=1000))return reply({error:"INVALID_ACTION"},400);
+      await hostQuery(`update public.store_plans set price=$2,listing_limit=$3,free_bumps=$4 where id=$1`,[id,price,limit,bumps]);
+      return reply({ok:true});
     }
 
     // Block / unblock an account (admins and the leader). Staff accounts and the owner cannot be blocked.

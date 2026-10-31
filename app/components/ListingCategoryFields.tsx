@@ -499,6 +499,10 @@ function PropertyFields({
             options={["Yeni tikili", "Köhnə tikili"]}
             value={attributes?.building_type}
           />
+          <label>
+            Yaşayış kompleksi (istəyə bağlı)
+            <input name="complex" maxLength={60} defaultValue={typeof attributes?.complex === "string" ? attributes.complex : ""} placeholder="Məsələn: Port Baku Residence" />
+          </label>
           <SelectField
             name="repair"
             label="Təmir"

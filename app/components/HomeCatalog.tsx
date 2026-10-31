@@ -30,6 +30,8 @@ import SideBanners from "./SideBanners";
 import Header from "./Header";
 import Footer from "./Footer";
 import ListingCard from "./ListingCard";
+import StoresStrip from "./StoresStrip";
+import { bakuMetro } from "../../lib/location";
 import {
   categories,
   cities,
@@ -64,6 +66,8 @@ export default function Home() {
     [page, setPage] = useState(1),
     [advanced, setAdvanced] = useState(false),
     [rooms, setRooms] = useState(""),
+    [metro, setMetro] = useState(""),
+    [complex, setComplex] = useState(""),
     [area, setArea] = useState(""),
     [brand, setBrand] = useState(""),
     [gearbox, setGearbox] = useState(""),
@@ -111,6 +115,8 @@ export default function Home() {
         // The Premium block above already shows premium listings: keep them out of the plain list.
         notPremium: !ownerFilter && !onlyFavorites && !category && !query,
         kind: kindFilter || undefined,
+        metro: isProperty(category) ? metro || undefined : undefined,
+        complex: category === "property" ? complex.trim() || undefined : undefined,
         owner:ownerFilter,
         category,
         city,
@@ -171,6 +177,8 @@ export default function Home() {
     sort,
     page,
     rooms,
+    metro,
+    complex,
     area,
     brand,
     gearbox,
@@ -194,6 +202,8 @@ export default function Home() {
     sort,
     onlyFavorites,
     rooms,
+    metro,
+    complex,
     area,
     brand,
     gearbox,
@@ -247,6 +257,8 @@ export default function Home() {
     query,
     sort,
     rooms,
+    metro,
+    complex,
     area,
     brand,
     gearbox,
@@ -293,7 +305,7 @@ export default function Home() {
   function changeCategory(value: string) {
     setCategory(value);
     setKindFilter("");
-    setRooms("");
+    setRooms(""); setMetro(""); setComplex("");
     setArea("");
     setBrand("");
     setGearbox("");
@@ -322,7 +334,7 @@ export default function Home() {
     setMax("");
     setQuery("");
     setOnlyFavorites(false);
-    setRooms("");
+    setRooms(""); setMetro(""); setComplex("");
     setArea("");
     setBrand("");
     setGearbox("");
@@ -349,6 +361,8 @@ export default function Home() {
     min && { label: `Ən azı ${min} ₼`, clear: () => setMin("") },
     max && { label: `Ən çox ${max} ₼`, clear: () => setMax("") },
     rooms && { label: `${rooms} otaq`, clear: () => setRooms("") },
+    metro && isProperty(category) && { label: `m. ${metro}`, clear: () => setMetro("") },
+    complex && category === "property" && { label: complex, clear: () => setComplex("") },
     area && { label: `Ən azı ${area} m²`, clear: () => setArea("") },
     brand && { label: brand, clear: () => setBrand("") },
     gearbox && { label: gearbox, clear: () => setGearbox("") },
@@ -386,6 +400,7 @@ export default function Home() {
             </button>
           ))}
         </section>
+        {!onlyFavorites && !category && !query && <StoresStrip />}
         {browsing && <BannerStrip placement="home" />}
         <SideBanners />
         {browsing && <ListingSuggestions premiumOnly/>}
@@ -534,6 +549,19 @@ export default function Home() {
                     <option value="3">{t("3 otaq")}</option>
                     <option value="4+">{t("4 və daha çox")}</option>
                   </select>
+                </label>
+              )}
+              {isProperty(category) && (city === "Bakı" || !city) && (
+                <label>
+                  {t("Metro")}<select aria-label={t("Metro")} value={metro} onChange={(e) => setMetro(e.target.value)}>
+                    <option value="">{t("İstənilən")}</option>
+                    {bakuMetro.map(station => <option key={station} value={station}>{station}</option>)}
+                  </select>
+                </label>
+              )}
+              {category === "property" && (
+                <label>
+                  {t("Yaşayış kompleksi")}<input aria-label={t("Yaşayış kompleksi")} value={complex} maxLength={60} onChange={(e) => setComplex(e.target.value)} placeholder={t("Məsələn: Port Baku")} />
                 </label>
               )}
               {isProperty(category) && (

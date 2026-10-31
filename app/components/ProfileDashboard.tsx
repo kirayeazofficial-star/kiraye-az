@@ -1,6 +1,6 @@
 "use client";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { ChevronLeft, ChevronRight, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Plus, ShieldCheck, Store, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -13,6 +13,7 @@ import EmptyArt from "./EmptyArt";
 import { activePromotion } from "./PromotionBadges";
 import NavigationIcon from "./NavigationIcon";
 import AccountLimits from "./AccountLimits";
+import StoreSettings from "./StoreSettings";
 import BalancePreview from "../components/BalancePreview";
 import UserAvatar from "./UserAvatar";
 import Header from "../components/Header";
@@ -29,9 +30,9 @@ const listingTabs = [["published", "Aktiv"], ["pending", "Gözləmədə"], ["pay
 const emptyText: Record<string, string> = { published: "Aktiv elanınız yoxdur. İstifadə etmədiyiniz əşyanı kirayəyə verin.", pending: "Gözləmədə olan elan yoxdur.", payment: "Ödəniş gözləyən elan yoxdur.", rejected: "Rədd edilmiş elan yoxdur.", expired: "Müddəti bitmiş elan yoxdur.", deleted: "Silinmiş elan yoxdur." };
 const shortDate = (value?: string | null) => { if (!value) return "—"; const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Baku", day: "2-digit", month: "2-digit", year: "numeric" }).formatToParts(new Date(value)); const part = (type: string) => parts.find(item => item.type === type)?.value || ""; return `${part("day")}.${part("month")}.${part("year")}`; };
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
-  const params=useSearchParams(),requested=params.get("section"),section=requested&&["listings","transactions","cards","limits"].includes(requested)?requested:"listings",screen:"menu"|"section"=balanceOnly||requested&&["listings","transactions","cards","limits"].includes(requested)?"section":"menu",[profileNumber,setProfileNumber]=useState("");
+  const params=useSearchParams(),requested=params.get("section"),section=requested&&["listings","transactions","cards","limits","store"].includes(requested)?requested:"listings",screen:"menu"|"section"=balanceOnly||requested&&["listings","transactions","cards","limits","store"].includes(requested)?"section":"menu",[profileNumber,setProfileNumber]=useState("");
   useEffect(()=>{window.scrollTo(0,0);},[requested]);
-  const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər"};
+  const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər",store:"Mağaza"};
   const openSection=(_name:string)=>{};
   const [avatar, setAvatar] = useState<string|null>(null);
   const [identity, setIdentity] = useState(""),
@@ -175,6 +176,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/account"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>Profil</span></Link>
                             <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="history"/></span><span>Əməliyyat tarixçəsi</span></Link>
               <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="card"/></span><span>Mənim kartlarım</span></Link>
+              <Link href="/profile?section=store" aria-current={section === "store" ? "page" : undefined}><span className="kzNavIcon"><Store aria-hidden="true" size={19} strokeWidth={2} /></span><span>Mağaza</span></Link>
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
                 {admin && <Link className="kzMenuRow" href="/admin"><span className="kzMenuIcon admin"><ShieldCheck size={18} strokeWidth={2} /></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={18} strokeWidth={1.75} /></Link>}
@@ -183,7 +185,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             </aside>
             <div className="cabinetContent">
               <div className="cabinetBack">{balanceOnly?<Link href="/profile" aria-label="Kabinetə qayıt"><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></Link>:<Link href="/profile" aria-label="Kabinetə qayıt"><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></Link>}<strong>{balanceOnly?"Balans":sectionTitles[section]}</strong></div>
-              {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : <>
+              {balanceOnly ? <BalancePreview /> : section === "transactions" ? <WalletActivity/> : section === "cards" ? <SavedCards/> : section === "limits" ? <AccountLimits/> : section === "store" ? <StoreSettings/> : <>
               <div className="kzOwnHead">
                 <h2>Elanlarım{refreshing && <span className="kzSpinner" role="status" aria-label="Yenilənir" />}</h2>
                 <Link className="kzButton" href="/new"><Plus className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Yeni elan</Link>

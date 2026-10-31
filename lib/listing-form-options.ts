@@ -261,6 +261,7 @@ export const vehicleColors = [
 export const extraAttributeLabels = {
   ...rentalSpecLabels,
   bathrooms: "Hamam otağı sayı",
+  complex: "Yaşayış kompleksi",
   delivery_method: "Təhvil / çatdırılma",
   delivery_fee: "Çatdırılma haqqı (₼)",
   included_items: "Qiymətə daxildir",

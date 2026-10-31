@@ -23,6 +23,7 @@ import { extraAttributeLabels } from "../../lib/listing-form-options";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import RentalEstimator from "./RentalEstimator";
+import { isListingExpired } from "../../lib/listing-lifecycle";
 import {
   Listing,
   categoryName,
@@ -93,9 +94,9 @@ export default function ListingDetails({
   const selectedImage = Math.min(image, Math.max(0, imageCount - 1));
   useEffect(() => { setImage(0); setViewerOpen(false); }, [item.id]);
   useEffect(() => setFavorite(readFavorites().includes(item.id)), [item.id]);
-  function moveImage(direction: number) {
-    // No wrap-around: at the last photo a further swipe stays on it, like the big classified sites.
-    if (imageCount > 1) setImage((current) => Math.max(0, Math.min(imageCount - 1, Math.min(current, imageCount - 1) + direction)));
+  // Swipes stop at the first/last photo; the arrow buttons go round (last → first), so both arrows are always there.
+  function moveImage(direction: number, wrap = false) {
+    if (imageCount > 1) setImage((current) => { const next = Math.min(current, imageCount - 1) + direction; return wrap ? (next + imageCount) % imageCount : Math.max(0, Math.min(imageCount - 1, next)); });
   }
   function toggleFavorite() {
     const saved = readFavorites();
@@ -203,8 +204,8 @@ export default function ListingDetails({
         <PhotoMark src={item.images?.[selectedImage]} />
         <PromotionBadges item={item}/>
         {imageCount > 1 && <>
-          {selectedImage > 0 && <button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1)}><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></button>}
-          {selectedImage < imageCount - 1 && <button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1)}><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>}
+          {<button type="button" className="galleryArrow previous" aria-label="Əvvəlki şəkil" onClick={() => moveImage(-1, true)}><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></button>}
+          {<button type="button" className="galleryArrow next" aria-label="Növbəti şəkil" onClick={() => moveImage(1, true)}><ChevronRight aria-hidden="true" size={22} strokeWidth={2} /></button>}
           <span className="galleryCounter" aria-live="polite" aria-atomic="true">{selectedImage + 1} / {imageCount}</span>
         </>}
         </div>
@@ -256,6 +257,20 @@ export default function ListingDetails({
         </p>
       </div>
       <div className="detailSide">
+        {effectiveOwner && !item.demo && (() => {
+          // The owner sees where the listing stands, in colour, at the top of the side column.
+          const status = item.deleted_at ? "deleted" : item.payment_required ? "payment" : isListingExpired(item) ? "expired" : item.status;
+          const text: Record<string, [string, string]> = {
+            pending: ["wait", "Elan yoxlama üçün gözləmədədir. Təsdiqləndikdən sonra saytda görünəcək."],
+            payment: ["stop", "Pulsuz elan limiti dolduğu üçün elan ödəniş gözləyir. Ödənişdən sonra yoxlamaya göndəriləcək."],
+            rejected: ["stop", `Elan rədd edilib.${item.rejection_reason ? ` Səbəb: ${item.rejection_reason}` : ""} Düzəldib yenidən göndərə bilərsiniz.`],
+            expired: ["off", "Elanın müddəti bitib, saytda göstərilmir."],
+            deleted: ["off", "Elan silinib, saytda göstərilmir."],
+            draft: ["off", "Elan qaralamadadır, hələ yoxlamaya göndərilməyib."],
+          };
+          const entry = text[status];
+          return entry ? <p className={`kzOwnerStatus ${entry[0]}`} role="status">{entry[1]}</p> : null;
+        })()}
         <strong className="detailPrice">
           {money(item.price)} ₼{" "}
           <small>/ {periodName(item.rental_period)}</small>
@@ -278,7 +293,7 @@ export default function ListingDetails({
               <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
               {item.status === "published" && <button type="button" className="kzButtonGhost" disabled={cardBusy} onClick={() => { setCardBusy(true); void import("../../lib/share-card").then(m => m.shareCard(item)).catch(() => setNotice("Şəkli hazırlamaq mümkün olmadı.")).finally(() => setCardBusy(false)); }}><ImageDown aria-hidden="true" size={16} strokeWidth={1.75} />{cardBusy ? "Hazırlanır…" : "Status üçün şəkil"}</button>}
             </div>
-            {item.expires_at && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir</p>}
+            {item.expires_at && item.status === "published" && !item.payment_required && !isListingExpired(item) && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir</p>}
           </div>
         ) : phone && !item.demo ? (
           <div className="contactActions" ref={contactBox}>

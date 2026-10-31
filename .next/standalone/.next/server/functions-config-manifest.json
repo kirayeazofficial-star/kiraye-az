@@ -5,6 +5,7 @@
     "/api/account/profile": {},
     "/api/admin/banners": {},
     "/api/auth/recovery-check": {},
-    "/api/listing-view": {}
+    "/api/listing-view": {},
+    "/api/stores": {}
   }
 }

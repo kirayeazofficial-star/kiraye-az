@@ -48,6 +48,14 @@
       "namedRegex": "^/listings/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/magaza/[slug]",
+      "regex": "^/magaza/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/magaza/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/profile/listings/[id]",
       "regex": "^/profile/listings/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -261,6 +269,12 @@
       "regex": "^/api/saved\\-searches(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/saved\\-searches(?:/)?$"
+    },
+    {
+      "page": "/api/stores",
+      "regex": "^/api/stores(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/stores(?:/)?$"
     },
     {
       "page": "/api/uploads",

@@ -2213,3 +2213,10 @@ html{-webkit-tap-highlight-color:transparent}
 /* Yan menyu: telefonda aşağıdakı əlaqə hissəsi brauzer zolağının altında qalmasın */
 .siteMenuPanel.kzSide{height:100dvh!important;max-height:100dvh;overflow-y:auto!important;padding-bottom:calc(28px + env(safe-area-inset-bottom))!important}
 .siteMenuPanel.kzSide nav a{min-height:44px!important}
+/* Elan forması: "İmkanlar" — səliqəli seçim düymələri (işarə qutusu yazı ilə bir sırada) */
+.listingForm .amenitiesField{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px!important;margin-bottom:20px}
+.listingForm .amenitiesField>p{grid-column:1/-1;margin:0 0 2px!important;font-size:14px!important;font-weight:600!important;color:var(--kz-ink)}
+.listingForm .amenitiesField label.checkLabel{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;min-height:42px;margin:0!important;padding:0 12px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;font-size:14px!important;font-weight:500;color:var(--kz-ink);cursor:pointer}
+.listingForm .amenitiesField label.checkLabel input{flex:none;width:18px!important;height:18px!important;min-height:0!important;margin:0!important;accent-color:var(--kz-accent)}
+.listingForm .amenitiesField label.checkLabel:has(input:checked){border-color:var(--kz-accent);background:#fff5ef}
+@media (max-width:420px){.listingForm .amenitiesField{grid-template-columns:1fr 1fr}}

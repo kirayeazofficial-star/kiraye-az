@@ -229,17 +229,40 @@ function VehicleFields({
   const [isNew, setIsNew] = useState(attributes?.is_new || "");
   const [mileage, setMileage] = useState(attributes?.is_new === "Yeni" ? "0" : attributes?.mileage_km || "");
   const years = Array.from(
-    { length: new Date().getFullYear() - 1898 },
+    { length: new Date().getFullYear() - 1958 },
     (_, i) => String(new Date().getFullYear() + 1 - i),
   );
   return (
     <section className="categoryFields" aria-label="Kateqoriya məlumatları">
+      {bicycle && <SelectField
+            name="kind"
+            label="Velosiped növü"
+            options={[
+              "Dağ",
+              "Şəhər",
+              "Şosse",
+              "BMX",
+              "Elektrikli",
+              "Qatlanan",
+              "Uşaq",
+              "Digər",
+            ]}
+            value={attributes?.kind}
+            required
+          />}
       <BrandModelPicker
         models={car ? carModels : bicycle ? bicycleModels : motorcycleModels}
         attributes={attributes}
         required
         suggest={suggest}
       />
+      {!bicycle && <SelectField
+        name="year"
+        label="Buraxılış ili"
+        options={years}
+        value={attributes?.year ? String(attributes.year) : ""}
+        required={car}
+      />}
       <div className="formGrid">
         <SelectField
           name="color"
@@ -280,7 +303,7 @@ function VehicleFields({
           <SelectField
             name="condition"
             label="Vəziyyət"
-            options={["Əla", "Yaxşı", "Qənaətbəxş"]}
+            options={["Əla", "Yaxşı", "Orta"]}
             value={attributes?.condition}
           />
         )}
@@ -342,13 +365,6 @@ function VehicleFields({
             </div>
           )}
           <div className="formGrid">
-            <SelectField
-              name="year"
-              label="Buraxılış ili"
-              options={years}
-              value={attributes?.year ? String(attributes.year) : ""}
-              required={car}
-            />
             {car && (
               <SelectField
                 name="is_new"
@@ -393,22 +409,7 @@ function VehicleFields({
       )}
       {bicycle && (
         <>
-          <SelectField
-            name="kind"
-            label="Velosiped növü"
-            options={[
-              "Dağ",
-              "Şəhər",
-              "Şosse",
-              "BMX",
-              "Elektrikli",
-              "Qatlanan",
-              "Uşaq",
-              "Digər",
-            ]}
-            value={attributes?.kind}
-            required
-          />
+
           <div className="formGrid">
             <SelectField
               name="frame_size"
@@ -456,7 +457,7 @@ function PropertyFields({
         label={category === "commercial" ? "Obyektin növü" : "Əmlakın növü"}
         options={
           category === "commercial"
-            ? ["Ofis", "Mağaza", "Anbar", "Qaraj", "Obyekt", "Digər"]
+            ? ["Ofis", "Mağaza", "Anbar", "Qaraj", "Ticarət obyekti", "Digər"]
             : category === "villa"
               ? ["Villa", "Bağ evi", "Kottec", "Digər"]
               : ["Mənzil", "Həyət evi", "Otaq", "Digər"]
@@ -478,7 +479,7 @@ function PropertyFields({
             />
           </label>
         )}
-        {category !== "commercial" && <label>Sanuzel sayı<input name="bathrooms" aria-label="Sanuzel sayı" type="number" min="1" max="20" step="1" defaultValue={attributes?.bathrooms as string | undefined} placeholder="Məsələn: 1" /></label>}
+        {category !== "commercial" && <label>Hamam otağı sayı<input name="bathrooms" aria-label="Hamam otağı sayı" type="number" min="1" max="20" step="1" defaultValue={attributes?.bathrooms as string | undefined} placeholder="Məsələn: 1" /></label>}
         <label className="propertyArea">
           Sahə (m²)
           <input
@@ -574,7 +575,7 @@ function ItemFields({
             {category !== "clothing" && <label>Model / kolleksiya (istəyə bağlı)<input name="model" maxLength={60} defaultValue={initial?.model} /></label>}
           </div>
         )}
-        <SelectField name="condition" label="Vəziyyət" options={category === "clothing" ? ["Yeni, geyinilməyib", "Az geyinilib, qüsursuz", "Geyinilib, yaxşı vəziyyətdə"] : ["Əla", "Yaxşı", "Qənaətbəxş"]} value={initial?.condition} />
+        <SelectField name="condition" label="Vəziyyət" options={category === "clothing" ? ["Yeni, geyinilməyib", "Az geyinilib, qüsursuz", "Geyinilib, yaxşı vəziyyətdə"] : ["Əla", "Yaxşı", "Orta"]} value={initial?.condition} />
         {category === "clothing" && <SelectField name="color" label="Rəng" options={colors} value={initial?.color} />}
         <p className="muted">Əlavə xüsusiyyətlər istəyə bağlıdır. Dəqiq bilmədiyini boş saxla.</p>
         <div className="formGrid">

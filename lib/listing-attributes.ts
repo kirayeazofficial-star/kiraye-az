@@ -155,7 +155,7 @@ export function validateListingAttributes(
       Number(attributes.delivery_fee) > 1000000)
   )
     return "Çatdırılma haqqını düzgün yazın.";
-  if(attributes.bathrooms !== undefined && (!Number.isInteger(Number(attributes.bathrooms)) || Number(attributes.bathrooms)<1 || Number(attributes.bathrooms)>20)) return "Sanuzel sayını 1–20 arasında tam ədədlə yazın.";
+  if(attributes.bathrooms !== undefined && (!Number.isInteger(Number(attributes.bathrooms)) || Number(attributes.bathrooms)<1 || Number(attributes.bathrooms)>20)) return "Hamam otağı sayını 1–20 arasında tam ədədlə yazın.";
   for (const [key, min, max] of [
     ["min_driver_age", 18, 100],
     ["license_years", 0, 80],

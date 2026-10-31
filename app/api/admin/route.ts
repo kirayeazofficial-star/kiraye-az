@@ -40,12 +40,13 @@ export async function GET(request:NextRequest){
     if(action==="access")return reply({allowed:true,role:auth.role,email:auth.user.email});
 
     if(action==="overview"){
-      const [users,listings,messages,reports,statusRows]=await Promise.all([
+      const [users,listings,messages,reports,statusRows,storeRequests]=await Promise.all([
         hostQuery<{count:string}>(`select count(*)::text count from auth.users where disabled_at is null`),
         hostQuery<{count:string}>(`select count(*)::text count from public.listings`),
         hostQuery<{count:string}>(`select count(*)::text count from public.chat_messages`),
         hostQuery<{count:string}>(`select count(*)::text count from public.listing_reports where status='open'`),
         hostQuery<{status:string;count:string}>(`select status,count(*)::text count from public.listings group by status`),
+        hostQuery<{count:string}>(`select count(*)::text as count from public.stores where status='pending'`).catch(()=>[]),
       ]);
       // New accounts and listings for today (Baku time), the last 7 and 30 days.
       const periods=`(created_at>=date_trunc('day',now() at time zone 'Asia/Baku') at time zone 'Asia/Baku')::int d1,(created_at>=now()-interval '7 days')::int d7,(created_at>=now()-interval '30 days')::int d30`;
@@ -55,7 +56,7 @@ export async function GET(request:NextRequest){
         hostQuery(`select e.id,e.listing_id,e.action,e.actor_kind,e.new_status,e.reason,e.created_at,p.display_name actor_name,l.title from public.moderation_events e left join public.profiles p on p.id=e.actor_id left join public.listings l on l.id=e.listing_id where e.actor_kind='admin' order by e.id desc limit 8`),
       ]);
       const period=(rows:{today:string;week:string;month:string}[])=>({today:Number(rows[0]?.today||0),week:Number(rows[0]?.week||0),month:Number(rows[0]?.month||0)});
-      return reply({role:auth.role,periods:{users:period(userPeriods),listings:period(listingPeriods)},activity,counts:{users:Number(users[0]?.count||0),listings:Number(listings[0]?.count||0),messages:Number(messages[0]?.count||0),reports:Number(reports[0]?.count||0),statuses:Object.fromEntries(statusRows.map(row=>[row.status,Number(row.count)]))}});
+      return reply({role:auth.role,periods:{users:period(userPeriods),listings:period(listingPeriods)},activity,counts:{users:Number(users[0]?.count||0),listings:Number(listings[0]?.count||0),messages:Number(messages[0]?.count||0),reports:Number(reports[0]?.count||0),stores:Number(storeRequests[0]?.count||0),statuses:Object.fromEntries(statusRows.map(row=>[row.status,Number(row.count)]))}});
     }
 
     if(action==="listings"){
@@ -211,7 +212,7 @@ export async function POST(request:NextRequest){
       const id=String(body.id||""),decision=String(body.decision||""),days=Math.max(1,Math.min(366,Number(body.days)||30)),reason=String(body.reason||"").trim().slice(0,300);
       if(!uuid.test(id)||!["activate","reject","stop"].includes(decision)||(decision==="reject"&&reason.length<5))return reply({error:"INVALID_ACTION"},400);
       const rows=await hostQuery(decision==="activate"
-        ?`update public.stores set status='active',reject_reason=null,active_until=greatest(coalesce(active_until,now()),now())+make_interval(days=>$2::int),updated_at=now() where id=$1 returning id`
+        ?`update public.stores s set status='active',reject_reason=null,active_until=greatest(coalesce(s.active_until,now()),now())+make_interval(days=>$2::int),terms_set=true,terms_price=p.price,terms_listing_limit=p.listing_limit,terms_free_bumps=p.free_bumps,bumps_used=0,bumps_month_start=now(),updated_at=now() from public.store_plans p where p.id=s.plan and s.id=$1 returning s.id`
         :decision==="reject"?`update public.stores set status='rejected',reject_reason=$2,updated_at=now() where id=$1 returning id`
         :`update public.stores set status='expired',active_until=now(),updated_at=now() where id=$1 returning id`,decision==="stop"?[id]:[id,decision==="activate"?days:reason]);
       return rows[0]?reply({ok:true}):reply({error:"NOT_FOUND"},404);

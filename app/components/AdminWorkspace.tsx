@@ -2,7 +2,7 @@
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, Flag, ListChecks, UserRound, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, UserRound, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -490,7 +490,7 @@ function LongText({ text }: { text: string }) {
 // Nightly backup to the leader's Google Drive: connect once, then the state of the last copies.
 type BackupRun = { id: number; started_at: string; finished_at: string | null; heartbeat_at: string | null; ok: boolean | null; db_rows: number | null; db_bytes: number | null; files_new: number; error: string | null; stalled: boolean };
 function BackupStatus() {
-  const [data, setData] = useState<{ connected: boolean; email: string; folder: string | null; runs: BackupRun[]; files: { count: number; bytes: number }; google: boolean } | null>(null), [error, setError] = useState("");
+  const [data, setData] = useState<{ connected: boolean; email: string; folder: string | null; runs: BackupRun[]; files: { count: number; bytes: number }; code: { version: string; bytes: number; at: string } | null; google: boolean } | null>(null), [error, setError] = useState("");
   const load = useCallback(() => { fetch("/api/admin/backup", { cache: "no-store" }).then(r => r.ok ? r.json() : Promise.reject()).then(setData).catch(() => setError("Məlumat yüklənmədi.")); }, []);
   useEffect(() => { load(); }, [load]);
   // Result of connecting Drive arrives in the address (?backup=…); shown once, then the address is cleaned.
@@ -537,6 +537,7 @@ function BackupStatus() {
       {data.connected && <div className="kzBkStats">
         <div><Database aria-hidden="true" size={18} strokeWidth={1.9} /><span>Baza</span><strong>{lastOk ? `${Number(lastOk.db_rows || 0)} sətir · ${size(lastOk.db_bytes)}` : "—"}</strong></div>
         <div><Images aria-hidden="true" size={18} strokeWidth={1.9} /><span>Şəkil və videolar</span><strong>{data.files.count} fayl · {size(data.files.bytes)}</strong></div>
+        <div><FileCode aria-hidden="true" size={18} strokeWidth={1.9} /><span>Saytın kodu</span><strong>{data.code ? `${size(data.code.bytes)} · ${adminDate(data.code.at).split(",")[0]}` : "Növbəti deploydan sonra"}</strong></div>
         <div><Clock aria-hidden="true" size={18} strokeWidth={1.9} /><span>Növbəti nüsxə</span><strong>Bu gecə, 03:00</strong></div>
       </div>}
       {data.runs.length > 1 && <details className="kzBkHistory"><summary>Son nüsxələr</summary><ul>{data.runs.map(run => <li key={run.id}><span className={`kzBkDot ${run.ok ? "ok" : !run.finished_at && !run.stalled ? "running" : "failed"}`} />{adminDate(run.started_at)}<em>{run.ok ? `hazırdır · ${run.files_new} yeni şəkil` : !run.finished_at && !run.stalled ? "göndərilir" : run.error || "alınmadı"}</em></li>)}</ul></details>}

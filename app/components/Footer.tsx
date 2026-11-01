@@ -2,14 +2,11 @@
 import { useLanguage } from "./LanguageProvider";
 import { siteContact } from "../../lib/site-contact";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 import { Mail } from "lucide-react";
 import { InstagramIcon, TikTokIcon } from "./BrandIcons";
-import { allCities, seoCities, seoDistricts } from "../../lib/seo-cities";
 export default function Footer() {
   const {t} = useLanguage();
   // On phones the place lists start folded (open on computers); the links stay in the page either way.
-  const places = useRef<HTMLDivElement>(null);
   return (
     <footer className="kzFooter">
       <div className="kzFooterInner">
@@ -43,16 +40,6 @@ export default function Footer() {
         </div>
       </div>
       {/* Places: short link lists for people and search engines (same pages as the city filter). */}
-      <div className="kzFooterPlaces" ref={places}>
-        <details>
-          <summary>{t("Bakının rayonları")}</summary>
-          <nav aria-label={t("Bakının rayonları")}>{Object.entries(seoDistricts).map(([slug, place]) => <a key={slug} href={`/kiraye/baki/${slug}`}>{place.name}</a>)}</nav>
-        </details>
-        <details>
-          <summary>{t("Şəhərlər")}</summary>
-          <nav aria-label={t("Şəhərlər")}>{allCities.map(slug => <a key={slug} href={`/kiraye/${slug}`}>{seoCities[slug].name}</a>)}</nav>
-        </details>
-      </div>
       <div className="kzFooterBottom">© {new Date().getFullYear()} kirayeal.az</div>
     </footer>
   );

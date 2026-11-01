@@ -40,10 +40,15 @@ const rows: Row[] = [
   ["event", "event-stage", "Səhnə işıqlandırması və səs sistemi", "Bakı", "", 400, "daily", "Konsert və açıq hava tədbirləri üçün işıq, səs və operator xidməti.", { attributes: { kind: "Səs və işıq", condition: "Əla" } }],
 ];
 
+// Extra photos only where they plausibly show the same place (other rooms, another side of the house).
+const morePhotos: Record<string, string[]> = {
+  "ev-1": ["ev-3", "ev-x1"], "ev-2": ["ev-x2"], "ev-3": ["ev-x1"],
+  "villa-1": ["villa-x2"], "villa-2": ["villa-x1"], "office-1": ["office-x1"],
+};
 export const sampleListings: Listing[] = rows.map(([category, slug, title, city, district, price, period, text, extra], i) => ({
   id: `example-${slug}`,
   category, title, city, district: district || undefined, price, rental_period: period,
-  images: [`/samples/${slug}.jpg`],
+  images: [`/samples/${slug}.jpg`, ...(morePhotos[slug] || []).map(name => `/samples/${name}.jpg`)],
   description: `${text}\n\nBu nümunə elandır — saytın necə görünəcəyini göstərir, real kirayə təklifi deyil. Öz elanınızı pulsuz yerləşdirin.`,
   contact: "", status: "published", created_at: new Date(Date.UTC(2026, 9, 25, 9, 0) - i * 3600000).toISOString(),
   demo: true, deposit: 0, min_days: 1,

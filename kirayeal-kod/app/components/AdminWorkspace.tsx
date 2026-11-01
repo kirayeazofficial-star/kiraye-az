@@ -4,7 +4,7 @@ import Notice from "./Notice";
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
+import { CircleAlert, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -365,6 +365,7 @@ export default function AdminWorkspace() {
             <ChevronRight className="kzAdMenuArrow" aria-hidden="true" size={18} strokeWidth={2} />
           </button>; })}
         </nav>
+        {role === "leader" && <SiteHealth />}
         <Panel title="Görüləcək işlər" className="kzAdTodoPanel">
           <div className="kzAdTodo">
             {([[pending, "Yoxlama gözləyən elan", "attention", ListChecks, () => showListings("pending")], [openReports, "Açıq şikayət", "warn", Flag, () => open("reports")], [storeRequests, "Mağaza müraciəti", "attention", Store, () => open("stores")]] as const).map(([count, label, tone, Icon, go]) =>
@@ -688,5 +689,26 @@ function SiteSettingsAdmin() {
         </div>
       </form>
     </section>
+  </Panel>;
+}
+
+// Leader → «Ümumi baxış»: results of the server's 5-minute health check (problems are also e-mailed).
+type HealthRow = { key: string; level: "ok" | "warn" | "bad"; detail: string; checked_at: string };
+const healthOrder = ["site", "database", "disk", "mail", "ssl", "backup"];
+const healthNames: Record<string, string> = { site: "Sayt", database: "Baza", disk: "Disk", backup: "Ehtiyat nüsxə", mail: "E-poçt", ssl: "SSL" };
+function SiteHealth() {
+  const [items, setItems] = useState<HealthRow[] | null>(null);
+  useEffect(() => { api({ action: "site_health" }).then(data => setItems(data.items as HealthRow[])).catch(() => setItems([])); }, []);
+  if (!items) return null;
+  const bad = items.filter(item => item.level === "bad").length, warn = items.filter(item => item.level === "warn").length;
+  const last = items.reduce((max, item) => item.checked_at > max ? item.checked_at : max, "");
+  const fresh = last && Date.now() - Date.parse(last) < 20 * 60000;
+  const tone = bad ? "bad" : warn ? "warn" : "ok";
+  const status = !items.length ? "" : bad ? `${bad} problem` : warn ? `${warn} xəbərdarlıq` : "Qaydasındadır";
+  return <Panel title="Sayt sağlamlığı" className={`kzHealth ${tone}`} actions={status ? <span className={`kzHealthBadge ${tone}`}>{status}</span> : undefined}>
+    {!items.length ? <p className="kzAdMuted">Yoxlama hələ işləməyib. Sayt yeniləndikdən sonra 5 dəqiqə ərzində burada görünəcək.</p> : <>
+      <ul className="kzHealthList">{[...items].sort((a, b) => healthOrder.indexOf(a.key) - healthOrder.indexOf(b.key)).map(item => <li key={item.key} className={item.level}><i aria-hidden="true" /><strong>{healthNames[item.key] || item.key}</strong><span>{item.detail}</span></li>)}</ul>
+      <p className={`kzHealthFoot${fresh ? "" : " stale"}`}>{fresh ? `Hər 5 dəqiqədən bir yoxlanır. Son yoxlama: ${adminDate(last)}.` : `Son yoxlama: ${adminDate(last)}. Server yoxlaması dayanıb ola bilər.`}{bad ? " Problem Gmail-ə də yazılıb." : ""}</p>
+    </>}
   </Panel>;
 }

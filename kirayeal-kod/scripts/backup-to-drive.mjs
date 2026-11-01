@@ -40,7 +40,12 @@ const db = new Client({
   host: process.env.KIRAYE_DB_HOST, port: Number(process.env.KIRAYE_DB_PORT || 5432), database: process.env.KIRAYE_DB_NAME,
   user: process.env.KIRAYE_DB_USER, password: process.env.KIRAYE_DB_PASSWORD, connectionTimeoutMillis: 15000,
 });
-await db.connect();
+// Site health first: it also runs (and e-mails) when the database cannot be reached.
+let dbReady = true;
+try { await db.connect(); } catch (error) { dbReady = false; console.error("Database connection failed:", String(error?.message || error).slice(0, 200)); }
+try { const { runHealth } = await import("./health-check.mjs"); await runHealth(appDir, dbReady ? db : null, requireFromApp); }
+catch (error) { console.error("Health check failed:", String(error?.message || error).slice(0, 200)); }
+if (!dbReady) process.exit(1);
 
 // E-mail notices (expiring listings, saved searches, weekly report) ride on the same cron job.
 try { const { runNotices } = await import("./notify-tasks.mjs"); await runNotices(db, requireFromApp); }

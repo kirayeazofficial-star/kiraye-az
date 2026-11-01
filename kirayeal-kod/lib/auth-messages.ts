@@ -14,6 +14,7 @@ export function authErrorMessage(error: unknown) {
     INVALID_CODE: "Kod düzgün deyil və ya vaxtı bitib. Yeni kod istə.",
     INVALID_INPUT: "Məlumatları yoxla: ad və soyad, düzgün e-poçt, telefon və ən azı 8 simvolluq şifrə yaz.",
     RATE_LIMIT: "Çox sayda kod istənilib. Bir saat gözləyib yenidən yoxla.",
+    TOO_MANY_ATTEMPTS: "Şifrə bir neçə dəfə səhv yazılıb. Təhlükəsizlik üçün giriş 15 dəqiqə bağlandı. Şifrəni unutmusansa, “Şifrəni unutdum” seç.",
     SERVICE_UNAVAILABLE: "Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən yoxla.",
   };
   if (code && hostMessages[code]) return hostMessages[code];

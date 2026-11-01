@@ -492,7 +492,7 @@ export default function ListingDetails({
             </label>
             <div className="kzReportActions">
               <button className="secondary" disabled={busy}>
-                {busy ? "Göndərilir..." : "Şikayəti göndər"}
+                {busy ? "Göndərilir…" : "Göndər"}
               </button>
               <button type="button" className="textButton" onClick={() => setReport(false)}>Ləğv et</button>
             </div>

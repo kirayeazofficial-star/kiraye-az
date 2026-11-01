@@ -137,7 +137,7 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
               <button type="button" className="kzPromoPay" disabled={busy || !!done || !listingId} onClick={() => void activate(pack.kind)}>{busy || done ? "Gözləyin…" : "Pulsuz aktivləşdir"}</button>
             </> : <>
               {notice && <p className="kzPromoNotice" role="alert">{PAYMENT_DOWN}</p>}
-              <button type="button" className="kzPromoPay" onClick={() => { setNotice(true); toast("Ödəniş hazırda mümkün deyil", { kind: "error" }); }}>Ödə · {pack.plans[plan].price} AZN</button>
+              <button type="button" className="kzPromoPay" onClick={() => setNotice(true)}>Ödə · {pack.plans[plan].price} AZN</button>
             </>}
             {!staff && <p className="kzPromoLegal">«Ödə» düyməsini sıxmaqla kirayeal.az-ın <Link href="/terms">İstifadəçi razılaşmasını</Link> qəbul etmiş olursunuz.</p>}
           </footer>

@@ -2777,3 +2777,8 @@ html{-webkit-tap-highlight-color:transparent}
 .kzWorksCard p{margin:0;font-size:var(--fs-15,15px);line-height:1.55;color:var(--kz-text)}
 .kzWorksCard .kzWorksMail{margin-top:8px;font-size:var(--fs-13,13px);color:var(--kz-muted)}
 .kzWorksMail a{color:var(--kz-brand);font-weight:600}
+/* Footer places: closed by default on every screen, with an arrow (links stay in the page for Google). */
+.kzFooterPlaces summary{display:inline-flex!important;align-items:center;gap:8px;cursor:pointer!important}
+.kzFooterPlaces summary::after{content:"";width:7px;height:7px;margin-top:-3px;border-right:2px solid var(--kz-muted);border-bottom:2px solid var(--kz-muted);transform:rotate(45deg);transition:transform .2s}
+.kzFooterPlaces details[open] summary::after{margin-top:3px;transform:rotate(-135deg)}
+@media (max-width:767px){.kzFooterPlaces summary{display:flex!important;justify-content:space-between}}

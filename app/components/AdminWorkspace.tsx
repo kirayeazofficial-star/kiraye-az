@@ -363,7 +363,7 @@ export default function AdminWorkspace() {
             {([[pending, "Yoxlama gözləyən elan", "attention", ListChecks, () => showListings("pending")], [openReports, "Açıq şikayət", "warn", Flag, () => open("reports")], [storeRequests, "Mağaza müraciəti", "attention", Store, () => open("stores")]] as const).map(([count, label, tone, Icon, go]) =>
               <button type="button" key={label} className={count ? tone : "done"} onClick={go}>
                 <span className="kzAdTodoIcon"><Icon aria-hidden="true" size={20} strokeWidth={2} /></span>
-                <span className="kzAdTodoText"><small>{label}</small><b>{count}</b></span>
+                <span className="kzAdTodoText"><b>{count}</b><small>{label}</small></span>
                 <ChevronRight className="kzAdTodoGo" aria-hidden="true" size={18} strokeWidth={2.25} />
               </button>)}
           </div>

@@ -2862,3 +2862,6 @@ svg.lucide{stroke-width:1.75}
 svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[width="15"],svg.lucide[width="16"]{stroke-width:2}
 .kzTabIcon:not(.on){stroke-width:1.7}
 @media (max-width:767px){.kzCard .kzBadge{font-size:max(11px,var(--fs-11))!important}}
+/* Filter chips above the listings: chips keep room for their borders and the cards start below them */
+.kzToolbar{margin-bottom:14px!important}
+@media (max-width:767px){.kzToolbar{margin-bottom:12px!important}}

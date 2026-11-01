@@ -425,7 +425,7 @@ export default function Home() {
               <p className="kzMuted" role="status" aria-live="polite">
                 {loading
                   ? t("Elanlar yüklənir…")
-                  : `${demo ? filtered.length : total} ${demo ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
+                  : `${demo ? filtered.length : total + filtered.length - listings.length} ${t("elan tapıldı")}`}
               </p>
             </div>
             {/* Nothing saved yet: no map or sort buttons to show. */}

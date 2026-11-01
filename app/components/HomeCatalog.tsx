@@ -47,7 +47,9 @@ export default function Home() {
   const [listings, setListings] = useState<Listing[]>([]),
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
-    [demo, setDemo] = useState(false);
+    [demo, setDemo] = useState(false),
+    [sampleCategories, setSampleCategories] = useState<string[]>([]);
+  useEffect(() => { let live = true; fetch("/api/listings/samples", { cache: "no-store" }).then(r => r.ok ? r.json() : { categories: [] }).then(d => { if (live) setSampleCategories(Array.isArray(d.categories) ? d.categories : []); }).catch(() => {}); return () => { live = false; }; }, []);
   useAutoClear(notice, () => setNotice(""));
   const [savedSearches,setSavedSearches] = useState<SavedSearch[]>([]);
   const [kindFilter, setKindFilter] = useState("");
@@ -212,9 +214,11 @@ export default function Home() {
     until,
   ]);
   const filtered = useMemo(() => {
-    if (!demo) return listings;
     const intent = rentalSearchIntent(query);
-    return examples
+    // Sample listings («Nümunə») fill categories that have fewer than 3 real listings; they come after the
+    // real ones on the first page only and disappear on their own once the category fills up.
+    const pool = demo ? examples : page === 1 && !ownerFilter ? examples.filter(x => sampleCategories.includes(x.category)) : [];
+    const samples = pool
       .filter(
         (x) =>
           (!category || x.category === category) &&
@@ -243,8 +247,11 @@ export default function Home() {
             ? b.price - a.price
             : Date.parse(b.created_at) - Date.parse(a.created_at),
       );
+    return demo ? samples : [...listings, ...samples];
   }, [
     demo,
+    page,
+    sampleCategories,
     listings,
     category,
     ownerFilter,

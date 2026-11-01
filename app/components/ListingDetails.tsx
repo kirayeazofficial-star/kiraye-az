@@ -1,5 +1,5 @@
 "use client";
-import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, ImageDown, MessageCircle, Pencil, Phone, Share2, Store, TrendingDown } from "lucide-react";
+import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, MessageCircle, Pencil, Phone, Share2, Store, TrendingDown } from "lucide-react";
 import { storeOpenState } from "../../lib/store-hours";
 import { WhatsAppIcon } from "./BrandIcons";
 import PromotionOptions from "./PromotionOptions";
@@ -23,6 +23,7 @@ import { extraAttributeLabels } from "../../lib/listing-form-options";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import RentalEstimator from "./RentalEstimator";
+import StoryCard from "./StoryCard";
 import { isListingExpired } from "../../lib/listing-lifecycle";
 import {
   Listing,
@@ -58,7 +59,6 @@ export default function ListingDetails({
     [report, setReport] = useState(false),
     [busy, setBusy] = useState(false),
     [reported, setReported] = useState(false);
-  const [cardBusy, setCardBusy] = useState(false);
   useAutoClear(notice, () => setNotice(""));
   useEffect(()=>{
     if(item.demo||item.status!=="published")return;
@@ -291,7 +291,7 @@ export default function ListingDetails({
             </div>}
             <div className="kzOwnerRow">
               <Link className="kzButtonGhost" href={`/edit/${item.id}`}><Pencil aria-hidden="true" size={16} strokeWidth={1.75} />Redaktə et</Link>
-              {item.status === "published" && <button type="button" className="kzButtonGhost" disabled={cardBusy} onClick={() => { setCardBusy(true); void import("../../lib/share-card").then(m => m.shareCard(item)).catch(() => setNotice("Şəkli hazırlamaq mümkün olmadı.")).finally(() => setCardBusy(false)); }}><ImageDown aria-hidden="true" size={16} strokeWidth={1.75} />{cardBusy ? "Hazırlanır…" : "Status üçün şəkil"}</button>}
+              {item.status === "published" && <StoryCard item={item} />}
             </div>
             {item.expires_at && item.status === "published" && !item.payment_required && !isListingExpired(item) && <p className="kzOwnerMeta">Elan {new Date(item.expires_at).toLocaleDateString("ru-RU")} tarixinədək aktivdir</p>}
           </div>

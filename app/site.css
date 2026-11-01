@@ -2614,3 +2614,60 @@ html{-webkit-tap-highlight-color:transparent}
   .accountDashboard .accountListings article .accountItemActions>*{justify-content:center!important}
 }
 @media (max-width:767px){.formReset .textButton{height:36px!important;padding:0 6px!important}}
+
+/* Footer: Bakının rayonları və şəhərlər (kiçik, səliqəli link siyahısı; telefonda bağlı açılır) */
+.kzFooterPlaces{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:32px;max-width:var(--kz-width);margin:0 auto;padding:22px var(--kz-gutter) 6px;box-sizing:content-box;border-top:1px solid var(--kz-line)}
+.kzFooterPlaces summary{list-style:none;margin:0 0 10px;font-size:14px;font-weight:700;color:var(--kz-ink);cursor:default}
+.kzFooterPlaces summary::-webkit-details-marker{display:none}
+.kzFooterPlaces nav{display:flex;flex-wrap:wrap;gap:6px 14px}
+.kzFooterPlaces nav a{font-size:13px;line-height:1.6;color:var(--kz-muted);text-decoration:none}
+.kzFooterPlaces nav a:hover{color:var(--kz-accent)}
+@media (max-width:767px){
+  .kzFooterPlaces{grid-template-columns:1fr;gap:0;padding-top:8px}
+  .kzFooterPlaces details{border-bottom:1px solid var(--kz-line)}
+  .kzFooterPlaces summary{display:flex;align-items:center;justify-content:space-between;min-height:46px;margin:0;cursor:pointer}
+  .kzFooterPlaces summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--kz-muted);border-bottom:2px solid var(--kz-muted);transform:rotate(45deg);transition:transform .2s}
+  .kzFooterPlaces details[open] summary::after{transform:rotate(-135deg)}
+  .kzFooterPlaces nav{padding:0 0 14px}
+}
+
+/* Story üçün şəkil: önizləmə pəncərəsi */
+.kzStoryDlg{width:min(420px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:0;border:0;border-radius:18px;background:#fff;box-shadow:0 24px 60px rgba(17,24,39,.3);overflow:auto}
+.kzStoryDlg::backdrop{background:rgba(17,24,39,.55)}
+.kzStoryBody{display:grid;gap:12px;padding:14px 16px 16px}
+.kzStoryBody header{display:flex;align-items:center;justify-content:space-between}
+.kzStoryBody header strong{font-size:16px;color:var(--kz-ink)}
+.kzStoryClose{display:grid;place-items:center;width:36px;height:36px;margin:0;padding:0;border:0;border-radius:50%;background:var(--kz-soft);color:var(--kz-ink);cursor:pointer;box-shadow:none}
+.kzStoryBody img{display:block;width:100%;max-height:min(62dvh,560px);object-fit:contain;border-radius:12px;background:#f3f4f6}
+.kzStoryBody p{margin:0;font-size:13px;line-height:1.5;color:var(--kz-muted);text-align:center}
+.kzStoryActions{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px}
+.kzStoryActions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px}
+/* Yana sürüşən çip sıraları: seçilmiş çipin haşiyəsi və toxunma halqası kəsilməsin (yuxarı/aşağı 4 px yer) */
+.kzToolbar,.kzTypeChips,.kzOwnTabs,.kzStoreCats,.kzAdTabs,.kzSeoCities{padding-top:4px!important;padding-bottom:4px!important;margin-top:-4px!important;margin-bottom:-4px!important}
+.kzToolbar>*,.kzTypeChips>*,.kzOwnTabs>*,.kzStoreCats>*{flex-shrink:0}
+
+/* Telefonun alt menyusu: aktiv bölmə dolu ikon + narıncı + yuxarıda nazik xətt; yazılar adi hərflə, bərabər ölçüdə */
+@media (max-width:767px){
+  .kzTabbar{height:62px!important;box-shadow:0 -4px 16px rgba(17,24,39,.05)}
+  .kzTabbar>a{gap:4px!important;font-size:11px!important;font-weight:500!important;text-transform:none!important;letter-spacing:0!important;color:#7b8190!important}
+  .kzTabbar>a:not(.kzTabbarPublish) svg{width:23px!important;height:23px!important;stroke-width:1.8}
+  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish){color:var(--kz-accent)!important;font-weight:600!important}
+  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish)::before{content:"";position:absolute;top:0;left:50%;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--kz-accent);transform:translateX(-50%)}
+  .kzTabbarPublish{color:#7b8190!important}
+  .kzTabbarPublish .kzTabPlus{box-shadow:0 4px 12px rgba(255,90,31,.35)}
+}
+@media (max-width:767px){
+  .kzTabbar>a{justify-content:flex-end!important;padding-bottom:9px!important}
+  .kzTabbar .kzTabbarPublish .kzTabPlus{margin-top:-6px}
+}
+@media (max-width:767px){
+  .kzTabbar>a.kzTabbarPublish{justify-content:flex-end!important;padding-bottom:9px!important}
+  .kzTabbar>a.kzTabbarPublish .kzTabPlus{margin-top:-8px!important;margin-bottom:-2px}
+}
+
+/* Rəhbər → Ödəniş və limitlər: telefonda «Yadda saxla» digər formalardakı kimi tam endə */
+/* Komanda: telefon nömrəsi bölünməsin */
+.kzAdPerson small{overflow-wrap:normal}
+.kzAdPerson small .kzNoWrap,.kzAdRow .kzAdPerson small{word-break:keep-all}
+.kzNoWrap{white-space:nowrap}
+@media (max-width:767px){.kzLimitSave{width:100%;justify-content:center;min-height:44px}}

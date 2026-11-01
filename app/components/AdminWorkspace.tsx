@@ -257,7 +257,7 @@ function StaffManagement() {
     finally { setBusy(false); }
   }
   const person = (account: Member, action?: ReactNode) => <article className="kzAdRow" key={account.id}>
-    <div className="kzAdPerson"><b aria-hidden="true">{initial(account.name || account.email)}</b><span><strong>{account.name || account.email}<em className={`kzAdPill${account.role === "leader" ? " strong" : ""}`}>{staffRoleName(account.role)}</em></strong><small>#{account.profile_no || "—"} · {account.email}{account.phone ? ` · ${formatContact(account.phone)}` : ""}</small>{account.assigned_at && account.role !== "leader" && <small>Admin təyin edilib: {adminDate(account.assigned_at)}</small>}</span></div>
+    <div className="kzAdPerson"><b aria-hidden="true">{initial(account.name || account.email)}</b><span><strong>{account.name || account.email}<em className={`kzAdPill${account.role === "leader" ? " strong" : ""}`}>{staffRoleName(account.role)}</em></strong><small>#{account.profile_no || "—"} · {account.email}{account.phone && <> · <span className="kzNoWrap">{formatContact(account.phone)}</span></>}</small>{account.assigned_at && account.role !== "leader" && <small>Admin təyin edilib: {adminDate(account.assigned_at)}</small>}</span></div>
     {action && <div className="kzAdRowActions">{action}</div>}
   </article>;
   return <Panel title="Komanda">
@@ -648,7 +648,7 @@ function LimitAdmin() {
         </label>)}
       </div>
       <p className="kzAdHint">0 yazsanız, həmin qrupda pulsuz elan olmur. Mağazası olanlara bu qayda aid deyil — onların limiti paketə görədir. Rəhbər üçün limit yoxdur.</p>
-      <button type="button" className="kzAdBtn primary" disabled={busy} onClick={() => void save(rules)}>{busy ? "Saxlanılır…" : "Yadda saxla"}</button>
+      <button type="button" className="kzAdBtn primary kzLimitSave" disabled={busy} onClick={() => void save(rules)}>{busy ? "Saxlanılır…" : "Yadda saxla"}</button>
     </>}
   </Panel>;
 }

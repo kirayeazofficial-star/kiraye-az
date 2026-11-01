@@ -14,6 +14,6 @@ async function slugs(params: Props["params"]) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { landing, city } = await slugs(params);
   const { title, description, path } = landingCopy(landing, city);
-  return { title: `${title} — günlük və aylıq kirayə | kirayeal.az`, description, alternates: { canonical: `${publicSiteUrl()}${path}` }, openGraph: { title: `${title} — kirayeal.az`, description, url: `${publicSiteUrl()}${path}`, locale: "az_AZ", type: "website" } };
+  return { title: `${title}: günlük və aylıq kirayə | kirayeal.az`, description, alternates: { canonical: `${publicSiteUrl()}${path}` }, openGraph: { title: `${title} — kirayeal.az`, description, url: `${publicSiteUrl()}${path}`, locale: "az_AZ", type: "website" } };
 }
 export default async function CityPage({ params }: Props) { const { landing, city } = await slugs(params); return <SeoLanding landing={landing} city={city} />; }

@@ -42,7 +42,7 @@ export default function RootLayout({
         <InstallPrompt />
         <LanguageProvider>{children}</LanguageProvider>
         <Toaster />
-        <StructuredData data={{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":`${publicSiteUrl()}/#organization`,name:"kirayeal.az",alternateName:["Kirayə Al","Kiraye Al","kirayeal"],url:publicSiteUrl(),logo:`${publicSiteUrl()}/icon-192.png`,email:siteContact.email,telephone:"+994502191145",sameAs:[siteContact.instagram,siteContact.tiktok]},{"@type":"WebSite","@id":`${publicSiteUrl()}/#website`,name:"kirayeal.az",alternateName:["Kirayə Al","Kiraye Al az"],potentialAction:{"@type":"SearchAction",target:`${publicSiteUrl()}/?q={search_term_string}#elanlar`,"query-input":"required name=search_term_string"},url:publicSiteUrl(),inLanguage:"az-AZ",publisher:{"@id":`${publicSiteUrl()}/#organization`}}]}}/>
+        <StructuredData data={{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":`${publicSiteUrl()}/#organization`,name:"kirayeal.az",alternateName:["Kirayə Al","Kiraye Al","kirayeal"],url:publicSiteUrl(),logo:`${publicSiteUrl()}/icon-192.png`,email:siteContact.email,sameAs:[siteContact.instagram,siteContact.tiktok]},{"@type":"WebSite","@id":`${publicSiteUrl()}/#website`,name:"kirayeal.az",alternateName:["Kirayə Al","Kiraye Al az"],potentialAction:{"@type":"SearchAction",target:`${publicSiteUrl()}/?q={search_term_string}#elanlar`,"query-input":"required name=search_term_string"},url:publicSiteUrl(),inLanguage:"az-AZ",publisher:{"@id":`${publicSiteUrl()}/#organization`}}]}}/>
       </body>
     </html>
   );

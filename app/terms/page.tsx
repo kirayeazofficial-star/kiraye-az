@@ -61,7 +61,7 @@ const sections: { title: string; points: string[] }[] = [
     points: [
       "Sayt İstifadəçiyə e-poçtla xidməti məktublar göndərə bilər: təsdiq kodları, elanın təsdiqi və ya rəddi, yeni mesajlar haqqında bildirişlər.",
       "İstifadəçinin e-poçt və telefon nömrəsi reklam məqsədilə üçüncü şəxslərə verilmir. Qanunla tələb olunduqda (məsələn, dələduzluq və ya cinayət araşdırması zamanı) məlumatlar səlahiyyətli dövlət orqanlarına təqdim edilə bilər.",
-      "Administrasiya ilə əlaqə: kirayeal.az@gmail.com, +994 50 219 11 45.",
+      "Administrasiya ilə əlaqə: kirayeal.az@gmail.com.",
     ],
   },
   {

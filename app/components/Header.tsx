@@ -133,19 +133,19 @@ export default function Header() {
       </header>
       <nav className={`kzTabbar${pathname?.startsWith("/listings/") ? " kzTabbarHidden" : ""}`} aria-label="Mobil menyu">
         <a href="/" onClick={sameSection("home")} aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
-          <NavigationIcon name="home"/><span>{t("Əsas")}</span>
+          <NavigationIcon name="home" filled={pathname === "/" && !favoritesPage}/><span>{t("Əsas")}</span>
         </a>
         <a href="/?favorites=1" onClick={sameSection("favorites")} aria-current={favoritesPage ? "page" : undefined}>
-          <NavigationIcon name="heart"/><span>{t("Seçilmişlər")}</span>
+          <NavigationIcon name="heart" filled={favoritesPage}/><span>{t("Seçilmişlər")}</span>
         </a>
         <Link className="kzTabbarPublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
           <span className="kzTabPlus" aria-hidden="true"><Plus size={24} strokeWidth={2.25} /></span><span>{t("Yeni elan")}</span>
         </Link>
         <Link href="/messages" onClick={sameSection("messages")} aria-current={pathname === "/messages" ? "page" : undefined}>
-          <NavigationIcon name="message"/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
+          <NavigationIcon name="message" filled={pathname === "/messages"}/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
         </Link>
         <Link href={signedIn ? "/profile" : "/login"} onClick={signedIn ? sameSection("account") : undefined} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
-          <NavigationIcon name="account"/><span>{t("Kabinet")}</span>
+          <NavigationIcon name="account" filled={!!(accountPage || pathname === "/login")}/><span>{t("Kabinet")}</span>
         </Link>
       </nav>
     </>

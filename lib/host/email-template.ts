@@ -27,7 +27,7 @@ export function codeLetter({ heading, intro, code, note }: { heading: string; in
     </td></tr>
     <tr><td style="padding:18px 8px 0;font-family:${font};font-size:12px;line-height:1.7;color:#9ca3af;text-align:center;">
       <a href="${site}" style="color:#6b7280;text-decoration:none;font-weight:600;">kirayeal.az</a> · Azərbaycanda kirayə elanları<br>
-      Əlaqə: <a href="mailto:kirayeal.az@gmail.com" style="color:#6b7280;text-decoration:none;">kirayeal.az@gmail.com</a> · +994 50 219 11 45<br>
+      Əlaqə: <a href="mailto:kirayeal.az@gmail.com" style="color:#6b7280;text-decoration:none;">kirayeal.az@gmail.com</a><br>
       Bu məktub avtomatik göndərilib, cavab yazmağa ehtiyac yoxdur.
     </td></tr>
   </table>

@@ -3,7 +3,6 @@ import { CreditCard, TriangleAlert, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { manat } from "../../lib/limit-rules";
 import { PAYMENT_DOWN } from "../../lib/payment-status";
-import { toast } from "../../lib/toast";
 
 // A paid step (restore / listing over the free limit). With a price it offers "Ödə"; until the payment provider
 // is connected, paying shows the temporary-problem notice and nothing is charged.
@@ -15,7 +14,7 @@ export default function PaymentDialog({ title, text, price, onClose }: { title: 
     node?.showModal();
     return () => node?.close();
   }, []);
-  const pay = () => { setDown(true); toast("Ödəniş hazırda mümkün deyil", { kind: "error" }); };
+  const pay = () => setDown(true);
   return <dialog ref={dialog} className="kzPayDialog" aria-labelledby="kz-pay-title"
     onCancel={event => { event.preventDefault(); onClose(); }}
     onClick={event => { if (event.target === event.currentTarget) onClose(); }}>

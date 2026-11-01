@@ -28,7 +28,7 @@ export default function OwnedListing({ id }: { id: string }) {
     };
   }, [id]);
   return loading ? (
-    <p role="status">Elan yüklənir...</p>
+    <p role="status">Elan yüklənir…</p>
   ) : item ? (
     <>
       <ListingDetails item={item} />

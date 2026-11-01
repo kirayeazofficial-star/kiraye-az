@@ -417,7 +417,7 @@ export default function Home() {
               </h2>
               <p className="kzMuted" role="status" aria-live="polite">
                 {loading
-                  ? t("Elanlar yüklənir...")
+                  ? t("Elanlar yüklənir…")
                   : `${demo ? filtered.length : total} ${demo ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
               </p>
             </div>

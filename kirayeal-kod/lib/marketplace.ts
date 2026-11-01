@@ -107,6 +107,7 @@ export type Listing = {
   promotion_until?: string|null;
   bump_started?: string|null;
   bump_count?: number|null;
+  bump_hours?: number|null;
   deleted_at?: string | null;
   previous_price?: number | string | null;
   price_lowered_at?: string | null;
@@ -299,12 +300,13 @@ export function loweredFrom(item: Pick<Listing, "price" | "previous_price" | "pr
   return Date.now() - Date.parse(item.price_lowered_at) < 30 * 86400000 ? old : null;
 }
 
-// The time a listing shows: the last time it was lifted to the top ("İrəli çək", every 8 hours
-// from bump_started, bump_count times), or the time it was placed. Same rule as the catalogue order.
-export function shownAt(item: Pick<Listing, "created_at" | "bump_started" | "bump_count">): string {
+// The time a listing shows: the last time it was lifted to the top (every bump_hours — 8 for "İrəli çək",
+// 24 for the daily lift of VIP/Premium — from bump_started, bump_count times), or the time it was placed.
+// Same rule as the catalogue order.
+export function shownAt(item: Pick<Listing, "created_at" | "bump_started" | "bump_count" | "bump_hours">): string {
   const created = Date.parse(item.created_at), start = item.bump_started ? Date.parse(item.bump_started) : NaN, count = Number(item.bump_count || 0);
   if (!count || !Number.isFinite(start) || start > Date.now()) return item.created_at;
-  const step = 8 * 3600 * 1000, lifts = Math.min(count - 1, Math.floor((Date.now() - start) / step));
+  const step = (Number(item.bump_hours) || 8) * 3600 * 1000, lifts = Math.min(count - 1, Math.floor((Date.now() - start) / step));
   const last = start + step * lifts;
   return Number.isFinite(created) && created >= last ? item.created_at : new Date(last).toISOString();
 }

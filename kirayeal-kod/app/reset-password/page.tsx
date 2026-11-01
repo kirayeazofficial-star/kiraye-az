@@ -84,7 +84,7 @@ export default function ResetPassword() {
                     />
                   </label>
                   <button className="authSubmit" disabled={busy}>
-                    {busy ? "Yenilənir..." : "Şifrəni saxla"}
+                    {busy ? "Yenilənir…" : "Şifrəni saxla"}
                   </button>
                 </fieldset>
               </form>

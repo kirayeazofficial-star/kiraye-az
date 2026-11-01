@@ -116,7 +116,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   }
 
   const paidRestore = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişlə bərpa", text: "Bərpa edilən elan yenidən 30 gün yayımlanır.", price: restorePrice(item.category) } : { title: "Ödənişlə bərpa", text: "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
-  const paidSubmit = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişli elan", text: "Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır.", price: listingPrice(item.category) } : { title: "Ödənişli elan", text: "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
+  const paidSubmit = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişli elan", text: (item as Listing & { paid_reason?: string | null }).paid_reason === "repeat" ? "Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir — təkrar elan ödənişlidir. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır." : "Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır.", price: listingPrice(item.category) } : { title: "Ödənişli elan", text: "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
   // Restoring is a paid step (payments are not connected yet, so this opens the payment notice).
   // Only the leader restores their own listings for free.
   async function restore(item: Listing) {
@@ -153,7 +153,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       <Header />
       <main className="wrap dashboard accountDashboard">
         {loading ? (
-          <p role="status">Yüklənir...</p>
+          <p role="status">Yüklənir…</p>
         ) : !userId ? (
           <div className="empty">
             <h2>
@@ -244,10 +244,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                       </div>
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
-                            <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin..." : leader ? "Göndər" : "Ödəniş et"}</button>
+                            <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Göndər" : "Ödəniş et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>
                           </>
-                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin..." : leader ? "Bərpa et" : "Ödənişlə bərpa et"}</button>
+                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Bərpa et" : "Ödənişlə bərpa et"}</button>
                           : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Düzəlt və göndər</Link>
                           : <>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>

@@ -52,8 +52,8 @@ export default function ListingDetails({
   const [isOwner,setIsOwner]=useState(false);
   const [isLeader,setIsLeader]=useState(false);
   const [ownerReady,setOwnerReady]=useState(false);
-  useEffect(()=>{let active=true;setOwnerReady(false);fetch('/api/auth/host',{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active){setIsOwner(data.user?.id===item.owner_id);setIsLeader(!!data.leader);}}).catch(()=>{}).finally(()=>{if(active)setOwnerReady(true);});return()=>{active=false;};},[item.owner_id]);
-  const effectiveOwner=isOwner||publicInfo?.mine===true;
+  useEffect(()=>{let active=true;setOwnerReady(false);fetch('/api/auth/host',{cache:'no-store'}).then(response=>response.json()).then(data=>{if(active){setIsOwner(!item.demo&&!!item.owner_id&&data.user?.id===item.owner_id);setIsLeader(!!data.leader);}}).catch(()=>{}).finally(()=>{if(active)setOwnerReady(true);});return()=>{active=false;};},[item.owner_id]);
+  const effectiveOwner=!item.demo&&(isOwner||publicInfo?.mine===true);
   const [image, setImage] = useState(0),
     [favorite, setFavorite] = useState(false),
     [notice, setNotice] = useState(""),
@@ -310,11 +310,9 @@ export default function ListingDetails({
             </a>
           </div>
         ) : (
-          <p className="notice">
-            {item.demo
-              ? "Nümunə elandır, real kirayə təklifi deyil."
-              : "Əlaqə nömrəsi düzgün göstərilməyib."}
-          </p>
+          item.demo
+            ? <div className="kzSampleNote"><strong>Bu nümunə elandır</strong><p>Saytın necə işlədiyini göstərir — real kirayə təklifi deyil, əlaqə məlumatı yoxdur. Sizin də kirayə verəcəyiniz əşya varsa, elanı pulsuz yerləşdirin.</p><Link className="kzButton" href="/new">Elan yerləşdir</Link></div>
+            : <p className="notice">Əlaqə nömrəsi düzgün göstərilməyib.</p>
         )}
         {phoneShown && !effectiveOwner && <p className="phoneSafety" role="status">Diqqət: beh göndərməmişdən əvvəl sövdələşmənin təhlükəsiz olduğundan əmin ol. Kartının PIN/CVV-sini və SMS kodunu paylaşma.</p>}
         {compact && (

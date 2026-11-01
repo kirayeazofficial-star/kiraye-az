@@ -2850,3 +2850,9 @@ html{-webkit-tap-highlight-color:transparent}
 @media (max-width:767px){.kzSetActions .kzAdBtn{flex:1 1 0}}
 .kzWorksCard .kzWorksTime span{white-space:normal}
 @media (max-width:767px){.kzAdGroupTabs button{padding:0 10px;font-size:max(13px,var(--fs-13))}}
+
+/* Sample listing: note in place of the contact buttons */
+.kzSampleNote{display:grid;gap:8px;padding:16px;border:1px dashed #f3b79c;border-radius:14px;background:#fff8f4}
+.kzSampleNote strong{font-size:var(--fs-15,15px);color:var(--kz-ink)}
+.kzSampleNote p{margin:0;font-size:var(--fs-14,14px);line-height:1.5;color:var(--kz-text)}
+.kzSampleNote .kzButton{justify-content:center;margin-top:4px}

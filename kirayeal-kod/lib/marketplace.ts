@@ -200,83 +200,8 @@ export const money = (price: number) => {
 
 export const photo = (id: string) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1000&q=80`;
-export const examples: Listing[] = [
-  [
-    "property",
-    "Nizami metrosu yaxınlığında işıqlı mənzil",
-    "Bakı",
-    45,
-    "photo-1600585154340-be6161a56a0c",
-  ],
-  [
-    "car",
-    "Hyundai Elantra — rahat şəhər səfərləri",
-    "Bakı",
-    55,
-    "photo-1503376780353-7e6692767b70",
-  ],
-  [
-    "villa",
-    "Mərdəkan, hovuzlu və geniş həyətli bağ evi",
-    "Bakı",
-    180,
-    "photo-1600607687939-ce8a6c25118c",
-  ],
-  [
-    "commercial",
-    "28 Mayda işıqlı ofis, 85 m²",
-    "Bakı",
-    1200,
-    "photo-1497366754035-f200968a6e72",
-  ],
-  [
-    "equipment",
-    "Foto və video çəkiliş üçün kamera",
-    "Sumqayıt",
-    35,
-    "photo-1502920917128-1aa500764cbd",
-  ],
-  [
-    "bicycle",
-    "Həftəsonu gəzintisi üçün şəhər velosipedi",
-    "Bakı",
-    12,
-    "photo-1571068316344-75bc76f77890",
-  ],
-].map((v, i) => ({
-  id: `example-${i}`,
-  category: String(v[0]),
-  title: String(v[1]),
-  city: String(v[2]),
-  price: Number(v[3]),
-  images: [
-    [
-      "/room.svg",
-      "/car.svg",
-      "/room.svg",
-      "/room.svg",
-      "/camera.svg",
-      "/bicycle.svg",
-    ][i],
-  ],
-  rental_period: i === 3 ? "monthly" : "daily",
-  status: "published",
-  description:
-    "Bu elan saytın imkanlarını göstərmək üçün nümunədir. Real kirayə təklifi deyil.",
-  contact: "",
-  created_at: "2026-10-20",
-  demo: true,
-  rooms: i === 0 ? 2 : i === 2 ? 4 : undefined,
-  area_m2: i === 0 ? 65 : i === 2 ? 180 : i === 3 ? 85 : undefined,
-  deposit: i === 1 ? 100 : 0,
-  min_days: 1,
-  attributes:
-    i === 1
-      ? { brand: "Hyundai", model: "Elantra", year: 2022, gearbox: "Avtomat" }
-      : i === 0
-        ? { amenities: ["Wi-Fi", "Kondisioner", "Mebel"] }
-        : {},
-}));
+// Sample listings («Nümunə»), see lib/sample-listings.ts.
+export { sampleListings as examples } from "./sample-listings";
 export async function loadListings(
   scope: "public" | "mine" | "admin" = "public",
 ) {

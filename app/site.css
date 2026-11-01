@@ -2771,15 +2771,6 @@ html{-webkit-tap-highlight-color:transparent}
 @media (max-width:767px){.kzAnnounceInner{justify-content:flex-start;align-items:flex-start;flex-wrap:wrap;gap:4px 10px;padding:10px 44px 10px 16px}.kzAnnounceIcon{margin-top:1px}.kzAnnounce p{flex:1 1 calc(100% - 40px);font-size:max(13px,var(--fs-13))}.kzAnnounceLink{margin-left:36px;font-size:max(13px,var(--fs-13))}.kzAnnounceClose{top:8px;transform:none}}
 
 /* Maintenance page */
-.kzWorks{display:grid;place-items:center;min-height:100vh;min-height:100dvh;padding:24px 16px;background:var(--kz-soft)}
-.kzWorksCard{display:grid;justify-items:center;gap:12px;width:min(460px,100%);padding:36px 28px;border:1px solid var(--kz-line);border-radius:20px;background:#fff;text-align:center;box-shadow:0 12px 40px rgba(17,24,39,.06)}
-.kzWorksCard .kzWorksLogo{margin:0 0 8px;font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--kz-brand)}
-.kzWorksCard .kzWorksLogo span{color:var(--kz-accent)}
-.kzWorksIcon{display:grid;place-items:center;width:64px;height:64px;border-radius:18px;background:#fff4e5;color:#b26a00}
-.kzWorksCard h1{margin:4px 0 0;font-size:var(--fs-22,22px);font-weight:700;color:var(--kz-ink)}
-.kzWorksCard p{margin:0;font-size:var(--fs-15,15px);line-height:1.55;color:var(--kz-text)}
-.kzWorksCard .kzWorksMail{margin-top:8px;font-size:var(--fs-13,13px);color:var(--kz-muted)}
-.kzWorksMail a{color:var(--kz-brand);font-weight:600}
 /* Footer places: closed by default on every screen, with an arrow (links stay in the page for Google). */
 .kzFooterPlaces summary{display:inline-flex!important;align-items:center;gap:8px;cursor:pointer!important}
 .kzFooterPlaces summary::after{content:"";width:7px;height:7px;margin-top:-3px;border-right:2px solid var(--kz-muted);border-bottom:2px solid var(--kz-muted);transform:rotate(45deg);transition:transform .2s}
@@ -2830,14 +2821,6 @@ html{-webkit-tap-highlight-color:transparent}
 .kzAdMenu .tone-settings{--tone:#0f766e;--tint:#e6f4f2}
 
 /* Maintenance page, second pass */
-.kzWorks{gap:16px;align-content:center;background:radial-gradient(1200px 500px at 50% -10%,#fff1ec 0,transparent 60%),var(--kz-soft)!important}
-.kzWorksCard{gap:14px!important;padding:40px 32px!important;border-radius:22px!important}
-.kzWorksCard .kzWorksTime{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:#fff4e5;color:#7a4500!important;font-size:var(--fs-14,14px)!important}
-.kzWorksTime b{color:#7a4500}
-.kzWorksLinks{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:6px}
-.kzWorksLinks a{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 14px;border:1px solid var(--kz-line);border-radius:10px;color:var(--kz-ink);font-size:var(--fs-14,14px);font-weight:500;text-decoration:none}
-.kzWorksLinks a:hover{border-color:var(--kz-ink)}
-.kzWorksFoot{margin:0;color:var(--kz-muted);font-size:13px;text-align:center}
 /* Leader settings: live preview of the bar */
 .kzSetField>span small{margin-left:6px;font-weight:400;color:var(--kz-muted)}
 .kzSetTone i.info{background:#2563eb!important}.kzSetTone i.warn{background:#c2410c!important}.kzSetTone i.danger{background:#c81e1e}
@@ -2848,7 +2831,6 @@ html{-webkit-tap-highlight-color:transparent}
 .kzSetActions{display:flex;flex-wrap:wrap;gap:8px}
 .kzSetActions .kzAdBtn{min-width:140px;justify-content:center}
 @media (max-width:767px){.kzSetActions .kzAdBtn{flex:1 1 0}}
-.kzWorksCard .kzWorksTime span{white-space:normal}
 @media (max-width:767px){.kzAdGroupTabs button{padding:0 10px;font-size:max(13px,var(--fs-13))}}
 
 /* Sample listing: note in place of the contact buttons */
@@ -2898,3 +2880,78 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 .kzHealthFoot.stale{color:#b42318}
 @media (max-width:767px){.kzHealthList{grid-template-columns:1fr}.kzHealthList li{grid-template-columns:8px minmax(0,1fr) auto;padding:9px 12px}.kzHealthList span{grid-column:3;grid-row:1;text-align:right;max-width:58vw}}
 @media (max-width:767px){.kzAdActivity .kzAdLink{min-height:0;padding:3px 0;text-align:left}.kzAdActivity li{row-gap:4px}}
+
+/* Maintenance page (/maintenance): header, main card, rental tips on the side, footer */
+.kzMt{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:radial-gradient(900px 420px at 15% -5%,#fff1ec 0,transparent 60%),radial-gradient(700px 380px at 100% 100%,#eaf3f1 0,transparent 60%),var(--kz-soft)}
+.kzMtHead{background:#fff;border-bottom:1px solid var(--kz-line)}
+.kzMtBar{display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(1120px,100%);height:64px;margin:0 auto;padding:0 20px}
+.kzMtLogo{margin:0;font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--kz-brand)}
+.kzMtLogo span{color:var(--kz-accent)}
+.kzMtInsta{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 14px;border:1px solid var(--kz-line);border-radius:10px;color:var(--kz-ink);font-size:var(--fs-14);font-weight:500;text-decoration:none}
+.kzMtInsta:hover{border-color:var(--kz-ink)}
+.kzMtMain{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;align-items:start;width:min(1120px,100%);margin:0 auto;padding:40px 20px;flex:1}
+.kzMtCard{display:grid;gap:18px;padding:36px;border:1px solid var(--kz-line);border-radius:20px;background:#fff;box-shadow:0 12px 40px rgba(17,24,39,.06)}
+.kzMtAlert{display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 16px;background:#ff5a1f;color:#fff}
+.kzMtAlert span{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.2)}
+.kzMtAlert p{margin:0;font-size:var(--fs-14);line-height:1.4;font-weight:500}
+.kzMtAlert b{font-weight:700}
+.kzMtTitle{display:flex;align-items:center;gap:16px}
+.kzMtIcon{display:grid;place-items:center;flex:none;width:64px;height:64px;border-radius:18px;background:#fff1ea;color:#ff5a1f;box-shadow:inset 0 0 0 1px #ffd9c7}
+.kzMtIcon svg{animation:kzMtTurn 2.4s ease-in-out infinite}
+@keyframes kzMtTurn{0%,60%,100%{transform:rotate(0)}20%{transform:rotate(-18deg)}40%{transform:rotate(12deg)}}
+@media (prefers-reduced-motion:reduce){.kzMtIcon svg{animation:none}}
+.kzMtBadge{display:inline-flex;align-items:center;height:24px;margin-bottom:6px;padding:0 10px;border-radius:999px;background:#ff5a1f;color:#fff;font-size:var(--fs-12);font-weight:700;letter-spacing:.3px;text-transform:uppercase}
+.kzMtNote{margin:0;padding:12px 14px;border-left:3px solid #ff5a1f;border-radius:8px;background:#fafafa;font-size:var(--fs-14);line-height:1.5;color:var(--kz-ink)}
+.kzMtCard h1{margin:0;font-size:var(--fs-28);text-wrap:balance;line-height:1.2;font-weight:700;letter-spacing:-.4px;color:var(--kz-ink)}
+.kzMtLead{margin:0;font-size:var(--fs-16);line-height:1.6;color:var(--kz-text)}
+.kzMtTime{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:12px 14px;border-radius:12px;background:#fff8f0;border:1px solid #fde3c8;color:#7a4500;font-size:var(--fs-14)}
+.kzMtTime svg{flex:none}
+.kzMtTime b{color:#7a4500}
+.kzMtLeft{flex-basis:100%;margin-left:26px;max-width:max-content;padding:3px 10px;border-radius:999px;background:#fff;color:#7a4500;font-size:var(--fs-13);font-weight:600;white-space:nowrap}
+.kzMtKept{padding:16px 18px;border-radius:14px;background:#f6faf9;border:1px solid #dcebe8}
+.kzMtKept h2{margin:0 0 10px;font-size:var(--fs-15);font-weight:700;color:var(--kz-brand)}
+.kzMtKept ul{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin:0;padding:0;list-style:none}
+.kzMtKept li{display:flex;align-items:flex-start;gap:8px;font-size:var(--fs-14);line-height:1.4;color:var(--kz-ink)}
+.kzMtKept li svg{flex:none;margin-top:1px;color:#12805c}
+.kzMtAuto{display:flex;align-items:flex-start;gap:8px;margin:0;font-size:var(--fs-13);line-height:1.5;color:var(--kz-muted)}
+.kzMtAuto svg{flex:none;margin-top:2px;animation:kzMtSpin 3s linear infinite}
+@keyframes kzMtSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.kzMtAuto svg{animation:none}}
+.kzMtSide{display:grid;gap:14px}
+.kzMtPromo{display:grid;gap:8px;padding:22px;border-radius:18px;background:linear-gradient(135deg,#143f3b 0,#1d5a54 100%);color:#fff;box-shadow:0 12px 32px rgba(20,63,59,.18)}
+.kzMtPromoLogo{margin:0;font-size:22px;font-weight:800;letter-spacing:-.4px;color:#fff}
+.kzMtPromoLogo span{color:#ff8a5c}
+.kzMtPromo strong{font-size:var(--fs-18);line-height:1.35;font-weight:700}
+.kzMtPromo>p:not(.kzMtPromoLogo){margin:0;font-size:var(--fs-14);line-height:1.5;color:rgba(255,255,255,.82)}
+.kzMtPromo ul{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 0;padding:0;list-style:none}
+.kzMtPromo li{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.12);font-size:var(--fs-13);font-weight:500;color:#fff}
+.kzMtSide>h2{margin:6px 0 0;font-size:var(--fs-16);font-weight:700;color:var(--kz-ink)}
+.kzMtTips{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kzMtTips article{display:grid;gap:6px;align-content:start;padding:16px;border:1px solid var(--kz-line);border-radius:14px;background:#fff}
+.kzMtTips span{display:grid;place-items:center;width:38px;height:38px;margin-bottom:4px;border-radius:10px;background:#eaf3f1;color:var(--kz-brand)}
+.kzMtTips h3{margin:0;font-size:var(--fs-14);font-weight:700;line-height:1.35;color:var(--kz-ink)}
+.kzMtTips p{margin:0;font-size:var(--fs-13);line-height:1.5;color:var(--kz-muted)}
+.kzMtFollow{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:14px;background:var(--kz-brand);color:#fff}
+.kzMtFollow div{flex:1;min-width:0}
+.kzMtFollow strong{display:block;font-size:var(--fs-15);font-weight:700}
+.kzMtFollow p{margin:3px 0 0;font-size:var(--fs-13);line-height:1.45;color:rgba(255,255,255,.8)}
+.kzMtFollow a{display:inline-flex;align-items:center;gap:7px;flex:none;height:40px;padding:0 16px;border-radius:10px;background:#fff;color:var(--kz-brand);font-size:var(--fs-14);font-weight:600;text-decoration:none}
+.kzMtFoot{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 20px;padding:18px 20px 24px;color:var(--kz-muted);font-size:var(--fs-13)}
+.kzMtFoot a{display:inline-flex;align-items:center;gap:6px;color:var(--kz-ink);text-decoration:none}
+@media (max-width:899px){
+  .kzMtMain{grid-template-columns:1fr;gap:20px;padding:20px 16px}
+  .kzMtBar{height:56px;padding:0 16px}
+  .kzMtLogo{font-size:22px}
+  .kzMtCard{gap:16px;padding:22px 18px;border-radius:16px}
+  .kzMtTitle{align-items:flex-start;gap:12px}
+  .kzMtIcon{width:52px;height:52px;border-radius:14px}
+  .kzMtCard h1{font-size:var(--fs-24)}
+  .kzMtAlert{justify-content:flex-start;padding:10px 16px}
+}
+@media (max-width:520px){
+  .kzMtKept ul,.kzMtTips{grid-template-columns:1fr}
+  .kzMtTips article{grid-template-columns:38px minmax(0,1fr);column-gap:12px;row-gap:3px;padding:14px}
+  .kzMtTips span{grid-row:span 2;margin:0}
+  .kzMtFollow{flex-direction:column;align-items:stretch;text-align:left}
+  .kzMtFollow a{justify-content:center}
+}

@@ -2856,3 +2856,9 @@ html{-webkit-tap-highlight-color:transparent}
 .kzSampleNote strong{font-size:var(--fs-15,15px);color:var(--kz-ink)}
 .kzSampleNote p{margin:0;font-size:var(--fs-14,14px);line-height:1.5;color:var(--kz-text)}
 .kzSampleNote .kzButton{justify-content:center;margin-top:4px}
+
+/* One icon family: every Lucide icon uses the same thin line as the drawn menu icons (TabIcon 1.7) */
+svg.lucide{stroke-width:1.75}
+svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[width="15"],svg.lucide[width="16"]{stroke-width:2}
+.kzTabIcon:not(.on){stroke-width:1.7}
+@media (max-width:767px){.kzCard .kzBadge{font-size:max(11px,var(--fs-11))!important}}

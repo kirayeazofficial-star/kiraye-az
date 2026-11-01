@@ -19,9 +19,9 @@ const shapes: Record<Name, { outline: React.ReactNode; solid: React.ReactNode }>
     solid: <><circle cx="12" cy="8.25" r="4.5" /><path d="M3.8 20.1C4.45 15.9 7.85 13.5 12 13.5s7.55 2.4 8.2 6.6a1 1 0 0 1-.99 1.15H4.79a1 1 0 0 1-.99-1.15z" /></>,
   },
 };
-export default function TabIcon({ name, active = false }: { name: Name; active?: boolean }) {
+export default function TabIcon({ name, active = false, size = 24 }: { name: Name; active?: boolean; size?: number }) {
   const shape = shapes[name];
   return active
-    ? <svg className="kzTabIcon on" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor">{shape.solid}</svg>
-    : <svg className="kzTabIcon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{shape.outline}</svg>;
+    ? <svg className="kzTabIcon on" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" fill="currentColor">{shape.solid}</svg>
+    : <svg className="kzTabIcon" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{shape.outline}</svg>;
 }

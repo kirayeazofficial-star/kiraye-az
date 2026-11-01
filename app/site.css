@@ -2865,3 +2865,18 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 /* Filter chips above the listings: chips keep room for their borders and the cards start below them */
 .kzToolbar{margin-bottom:14px!important}
 @media (max-width:767px){.kzToolbar{margin-bottom:12px!important}}
+
+/* Leader panel → İstifadəçilər: the six-column table only where it fits (≥1180px); tablets and small
+   laptops get the same stacked rows as phones, so names, e-mails and phones never overlap. */
+@media (min-width:768px) and (max-width:1179px){
+  .kzAdUsers .kzAdTableHead{display:none!important}
+  .kzAdUsers .kzAdTableRow{grid-template-columns:minmax(0,1fr) auto!important;gap:4px 10px;padding:12px 14px}
+  .kzAdUsers .kzAdTableRow>.kzAdPerson{grid-column:1}
+  .kzAdUsers .kzAdTableRow>.kzAdContact{grid-column:1/-1;padding-left:46px}
+  .kzAdUsers .kzAdTableRow>span[data-label]{display:none}
+  .kzAdUsers .kzAdTableRow>span:nth-child(5){grid-column:2;grid-row:1;justify-self:end}
+  .kzAdUsers .kzAdTableRow>.kzAdRowEnd{grid-column:1/-1;justify-content:flex-start;padding-left:46px}
+}
+/* Store page without a cover photo: plain brand gradient — the name is shown right below, so the faded
+   copy (which got cut on phones) is not repeated in the cover. */
+.kzStoreCover span{display:none!important}

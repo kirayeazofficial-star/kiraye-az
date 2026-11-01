@@ -26,10 +26,10 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Reklam", stores: "Mağazalar", limits: "Ödənişli xidmətlər", settings: "Ayarlar", staff: "Komanda", backup: "Ehtiyat nüsxə" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", limits: "Ödənişli xidmətlər", settings: "Sayt ayarları", staff: "Komanda", backup: "Ehtiyat nüsxə" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", user_blocked: "İstifadəçi bloklandı", user_unblocked: "Blok götürüldü", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
-const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Megaphone, stores: Store, limits: CreditCard, settings: Settings2, staff: ShieldCheck, backup: CloudUpload };
+const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, limits: CreditCard, settings: Settings2, staff: ShieldCheck, backup: CloudUpload };
 
 async function api(params: Record<string, string | number>) {
   const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
@@ -331,34 +331,28 @@ export default function AdminWorkspace() {
 
   if (allowed === null) return <p className="kzAdMuted" role="status">İcazə yoxlanılır…</p>;
   if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil ol." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
-  // Five places to look at; the rest sits as tabs inside them, so the leader isn't faced with ten sections.
-  const groups: Record<string, Section[]> = { moderation: ["moderation", "reports"], users: ["users", "stores"], banners: ["banners"], settings: role === "leader" ? ["settings", "limits", "staff", "backup"] : [] };
-  const groupOf = (item: Section): Section => (Object.keys(groups) as Section[]).find(head => groups[head].includes(item)) ?? item;
-  const sections = (["overview", "moderation", "users", "banners", "settings"] as Section[]).filter(item => item !== "settings" || role === "leader");
-  const tabLabels: Partial<Record<Section, string>> = { moderation: "Elanlar", reports: "Şikayətlər", users: "İstifadəçilər", stores: "Mağazalar", settings: "Sayt", limits: "Ödənişlər", staff: "Komanda", backup: "Ehtiyat" };
-  const groupTabs = groups[groupOf(section)] || [];
+  // Each job has its own section (as before); the paid-services switch lives inside "Sayt ayarları".
+  const sections = (["overview", "moderation", "reports", "users", "stores", "banners", "settings", "staff", "backup"] as Section[]).filter(item => !["settings", "staff", "backup"].includes(item) || role === "leader");
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0, storeRequests = counts?.stores || 0;
-  const own = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : item === "stores" ? storeRequests : 0;
-  const badge = (item: Section) => (groups[item] || [item]).reduce((sum, part) => sum + own(part), 0);
+  const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : item === "stores" ? storeRequests : 0;
   const menuNote = (item: Section): { text: string; alert?: boolean } =>
-    item === "moderation" ? (pending || openReports ? { text: [pending && `${pending} elan yoxlamada`, openReports && `${openReports} şikayət`].filter(Boolean).join(" · "), alert: true } : { text: "Elanlar və şikayətlər" })
+    item === "moderation" ? (pending ? { text: `${pending} elan yoxlama gözləyir`, alert: true } : { text: "Yoxlanılacaq elan yoxdur" })
     : item === "reports" ? (openReports ? { text: `${openReports} açıq şikayət`, alert: true } : { text: "Açıq şikayət yoxdur" })
-    : item === "users" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: counts ? `${counts.users} istifadəçi · mağazalar` : "İstifadəçilər və mağazalar" })
-    : item === "banners" ? { text: "Saytdakı reklam bannerləri" }
+    : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
+    : item === "banners" ? { text: "Reklam bannerləri" }
     : item === "backup" ? { text: "Hər gecə Google Drive-a" }
     : item === "limits" ? { text: "Ödənişləri açmaq və bağlamaq" }
-    : item === "settings" ? { text: "Elan zolağı, texniki iş, ödənişlər, komanda, ehtiyat nüsxə" }
+    : item === "settings" ? { text: "Elan zolağı, texniki iş, ödənişlər" }
     : item === "stores" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: "Müraciətlər və paketlər" })
     : { text: "Rəhbər və adminlər" };
 
   return <div className="kzAdm">
     <nav className="kzAdNav" aria-label="Panel bölmələri">
-      {sections.map(item => <button key={item} type="button" aria-pressed={groupOf(section) === item} onClick={() => open(item)}>{(() => { const SectionIcon = icons[item]; return <SectionIcon aria-hidden="true" size={20} strokeWidth={1.75} />; })()}<span>{sectionLabels[item]}</span>{!!badge(item) && <b>{badge(item)}</b>}</button>)}
+      {sections.map(item => <button key={item} type="button" aria-pressed={section === item} onClick={() => open(item)}>{(() => { const SectionIcon = icons[item]; return <SectionIcon aria-hidden="true" size={20} strokeWidth={1.75} />; })()}<span>{sectionLabels[item]}</span>{!!badge(item) && <b>{badge(item)}</b>}</button>)}
       <Link className="kzAdNavBack" href="/profile"><UserRound aria-hidden="true" size={19} strokeWidth={2} />Şəxsi kabinet</Link>
     </nav>
     <div className="kzAdContent">
       {section !== "overview" && <button type="button" className="kzAdBack" onClick={() => open(section === "history" ? "moderation" : "overview")}><ChevronLeft aria-hidden="true" size={20} strokeWidth={2} />{section === "history" ? "Elanlar" : "Panel"}</button>}
-      {groupTabs.length > 1 && <div className="kzAdGroupTabs" role="tablist" aria-label={sectionLabels[groupOf(section)]}>{groupTabs.map(item => <button key={item} type="button" role="tab" aria-selected={section === item} onClick={() => open(item)}>{tabLabels[item]}{!!own(item) && <b>{own(item)}</b>}</button>)}</div>}
       {error && <p className="kzAdError" role="alert">{error}</p>}
 
       {section === "overview" && <>
@@ -460,7 +454,7 @@ export default function AdminWorkspace() {
       {section === "banners" && <BannerManager />}
       {section === "stores" && <StoreAdmin leader={role === "leader"} />}
       {section === "limits" && role === "leader" && <LimitAdmin />}
-      {section === "settings" && role === "leader" && <SiteSettingsAdmin />}
+      {section === "settings" && role === "leader" && <><SiteSettingsAdmin /><LimitAdmin /></>}
       {section === "backup" && role === "leader" && <BackupStatus />}
       {section === "users" && <UserList revision={revision} onListings={ownerListings} />}
       {section === "staff" && role === "leader" && <StaffManagement />}
@@ -626,7 +620,7 @@ function LimitAdmin() {
     try { await post({ action: "save_payments", enabled: next }); setPayments(next); toast(next ? "Ödənişli xidmətlər açıldı" : "Ödənişli xidmətlər dayandırıldı"); }
     catch { toast("Dəyişiklik saxlanmadı", { kind: "error" }); } finally { setBusy(false); }
   }
-  return <Panel title="Ödənişli xidmətlər">
+  return <Panel title="Ödənişlər">
     {payments !== null && <div className={`kzPaySwitch${payments ? " on" : ""}`}>
       <span className="kzPaySwitchIcon"><CreditCard aria-hidden="true" size={22} strokeWidth={2} /></span>
       <div><strong>Ödəniş qəbulu <em className={`kzSwState${payments ? " on" : ""}`}>{payments ? "Açıq" : "Bağlı"}</em></strong>
@@ -655,11 +649,11 @@ function SiteSettingsAdmin() {
       toast(message); return true;
     } catch { toast("Dəyişiklik saxlanmadı", { kind: "error" }); return false; } finally { setBusy(""); }
   }
-  if (error) return <Panel title="Sayt"><p className="kzAdError" role="alert">{error}</p></Panel>;
-  if (!bar || !works || !draft || !worksDraft) return <Panel title="Sayt"><p className="kzAdMuted" role="status">Yüklənir…</p></Panel>;
+  if (error) return <Panel title="Sayt ayarları"><p className="kzAdError" role="alert">{error}</p></Panel>;
+  if (!bar || !works || !draft || !worksDraft) return <Panel title="Sayt ayarları"><p className="kzAdMuted" role="status">Yüklənir…</p></Panel>;
   const barChanged = draft.text !== bar.text || draft.tone !== bar.tone || draft.link !== bar.link;
   const worksChanged = worksDraft.text !== works.text || worksDraft.until !== works.until;
-  return <Panel title="Sayt">
+  return <Panel title="Sayt ayarları">
     <section className="kzSetCard">
       <div className={`kzPaySwitch${bar.enabled ? " on" : ""}`}>
         <span className="kzPaySwitchIcon kzIconBar"><Megaphone aria-hidden="true" size={22} strokeWidth={2} /></span>

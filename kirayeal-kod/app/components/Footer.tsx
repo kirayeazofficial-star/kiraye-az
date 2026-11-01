@@ -10,7 +10,6 @@ export default function Footer() {
   const {t} = useLanguage();
   // On phones the place lists start folded (open on computers); the links stay in the page either way.
   const places = useRef<HTMLDivElement>(null);
-  useEffect(() => { if (window.innerWidth < 768) places.current?.querySelectorAll("details").forEach(item => { item.open = false; }); }, []);
   return (
     <footer className="kzFooter">
       <div className="kzFooterInner">
@@ -45,11 +44,11 @@ export default function Footer() {
       </div>
       {/* Places: short link lists for people and search engines (same pages as the city filter). */}
       <div className="kzFooterPlaces" ref={places}>
-        <details open>
+        <details>
           <summary>{t("Bakının rayonları")}</summary>
           <nav aria-label={t("Bakının rayonları")}>{Object.entries(seoDistricts).map(([slug, place]) => <a key={slug} href={`/kiraye/baki/${slug}`}>{place.name}</a>)}</nav>
         </details>
-        <details open>
+        <details>
           <summary>{t("Şəhərlər")}</summary>
           <nav aria-label={t("Şəhərlər")}>{allCities.map(slug => <a key={slug} href={`/kiraye/${slug}`}>{seoCities[slug].name}</a>)}</nav>
         </details>

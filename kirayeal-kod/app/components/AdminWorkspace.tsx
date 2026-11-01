@@ -10,7 +10,6 @@ import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { formatContact } from "../../lib/contact-mask";
 import { categories, categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
-import { fixedLimitRules, listingPrice, manat } from "../../lib/limit-rules";
 import { toast } from "../../lib/toast";
 import { moderationActions, moderationFields, rejectionReasons, riskWords, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
 import { useAutoClear } from "../../lib/use-auto-clear";
@@ -340,7 +339,7 @@ export default function AdminWorkspace() {
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
     : item === "backup" ? { text: "Hər gecə Google Drive-a" }
-    : item === "limits" ? { text: "Açar, elan qaydası və qiymətlər" }
+    : item === "limits" ? { text: "Ödənişləri açmaq və bağlamaq" }
     : item === "settings" ? { text: "Elan zolağı və texniki iş rejimi" }
     : item === "stores" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: "Müraciətlər və paketlər" })
     : { text: "Rəhbər və adminlər" };
@@ -619,20 +618,14 @@ function LimitAdmin() {
     try { await post({ action: "save_payments", enabled: next }); setPayments(next); toast(next ? "Ödənişli xidmətlər açıldı" : "Ödənişli xidmətlər dayandırıldı"); }
     catch { toast("Dəyişiklik saxlanmadı", { kind: "error" }); } finally { setBusy(false); }
   }
-  const name = (id: string) => categories.find(item => item.id === id)?.name || id;
   return <Panel title="Ödənişli xidmətlər">
     {payments !== null && <div className={`kzPaySwitch${payments ? " on" : ""}`}>
       <span className="kzPaySwitchIcon"><CreditCard aria-hidden="true" size={22} strokeWidth={2} /></span>
-      <div><strong>Ödənişli xidmətlər <em className={`kzSwState${payments ? " on" : ""}`}>{payments ? "Açıq" : "Bağlı"}</em></strong>
-        <small>{payments ? "İrəli çək, VIP, Premium, ödənişli elan, bərpa və mağaza paketləri istifadəçilərə görünür." : "İstifadəçilər heç bir ödənişli düymə görmür. Aktiv mağazalar və artıq alınmış xidmətlər müddəti bitənədək işləyir."}</small></div>
-      <button type="button" role="switch" aria-checked={payments} aria-label="Ödənişli xidmətlər" className="kzToggle" disabled={busy} onClick={() => void switchPayments()}><i aria-hidden="true" /></button>
+      <div><strong>Ödəniş qəbulu <em className={`kzSwState${payments ? " on" : ""}`}>{payments ? "Açıq" : "Bağlı"}</em></strong>
+        <small>{payments ? "İstifadəçilər «Reklam et», VIP, Premium, irəli çək, ödənişli elan, bərpa və mağaza paketlərini görür." : "Ödənişli düymələr gizlədilib. Limiti dolan istifadəçi «Ödənişli xidmətlər müvəqqəti dayandırılıb» yazısını görür."}</small></div>
+      <button type="button" role="switch" aria-checked={payments} aria-label="Ödəniş qəbulu" className="kzToggle" disabled={busy} onClick={() => void switchPayments()}><i aria-hidden="true" /></button>
     </div>}
     {error && <p className="kzAdError" role="alert">{error}</p>}
-    <h3 className="kzAdSub">Elan qaydası</h3>
-    <p className="kzAdHint">30 gün ərzində hər qrupda (Nəqliyyat, Əmlak, Əşya) 1 elan pulsuzdur. {fixedLimitRules.paid.map(name).join(" və ")} həmişə ödənişlidir. Müddəti bitmiş elanın bərpası — elan qiymətinin yarısı. Mağaza sahiblərinin limiti paketə görədir; sizin üçün limit yoxdur və hər şey pulsuzdur.</p>
-    <div className="kzPriceList" role="table" aria-label="Əlavə elanın qiyməti">
-      {categories.map(item => <div role="row" key={item.id}><span role="cell">{item.name}</span><b role="cell">{manat(listingPrice(item.id))}</b></div>)}
-    </div>
   </Panel>;
 }
 

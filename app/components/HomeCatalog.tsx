@@ -421,6 +421,8 @@ export default function Home() {
                   : `${demo ? filtered.length : total} ${demo ? t("nümunə") + " " : ""}${t("elan tapıldı")}`}
               </p>
             </div>
+            {/* Nothing saved yet: no map or sort buttons to show. */}
+            {!(onlyFavorites && !loading && (demo ? filtered.length : total) === 0) && <>
             <button type="button" className={`kzMapToggle${mapView ? " on" : ""}`} aria-pressed={mapView} onClick={() => setMapView(value => !value)}>{mapView ? <LayoutGrid aria-hidden="true" size={16} strokeWidth={2} /> : <MapIcon aria-hidden="true" size={16} strokeWidth={2} />}{mapView ? t("Siyahı") : t("Xəritə")}</button>
             <SortMenu
               label={t("Sıralama")}
@@ -428,6 +430,7 @@ export default function Home() {
               onChange={setSort}
               options={[{ value: "new", label: t("Əvvəlcə yenilər") }, { value: "low", label: t("Əvvəlcə ucuz") }, { value: "high", label: t("Əvvəlcə bahalı") }]}
             />
+            </>}
           </div>
           {category && typeOptions(category).length > 0 && <div className="kzTypeChips" role="group" aria-label="Növ">
             {typeOptions(category).map(option => <button key={option} type="button" className={kindFilter === option ? "active" : ""} aria-pressed={kindFilter === option} onClick={() => setKindFilter(kindFilter === option ? "" : option)}>{t(option)}</button>)}

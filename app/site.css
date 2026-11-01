@@ -2664,3 +2664,10 @@ html{-webkit-tap-highlight-color:transparent}
   .kzTabbar>a.kzTabbarPublish{justify-content:flex-end!important;padding-bottom:9px!important}
   .kzTabbar>a.kzTabbarPublish .kzTabPlus{margin-top:-8px!important;margin-bottom:-2px}
 }
+
+/* Rəhbər → Ödəniş və limitlər: telefonda «Yadda saxla» digər formalardakı kimi tam endə */
+/* Komanda: telefon nömrəsi bölünməsin */
+.kzAdPerson small{overflow-wrap:normal}
+.kzAdPerson small .kzNoWrap,.kzAdRow .kzAdPerson small{word-break:keep-all}
+.kzNoWrap{white-space:nowrap}
+@media (max-width:767px){.kzLimitSave{width:100%;justify-content:center;min-height:44px}}

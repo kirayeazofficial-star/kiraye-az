@@ -37,7 +37,7 @@ exports.id=7422,exports.ids=[7422],exports.modules={1355:(a,b,c)=>{"use strict";
     </td></tr>
     <tr><td style="padding:18px 8px 0;font-family:${f};font-size:12px;line-height:1.7;color:#9ca3af;text-align:center;">
       <a href="${e}" style="color:#6b7280;text-decoration:none;font-weight:600;">kirayeal.az</a> \xb7 Azərbaycanda kirayə elanları<br>
-      Əlaqə: <a href="mailto:kirayeal.az@gmail.com" style="color:#6b7280;text-decoration:none;">kirayeal.az@gmail.com</a> \xb7 +994 50 219 11 45<br>
+      Əlaqə: <a href="mailto:kirayeal.az@gmail.com" style="color:#6b7280;text-decoration:none;">kirayeal.az@gmail.com</a><br>
       Bu məktub avtomatik g\xf6ndərilib, cavab yazmağa ehtiyac yoxdur.
     </td></tr>
   </table>

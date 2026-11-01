@@ -87,6 +87,16 @@
         "nxtPcity": "nxtPcity"
       },
       "namedRegex": "^/(?<nxtPlanding>[^/]+?)/(?<nxtPcity>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/[landing]/[city]/[district]",
+      "regex": "^/([^/]+?)/([^/]+?)/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPlanding": "nxtPlanding",
+        "nxtPcity": "nxtPcity",
+        "nxtPdistrict": "nxtPdistrict"
+      },
+      "namedRegex": "^/(?<nxtPlanding>[^/]+?)/(?<nxtPcity>[^/]+?)/(?<nxtPdistrict>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [

@@ -6,13 +6,6 @@
       "static/chunks/8641.ab32a154d2bef341.js"
     ]
   },
-  "app/components/ListingDetails.tsx -> ../../lib/share-card": {
-    "id": 1356,
-    "files": [
-      "static/chunks/768.ea6949f54131a3b6.js",
-      "static/chunks/1356.111208f040ad3d4d.js"
-    ]
-  },
   "app/components/ListingDetails.tsx -> ./LocationMap": {
     "id": 3710,
     "files": [
@@ -37,6 +30,13 @@
     "files": [
       "static/css/7e7e9cbf75be1334.css",
       "static/chunks/3710.451d19481f1c2818.js"
+    ]
+  },
+  "app/components/StoryCard.tsx -> ../../lib/share-card": {
+    "id": 1356,
+    "files": [
+      "static/chunks/768.ea6949f54131a3b6.js",
+      "static/chunks/1356.ef27ad39eedc0154.js"
     ]
   }
 }

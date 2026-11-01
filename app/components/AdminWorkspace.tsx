@@ -224,7 +224,7 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
         <span className="kzAdContact"><span>{user.email}</span><small>{user.phone ? formatContact(user.phone) : "Telefon yoxdur"}</small></span>
         <span className="kzAdNum" data-label="Elan">{user.listing_count}</span>
         <span data-label="Qeydiyyat">{user.created_at ? adminDate(user.created_at).split(",")[0] : "—"}</span>
-        <span>{user.staff_role ? <em className={`kzAdPill${user.staff_role === "leader" ? " strong" : ""}`}>{user.staff_role === "leader" ? "Rəhbər" : "Admin"}</em> : user.blocked ? <em className="kzAdPill danger" title={user.blocked_reason || ""}>Bloklanıb</em> : <span className="kzAdMuted">İstifadəçi</span>}</span>
+        <span>{user.staff_role ? <em className={`kzAdPill${user.staff_role === "leader" ? " strong" : ""}`}>{user.staff_role === "leader" ? "Rəhbər" : "Admin"}</em> : user.blocked ? <em className="kzAdPill danger" title={user.blocked_reason || ""}>Bloklanıb</em> : <em className="kzAdPill">İstifadəçi</em>}</span>
         <span className="kzAdRowEnd"><button type="button" className="kzAdBtn small" disabled={!user.listing_count} onClick={() => onListings(user)}>Elanları</button>
           {!user.staff_role && (user.blocked
             ? <button type="button" className="kzAdBtn small" disabled={busy === user.id} onClick={() => void block(user, false)}>Bloku götür</button>
@@ -623,7 +623,7 @@ function LimitAdmin() {
   return <Panel title="Ödəniş və limitlər">
     {payments !== null && <div className={`kzPaySwitch${payments ? " on" : ""}`}>
       <span className="kzPaySwitchIcon"><CreditCard aria-hidden="true" size={22} strokeWidth={2} /></span>
-      <div><strong>Ödənişli xidmətlər: {payments ? "Açıq" : "Dayandırılıb"}</strong>
+      <div><strong>Ödənişli xidmətlər <em className={`kzSwState${payments ? " on" : ""}`}>{payments ? "Açıq" : "Bağlı"}</em></strong>
         <small>{payments ? "İrəli çək, VIP, Premium, ödənişli yerləşdirmə, bərpa və mağaza paketləri istifadəçilərə görünür." : "İstifadəçilər heç bir ödənişli düymə görmür. Aktiv mağazalar və artıq alınmış xidmətlər müddəti bitənədək işləyir. Sizin üçün hər şey pulsuzdur."}</small></div>
       <button type="button" role="switch" aria-checked={payments} aria-label="Ödənişli xidmətlər" className="kzToggle" disabled={busy} onClick={() => void switchPayments()}><i aria-hidden="true" /></button>
     </div>}
@@ -631,7 +631,7 @@ function LimitAdmin() {
     {!rules ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
       <div className={`kzLimitSwitch${rules.enabled ? " on" : ""}`}>
         <span className="kzPaySwitchIcon"><SlidersHorizontal aria-hidden="true" size={22} strokeWidth={2} /></span>
-        <div><strong>Yeni limit qaydası: {rules.enabled ? "Açıq" : "Bağlı"}</strong>
+        <div><strong>Yeni limit qaydası <em className={`kzSwState${rules.enabled ? " on" : ""}`}>{rules.enabled ? "Açıq" : "Bağlı"}</em></strong>
           <small>{rules.enabled ? "Hər qrupda 30 gündə aşağıdakı sayda pulsuz elan; seçilmiş kateqoriyalar həmişə ödənişlidir." : "İndi hər kateqoriyada 30 gündə 1 pulsuz elan verilir. Ödəniş sistemi qoşulanda qaydanı açın."}</small></div>
         <button type="button" role="switch" aria-checked={rules.enabled} aria-label="Yeni limit qaydası" className="kzToggle" disabled={busy} onClick={() => { if (rules.enabled || window.confirm("Yeni limit qaydası açılsın? Limitdən artıq elanlar «Ödəniş gözləyir» bölməsinə düşəcək.")) void save({ ...rules, enabled: !rules.enabled }); }}><i aria-hidden="true" /></button>
       </div>

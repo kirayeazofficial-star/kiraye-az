@@ -2,7 +2,7 @@
 import {useEffect,useState} from "react";
 import {FREE_LISTING_LIMIT} from "../../lib/listing-limit";
 import {categories} from "../../lib/marketplace";
-import {limitGroups,type LimitRules} from "../../lib/limit-rules";
+import {limitGroups,listingPrice,manat,type LimitRules} from "../../lib/limit-rules";
 
 type State={category:string;limit:number;used:number;pending:number;remaining:number;next_free_at:string|null};
 const date=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",day:"2-digit",month:"2-digit",year:"numeric"}).formatToParts(new Date(value));const part=(type:string)=>parts.find(item=>item.type===type)?.value||"";return `${part("day")}.${part("month")}.${part("year")}`;};
@@ -29,6 +29,9 @@ export default function AccountLimits(){
    </div>;})}
   </div>}
   {rules.paid.length>0&&<p className="kzLimitsLead">Bu kateqoriyalarda elan həmişə ödənişlidir: <b>{rules.paid.map(name).join(", ")}</b>.</p>}
+  <h3 className="kzLimitsSub">Limitdən sonra elanın qiyməti (30 gün)</h3>
+  <div className="kzPriceList" role="table" aria-label="Əlavə elanın qiyməti">{categories.map(item=><div role="row" key={item.id}><span role="cell">{item.name}</span><b role="cell">{manat(listingPrice(item.id))}</b></div>)}</div>
+  <p className="kzLimitsLead">Müddəti bitmiş elanın bərpası elan qiymətinin yarısıdır. Eyni əşyanı (eyni şəkillərlə) 90 gün ərzində yenidən yerləşdirmək ödənişlidir.</p>
   <p className="kzLimitsLead">Çox elan verirsinizsə, mağaza açmaq daha sərfəlidir: hər kateqoriyada daha çox elan və ayda pulsuz irəli çək. <a href="/profile?section=store">Mağaza paketlərinə bax</a></p>
  </section>;
  return <section className="kzLimits">

@@ -2,9 +2,7 @@ import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
 import {notifyRejected} from "../../../lib/host/notify";
-import {limitRules,saveLimitRules} from "../../../lib/host/limit-rules";
-import {paymentsEnabled,setPaymentsEnabled} from "../../../lib/host/site-flags";
-import {cleanLimitRules} from "../../../lib/limit-rules";
+import {announcement,cleanAnnouncement,cleanMaintenance,maintenance,paymentsEnabled,saveSetting,setPaymentsEnabled} from "../../../lib/host/site-flags";
 
 export const dynamic="force-dynamic";
 const ownerEmail="kirayeal.az@gmail.com";
@@ -118,10 +116,16 @@ export async function GET(request:NextRequest){
       return reply({items,pageSize:REPORT_PAGE,role:auth.role});
     }
 
-    // Free listing rules (leader only): groups, always-paid categories and the on/off switch.
+    // Paid services switch (leader only). The free-listing rule itself is fixed in code.
+    // Site settings (leader only): the announcement bar and maintenance mode.
+    if(action==="site_settings"){
+      if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
+      const [notice,works]=await Promise.all([announcement(),maintenance()]);
+      return reply({announcement:notice,maintenance:works});
+    }
     if(action==="limit_rules"){
       if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
-      return reply({rules:await limitRules(),payments:await paymentsEnabled()});
+      return reply({payments:await paymentsEnabled()});
     }
 
     // Stores: applications and active stores, plus the packages (prices are edited by the leader).
@@ -228,14 +232,17 @@ export async function POST(request:NextRequest){
         :`update public.stores set status='expired',active_until=now(),updated_at=now() where id=$1 returning id`,decision==="stop"?[id]:[id,decision==="activate"?days:reason]);
       return rows[0]?reply({ok:true}):reply({error:"NOT_FOUND"},404);
     }
+    if(action==="save_site_setting"){
+      if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
+      const value=(body.value&&typeof body.value==="object"?body.value:{}) as Record<string,unknown>;
+      if(body.key==="announcement")await saveSetting("announcement",cleanAnnouncement(value));
+      else if(body.key==="maintenance")await saveSetting("maintenance",cleanMaintenance(value));
+      else return reply({error:"INVALID_ACTION"},400);
+      return reply({ok:true});
+    }
     if(action==="save_payments"){
       if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
       await setPaymentsEnabled(body.enabled===true);
-      return reply({ok:true});
-    }
-    if(action==="save_limit_rules"){
-      if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
-      await saveLimitRules(cleanLimitRules(body.rules));
       return reply({ok:true});
     }
     if(action==="store_plan"){

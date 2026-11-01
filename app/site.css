@@ -2726,3 +2726,54 @@ html{-webkit-tap-highlight-color:transparent}
   .kzAdTabs{flex-wrap:wrap!important;overflow:visible!important;margin-right:0!important;padding-right:0!important;gap:6px!important}
   .kzAdTabs button{min-height:34px!important;padding:0 12px!important;font-size:var(--fs-13,13px)!important}
 }
+.kzPriceList{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0 24px;margin:4px 0 0;border-top:1px solid var(--kz-line)}
+.kzPriceList>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 2px;border-bottom:1px solid var(--kz-line);font-size:var(--fs-14,14px);color:var(--kz-text)}
+.kzPriceList b{font-weight:600;color:var(--kz-ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kzLimitsSub{margin:18px 0 8px;font-size:var(--fs-15,15px);font-weight:600;color:var(--kz-ink)}
+.kzPayPrice{display:flex;align-items:center;justify-content:space-between;margin:4px 0 2px!important;padding:12px 14px;border:1px solid var(--kz-line);border-radius:12px;background:var(--kz-soft);color:var(--kz-text)}
+.kzPayPrice b{font-size:var(--fs-18,18px);color:var(--kz-ink);font-variant-numeric:tabular-nums}
+.kzPayNote.kzPayDown{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:#fdecea;color:#b42318!important;text-align:left;font-size:var(--fs-13,13px)}
+.kzPayNote.kzPayDown svg{flex:none;margin-top:1px}
+
+/* Leader → Sayt ayarları */
+.kzAdMenu .tone-settings{--tone:#0f766e;--tint:#e6f4f2}
+.kzSetCard{display:grid;gap:12px;margin:0 0 16px;padding:0 0 16px;border-bottom:1px solid var(--kz-line)}
+.kzSetCard:last-child{margin-bottom:0;padding-bottom:0;border-bottom:0}
+.kzSetCard .kzPaySwitch{margin:0!important}
+.kzPaySwitch .kzIconBar{background:#e6f4f2!important;color:#0f766e!important}
+.kzPaySwitch .kzIconWorks{background:#fff4e5!important;color:#b26a00!important}
+.kzSwState.warn{background:#fff4e5;color:#b26a00}
+.kzSetForm{display:grid;gap:12px}
+.kzSetField{display:grid;gap:6px}
+.kzSetField>span,.kzSetTone legend{font-size:var(--fs-13,13px);font-weight:600;color:var(--kz-text)}
+.kzSetField textarea,.kzSetField input{width:100%;min-height:44px;margin:0;padding:10px 12px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;color:var(--kz-ink);font:inherit;font-size:16px;line-height:1.45;resize:vertical;box-shadow:none}
+.kzSetField textarea::placeholder,.kzSetField input::placeholder{font-size:14px;color:#9aa1ab}
+.kzSetTone{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;border:0}
+.kzSetTone legend{margin:0 0 6px;padding:0}
+.kzSetTone label{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;font-size:var(--fs-14,14px);cursor:pointer}
+.kzSetTone label:has(input:checked){border-color:var(--kz-ink);box-shadow:inset 0 0 0 1px var(--kz-ink)}
+.kzSetTone input{position:absolute;opacity:0;pointer-events:none}
+.kzSetTone i{width:14px;height:14px;border-radius:50%}
+.kzSetTone i.info{background:#0f766e}.kzSetTone i.warn{background:#e8890c}
+.kzSetForm .kzAdBtn.primary{justify-self:start;min-width:140px;justify-content:center}
+@media (max-width:767px){.kzSetForm .kzAdBtn.primary{justify-self:stretch}}
+
+/* Announcement bar on top of every page */
+.kzAnnounce{position:relative;z-index:60;display:flex;align-items:center;justify-content:center;gap:10px;min-height:40px;padding:8px 48px;background:#0f766e;color:#fff;font-size:var(--fs-14,14px);font-weight:500;line-height:1.4;text-align:center}
+.kzAnnounce.warn{background:#fff4e5;color:#7a4500;border-bottom:1px solid #f7d9a8}
+.kzAnnounce svg{flex:none}
+.kzAnnounce a{color:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
+.kzAnnounce button{position:absolute;right:8px;top:50%;display:grid;place-items:center;width:32px;height:32px;margin:0;padding:0;border:0;border-radius:8px;background:transparent;color:inherit;transform:translateY(-50%);cursor:pointer;box-shadow:none;opacity:.85}
+.kzAnnounce button:hover{background:rgba(0,0,0,.08);opacity:1}
+@media (max-width:767px){.kzAnnounce{justify-content:flex-start;padding:8px 44px 8px 16px;text-align:left;font-size:var(--fs-13,13px)}}
+
+/* Maintenance page */
+.kzWorks{display:grid;place-items:center;min-height:100vh;min-height:100dvh;padding:24px 16px;background:var(--kz-soft)}
+.kzWorksCard{display:grid;justify-items:center;gap:12px;width:min(460px,100%);padding:36px 28px;border:1px solid var(--kz-line);border-radius:20px;background:#fff;text-align:center;box-shadow:0 12px 40px rgba(17,24,39,.06)}
+.kzWorksCard .kzWorksLogo{margin:0 0 8px;font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--kz-brand)}
+.kzWorksCard .kzWorksLogo span{color:var(--kz-accent)}
+.kzWorksIcon{display:grid;place-items:center;width:64px;height:64px;border-radius:18px;background:#fff4e5;color:#b26a00}
+.kzWorksCard h1{margin:4px 0 0;font-size:var(--fs-22,22px);font-weight:700;color:var(--kz-ink)}
+.kzWorksCard p{margin:0;font-size:var(--fs-15,15px);line-height:1.55;color:var(--kz-text)}
+.kzWorksCard .kzWorksMail{margin-top:8px;font-size:var(--fs-13,13px);color:var(--kz-muted)}
+.kzWorksMail a{color:var(--kz-brand);font-weight:600}

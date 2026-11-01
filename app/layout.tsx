@@ -4,6 +4,7 @@ import { siteContact } from "../lib/site-contact";
 import { LanguageProvider } from "./components/LanguageProvider";
 import InstallPrompt from "./components/InstallPrompt";
 import Toaster from "./components/Toaster";
+import AnnouncementBar from "./components/AnnouncementBar";
 import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/inter";
@@ -39,6 +40,7 @@ export default function RootLayout({
     <html lang="az">
       <body>
         <Script src="/browser-compat.js" strategy="beforeInteractive" />
+        <AnnouncementBar />
         <InstallPrompt />
         <LanguageProvider>{children}</LanguageProvider>
         <Toaster />

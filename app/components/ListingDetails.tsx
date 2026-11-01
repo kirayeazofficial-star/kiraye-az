@@ -1,4 +1,5 @@
 "use client";
+import Notice from "./Notice";
 import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, MessageCircle, Pencil, Phone, Share2, Store, TrendingDown } from "lucide-react";
 import { storeOpenState } from "../../lib/store-hours";
 import { WhatsAppIcon } from "./BrandIcons";
@@ -497,11 +498,7 @@ export default function ListingDetails({
             </div>
           </form>
         )}
-        {notice && (
-          <p className="notice" role="status">
-            {notice}
-          </p>
-        )}
+        <Notice text={notice} />
       </div>
       {mounted && !compact && !effectiveOwner && phone && !item.demo && createPortal(<div className={`stickyContact${stickyShown ? " shown" : ""}`} role="group" aria-label="Əlaqə" aria-hidden={!stickyShown}>
         {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər</button>}

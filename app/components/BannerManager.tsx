@@ -1,4 +1,5 @@
 "use client";
+import Notice from "./Notice";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { ImagePlus, Pencil, Trash2 } from "lucide-react";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -71,7 +72,7 @@ export default function BannerManager() {
   return <section className="kzAdPanel">
     <header className="kzAdPanelHead"><h2>Bannerlər</h2><div className="kzAdActions"><button type="button" className="kzAdBtn primary" onClick={() => start()}><ImagePlus aria-hidden="true" size={16} strokeWidth={2} />Banner əlavə et</button></div></header>
     <details className="kzAdHint kzBannerGuide"><summary>Banner ölçüləri və tələblər</summary><p><strong>Ana səhifə və elan səhifəsi:</strong> 1600 × 200 (8:1). Telefon üçün ayrıca 720 × 180 (4:1) versiya əlavə etmək tövsiyə olunur.</p><p><strong>Yuxarı zolaq:</strong> 1920 × 100. <strong>Sağ və sol:</strong> 300 × 900.</p><p>Şəkil: JPG, PNG, WebP, 3 MB-a qədər. Video: MP4, 5–15 saniyə, səssiz, 20 MB-a qədər — öz-özünə və təkrarla oynayır. Vacib yazını kənarlara çox yaxın qoymayın.</p></details>
-    {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
+    {error && <p className="kzAdError" role="alert">{error}</p>}<Notice text={notice} />
     {open && <form ref={formRef} className={`kzBannerForm place-${form.placement}`} onSubmit={save}>
       <button type="button" className="kzBannerPick" onClick={() => fileInput.current?.click()}>{preview ? previewVideo ? <video src={preview} muted loop autoPlay playsInline /> : <img src={preview} alt="" /> : <span><ImagePlus aria-hidden="true" size={28} strokeWidth={1.5} />Şəkil və ya video seç</span>}</button>
       <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden onChange={event => setFile(event.target.files?.[0] || null)} />

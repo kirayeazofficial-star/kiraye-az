@@ -23,7 +23,10 @@ export async function makeShareCard(item: Listing, site = "https://kirayeal.az")
   const img = src ? await new Promise<HTMLImageElement | null>(resolve => { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => resolve(i); i.onerror = () => resolve(null); i.src = src; setTimeout(() => resolve(null), 8000); }) : null;
   if (img && img.naturalWidth) {
     const scale = Math.max(W / img.naturalWidth, photoH / img.naturalHeight), w = img.naturalWidth * scale, h = img.naturalHeight * scale;
+    // Clip to the photo area: a tall photo must never spill over the title below it.
+    c.save(); c.beginPath(); c.rect(0, 0, W, photoH); c.clip();
     c.drawImage(img, (W - w) / 2, (photoH - h) / 2, w, h);
+    c.restore();
   } else { c.fillStyle = "#f3f4f6"; c.fillRect(0, 0, W, photoH); }
 
   // Price tag over the photo.

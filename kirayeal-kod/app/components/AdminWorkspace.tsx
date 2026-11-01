@@ -682,7 +682,7 @@ function SiteSettingsAdmin() {
       </div>
       <form className="kzSetForm" onSubmit={event => { event.preventDefault(); void save("maintenance", { ...worksDraft, enabled: works.enabled }, "Yadda saxlanıldı"); }}>
         <label className="kzSetField"><span>Təxmini qayıtma vaxtı (istəyə görə)</span><input type="datetime-local" value={worksDraft.until} onChange={event => setWorksDraft({ ...worksDraft, until: event.target.value })} /></label>
-        <label className="kzSetField"><span>Ziyarətçilərə əlavə mətn (istəyə görə)</span><textarea maxLength={300} rows={2} value={worksDraft.text} onChange={event => setWorksDraft({ ...worksDraft, text: event.target.value })} placeholder="Məsələn: Saytı daha sürətli edirik." /></label>
+        <label className="kzSetField"><span>Ziyarətçilərə əlavə mətn (istəyə görə)</span><textarea maxLength={300} rows={2} value={worksDraft.text} onChange={event => setWorksDraft({ ...worksDraft, text: event.target.value })} placeholder="Məsələn: Ödəniş sistemi yenilənir." /></label>
         <div className="kzSetActions">
           <button type="submit" className="kzAdBtn primary" disabled={!!busy || !worksChanged}>{busy === "maintenance" ? "Saxlanılır…" : "Yadda saxla"}</button>
           <a className="kzAdBtn" href="/maintenance" target="_blank" rel="noopener noreferrer"><ExternalLink aria-hidden="true" size={15} strokeWidth={2} />Səhifəyə bax</a>

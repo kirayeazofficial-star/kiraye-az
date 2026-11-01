@@ -64,7 +64,7 @@ try {
   await rename(fresh, join(target, ".next"));
   await copyFile(join(source, "app.js"), join(target, "app.js"));
   // Backup tools live next to app.js: the 03:00 cron job runs backup-to-drive.mjs from there.
-  for (const name of ["backup-to-drive.mjs", "notify-tasks.mjs", "restore-backup.mjs"])
+  for (const name of ["backup-to-drive.mjs", "notify-tasks.mjs", "email-frame.mjs", "restore-backup.mjs"])
     if (await exists(join(source, name))) await copyFile(join(source, name), join(target, name));
   // Source code of this version (the nightly backup sends it to Google Drive when it changes).
   if (await exists(join(source, "kirayeal-kod"))) {

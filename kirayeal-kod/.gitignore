@@ -1,0 +1,20 @@
+node_modules/
+/node_modules
+.next/
+.env
+.env.*
+!.env.example
+*.log
+
+dist/
+
+# Generated from the installed framework by predev/prebuild.
+public/browser-compat.js
+
+# Local Python caches and owner-only backup material.
+__pycache__/
+*.py[cod]
+backup-config*.json
+*.key.age
+Kirayeal-*.zip
+Kirayeal-*.tar.gz.age

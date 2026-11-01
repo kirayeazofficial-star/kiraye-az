@@ -1,0 +1,132 @@
+import {contactInText} from "../../../lib/contact-filter";
+import {NextRequest,NextResponse} from "next/server";
+import {freeLimit} from "../../../lib/host/limits";
+import {isLeader} from "../../../lib/host/staff";
+import {hostQuery} from "../../../lib/host/db";
+import {currentUser} from "../../../lib/host/session";
+import {newId} from "../../../lib/host/security";
+import {locationCategories,publicPoint,validPoint} from "../../../lib/location";
+import type {Listing} from "../../../lib/marketplace";
+
+export const dynamic="force-dynamic";
+const categories=new Set(['property','car','motorcycle','villa','commercial','equipment','clothing','electric','photo','camping','bicycle','event']);
+const periods=new Set(['daily','weekly','monthly']);
+const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+function reply(data:unknown,status=200){return NextResponse.json(data,{status,headers:{'Cache-Control':'no-store'}});}
+
+export async function GET(request:NextRequest){
+  try{
+    const input=request.nextUrl.searchParams,scope=input.get('scope')||'public';
+    const requestedId=input.get('id')||'';
+    if(requestedId){
+      if(!uuid.test(requestedId))return reply({error:'INVALID_LISTING'},400);
+      const user=await currentUser();
+      if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
+      const rows=await hostQuery(`select * from public.listings where id=$1 and owner_id=$2 limit 1`,[requestedId,user.id]);
+      return rows[0]?reply({item:rows[0]}):reply({error:'LISTING_NOT_FOUND'},404);
+    }
+    const where:string[]=[],values:unknown[]=[];const add=(sql:string,value:unknown)=>{values.push(value);where.push(sql.replace('?',`$${values.length}`));};
+    if(scope==='mine'){const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);add('owner_id=?',user.id);
+      // Listings left inactive (expired, deleted or rejected) for 180 days are archived for good and no longer listed.
+      where.push(`not coalesce(coalesce(deleted_at,case when status in('expired','archived','rejected') or expires_at<=now() then coalesce(expires_at,updated_at) end)<now()-interval '180 days',false)`);}
+    else where.push(`status='published' and (expires_at is null or expires_at>now()) and not exists(select 1 from auth.users bu where bu.id=owner_id and bu.disabled_at is not null)`);
+    const category=input.get('category')||'';if(categories.has(category))add('category=?',category);
+    const owner=input.get('owner')||'';if(uuid.test(owner))add('owner_id=?',owner);
+    const city=(input.get('city')||'').slice(0,80);if(city)add('city=?',city);
+    const period=input.get('period')||'';if(periods.has(period))add('rental_period=?',period);
+    for(const [key,op] of [['min','>='],['max','<=']] as const){const raw=(input.get(key)||'').trim();const number=Number(raw);if(raw&&Number.isFinite(number)&&number>=0)add(`price${op}?`,number);}
+    // Homes: metro station and residential complex (stored in attributes).
+    const metro=(input.get('metro')||'').slice(0,40);if(metro)add("attributes->>'metro'=?",metro);
+    const complex=(input.get('complex')||'').trim().replace(/[%_]/g,'').slice(0,60);if(complex)add("attributes->>'complex' ilike ?",`%${complex}%`);
+    const rooms=input.get('rooms')||'';if(rooms==='4+')add('rooms>=?',4);else if(/^\d+$/.test(rooms))add('rooms=?',Number(rooms));
+    const area=Number(input.get('area'));if(Number.isFinite(area)&&area>0)add('area_m2>=?',area);
+    const brand=(input.get('brand')||'').replace(/[%_]/g,'').slice(0,40);if(brand)add(`attributes->>'brand' ilike ?`,`%${brand}%`);
+    const gearbox=(input.get('gearbox')||'').slice(0,40);if(gearbox)add(`attributes->>'gearbox'=?`,gearbox);
+    if(input.get('noDeposit')==='1')where.push('deposit=0');
+    const kind=(input.get('kind')||'').slice(0,60);if(kind){values.push(kind);where.push(`(attributes->>'kind'=$${values.length} or attributes->>'body_type'=$${values.length})`);}
+    const favorites=(input.get('favorites')||'').split(',').filter(id=>uuid.test(id)).slice(0,200);if(input.has('favorites')){if(!favorites.length)return reply({items:[],total:0});values.push(favorites);where.push(`id=any($${values.length}::uuid[])`);}
+    // Listing number search: "10000004" or "№ 10000004".
+    const number=(input.get('number')||'').replace(/\D/g,'');if(/^\d{8}$/.test(number)){values.push(number);where.push(`listing_no=$${values.length}::bigint`);}
+    const rawQuery=(input.get('query')||'').trim().replace(/^№\s*/,'');if(/^\d{8}$/.test(rawQuery)&&!number){values.push(rawQuery);where.push(`listing_no=$${values.length}::bigint`);}
+    const query=/^\d{8}$/.test(rawQuery)?'':(input.get('query')||'').trim().slice(0,120);for(const token of query.split(/\s+/).filter(Boolean).slice(0,8)){values.push(`%${token.replace(/[%_]/g,'')}%`);where.push(`(title ilike $${values.length} or city ilike $${values.length} or coalesce(district,'') ilike $${values.length} or coalesce(attributes->>'brand','') ilike $${values.length} or coalesce(attributes->>'model','') ilike $${values.length})`);}
+    const page=Math.max(1,Math.min(1000,Number(input.get('page'))||1)),limit=Math.max(1,Math.min(200,Number(input.get('limit'))||18)),offset=(page-1)*limit;
+    const promoted=`(promotion_until>now() and promotion_kind is not null)`;
+    const bumped=`greatest(created_at,case when bump_count>0 and bump_started<=now() then bump_started+interval '8 hours'*least(bump_count-1,floor(extract(epoch from now()-bump_started)/28800)) end)`;
+    if(input.get('notPremium')==='true')where.push(`not coalesce(${promoted} and promotion_kind='premium',false)`);const promotion=input.get('promotion')||'';if(promotion==='vip'||promotion==='premium')where.push(`${promoted} and promotion_kind='${promotion}'`);
+    const promotedFirst=scope==='public'?`case when ${promoted} and promotion_kind='premium' then 0 when ${promoted} then 1 else 2 end,`:'';
+    const order=input.get('sort')==='low'?`${promotedFirst}price asc`:input.get('sort')==='high'?`${promotedFirst}price desc`:`${promotedFirst}${bumped} desc,id desc`;
+    const condition=where.length?`where ${where.join(' and ')}`:'';
+    const fields=scope==='mine'?`*,(select count(*)::int from public.listing_views v where v.listing_id=public.listings.id) as views`:`*,(select json_build_object('name',s.name,'slug',s.slug,'logo_url',s.logo_url) from public.stores s where s.owner_id=public.listings.owner_id and s.status='active' and s.active_until>now()) as store`;
+    // If the stores table is missing (database not updated yet), listings are still shown, without store info.
+    const [rows,total]=await Promise.all([hostQuery(`select ${fields} from public.listings ${condition} order by ${order} limit ${limit} offset ${offset}`,values as never[]).catch(()=>hostQuery(`select * from public.listings ${condition} order by ${order} limit ${limit} offset ${offset}`,values as never[])),hostQuery<{count:string}>(`select count(*)::text count from public.listings ${condition}`,values as never[])]);
+    // Visitors get an approximate point unless the owner chose to show the exact address.
+    return reply({items:scope==='mine'?rows:(rows as Listing[]).map(row=>({...row,...publicPoint(row)})),total:Number(total[0]?.count||0)});
+  }catch{return reply({error:'LISTINGS_UNAVAILABLE'},503);}
+}
+
+function cleanText(value:unknown,max:number){return typeof value==='string'?value.trim().slice(0,max):'';}
+function numberOrNull(value:unknown){if(value===null||value===''||value===undefined)return null;const number=Number(value);return Number.isFinite(number)?number:null;}
+function validImages(value:unknown,userId:string){
+  if(!Array.isArray(value)||value.length<1||value.length>6)return null;
+  const prefix=`/api/media/${userId}/`;
+  const images=value.filter((item):item is string=>typeof item==='string'&&((item.startsWith(prefix)&&/^\/api\/media\/[0-9a-f-]{36}\/(?:branded-v3-)?[0-9a-f-]{36}\.jpg$/i.test(item))||/^\/placeholders\/[a-z]+\.svg$/.test(item)));
+  return images.length===value.length?images:null;
+}
+function listingPayload(body:Record<string,unknown>,userId:string){
+  const category=cleanText(body.category,64),title=cleanText(body.title,140),description=cleanText(body.description,8000),city=cleanText(body.city,80),contact=cleanText(body.contact,32),rentalPeriod=cleanText(body.rental_period,16);
+  const price=numberOrNull(body.price),deposit=numberOrNull(body.deposit)??0,minDays=numberOrNull(body.min_days)??1,images=validImages(body.images,userId);
+  if(!categories.has(category)||title.length<10||description.length<30||!city||!periods.has(rentalPeriod)||price===null||price<=0||price>1_000_000||deposit<0||minDays<1||!contact||!images)return null;
+  const attributes=body.attributes&&typeof body.attributes==='object'&&!Array.isArray(body.attributes)?body.attributes:{};
+  const point=locationCategories.includes(category)?validPoint(body.lat,body.lng):null;
+  return{point,exact:!!point&&body.location_exact===true,category,title,description,city,contact,rentalPeriod,price,deposit,minDays,images,attributes,district:cleanText(body.district,100),rooms:numberOrNull(body.rooms),area:numberOrNull(body.area_m2),availableFrom:cleanText(body.available_from,10)||null,availableUntil:cleanText(body.available_until,10)||null};
+}
+
+export async function POST(request:NextRequest){
+  try{
+    const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
+    const body=await request.json() as Record<string,unknown>,item=listingPayload(body,user.id);if(!item)return reply({error:'INVALID_LISTING'},400);
+    if(contactInText(`${item.title} ${item.description}`))return reply({error:'CONTACT_IN_TEXT'},400);
+    // Over the free limit the listing is still saved, as a draft waiting for payment.
+    // Staff (owner, leader, admins) have no free-listing limit.
+    const paid=await isLeader(user)?false:(await freeLimit(user.id,item.category)).remaining<=0;
+    const id=newId();
+    await hostQuery(`insert into public.listings(id,owner_id,category,title,description,contact,city,district,price,rental_period,images,status,deposit,min_days,rooms,area_m2,attributes,available_from,available_until,payment_required,lat,lng,location_exact) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$19,$12,$13,$14,$15,$16,$17,$18,$20,$21,$22,$23)`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,paid?'draft':'pending',paid,item.point?.[0]??null,item.point?.[1]??null,item.exact]);
+    if(!paid)await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','submitted',null,'pending')`,[id,user.id]);
+    return reply({id,payment_required:paid},201);
+  }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}
+}
+
+export async function PATCH(request:NextRequest){
+  try{
+    const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
+    const body=await request.json() as Record<string,unknown>,id=cleanText(body.id,36);if(!uuid.test(id))return reply({error:'INVALID_LISTING'},400);
+    const item=listingPayload(body,user.id);if(!item)return reply({error:'INVALID_LISTING'},400);
+    if(contactInText(`${item.title} ${item.description}`))return reply({error:'CONTACT_IN_TEXT'},400);
+    // At most two edits in any 24 hours; the answer says exactly when the next edit becomes possible.
+    const recent=await hostQuery<{recent:string[]}>(`select array(select x from unnest(edit_log) x where x>now()-interval '1 day' order by x)::text[] as recent from public.listings where id=$1 and owner_id=$2`,[id,user.id]);
+    const edits=recent[0]?.recent||[];
+    // The leader has no limits: no edit limit, and a listing that was waiting for payment goes to review.
+    const leader=await isLeader(user);
+    if(leader)await hostQuery(`update public.listings set payment_required=false where id=$1 and owner_id=$2`,[id,user.id]);
+    // Like the big classified sites: a published listing keeps its category and contact number.
+    const locked=await hostQuery<{category:string;contact:string;first_published_at:string|null}>(`select category,contact,first_published_at from public.listings where id=$1 and owner_id=$2`,[id,user.id]);
+    const digits=(value:string)=>value.replace(/\D/g,'').slice(-9);
+    if(!leader&&locked[0]?.first_published_at&&(locked[0].category!==item.category||digits(locked[0].contact)!==digits(item.contact)))return reply({error:'LOCKED_FIELDS'},400);
+    if(!leader&&edits.length>=2)return reply({error:'EDIT_LIMIT',next_edit_at:new Date(Date.parse(edits[0])+86400000).toISOString()},429);
+    const update=`update public.listings set last_edited_at=now(),edit_log=array_append(array(select x from unnest(edit_log) x where x>now()-interval '1 day'),now()),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,previous_price=case when $9<price then price when $9>price then null else previous_price end,price_lowered_at=case when $9<price then now() when $9>price then null else price_lowered_at end,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,lat=$19,lng=$20,location_exact=$21,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,params=[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,item.point?.[0]??null,item.point?.[1]??null,item.exact];
+    // Price history columns may be missing if the database was not updated yet: then the edit is saved without them.
+    const rows=await hostQuery<{id:string;status:string}>(update,params).catch(()=>hostQuery<{id:string;status:string}>(update.replace(`previous_price=case when $9<price then price when $9>price then null else previous_price end,price_lowered_at=case when $9<price then now() when $9>price then null else price_lowered_at end,`,''),params));
+    if(rows[0]?.status==='pending')await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','resubmitted',null,'pending')`,[id,user.id]);
+    return rows[0]?reply({id:rows[0].id}):reply({error:'LISTING_NOT_FOUND'},404);
+  }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}
+}
+
+export async function DELETE(request:NextRequest){
+  try{
+    const user=await currentUser();if(!user)return reply({error:'SIGN_IN_REQUIRED'},401);
+    const id=cleanText((await request.json() as {id?:unknown}).id,36);if(!uuid.test(id))return reply({error:'INVALID_LISTING'},400);
+    const rows=await hostQuery<{id:string}>(`update public.listings set status='archived',deleted_at=now(),promotion_until=null,updated_at=now() where id=$1 and owner_id=$2 and deleted_at is null returning id`,[id,user.id]);
+    if(rows[0])await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','deleted',null,'archived')`,[id,user.id]).catch(()=>{});
+    return rows[0]?reply({id}):reply({error:'LISTING_NOT_FOUND'},404);
+  }catch{return reply({error:'LISTING_ARCHIVE_FAILED'},503);}
+}

@@ -1,0 +1,570 @@
+/* Final polish layer: account cabinet, header actions and listing cards.
+   Loaded last, so it only refines spacing/alignment of existing components. */
+:root { --pl-line:#e5e5e7; --pl-ink:#143f3b; --pl-muted:#3d4450; --pl-soft:#f5f5f7; }
+
+/* Cabinet footer: admin panel + logout live together at the very bottom. */
+.accountDashboard .cabinetNavFoot { display:flex;flex-direction:column;gap:8px;margin-top:8px;padding-top:10px;border-top:1px solid var(--pl-line); }
+.accountDashboard .cabinetNavFoot > * { flex:1 1 0;min-height:42px;display:flex;align-items:center;justify-content:center;gap:8px;margin:0!important;padding:8px 12px!important;border:1px solid var(--pl-line)!important;border-radius:10px!important;background:#fff!important;color:var(--pl-ink)!important;font-size:13px;font-weight:700;text-align:center!important;text-decoration:none;cursor:pointer;line-height:1.2;white-space:nowrap; }
+.accountDashboard .cabinetNavFoot .cabinetAdminLink { background:var(--pl-soft)!important; }
+.accountDashboard .cabinetNavFoot .cabinetLogout { color:#9a4a35!important;border-color:#f0d9d1!important; }
+.accountDashboard .cabinetNavFoot svg { width:18px;height:18px; }
+
+/* Calmer statistics. */
+.accountDashboard .stats { gap:12px;margin-bottom:18px; }
+.accountDashboard .stats > div { padding:14px 18px;min-height:0;display:flex;align-items:baseline;gap:10px;border-radius:14px; }
+.accountDashboard .stats b { font-size:26px;line-height:1; }
+.accountDashboard .stats span { font-size:13px;color:var(--pl-muted); }
+
+/* Listing cards: tight, readable meta and one aligned action row. */
+.accountListings article { gap:16px;padding:14px;align-items:center; }
+.accountListings article h3 { margin:6px 0 4px;font-size:17px;line-height:1.3; }
+.accountListings article p,.accountListings article small { margin:0 0 3px;font-size:13px;line-height:1.45; }
+.accountListings article .ownedPhoto img { aspect-ratio:4/3;object-fit:cover; }
+.accountItemActions { display:flex;gap:8px;flex-wrap:wrap;align-items:center; }
+.accountItemActions > * { min-height:38px;padding:8px 14px;font-size:13px;font-weight:700;border-radius:10px; }
+
+@media (max-width:760px) {
+  .header .languageSelect,.header .languageSelect * { font-size:12px; }
+  .accountDashboard .accountHeading h1 { font-size:30px; }
+  .accountDashboard .stats { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px; }
+  .accountDashboard .stats > div { flex-direction:column;align-items:flex-start;gap:4px;padding:12px; }
+  .accountDashboard .stats b { font-size:24px; }
+  .accountDashboard .stats span { font-size:12px; }
+  .accountDashboard .cabinetNav.cabinetCards { grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; }
+  .accountDashboard .cabinetNav.cabinetCards > a { min-height:48px;font-size:13px; }
+  .accountDashboard .cabinetNavFoot { grid-column:1/-1;margin-top:2px;display:grid;grid-template-columns:1fr 1fr; }
+  .accountListings article { display:grid;grid-template-columns:96px 1fr;gap:6px 12px;align-items:start;padding:12px; }
+  .accountListings article .ownedPhoto { grid-row:1;grid-column:1; }
+  .accountListings article > div:nth-of-type(1) { grid-column:2; }
+  .accountListings article .accountItemActions { grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px; }
+  .accountItemActions > * { padding:8px 6px;text-align:center;justify-content:center; }
+}
+
+/* ---- v2: header, home, cabinet, admin tabs ---- */
+@media (max-width:520px){.header .headerBrand .logo{font-size:23px!important;letter-spacing:-1.3px!important}}
+.accountDashboard .cabinetNavFoot .cabinetLogout{grid-column:auto!important}
+@media (max-width:760px){
+.adminSections{flex-wrap:nowrap!important;overflow-x:auto;gap:6px!important;padding:6px 2px!important;scrollbar-width:none}
+.adminSections::-webkit-scrollbar{display:none}
+.adminSections button{flex:0 0 auto;white-space:nowrap;min-height:38px;padding:8px 14px!important;border:1px solid #e5e5e7!important;border-radius:999px!important;background:#fff;font-size:13px}
+}
+.catalogIntro h1{font-size:clamp(26px,3.2vw,34px)!important;line-height:1.15!important;margin:0 0 4px!important}
+@media (min-width:900px){
+.catalogIntro{padding:24px 0 10px!important;min-height:0!important;height:auto!important}
+.catalogIntro > div{max-width:none!important}
+.catalogIntro h1{font-size:32px!important;line-height:1.15!important;margin:0 0 6px!important}
+.catalogIntro span{font-size:14px!important}
+.searchWrap{margin-top:0!important;transform:none!important}
+.categoryScroller .categories{grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:8px!important}
+.categoryScroller .categories > button{height:auto!important;min-height:92px!important;padding:8px 4px!important;gap:6px!important;border-radius:12px!important;font-size:11.5px!important;line-height:1.2!important}
+.categoryScroller .categories > button img,.categoryScroller .categories > button svg{width:34px!important;height:34px!important}
+.categorySection .sectionTitle h2{font-size:20px!important}
+.listingSection .grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:14px!important}
+}
+@media (max-width:760px){
+.header .headerPublish{display:none!important}
+.header{grid-template-columns:auto 1fr auto!important}
+.header .headerBrand{justify-content:flex-start!important;gap:6px!important}
+.header .headerBrand .logo{font-size:25px!important;letter-spacing:-1.3px!important;width:auto!important}
+.mobileNav .mobilePublish{top:0!important;width:auto!important;min-width:0!important;height:auto!important;min-height:0!important;border-radius:12px!important;background:transparent!important;box-shadow:none!important}
+.mobileNav .mobilePublish>svg{width:24px!important;height:24px!important;color:#f2653e}
+.mobileNav .mobilePublish>span{position:static!important;color:#f2653e!important;font-size:inherit!important;font-weight:700}
+}
+
+/* ---- photos ---- */
+.photoMark{display:none!important}
+.galleryStage{aspect-ratio:16/10;display:grid;place-items:center;background:#f0f0f2;border-radius:14px;overflow:hidden}
+.galleryStage .galleryOpen{position:absolute;inset:0;display:grid;place-items:center;width:100%;height:100%;padding:0;border:0;background:none}
+.galleryStage img{width:100%;height:100%;object-fit:contain;display:block}
+@media (min-width:900px){.galleryStage{aspect-ratio:16/10;max-height:560px}}
+.imageViewer .imageViewerClose:focus,.imageViewer .imageViewerClose:focus-visible{outline:none!important;box-shadow:0 0 0 2px #ffffff55}
+.imageViewerStage img{max-width:100%;max-height:100%;width:auto;height:auto;margin:auto}
+.photo img,.relatedPhoto img{width:100%;height:100%;object-fit:cover}
+
+/* ---- admin / leader panel: simpler, calmer ---- */
+.adminDashboard .adminNavIcon{display:none!important}
+.adminDashboard .adminSections{gap:4px}
+.adminDashboard .adminNavTitle{margin:4px 10px 8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#7b8a84}
+@media (min-width:761px){
+.adminDashboard .adminSections button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;border-radius:10px;background:transparent;font-size:14px;font-weight:600;color:#3d4450}
+.adminDashboard .adminSections button:hover{background:#f3f3f5}
+.adminDashboard .adminSections button[aria-pressed="true"]{background:#eaeaec;color:#212529}
+.adminDashboard .adminBackLink{display:block;margin-top:10px;padding:10px 12px;border-top:1px solid #ebebed;font-size:13px;color:#3d4450}
+}
+.adminDashboard .profileTabs,.adminDashboard .adminExtraFilters{scrollbar-width:none}
+.adminDashboard .profileTabs::-webkit-scrollbar{display:none}
+.adminDashboard .profileTabs{display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap}
+.adminDashboard .profileTabs button{flex:0 0 auto;white-space:nowrap}
+.adminDashboard input,.adminDashboard select{min-height:42px;border:1px solid #dedee0;border-radius:10px;background:#fff;padding:0 12px;font-size:14px}
+.adminDashboard .adminSearch{display:flex;gap:8px;flex-wrap:wrap;align-items:end}
+.adminDashboard .adminSearch input{flex:1 1 220px}
+.adminDashboard .adminExtraFilters{display:flex;gap:12px;flex-wrap:wrap}
+.adminDashboard .adminExtraFilters label{display:grid;gap:4px;font-size:12px;color:#3d4450}
+@media (max-width:760px){
+.adminDashboard > header p,.adminDashboard .adminSecure{display:none}
+.adminDashboard h1{font-size:22px!important}
+.adminDashboard .adminExtraFilters label{flex:1 1 140px}
+}
+.adminDashboard .adminSearch{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.adminDashboard .adminSearch>*:first-child:not(input):not(button){grid-column:1/-1;font-size:12px;color:#3d4450}
+.adminDashboard .adminSearch input{min-width:0}
+/* tap.az-style photo frame: blurred fill instead of grey bands */
+.galleryStage{position:relative;isolation:isolate;background:#212529}
+.galleryStage::before{content:"";position:absolute;inset:-24px;z-index:-1;background:var(--bg) center/cover no-repeat;filter:blur(22px) brightness(.85);transform:scale(1.1)}
+.galleryStage img{background:transparent!important}
+
+/* ---- v3: tap.az-style flat catalogue (own colours and brand) ---- */
+.listingCard{border:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;overflow:visible!important}
+.listingCard .photo{aspect-ratio:4/3!important;height:auto!important;border-radius:12px!important;overflow:hidden;background:#f0f0f2}
+.listingCard .photo img.cardPhoto{width:100%;height:100%;object-fit:cover}
+.listingCard .cardBody{padding:8px 2px 0!important;gap:2px!important}
+.listingCard .price{font-size:18px!important;font-weight:700!important;color:#212529!important;line-height:1.2}
+.listingCard .price small{font-size:12px;font-weight:400;color:#6a7872}
+.listingCard h3{font-size:14px!important;font-weight:400!important;line-height:1.35!important;margin:2px 0 0!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#212529}
+.listingCard .cardBody p{font-size:12px!important;color:#7b8883!important;margin:2px 0 0!important}
+.listingCard .cardRentalFacts{display:flex;flex-wrap:nowrap;overflow:hidden;gap:6px;margin-top:2px}
+.listingCard .cardRentalFacts span{background:none!important;border:0!important;padding:0!important;font-size:12px!important;color:#7b8883!important;white-space:nowrap}
+.listingCard .cardRentalFacts span:not(:first-child){display:none}
+.listingCard .cardMeta{font-size:12px!important;color:#9aa6a1!important;margin-top:2px;border:0!important;padding:0!important;text-align:left!important;justify-content:flex-start!important;display:flex}
+.categoryScroller .categories>button{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;gap:8px!important;min-height:0!important;height:auto!important}
+.categoryScroller .categories>button .categoryArtwork{display:grid;place-items:center;background:#f2f2f4!important;border:0!important;border-radius:16px;width:100%;aspect-ratio:1/1;max-width:96px;margin:0 auto}
+.categoryScroller .categories>button .categoryArtwork img{width:70%!important;height:70%!important;object-fit:contain}
+.categoryScroller .categories>button.active .categoryArtwork{outline:2px solid #f2653e}
+body:has(.rentalHome){background:#fff!important}
+.rentalHome{background:#fff}
+@media (min-width:900px){
+.categoryScroller .categories{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:14px 12px!important}
+.categoryScroller .categories>button{font-size:13px!important}
+.categoryScroller .categories>button .categoryArtwork{max-width:84px}
+.listingSection .grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:20px 14px!important}
+.catalogIntro h1{font-size:26px!important}
+}
+@media (max-width:899px){
+.listingSection .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px 12px!important}
+.categoryScroller .categories>button{flex:0 0 76px!important;width:76px!important;font-size:11.5px!important}
+}
+
+/* ---- v3: listing page, tap.az-style layout ---- */
+.listingDetails:not(.compactDetails){display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "gallery" "side" "info";gap:14px;align-items:start}
+.listingDetails:not(.compactDetails) .detailHead{grid-area:head}
+.listingDetails:not(.compactDetails) .listingGallery{grid-area:gallery}
+.listingDetails:not(.compactDetails) .detailSide{grid-area:side}
+.listingDetails:not(.compactDetails) .listingInfo{grid-area:info}
+.listingDetails:not(.compactDetails) .listingGallery,.listingDetails:not(.compactDetails) .listingInfo{border:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;border-radius:0!important;overflow:visible!important}
+.detailHead .tag{display:block;font-size:12px;color:#7b8883;margin-bottom:4px}
+.detailHead h1,.detailHead h2{margin:0 0 6px!important;font-size:24px!important;line-height:1.2!important;letter-spacing:-.4px!important;color:#212529!important}
+.detailHead .muted{margin:0 0 4px;font-size:13px}
+.detailHead .publicListingMeta{display:flex;gap:14px;font-size:12px;color:#7b8883}
+.detailSide{display:grid;gap:12px;background:#f5f5f7;border-radius:16px;padding:18px}
+.detailSide .detailPrice{font-size:30px!important;line-height:1.1;color:#212529!important;order:-2}
+.detailSide .detailPrice small{font-size:14px;font-weight:400;color:#6a7872}
+.detailSide .contactActions{display:grid!important;gap:10px;margin:0!important}
+.detailSide .contactActions .add{order:-1}
+.detailSide .contactActions a,.detailSide .contactActions button{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;border-radius:12px;font-size:15px;font-weight:600}
+.detailSide .sellerCard{background:#fff;border:0;border-radius:12px;padding:12px 14px}
+.detailSide .detailTools{display:flex;flex-wrap:wrap;gap:8px}
+.detailSide .detailTools button,.detailSide .detailTools a{min-height:40px;border-radius:10px;font-size:13px}
+.listingGallery .thumbnails{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.listingGallery .thumbnails button{flex:0 0 72px;width:72px;height:56px;padding:0;border:2px solid transparent;border-radius:10px;overflow:hidden}
+.listingGallery .thumbnails button[aria-pressed="true"]{border-color:#f2653e}
+.listingGallery .thumbnails img{width:100%;height:100%;object-fit:cover}
+.listingInfo h3{font-size:18px;margin:6px 0}
+@media (min-width:900px){
+.listingDetails:not(.compactDetails){grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"head side" "gallery side" "info side";gap:6px 32px}
+.listingDetails:not(.compactDetails) .detailSide{position:sticky;top:84px}
+.detailHead h1{font-size:28px!important}
+}
+.detailSide>*{margin:0!important}
+.detailSide{gap:10px}
+.detailSide .detailPrice{padding:2px 0 4px}
+.detailSide>.muted{font-size:12px;color:#7b8883}
+.galleryStage::before{filter:blur(22px) brightness(.95)}
+
+/* ---- v3: header search (desktop), mobile header spacing, forms ---- */
+.headerSearch{display:none}
+@media (min-width:1000px){
+.header{gap:16px}
+.headerSearch{display:flex;flex:1 1 280px;max-width:420px;height:44px;border:1.5px solid #f2653e;border-radius:12px;overflow:hidden;background:#fff}
+.headerSearch input{flex:1;min-width:0;border:0;outline:0;padding:0 14px;font-size:14px;background:transparent}
+.headerSearch button{display:grid;place-items:center;width:52px;border:0;background:#f2653e;color:#fff;cursor:pointer}
+.headerSearch button svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}
+.header nav a[href="/#elanlar"]{display:none}
+}
+@media (max-width:520px){
+.header .headerBrand .logo{font-size:22px!important}
+.header .headerBrand .logo small{display:none}
+.header .languageSelect{margin-left:4px}
+}
+aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"]{font-size:13px;padding:10px 14px;border-radius:12px}
+aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary{cursor:pointer;list-style:none}
+aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary::after{content:" ▾";color:#7b8883}
+@media (min-width:1000px){
+.catalogIntro{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);padding:0!important;margin:0!important}
+.searchWrap{margin-top:18px!important}
+}
+
+/* ---- v4: photo mark, messages, account menu, safety note ---- */
+.photoMark{display:block!important;position:absolute!important;left:8px!important;bottom:8px!important;right:auto!important;top:auto!important;transform:none!important;padding:2px 7px!important;border-radius:6px;background:rgba(0,0,0,.18)!important;color:rgba(255,255,255,.85)!important;font-size:11px!important;font-weight:700;line-height:1.4;text-shadow:none!important;pointer-events:none;z-index:2}
+.galleryStage .photoMark{left:12px!important;bottom:12px!important;font-size:13px!important}
+aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"]{background:#fff4e5;border:1px solid #f6d9a8;color:#5b3d06;font-size:14px;padding:12px 14px;border-radius:12px}
+aside.notice[aria-label="Təhlükəsiz elan yerləşdirmə"] summary::after{content:""}
+.messagesTitle{padding:6px 0 10px}
+.messagesTitle h1{font-size:26px!important;margin:0!important}
+.accountMenuPanel .accountMenuEmail{margin:0 0 2px;color:#6a7872;font-size:13px;word-break:break-all}
+.accountMenuPanel nav{display:grid;gap:2px;margin:8px 0}
+.accountMenuPanel nav a{padding:9px 10px;border-radius:8px;font-size:14px}
+.accountMenuPanel nav a:hover{background:#f3f3f5}
+.accountMenuPanel>.textButton{display:block;width:100%;margin-top:6px;padding:10px;border-top:1px solid #ebebed;border-radius:0;text-align:left;color:#b4382a;font-weight:600}
+
+/* ---- v4: cabinet as a tidy list, tap.az-like ---- */
+.accountDashboard .stats{display:none!important}
+.accountDashboard .cabinetNav.cabinetCards{display:flex!important;flex-direction:column;gap:0;padding:6px;background:#fff;border:1px solid #ebebed;border-radius:16px;margin-top:12px}
+.accountDashboard .cabinetNav.cabinetCards>a{display:flex!important;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 12px!important;border:0!important;border-radius:10px!important;background:transparent!important;box-shadow:none!important;font-size:15px;font-weight:500;color:#212529}
+.accountDashboard .cabinetNav.cabinetCards>a svg{width:20px;height:20px;flex:none;color:#3d4450}
+.accountDashboard .cabinetNav.cabinetCards>a[aria-current="page"]{background:#eeeef0!important;color:#212529;font-weight:600}
+.accountDashboard .cabinetNav.cabinetCards>a:hover{background:#f4f4f6!important}
+.accountDashboard .cabinetNavFoot{display:flex!important;flex-direction:column;gap:0;margin-top:6px;padding-top:6px;border-top:1px solid #ebebed}
+.accountDashboard .cabinetNavFoot>a,.accountDashboard .cabinetNavFoot>button{display:flex!important;align-items:center;gap:12px;width:100%;min-height:46px;padding:10px 12px;border:0!important;border-radius:10px;background:transparent!important;box-shadow:none!important;font-size:15px;text-align:left;color:#212529}
+.accountDashboard .cabinetNavFoot .cabinetLogout{color:#b4382a;font-weight:600}
+.accountDashboard .listingStatusStrip{display:flex;gap:8px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}
+.accountDashboard .listingStatusStrip::-webkit-scrollbar{display:none}
+.accountDashboard .listingStatusStrip button{flex:0 0 auto;white-space:nowrap;border-radius:999px;min-height:38px;padding:8px 14px}
+.accountDashboard .listingStatusStrip button[aria-pressed="true"]{background:#f2653e;border-color:#f2653e;color:#fff}
+
+/* ---- v5: compact home top on phone, no recent searches strip ---- */
+.catalogIntro{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;padding:0!important;margin:0!important}
+.searchHistory{display:none!important}
+.searchWrap{margin-top:10px!important;padding-top:0!important}
+.savedSearches{margin:6px 0 0!important}
+@media (max-width:760px){
+.rentalHome .searchPanel{padding:0!important;gap:8px!important;min-height:0!important}
+.rentalHome .queryField > span{display:none!important}
+.rentalHome .categorySection{padding-top:6px!important}
+}
+
+/* ---- v6: phone UI modelled on tap.az (bottom bar, search, tiles) ---- */
+@media (max-width:760px){
+.mobileNav{display:grid!important;grid-template-columns:repeat(5,1fr)!important;align-items:end!important;padding:6px 2px calc(6px + env(safe-area-inset-bottom))!important;background:#fff!important;border-top:1px solid #ececf1!important;box-shadow:none!important;min-height:0!important}
+.mobileNav a{position:relative;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-end!important;gap:3px!important;min-height:48px!important;padding:2px 0!important;background:transparent!important;border-radius:0!important;color:#8f94a8!important}
+.mobileNav a[aria-current="page"]{background:transparent!important;color:#f2653e!important}
+.mobileNav a>svg{width:24px!important;height:24px!important;color:inherit!important}
+.mobileNav a>span{font-size:9.5px!important;font-weight:500!important;letter-spacing:.2px;text-transform:uppercase;color:inherit!important;line-height:1.1!important}
+.mobileNav a[aria-current="page"]>span{font-weight:700!important}
+.mobileNav .mobilePublish{top:0!important;color:#8f94a8!important}
+.mobileNav .mobilePublish>svg{box-sizing:content-box;width:26px!important;height:26px!important;padding:13px;margin-top:-26px;border-radius:50%;background:#f2653e!important;color:#fff!important;box-shadow:0 4px 12px #f2653e55;stroke-width:2.2}
+.mobileNav .mobilePublish>span{position:static!important;color:#8f94a8!important;font-weight:500!important}
+.mobileNav .mobilePublish[aria-current="page"]>span{color:#f2653e!important}
+.header .menuButton,.header button[aria-label*="enyu"],.header .burger{color:#f2653e!important}
+.rentalHome .searchWrap{padding:0 12px!important}
+.rentalHome .queryField{display:block!important;position:relative}
+.rentalHome .queryField input{width:100%!important;height:44px!important;box-sizing:border-box;border:1px solid #e4e4ea!important;border-radius:12px!important;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238f94a8' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 13px center!important;padding:0 14px 0 42px!important;font-size:15px!important;box-shadow:none!important}
+.rentalHome .searchPanel>button.add{display:none!important}
+.categoryScroller .categories>button{min-width:68px!important;gap:6px!important;background:transparent!important;border:0!important;box-shadow:none!important;font-size:11.5px!important;color:#2b2d3a!important}
+.categoryScroller .categories>button img,.categoryScroller .categories>button svg{box-sizing:content-box;width:40px!important;height:40px!important;padding:8px;border-radius:16px;background:#f5f5f8}
+.categoryScroller .categories>button[aria-pressed="true"],.categoryScroller .categories>button.active{color:#f2653e!important}
+.categoryScroller .categories>button[aria-pressed="true"] img{background:#fff1ec}
+.rentalHome .searchPanel{display:block!important;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important}
+.mobileNav .mobilePublish>span{font-size:9.5px!important;font-weight:500!important}
+.header .mobileMenuButton{color:#f2653e!important}
+.header .mobileMenuButton svg{color:#f2653e!important}
+}
+
+/* ---- v7: typography, icons, header (all widths) ---- */
+h1,h2,h3{letter-spacing:-.01em!important;line-height:1.25!important}
+.eyebrow{letter-spacing:.08em!important;font-size:11px!important;margin:0 0 8px!important}
+.prose h1,.wrap > h1{margin-bottom:14px!important}
+.pinIcon{vertical-align:-2px;color:#f2653e;margin-right:2px}
+.siteContact{display:flex!important;flex-direction:column;gap:6px;margin:0 0 20px!important;padding:14px 16px!important;border:1px solid #ececf1;border-radius:14px;background:#fafafc}
+.siteContact strong{font-size:15px;margin-bottom:2px}
+.helpGrid{display:grid!important;gap:12px!important}
+.helpCard{padding:16px 18px!important;min-height:0!important;border:1px solid #ececf1!important;border-radius:14px!important;box-shadow:none!important;background:#fff!important}
+.helpCard h2{font-size:17px!important;margin:0 0 6px!important}
+.helpCard p{margin:0!important;font-size:14px;line-height:1.55;color:#5b6070}
+@media (min-width:761px){.helpGrid{grid-template-columns:repeat(2,1fr)!important}}
+@media (max-width:760px){
+h1{font-size:clamp(24px,6.4vw,30px)!important}
+.header .headerPublish{display:inline-flex!important;width:34px!important;height:34px!important;min-width:34px!important;padding:0!important;border-radius:50%!important;background:#f2653e!important;color:#fff!important;align-items:center;justify-content:center;box-shadow:none!important}
+.header .headerPublish .desktopPublishLabel,.header .headerPublish .mobilePublishLabel>span{display:none!important}
+.header .headerPublish .mobilePublishLabel{display:flex!important}
+.header .headerPublish svg{width:20px!important;height:20px!important;stroke-width:2.4!important;color:#fff}
+.mobileNav a>svg path{fill:currentColor;fill-opacity:.14;stroke-width:1.9}
+.mobileNav a[aria-current="page"]>svg path{fill-opacity:.28}
+.mobileNav .mobilePublish>svg path{fill:none}
+.mobileNav .mobilePublish>svg{stroke-width:2.4}
+}
+.limitsPanel ul{list-style:none;margin:12px 0;padding:0;border:1px solid #ececf1;border-radius:14px;overflow:hidden}
+.limitsPanel li{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #f1f1f5;font-size:15px}
+.limitsPanel li:last-child{border-bottom:0}
+.limitsPanel li b{color:#f2653e;font-variant-numeric:tabular-nums}
+
+/* ---- v8: modern typeface and solid icons ---- */
+html,body,button,input,select,textarea{font-family:var(--font-ui),"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif!important}
+body{font-size:15px;line-height:1.5;font-feature-settings:"cv11","ss01";-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,.logo{font-weight:700}
+h1{font-weight:800}
+.logo{font-weight:800!important;letter-spacing:-.04em!important}
+strong,b{font-weight:650}
+.price,[class*="price"],.cardPrice{font-variant-numeric:tabular-nums;font-weight:750}
+button,.add,.secondary{font-weight:600;letter-spacing:0}
+.mobileNav a>span,.eyebrow{font-weight:600}
+svg[stroke-linejoin]{stroke-linejoin:round}
+.mobileNav a>svg path{fill:currentColor;fill-opacity:.12;stroke-width:1.7}
+.mobileNav a[aria-current="page"]>svg path{fill-opacity:1;stroke-width:1.7}
+.mobileNav .mobilePublish>svg path{fill:none!important}
+.accountMenu svg,.cabinetNav svg{stroke-width:1.8}
+.messagesTitle{padding:14px 16px 6px!important}
+.messagesPage{padding-left:0;padding-right:0}
+.messagesTitle h1{margin:0!important}
+
+/* ---- v9: cabinet as menu screen + section screens (phone) ---- */
+.cabinetBack{display:none}
+.accountHeading .accountIdentity{margin:2px 0 0;color:#6b7080;font-size:14px}
+.accountHeading .accountIdentity span{word-break:break-all}
+.balanceTopUp{opacity:.55;cursor:not-allowed}
+.balancePreview{display:flex;align-items:center;justify-content:space-between;gap:12px}
+@media (max-width:760px){
+.cabinetLayout.screen-menu .cabinetContent{display:none!important}
+.cabinetLayout.screen-section .cabinetSidebar{display:none!important}
+.accountDashboard:has(.screen-section) .accountHeading{display:none}
+.cabinetBack{display:flex;align-items:center;gap:6px;position:sticky;top:0;z-index:5;margin:0 -16px 12px;padding:10px 12px;background:#fff;border-bottom:1px solid #ececf1}
+.cabinetBack a,.cabinetBack button{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:0;border-radius:50%;background:#f4f4f8;color:#f2653e;font-size:28px;line-height:1;padding:0 0 3px;text-decoration:none}
+.cabinetBack strong{font-size:17px}
+.cabinetNav.cabinetCards a[aria-current="page"]{background:transparent!important;color:inherit!important}
+}
+
+/* ---- v9: simpler admin / leader panel ---- */
+.adminRoleLabel{margin:0 0 10px;font-size:13px;color:#6b7080}
+.adminFilters,.adminMore{margin:10px 0;border:1px solid #ececf1;border-radius:12px;background:#fff}
+.adminFilters>summary,.adminMore>summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:600;font-size:14px;display:flex;justify-content:space-between}
+.adminFilters>summary::after,.adminMore>summary::after{content:"▾";color:#8f94a8}
+.adminFilters[open]>summary::after,.adminMore[open]>summary::after{content:"▴"}
+.adminFilters>*:not(summary),.adminMore>*:not(summary){margin-left:14px;margin-right:14px}
+.adminFilters[open],.adminMore[open]{padding-bottom:12px}
+.moderationCard{border:1px solid #ececf1!important;border-radius:16px!important;box-shadow:none!important;padding:14px!important}
+.moderationCard .contactActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.moderationCard .adminItemId{font-size:12px;color:#8f94a8;margin:6px 0}
+.moderationCard .adminItemId small{display:none}
+.moderationCard .moderationImages img{border-radius:10px}
+@media (max-width:760px){
+.cabinetLayout.screen-menu .cabinetNav a[aria-current]{background:transparent!important;color:inherit!important;font-weight:inherit!important}
+.cabinetLayout.screen-menu .cabinetNav a[aria-current] span{font-weight:inherit!important}
+}
+
+/* ---- v10: tap.az-like account menu, cabinet cards, contact buttons ---- */
+.accountMenuPanel{padding:0!important;border-radius:16px!important;box-shadow:0 12px 36px #1b1d2a26!important;border:0!important;min-width:280px;overflow:hidden}
+.accountMenuHead{display:flex;gap:12px;align-items:center;padding:16px 18px 12px}
+.accountMenuAvatar{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#fff1ec;color:#f2653e;flex:0 0 40px}
+.accountMenuHead strong{display:block;color:#f2653e;font-size:17px;font-weight:700}
+.accountMenuHead small{display:block;color:#f2653e;font-size:13px}
+.accountMenuHead .accountMenuEmail{color:#8f94a8!important;word-break:break-all}
+.accountMenuPanel nav{display:flex;flex-direction:column;padding:4px 8px}
+.accountMenuPanel nav a{padding:12px 10px;border-radius:10px;font-size:15px;color:#1f2230;text-decoration:none}
+.accountMenuPanel nav a:hover{background:#f6f6f9}
+.accountMenuPanel>.textButton{display:block;width:calc(100% - 16px);margin:6px 8px 10px;padding:12px 10px;text-align:left;border-top:1px solid #ececf1;border-radius:0;color:#1f2230;font-size:15px}
+.accountDashboard .listingStatusStrip{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px}
+.accountDashboard .listingStatusStrip button{padding:10px 16px;border-radius:999px;border:0;background:#f4f4f8;color:#1f2230;font-weight:500}
+.accountDashboard .listingStatusStrip button[aria-pressed="true"]{background:#f2653e;color:#fff}
+@media (min-width:761px){
+body:has(.accountDashboard){background:#f6f7fb}
+.accountDashboard .cabinetSidebar>*{background:#fff;border-radius:16px}
+.accountDashboard .cabinetContent{background:#fff;border-radius:20px;padding:26px 28px}
+.accountDashboard .cabinetContent>.sectionTitle h2{font-size:24px}
+}
+.detailSide .add:not(.secondary)[href^="tel:"],.detailSide button.add[aria-label="Nömrəni göstər"]{background:#3db460!important;border-color:#3db460!important;color:#fff!important}
+.detailSide a.secondary[href^="/messages"]{background:#3d6bf5!important;border-color:#3d6bf5!important;color:#fff!important}
+.accountDashboard .listingStatusStrip{gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.accountDashboard .listingStatusStrip::-webkit-scrollbar{display:none}
+.accountDashboard .listingStatusStrip button{padding:9px 12px;font-size:13px;white-space:nowrap;flex:0 0 auto}
+.staffManagement form{display:flex;flex-direction:column;gap:10px;align-items:stretch;max-width:520px}
+.staffManagement form label{display:flex;flex-direction:column;gap:6px;font-weight:600}
+.staffManagement form input{width:100%;box-sizing:border-box}
+.staffManagement form .add{align-self:flex-start}
+
+/* ---- v11: promotion / top-up dialogs like tap.az ---- */
+.promotionPanel{background:#f5f6fa!important;border-radius:22px!important;padding:22px!important;box-shadow:0 20px 60px #1b1d2a40!important;max-width:560px!important}
+.promotionModalHeader h3{font-size:22px;font-weight:700}
+.promotionModalHeader button{width:36px;height:36px;border-radius:50%;border:0;background:#fff;font-size:22px;color:#8f94a8}
+.promotionPackage{background:#fff!important;border:0!important;border-radius:16px!important;margin:12px 0!important;padding:4px 0!important}
+.promotionPackage>summary{padding:14px 16px!important}
+.promotionPackage>p{margin:0 16px 8px!important;color:#5b6070;font-size:14px}
+.promotionPackage .paymentChoices{border:0!important;margin:8px 0 0!important;padding:8px 16px!important}
+.paymentChoices legend{font-size:16px;font-weight:600;padding:0 0 8px}
+.paymentChoices label{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:15px;cursor:pointer}
+.paymentChoices input[type="radio"]{width:20px;height:20px;accent-color:#3d6bf5}
+.payButton{display:block;width:calc(100% - 32px);margin:12px 16px 4px;padding:15px;border:0;border-radius:12px;background:#3d6bf5;color:#fff;font-size:16px;font-weight:600;opacity:.45;cursor:not-allowed}
+.payNote{margin:4px 16px 14px;text-align:center;font-size:13px;color:#8f94a8}
+
+/* ---- v12: lighter, finer type (tap.az-like) ---- */
+body{font-weight:400;color:#1f2230;font-size:15px}
+h1,h2,h3{font-weight:600!important;letter-spacing:0!important;color:#1f2230}
+h1{font-size:clamp(21px,5.2vw,26px)!important;line-height:1.3!important}
+h2{font-size:clamp(17px,4.4vw,21px)!important}
+h3{font-size:16px!important}
+strong,b{font-weight:600}
+.eyebrow{font-weight:500!important;letter-spacing:.06em!important;color:#8f94a8!important}
+button,.add,.secondary,.textButton{font-weight:500!important;font-size:14px}
+.logo{font-weight:800!important}
+.mobileNav a>span{font-weight:500!important;font-size:9.5px!important;letter-spacing:.1px}
+.mobileNav a[aria-current="page"]>span{font-weight:600!important}
+.cardTitle,.listingCard h3,.card h3{font-weight:400!important;font-size:14.5px!important;line-height:1.35}
+.price,[class*="price"]{font-weight:700}
+.sectionTitle h2,.categorySection .sectionTitle h2{font-weight:600!important}
+.status{font-weight:500!important}
+.muted,small{color:#6b7080}
+.detailHead h1,.detailHead h2{font-size:22px!important;font-weight:600!important;letter-spacing:0!important;color:#1f2230!important}
+.cabinetNav a,.accountMenuPanel nav a{font-weight:400!important}
+.cabinetNav a span{font-weight:400!important}
+.accountMenuHead strong{font-weight:600}
+.accountDashboard .listingStatusStrip button{font-weight:400!important}
+.accountDashboard .listingStatusStrip button[aria-pressed="true"]{font-weight:500!important}
+/* my listings: compact tap.az-like cards */
+.accountItemActions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.accountItemActions .secondary,.accountItemActions .promotionTrigger{padding:8px 14px;border-radius:10px;border:1px solid #e4e4ea;background:#fff;color:#1f2230;font-size:13.5px;font-weight:500;cursor:pointer;list-style:none}
+.accountItemActions .promotionOptions{display:inline-block}
+.accountItemActions .promotionTrigger{color:#f2653e;border-color:#f6c6b6;background:#fff7f3}
+.accountItemActions summary::-webkit-details-marker{display:none}
+.ownedPhoto{cursor:pointer}
+.accountItemActions{display:flex!important;flex-wrap:wrap!important;gap:8px!important;width:100%}
+.accountItemActions .promotionOptions{display:inline-block!important;width:auto!important;margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+.accountItemActions .promotionTrigger{display:inline-flex!important;width:auto!important;margin:0!important;padding:8px 14px!important;white-space:nowrap}
+.accountItemActions .secondary{width:auto!important;margin:0!important}
+.promotionPanel{text-align:left!important;outline:none!important;border:0!important}
+.promotionPanel p{text-align:left!important;font-weight:400!important}
+.promotionPanel .paymentChoices label,.promotionPanel .paymentChoices span{text-align:left!important;font-weight:400!important}
+.promotionPanel .paymentChoices legend{text-align:left!important;font-weight:600!important}
+.promotionPanel.kindOnly>p,.promotionPanel.kindOnly>.textButton{display:none}
+.promotionPanel.kindOnly .promotionPackage>summary{display:none}
+.promotionPanel .promotionModalHeader{display:flex;justify-content:space-between;align-items:center}
+
+/* ---- v13: language lives in the menu, no top-right plus on phone; subtle motion ---- */
+@media (max-width:760px){
+.header .headerActions .languageSelect,.header .headerPublish{display:none!important}
+.header{grid-template-columns:1fr!important}
+.header .headerBrand{justify-content:flex-start!important}
+}
+.siteMenuLanguage{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 20px 0;padding:14px 0;border-top:1px solid #ececf1}
+.siteMenuLanguage>span{font-weight:500;color:#1f2230}
+.siteMenuPanel .languageSelect .mobileLanguageSelect{display:none!important}
+.siteMenuPanel .languageSelect{display:inline-flex!important;gap:6px;margin:0!important}
+.siteMenuPanel .languageSelect button{display:inline-flex!important;padding:8px 14px;border-radius:999px;border:1px solid #e4e4ea;background:#fff;color:#1f2230;font-weight:500}
+.siteMenuPanel .languageSelect button[aria-pressed="true"]{background:#f2653e;border-color:#f2653e;color:#fff}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+main{animation:pageIn .35s ease both}
+a,button,summary,.card,.listingCard,[class*="Card"]{transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,color .18s ease,border-color .18s ease}
+button:active,.add:active,.secondary:active,.categories>button:active{transform:scale(.97)}
+@media (hover:hover){
+.grid > *:hover,.relatedGrid > *:hover{transform:translateY(-3px);box-shadow:0 10px 26px #1b1d2a1a}
+.cardPhoto{transition:transform .35s ease}
+.grid > *:hover .cardPhoto{transform:scale(1.04)}
+.categories>button:hover img{transform:translateY(-2px)}
+}
+.categories>button img{transition:transform .2s ease}
+.heartButton:active,.favoriteButton:active{transform:scale(1.2)}
+@media (prefers-reduced-motion:reduce){main{animation:none}*{transition:none!important}}
+.adminSections{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.adminSections button{white-space:nowrap}
+
+/* ---- v14: top-up dialog, compact listings, logout ---- */
+.balanceTopUp{opacity:1!important;cursor:pointer!important}
+.miniDialogShade{position:fixed;inset:0;z-index:300;background:#1b1d2a73;display:flex;align-items:center;justify-content:center;padding:16px}
+.miniDialog{position:relative;width:min(340px,100%);padding:26px 22px 22px;border-radius:16px;background:#fff;box-shadow:0 18px 50px #1b1d2a40;text-align:left}
+.miniDialog p{margin:0;font-size:15px;line-height:1.5;color:#1f2230;font-weight:400}
+.miniDialogClose{position:absolute;top:6px;right:8px;width:34px;height:34px;border:0;background:transparent;font-size:24px;line-height:1;color:#6b6f80;cursor:pointer}
+.balancePreview p{display:none}
+.accountDashboard .cabinetNavFoot .cabinetLogout,.accountMenuPanel>.textButton{display:flex!important;align-items:center;gap:10px;color:#6b6f80!important;font-weight:400!important;font-size:14px!important}
+.accountMenuPanel>.textButton{border-top:1px solid #ececf1}
+.editRule{margin:4px 0 10px;font-size:13px}
+.accountListings{display:flex;flex-direction:column;gap:10px}
+.accountListings article{padding:10px!important;gap:4px 12px!important}
+.accountListings article .ownedPhoto{width:84px}
+.accountListings article h3{font-size:15px!important;margin:2px 0!important}
+.accountListings article p,.accountListings article small{font-size:12.5px!important;margin:0 0 2px!important}
+.accountListings article .accountItemActions{display:flex!important;grid-template-columns:none!important;gap:6px!important;margin-top:2px!important}
+.accountListings article .accountItemActions>*{min-height:34px!important;padding:6px 12px!important;font-size:13px!important}
+.promotionPanel:not(.kindOnly) .promotionPackage{margin-bottom:8px}
+@media (max-width:760px){.accountListings article{grid-template-columns:84px 1fr!important}}
+
+/* ---- v15: profile page ---- */
+.profileSettings .cabinetBack{display:flex!important;position:static;margin:0 0 14px;padding:4px 0;background:transparent;border:0}
+.profileSettings .cabinetBack a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;font-size:28px;line-height:1;color:#1f2230}
+.profileSettings .cabinetBack strong{font-size:18px;font-weight:500}
+.profileSettingsGrid{display:grid;gap:14px;max-width:520px;grid-template-columns:1fr!important}
+.profileSettings .accountForm{padding:18px;border:1px solid #ececf1;border-radius:14px;background:#fff;display:grid;gap:12px}
+.profileSettings .accountForm h2,.profileSettings .profileSettingsHeading{display:none}
+.profileSettings .accountForm form{display:grid;gap:12px}
+.profileSettings .emailBox input[readonly]{background:#f6f6f9;color:#5b6070}
+.profileSettings .emailActions{display:flex;gap:10px;align-items:center}
+.profileSettings .notice{max-width:520px}
+
+/* ---- v16: cabinet footer rows ---- */
+.accountDashboard .cabinetNavFoot{gap:2px!important}
+.accountDashboard .cabinetNavFoot>a,.accountDashboard .cabinetNavFoot>button{justify-content:flex-start!important;text-align:left!important;width:100%;min-height:46px;padding:10px 12px!important;gap:12px!important;border:0!important;background:transparent!important;font-size:15px!important;font-weight:400!important;color:#1f2230!important;border-radius:10px!important}
+.accountDashboard .cabinetNavFoot .cabinetAdminLink{background:transparent!important}
+.accountDashboard .cabinetNavFoot .cabinetLogout{color:#b4382a!important}
+.accountDashboard .cabinetNavFoot svg{width:20px;height:20px;flex:none}
+
+/* ---- v17: site-wide polish ---- */
+.safetyNote{margin:0 0 12px;border:1px solid #f3dccf;background:#fff8f3;border-radius:12px;padding:0}
+.safetyNote summary{padding:10px 14px;font-size:13.5px;font-weight:500;color:#9a4a35;cursor:pointer;list-style:none}
+.safetyNote summary::-webkit-details-marker{display:none}
+.safetyNote summary::before{content:"ⓘ  "}
+.safetyNote p{margin:0;padding:0 14px 12px;font-size:13px;line-height:1.5;color:#5b6070}
+@media (max-width:899px){.categoryScroller .categories{padding-left:12px!important;padding-right:12px!important;scroll-padding-left:12px}}
+@media (min-width:900px){.rentalHome .searchPanel{display:none!important}}
+.galleryStage img[src*="/placeholders/"],.listingCard img[src*="/placeholders/"],.ownedPhoto img[src*="/placeholders/"]{object-fit:cover!important}
+.adminBadge{display:inline-block;min-width:20px;margin-left:8px;padding:1px 7px;border-radius:999px;background:#f2653e;color:#fff;font-size:12px;font-style:normal;font-weight:600;line-height:18px;text-align:center}
+.chipCount{margin-left:6px;color:#8a8fa0;font-size:12px;font-weight:500}
+[aria-pressed="true"] .chipCount{color:inherit;opacity:.8}
+.adminPageHeading{margin-bottom:10px!important}
+.adminPageHeading h1{font-size:24px!important;margin:0!important}
+.adminSecureBadge{display:none!important}
+@media (max-width:760px){.adminPageHeading{display:none!important}}
+
+/* ---- v18: listing page + card structure ---- */
+.detailSide{background:#fff!important;border:1px solid #ececf1;gap:12px!important}
+.detailSide .detailPrice{order:1!important}
+.detailSide .contactActions{order:2;grid-template-columns:1fr 1fr}
+.detailSide .contactActions .add{order:-1;grid-column:1/-1}
+.detailSide .detailTools{order:3;display:grid!important;grid-template-columns:1fr 1fr;gap:8px}
+.detailSide .detailTools>*{width:100%;justify-content:center}
+.detailSide .sellerCard{order:4;background:#f6f6f9!important;margin:0}
+.detailSide .sellerSince{order:5;margin:0!important}
+.detailSide .phoneSafety{order:3}
+.sellerCard strong{font-weight:500;font-size:15px}
+.footMeta{margin-top:14px!important;padding-top:10px;border-top:1px solid #ececf1}
+.detailSpecs{display:block!important;background:transparent!important;border:0!important;padding:0!important;margin-top:8px}
+.detailSpecs>div{display:grid!important;grid-template-columns:minmax(110px,40%) 1fr;gap:12px;padding:11px 0!important;margin:0!important;border:0!important;border-bottom:1px solid #ececf1!important;background:transparent!important;border-radius:0!important}
+.detailSpecs dt{color:#7b8083!important;font-size:13.5px!important;font-weight:400!important;margin:0!important}
+.detailSpecs dd{margin:0!important;font-size:14px!important;font-weight:500!important;color:#1f2230!important;text-align:left;overflow-wrap:anywhere}
+.detailSpecs>div:has(dd:where(:not(:empty))){}
+@media (min-width:900px){.detailSpecs{max-width:620px}}
+.listingCard .cardBody h3{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;font-weight:500;line-height:1.3;margin:2px 0}
+.listingCard .cardPlace{margin:0 0 2px;font-size:12.5px;color:#7b8083}
+.listingCard .cardRentalFacts{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:#5b6070}
+.listingCard .cardRentalFacts .noDeposit{color:#3db460;font-weight:500}
+.listingCard .cardRentalFacts:empty{display:none}
+
+/* ---- v19: remove duplicates on phone, tablet categories ---- */
+@media (max-width:760px){
+.siteFooter .siteContact,.siteFooter .footerGroup:not(.footerLinks){display:none!important}
+.siteFooter .footerLinks a[href="/new"],.siteFooter .footerLinks a[href="/profile"]{display:none}
+.siteFooter{padding-top:20px!important;padding-bottom:84px!important}
+}
+@media (min-width:761px) and (max-width:899px){
+.categoryScroller .categories{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:14px 8px!important;overflow:visible!important}
+.categoryScroller .categories>button{flex:none!important;width:auto!important}
+}
+.favoritesFilter:not(.active){display:none!important}
+.categoryScroller .categories{align-items:flex-start!important}
+.categoryScroller .categories>button strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.2}
+.favoritesView .searchWrap,.favoritesView .categoryScroller,.favoritesView .filterRow,.favoritesView .activeFilters,.favoritesView .catalogIntro{display:none!important}
+
+/* ---- v20: tablet gets the same bottom navigation ---- */
+@media (min-width:761px) and (max-width:1100px){
+.mobileNav{display:grid!important;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;background:#fff;border-top:1px solid #ececf1;padding:6px 8px calc(6px + env(safe-area-inset-bottom));max-width:none}
+.mobileNav a{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;color:#8f94a8;text-decoration:none}
+.mobileNav a>svg{width:24px;height:24px}
+.mobileNav a>span{font-size:10px;font-weight:500;letter-spacing:.2px;text-transform:uppercase}
+.mobileNav a[aria-current="page"],.mobileNav .mobilePublish{color:#f2653e}
+body{padding-bottom:76px}
+}

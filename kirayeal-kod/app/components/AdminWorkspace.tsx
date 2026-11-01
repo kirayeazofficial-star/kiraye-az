@@ -1,9 +1,10 @@
 "use client";
+import TabIcon from "./TabIcon";
 import Notice from "./Notice";
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, UserRound, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -349,7 +350,7 @@ export default function AdminWorkspace() {
   return <div className="kzAdm">
     <nav className="kzAdNav" aria-label="Panel bölmələri">
       {sections.map(item => <button key={item} type="button" aria-pressed={section === item} onClick={() => open(item)}>{(() => { const SectionIcon = icons[item]; return <SectionIcon aria-hidden="true" size={20} strokeWidth={1.75} />; })()}<span>{sectionLabels[item]}</span>{!!badge(item) && <b>{badge(item)}</b>}</button>)}
-      <Link className="kzAdNavBack" href="/profile"><UserRound aria-hidden="true" size={19} strokeWidth={2} />Şəxsi kabinet</Link>
+      <Link className="kzAdNavBack" href="/profile"><TabIcon name="user" size={19} />Şəxsi kabinet</Link>
     </nav>
     <div className="kzAdContent">
       {section !== "overview" && <button type="button" className="kzAdBack" onClick={() => open(section === "history" ? "moderation" : "overview")}><ChevronLeft aria-hidden="true" size={20} strokeWidth={2} />{section === "history" ? "Elanlar" : "Panel"}</button>}

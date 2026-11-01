@@ -1,6 +1,7 @@
 "use client";
+import TabIcon from "./TabIcon";
 import Notice from "./Notice";
-import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, MessageCircle, Pencil, Phone, Share2, Store, TrendingDown } from "lucide-react";
+import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2, Store, TrendingDown } from "lucide-react";
 import { storeOpenState } from "../../lib/store-hours";
 import { WhatsAppIcon } from "./BrandIcons";
 import PromotionOptions from "./PromotionOptions";
@@ -298,7 +299,7 @@ export default function ListingDetails({
           </div>
         ) : phone && !item.demo ? (
           <div className="contactActions" ref={contactBox}>
-            {ownerReady&&<Link className="secondary kzMsgBtn" href={`/messages?listing=${encodeURIComponent(item.id)}`}><MessageCircle aria-hidden="true" size={17} strokeWidth={2.1} />Mesaj yaz</Link>}
+            {ownerReady&&<Link className="secondary kzMsgBtn" href={`/messages?listing=${encodeURIComponent(item.id)}`}><TabIcon name="chat" size={18} />Mesaj yaz</Link>}
             {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər"><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
             <a
               className="secondary kzWaBtn"
@@ -500,7 +501,7 @@ export default function ListingDetails({
       </div>
       {mounted && !compact && !effectiveOwner && phone && !item.demo && createPortal(<div className={`stickyContact${stickyShown ? " shown" : ""}`} role="group" aria-label="Əlaqə" aria-hidden={!stickyShown}>
         {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər</button>}
-        {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}><MessageCircle aria-hidden="true" size={17} strokeWidth={2.1} />Mesaj yaz</Link>}
+        {ownerReady&&<Link className="messageAction" href={`/messages?listing=${encodeURIComponent(item.id)}`}><TabIcon name="chat" size={18} />Mesaj yaz</Link>}
       </div>, document.body)}
       {/* Similar listings right after the details, before the banner, so a visitor who does not like this one moves on. */}
       {!compact && item.status === "published" && !item.demo && <ListingSuggestions item={item}/>}

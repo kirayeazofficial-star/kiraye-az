@@ -1,4 +1,5 @@
 "use client";
+import TabIcon from "./TabIcon";
 import { ChevronRight, CirclePlus, Heart, LayoutGrid, LifeBuoy, Lock, Menu, MessageCircle, ShieldCheck, User, X, type LucideIcon, FileText } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
@@ -7,12 +8,16 @@ import SiteContact from "./SiteContact";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
 
+// Heart, messages and account use the same drawn icons as the bottom menu.
+const HeartIcon = ((props: { size?: number }) => <TabIcon name="heart" size={props.size} />) as unknown as LucideIcon;
+const ChatIcon = ((props: { size?: number }) => <TabIcon name="chat" size={props.size} />) as unknown as LucideIcon;
+const UserIcon = ((props: { size?: number }) => <TabIcon name="user" size={props.size} />) as unknown as LucideIcon;
 const primaryLinks: [string, string, LucideIcon, string][] = [
   ["/#elanlar", "Elanlar", LayoutGrid, "orange"],
-  ["/?favorites=1", "Seçilmişlər", Heart, "red"],
+  ["/?favorites=1", "Seçilmişlər", HeartIcon, "red"],
   ["/new", "Elan yerləşdir", CirclePlus, "green"],
-  ["/messages", "Mesajlar", MessageCircle, "blue"],
-  ["/profile", "Şəxsi kabinet", User, "purple"],
+  ["/messages", "Mesajlar", ChatIcon, "blue"],
+  ["/profile", "Şəxsi kabinet", UserIcon, "purple"],
 ];
 const helpLinks: [string, string, LucideIcon, string][] = [
   ["/help", "Kömək", LifeBuoy, "grey"],

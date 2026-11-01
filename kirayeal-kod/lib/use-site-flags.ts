@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-export type SiteFlags = { payments: boolean; leader: boolean; announcement?: { text: string; tone: "info" | "warn"; link: string } | null };
+export type SiteFlags = { payments: boolean; leader: boolean; announcement?: { text: string; tone: "info" | "warn" | "danger"; link: string } | null };
 let cached: Promise<SiteFlags> | null = null;
 const load = () => (cached ??= fetch("/api/settings", { cache: "no-store" }).then(r => r.json()).catch(() => ({ payments: true, leader: false })));
 

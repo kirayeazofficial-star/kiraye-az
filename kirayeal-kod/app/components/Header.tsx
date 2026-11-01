@@ -117,11 +117,11 @@ export default function Header() {
             <button type="submit">{t("Axtar")}</button>
           </form>
           <nav className="kzHeaderNav" aria-label="Əsas menyu">
-            <a href="/?favorites=1" onClick={sameSection("favorites")} aria-current={favoritesPage?"page":undefined} title={t("Seçilmişlər")} aria-label={t("Seçilmişlər")}><NavigationIcon name="heart"/></a>
-            <Link href="/messages" onClick={sameSection("messages")} aria-current={pathname === "/messages" ? "page" : undefined} title={t("Mesajlar")} aria-label={t("Mesajlar")}><NavigationIcon name="message"/>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
+            <a href="/?favorites=1" onClick={sameSection("favorites")} aria-current={favoritesPage?"page":undefined} title={t("Seçilmişlər")} aria-label={t("Seçilmişlər")}><TabIcon name="heart" active={favoritesPage}/></a>
+            <Link href="/messages" onClick={sameSection("messages")} aria-current={pathname === "/messages" ? "page" : undefined} title={t("Mesajlar")} aria-label={t("Mesajlar")}><TabIcon name="chat" active={pathname === "/messages"}/>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}</Link>
             {signedIn && accountId
               ? <AccountMenu key={accountId} userId={accountId} initialName={accountName} initialPhone={accountPhone}/>
-              : <Link className="kzGuest" href="/login"><span className="kzAvatar"><NavigationIcon name="account"/></span><span>{t("Daxil ol")}</span></Link>}
+              : <Link className="kzGuest" href="/login"><span className="kzAvatar"><TabIcon name="user" active={pathname === "/login"}/></span><span>{t("Daxil ol")}</span></Link>}
           </nav>
           <Link className="kzPublish" href="/new">
             <CirclePlus aria-hidden="true" size={20} strokeWidth={2} /><span>{t("Yeni elan")}</span>

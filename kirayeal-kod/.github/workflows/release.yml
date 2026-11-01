@@ -37,6 +37,7 @@ jobs:
           cp scripts/import-legacy.mjs /tmp/release/import-legacy.mjs
           cp scripts/backup-to-drive.mjs /tmp/release/backup-to-drive.mjs
           cp scripts/notify-tasks.mjs /tmp/release/notify-tasks.mjs
+          cp scripts/email-frame.mjs /tmp/release/email-frame.mjs
           cp scripts/restore-backup.mjs /tmp/release/restore-backup.mjs
           cp -r host /tmp/release/host
           cp deploy/release.cpanel.yml /tmp/release/.cpanel.yml

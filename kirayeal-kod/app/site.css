@@ -2672,3 +2672,36 @@ html{-webkit-tap-highlight-color:transparent}
 .kzAdPerson small .kzNoWrap,.kzAdRow .kzAdPerson small{word-break:keep-all}
 .kzNoWrap{white-space:nowrap}
 @media (max-width:767px){.kzLimitSave{width:100%;justify-content:center;min-height:44px}}
+/* Alt menyu — yeni ikonlar: aktivdə dolu narıncı forma, qalanlarında nazik boz kontur; yuxarı xətt və açıq fon yoxdur */
+@media (max-width:767px){
+  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish)::before{display:none!important}
+  .kzTabbar>a .kzTabIcon{width:25px!important;height:25px!important;flex:none}
+  .kzTabbar>a .kzTabIcon:not(.on){fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
+  .kzTabbar>a .kzTabIcon.on{fill:currentColor!important;stroke:none!important}
+  .kzTabbar>a{color:#6b7280!important;font-weight:500!important}
+  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish){color:var(--kz-accent)!important;font-weight:600!important}
+}
+@media (max-width:767px){.kzTabbar>a .kzTabIcon.on{fill-opacity:1!important}.kzTabbar>a .kzTabIcon:not(.on){fill-opacity:0!important}}
+/* Telefon xanası: «+994» və nömrə eyni şrift, eyni qalınlıq, eyni ölçü */
+.kzPhonePrefix,.kzPhoneInput input{font-family:inherit!important;font-size:16px!important;font-weight:500!important;letter-spacing:.2px!important;font-variant-numeric:tabular-nums;color:var(--kz-ink)!important}
+.kzPhonePrefix{padding:0 10px 0 14px!important;background:transparent!important;border-right:1px solid var(--kz-line)}
+.kzPhoneInput input::placeholder{font-weight:400;color:#9aa1ac}
+
+/* Görüləcək işlər — Statistika kartları ilə eyni: rəqəm yuxarıda, yazı altda, eyni ölçülər; 0 da tünd rəngdə */
+.kzAdTodoText{gap:4px!important}
+.kzAdTodoText b{font-size:var(--fs-24)!important;font-weight:700!important;line-height:1.1!important;color:var(--kz-ink)!important}
+.kzAdTodoText small{font-size:var(--fs-13)!important;font-weight:400!important;color:var(--kz-muted)!important}
+.kzAdTodo button.done .kzAdTodoText b{color:var(--kz-ink)!important}
+.kzAdTodo button.attention .kzAdTodoText b,.kzAdTodo button.warn .kzAdTodoText b{color:var(--kz-accent)!important}
+.kzAdTodo button.warn .kzAdTodoText b{color:#b26a00!important}
+@media (max-width:767px){.kzAdTodoText b{font-size:var(--fs-20)!important}.kzAdTodoText small{font-size:var(--fs-12)!important}}
+
+/* Cabinet + leader menu icons: one calm style everywhere (no rainbow tiles) — soft grey tile, brand-green line icon. */
+.accountDashboard .cabinetNav.cabinetCards>a .kzNavIcon,.cabinetNav.cabinetCards>a:nth-of-type(n) .kzNavIcon{--tone:var(--kz-brand);--tint:var(--kz-soft)}
+.accountDashboard .cabinetNav.cabinetCards>a .kzNavIcon{background:var(--kz-soft)!important;border:1px solid var(--kz-line)!important}
+.accountDashboard .cabinetNav.cabinetCards>a .kzNavIcon>svg,.accountDashboard .cabinetNav.cabinetCards>a .kzNavIcon svg{color:var(--kz-brand)!important;stroke-width:1.8}
+.accountDashboard .cabinetNav.cabinetCards>a[aria-current="page"] .kzNavIcon{background:var(--kz-accent-soft)!important;border-color:#ffd3c2!important}
+.accountDashboard .cabinetNav.cabinetCards>a[aria-current="page"] .kzNavIcon svg{color:var(--kz-accent)!important}
+.kzAdMenuIcon{background:var(--kz-soft)!important;color:var(--kz-brand)!important;border:1px solid var(--kz-line)}
+.accountDashboard .cabinetNavFoot .kzMenuIcon{background:var(--kz-soft)!important;color:var(--kz-brand)!important;border:1px solid var(--kz-line)!important}
+.accountDashboard .cabinetNavFoot .kzMenuIcon svg{color:var(--kz-brand)!important}

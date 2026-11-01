@@ -13,7 +13,7 @@ import { rateLimitSeconds } from "../../lib/auth-throttle";
 import GoogleLogin from "../components/GoogleLogin";
 import PhoneInput from "./PhoneInput";
 import "../login/style.css";
-type Verification = "signup" | "recovery";
+type Verification = "signup" | "recovery" | "staff";
 const pendingKey = "kiraye:pending-confirmation";
 async function hostAuth(action:string,payload:Record<string,unknown>={}){
   const response=await fetch('/api/auth/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});
@@ -214,8 +214,11 @@ export default function Login({
         await hostAuth('signup',{email,password,name:fullName,phone:contactPhone});
         pending("signup", email);
       } else {
-        try{await hostAuth('login',{email,password,remember});}
+        let result:{verification?:string}={};
+        try{result=await hostAuth('login',{email,password,remember});}
         catch(error){if((error as {code?:string}).code==='EMAIL_NOT_CONFIRMED')setUnconfirmed(true);throw error;}
+        // Leader / admin on a new device: confirm with the e-mailed code first.
+        if(result.verification==='staff_login'){pending("staff",email);return;}
         goToAccount();
       }
     } catch (error) {
@@ -241,7 +244,8 @@ export default function Login({
     setBusy(true);
     setNotice("");
     try {
-      await hostAuth('verify',{email:emailAddress,code:token,purpose:verification,remember});
+      if(verification==='staff')await hostAuth('verify_staff',{email:emailAddress,code:token,remember});
+      else await hostAuth('verify',{email:emailAddress,code:token,purpose:verification,remember});
       clearPending();
       if (verification === "recovery") {sessionStorage.setItem('kiraye:recovery',JSON.stringify({email:emailAddress,code:token,expiresAt:Date.now()+600000}));window.location.href = "/reset-password";}
       else goToAccount();
@@ -257,9 +261,9 @@ export default function Login({
     setBusy(true);
     setNotice("");
     try {
-      await hostAuth(verification==='recovery'?'request_recovery':'resend_signup',{email:emailAddress});
+      await hostAuth(verification==='recovery'?'request_recovery':verification==='staff'?'resend_staff':'resend_signup',{email:emailAddress});
       pending(
-        verification === "recovery" ? "recovery" : "signup",
+        verification === "recovery" ? "recovery" : verification === "staff" ? "staff" : "signup",
         emailAddress,
         verification === "recovery",
       );
@@ -337,7 +341,9 @@ export default function Login({
             {method === "phone"
               ? "Hesaba giriş"
               : verification
-                ? verification === "recovery"
+                ? verification === "staff"
+                  ? "Yeni cihazı təsdiqlə"
+                  : verification === "recovery"
                   ? "Kodu daxil et"
                   : "E-poçtunu yoxla"
                 : mode === "signup"
@@ -520,13 +526,15 @@ export default function Login({
               ) : (
                 <div className="confirmationPanel">
                   <p className="authLead">
-                    {verification === "recovery"
+                    {verification === "staff"
+                      ? "Təhlükəsizlik üçün panelə yeni cihazdan girişi kodla təsdiqləyirik. Bu cihaz 3 gün yadda qalacaq."
+                      : verification === "recovery"
                       ? "Bərpa kodu üçün göndəriş sorğusu qəbul edildi."
                       : "Təsdiq məktubu üçün sorğu qəbul edildi."}
                   </p>
                   <div className="confirmationEmail">{emailAddress}</div>
                   <p className="confirmationInstruction">
-                    {verification === "recovery"
+                    {verification === "recovery" || verification === "staff"
                       ? "E-poçtuna gələn 6 rəqəmli kodu daxil et."
                       : "Məktubdakı 6 rəqəmli təsdiq kodunu daxil et."}
                   </p>
@@ -553,11 +561,11 @@ export default function Login({
                       disabled={busy}
                       onClick={() =>
                         changeMode(
-                          verification === "recovery" ? "reset" : "signup",
+                          verification === "recovery" ? "reset" : verification === "staff" ? "login" : "signup",
                         )
                       }
                     >
-                      E-poçtu dəyiş
+                      {verification === "staff" ? "Geri qayıt" : "E-poçtu dəyiş"}
                     </button>
                   </div>
                   {verification !== "recovery" && codeForm()}
@@ -594,7 +602,7 @@ export default function Login({
                   )}
                 </div>
               )}
-              <div className="authFooter">
+              {verification !== "staff" && <div className="authFooter">
                 <a
                   className="link"
                   href={
@@ -621,7 +629,7 @@ export default function Login({
                     ? "Hesabın yoxdur? Qeydiyyatdan keç"
                     : "Hesabın var? Daxil ol"}
                 </a>
-              </div>
+              </div>}
             </>
           )}
         </section>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import TabIcon from "../../components/TabIcon";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { CalendarDays, Clock, LayoutList, MessageCircle } from "lucide-react";
+import { CalendarDays, Clock, LayoutList } from "lucide-react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import FavoriteGrid from "../../components/FavoriteGrid";
@@ -56,7 +57,7 @@ export default async function SellerPage({ params }: Props) {
           <ul className="kzSellerFacts">
             <li><CalendarDays aria-hidden="true" size={16} strokeWidth={2} />{publicMonthYear(data.joined)} tarixindən saytdadır</li>
             <li><LayoutList aria-hidden="true" size={16} strokeWidth={2} />{data.listings.length} aktiv elan</li>
-            {rate !== null && <li><MessageCircle aria-hidden="true" size={16} strokeWidth={2} />Mesajların {rate}%-nə cavab verir</li>}
+            {rate !== null && <li><TabIcon name="chat" size={18} />Mesajların {rate}%-nə cavab verir</li>}
             {rate !== null && data.reply?.median != null && replied >= 2 && <li><Clock aria-hidden="true" size={16} strokeWidth={2} />Adətən {answerTime(Number(data.reply.median))} cavab verir</li>}
           </ul>
         </div>

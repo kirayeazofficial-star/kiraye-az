@@ -66,6 +66,11 @@ try {
   // Backup tools live next to app.js: the 03:00 cron job runs backup-to-drive.mjs from there.
   for (const name of ["backup-to-drive.mjs", "notify-tasks.mjs", "restore-backup.mjs"])
     if (await exists(join(source, name))) await copyFile(join(source, name), join(target, name));
+  // Source code of this version (the nightly backup sends it to Google Drive when it changes).
+  if (await exists(join(source, "kirayeal-kod"))) {
+    await rm(join(target, "kirayeal-kod"), { recursive: true, force: true });
+    await cp(join(source, "kirayeal-kod"), join(target, "kirayeal-kod"), { recursive: true });
+  }
   await writeFile(join(target, "DEPLOYED-RELEASE.json"), JSON.stringify({ ...meta, buildId, created_at: stamp }, null, 2));
   await mkdir(join(target, "tmp"), { recursive: true });
   await writeFile(join(target, "tmp/restart.txt"), stamp);

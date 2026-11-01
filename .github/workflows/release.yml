@@ -40,6 +40,11 @@ jobs:
           cp scripts/restore-backup.mjs /tmp/release/restore-backup.mjs
           cp -r host /tmp/release/host
           cp deploy/release.cpanel.yml /tmp/release/.cpanel.yml
+          # The whole source code as plain files (only changed files add to the branch history);
+          # the nightly backup packs it and keeps a copy on Google Drive.
+          mkdir -p /tmp/release/kirayeal-kod
+          git archive HEAD | tar -x -C /tmp/release/kirayeal-kod
+          printf '%s\n%s\n' "${GITHUB_SHA::7}" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > /tmp/release/kirayeal-kod/KOD-VERSIYASI.txt
           printf '{"commit":"%s","buildId":"%s"}\n' "$GITHUB_SHA" "$(cat .next/BUILD_ID)" > /tmp/release/RELEASE.json
       - name: Publish site branch
         run: |

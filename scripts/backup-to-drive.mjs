@@ -6,7 +6,10 @@
 // 1. The whole database (public + auth schemas) is one file, kirayeal-baza.json.gz, replaced every
 //    night (Drive itself keeps the earlier versions for 30 days under "Manage versions").
 // 2. Uploaded pictures and videos (KIRAYE_STORAGE_ROOT) are sent once each; later runs send only new files.
+// 3. The site's source code (kirayeal-kod.tar.gz, the deployed version), sent again only after a new deploy:
+//    if the GitHub account is ever lost, the code can be put back from Drive (see BERPA.md inside the archive).
 // Restore with restore-backup.mjs. Secrets are never printed.
+import { spawnSync } from "node:child_process";
 import { createDecipheriv, createHash } from "node:crypto";
 import { createWriteStream } from "node:fs";
 import { mkdir, readdir, readFile, rm, stat } from "node:fs/promises";
@@ -16,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { createGzip } from "node:zlib";
 
 const appDir = dirname(fileURLToPath(import.meta.url));
-const DB_FILE = "kirayeal-baza.json.gz", MAX_FILE_BYTES_PER_RUN = 2 * 1024 ** 3, TIME_LIMIT_MS = 50 * 60 * 1000;
+const DB_FILE = "kirayeal-baza.json.gz", CODE_FILE = "kirayeal-kod.tar.gz", MAX_FILE_BYTES_PER_RUN = 2 * 1024 ** 3, TIME_LIMIT_MS = 50 * 60 * 1000;
 const started = Date.now();
 
 // Server settings from the .env files next to app.js (same as app.js does).
@@ -158,6 +161,26 @@ async function walk(root, folder = root, found = []) {
   return found;
 }
 
+// Site code: kirayeal-kod/ is copied next to app.js on every deploy. It goes to Drive once per
+// deployed version (the 5-minute cron sends it soon after a deploy), never again until the next deploy.
+const tmp = join(appDir, "tmp", "backup");
+const codeVersion = (await readFile(join(appDir, "kirayeal-kod", "KOD-VERSIYASI.txt"), "utf8").catch(() => "")).split("\n")[0].trim();
+const codeOnDrive = async () => !codeVersion || (await db.query(`select 1 from public.backup_files where path=$1`, [`kod/${codeVersion}`])).rowCount > 0;
+async function sendCode(drive, root) {
+  if (await codeOnDrive()) return null;
+  await mkdir(tmp, { recursive: true, mode: 0o700 });
+  const archive = join(tmp, CODE_FILE);
+  const made = spawnSync("tar", ["-czf", archive, "-C", appDir, "kirayeal-kod"], { encoding: "utf8" });
+  if (made.status !== 0) { console.error("Code archive failed:", (made.stderr || "").slice(0, 200)); return null; }
+  const content = await readFile(archive);
+  const id = await drive.upload(CODE_FILE, root, content, "application/gzip", await drive.find(CODE_FILE, root));
+  await db.query(`delete from public.backup_files where path like 'kod/%'`);
+  await db.query(`insert into public.backup_files(path,drive_id,size) values($1,$2,$3)`, [`kod/${codeVersion}`, id, content.length]);
+  await rm(archive, { force: true });
+  console.log(`Code ${codeVersion} sent to Drive.`);
+  return codeVersion;
+}
+
 // A copy that has not reported for 10 minutes was stopped by the hosting: close it, then decide.
 await db.query(`update public.backup_runs set finished_at=now(),ok=false,error='Yarımçıq dayandı — yenidən göndərilir' where finished_at is null and coalesce(heartbeat_at,started_at)<now()-interval '10 minutes'`);
 if ((await db.query(`select 1 from public.backup_runs where finished_at is null`)).rowCount) { console.log("A backup is already running."); await db.end(); process.exit(0); }
@@ -168,7 +191,20 @@ const state = (await db.query(`select
     coalesce((select not ok and error like 'Yarımçıq%' from public.backup_runs order by started_at desc limit 1),false) as interrupted,
     extract(hour from now() at time zone 'Asia/Baku')::int as baku_hour`)).rows[0];
 const due = process.argv[2] === "now" || state.requested || state.interrupted || (state.baku_hour >= 3 && !state.done_today && !state.failed_recently);
-if (!due) { await db.end(); process.exit(0); }
+if (!due) {
+  // Not time for the nightly copy, but a freshly deployed version of the code is sent right away.
+  if (!(await codeOnDrive())) {
+    try {
+      const settings = (await db.query(`select drive_token,root_folder from public.backup_settings where id=1`)).rows[0];
+      if (settings?.drive_token && settings.root_folder && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+        const drive = new Drive(openSecret(settings.drive_token));
+        if (await drive.alive(settings.root_folder)) await sendCode(drive, settings.root_folder);
+      }
+    } catch (error) { console.error("Code backup failed:", String(error?.message || error).slice(0, 200)); }
+    finally { await rm(tmp, { recursive: true, force: true }).catch(() => {}); }
+  }
+  await db.end(); process.exit(0);
+}
 await db.query(`update public.backup_settings set run_requested=false where id=1`);
 const run = (await db.query(`insert into public.backup_runs(trigger,heartbeat_at) values($1,now()) returning id`, [process.argv[2] === "now" ? "manual" : "cron"])).rows[0].id;
 const progress = (fields) => db.query(`update public.backup_runs set heartbeat_at=now(),db_file=$2,db_bytes=$3,db_rows=$4,files_new=$5,files_bytes=$6 where id=$1`,
@@ -177,7 +213,6 @@ const finish = (fields) => db.query(`update public.backup_runs set finished_at=n
   [run, fields.ok, fields.dbFile || null, fields.dbBytes || null, fields.dbRows || null, fields.filesNew || 0, fields.filesBytes || 0, fields.error || null]);
 
 const result = { ok: false };
-const tmp = join(appDir, "tmp", "backup");
 try {
   const settings = (await db.query(`select * from public.backup_settings where id=1`)).rows[0];
   if (!settings?.drive_token) throw new Error("Google Drive qoşulmayıb. Rəhbər panelində «Google Drive-a qoş» düyməsini basın.");
@@ -199,6 +234,10 @@ try {
   result.dbFile = DB_FILE; result.dbBytes = body.length;
   await rm(file, { force: true });
   await progress(result);
+
+  // Site code: one archive of the deployed version (sent only once per deployed version).
+  const sent = await sendCode(drive, root);
+  if (sent) result.codeVersion = sent;
 
   // 2. Pictures and videos: only files that are not on Drive yet.
   const storage = process.env.KIRAYE_STORAGE_ROOT || "";

@@ -329,6 +329,12 @@
       "namedRegex": "^/login(?:/)?$"
     },
     {
+      "page": "/maintenance",
+      "regex": "^/maintenance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/maintenance(?:/)?$"
+    },
+    {
       "page": "/manifest.webmanifest",
       "regex": "^/manifest\\.webmanifest(?:/)?$",
       "routeKeys": {},

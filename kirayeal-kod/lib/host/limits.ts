@@ -9,16 +9,21 @@ import {groupOf,limitGroups} from "../limit-rules";
 export type LimitState={category:string;limit:number;used:number;pending:number;remaining:number;next_free_at:string|null};
 
 // Used = free placements in the window; pending = new listings awaiting review (they take a slot once approved).
-export async function freeLimits(ownerId:string,category?:string):Promise<LimitState[]>{
+// `phone` (the listing's contact number): free places used from other accounts with the same number count too,
+// so a second account does not give a second free listing.
+const phoneDigits=(value:string)=>value.replace(/\D/g,"").slice(-9);
+export async function freeLimits(ownerId:string,category?:string,phone=""):Promise<LimitState[]>{
+  const digits=phoneDigits(phone);
+  const sameOwner=`(x.owner_id=$1 or ($3<>'' and right(regexp_replace(coalesce(l.contact,''),'\\D','','g'),9)=$3))`;
   const rows=await hostQuery<{category:string;used:string;oldest:string|null;pending:string}>(`
     with placed as (
-      select category,count(*) used,min(placed_at) oldest from public.listing_placements
-       where owner_id=$1 and kind='free' and placed_at>now()-make_interval(days=>$2::int) group by category),
+      select x.category,count(*) used,min(x.placed_at) oldest from public.listing_placements x left join public.listings l on l.id=x.listing_id
+       where ${sameOwner} and x.kind='free' and x.placed_at>now()-make_interval(days=>$2::int) group by x.category),
     waiting as (
-      select category,count(*) pending from public.listings
-       where owner_id=$1 and status='pending' and first_published_at is null group by category)
+      select x.category,count(*) pending from public.listings x left join public.listings l on l.id=x.id
+       where ${sameOwner} and x.status='pending' and x.first_published_at is null and not coalesce(x.payment_required,false) group by x.category)
     select coalesce(p.category,w.category) category,coalesce(p.used,0)::text used,p.oldest::text oldest,coalesce(w.pending,0)::text pending
-      from placed p full join waiting w on w.category=p.category`,[ownerId,LIMIT_WINDOW_DAYS]);
+      from placed p full join waiting w on w.category=p.category`,[ownerId,LIMIT_WINDOW_DAYS,digits.length===9?digits:""]);
   // An active store raises the limit to its package (null = no limit).
   const store=await activeStore(ownerId);
   const rules=store?null:await limitRules();
@@ -45,8 +50,8 @@ export async function freeLimits(ownerId:string,category?:string):Promise<LimitS
   });
   return category?states.filter(state=>state.category===category):states;
 }
-export async function freeLimit(ownerId:string,category:string):Promise<LimitState>{
-  const found=(await freeLimits(ownerId,category))[0];if(found)return found;
+export async function freeLimit(ownerId:string,category:string,phone=""):Promise<LimitState>{
+  const found=(await freeLimits(ownerId,category,phone))[0];if(found)return found;
   const store=await activeStore(ownerId),limit=store?(store.listing_limit??100000):FREE_LISTING_LIMIT;
   return{category,limit,used:0,pending:0,remaining:limit,next_free_at:null};
 }

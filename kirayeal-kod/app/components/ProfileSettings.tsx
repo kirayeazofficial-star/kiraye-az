@@ -1,4 +1,5 @@
 "use client";
+import Notice from "./Notice";
 import { AlertCircle, Bell, Camera, CheckCircle2, ChevronLeft, LogOut, Mail, Trash2 } from "lucide-react";
 import {FormEvent,useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
@@ -53,12 +54,12 @@ export default function ProfileSettings(){
    accept(data.profile);setNotice('Saxlanıldı.');
   }catch{setError('Bağlantı alınmadı. Dəyişiklik nəticəsini səhifəni yeniləyərək yoxlayın.');}finally{setBusy('');setPassword('');setEmailPassword('');}
  }
- const status=(panel:string)=>where===panel&&(error||notice)?<div className={`kzFormStatus${error?' error':''}`} role={error?'alert':'status'}>{error?<AlertCircle aria-hidden="true" size={18} strokeWidth={2}/>:<CheckCircle2 aria-hidden="true" size={18} strokeWidth={2}/>}<span>{error||notice}</span></div>:null;
+ const status=(panel:string)=>where===panel&&error?<div className={`kzFormStatus${error?' error':''}`} role={error?'alert':'status'}>{error?<AlertCircle aria-hidden="true" size={18} strokeWidth={2}/>:<CheckCircle2 aria-hidden="true" size={18} strokeWidth={2}/>}<span>{error||notice}</span></div>:null;
  const phoneChanged=!!profile&&normalizePhone(phone)!==normalizePhone(profile.phone||'');
  return <><Header/><main className="wrap formPage profileSettings kzAccountPage">
   <div className="cabinetBack profileBack"><Link href="/profile" aria-label="Kabinetə qayıt"><ChevronLeft aria-hidden="true" size={22} strokeWidth={2} /></Link><strong>Profil</strong></div>
   <h1 className="kzPageTitle">Profil</h1>
-  {!where&&error&&<div role="alert" className="notice error"><span>{error}</span></div>}
+  <Notice text={notice} />{!where&&error&&<div role="alert" className="notice error"><span>{error}</span></div>}
   {loading?<p role="status">Yüklənir...</p>:!signedIn?<p className="notice"><Link href="/login?next=/account">Davam etmək üçün daxil olun.</Link></p>:profile?<div className="kzAccountGrid">
    <section className="kzPanel kzProfileInfo">
     <UserAvatar src={profile.avatar_url} name={profile.name}/>

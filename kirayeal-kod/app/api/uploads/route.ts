@@ -2,6 +2,7 @@ import {mkdir,unlink,writeFile} from "node:fs/promises";
 import path from "node:path";
 import {NextRequest,NextResponse} from "next/server";
 import {currentUser} from "../../../lib/host/session";
+import {savePhotoHash} from "../../../lib/host/photo-hashes";
 
 export const dynamic="force-dynamic";
 const root=process.env.KIRAYE_STORAGE_ROOT||"";
@@ -21,7 +22,10 @@ export async function POST(request:NextRequest){
     // Optional small copy for link previews (share-<same name>); a bad or missing one is simply skipped.
     const share=form.get("share");
     if(share instanceof File&&share.size>0&&share.size<=1024*1024){const small=Buffer.from(await share.arrayBuffer());if(small[0]===0xff&&small[1]===0xd8)await writeFile(path.join(directory,`share-${name}`),small,{mode:0o600,flag:"wx"}).catch(()=>{});}
-    return reply({path:`/api/media/${user.id}/${name}`},201);
+    const saved=`/api/media/${user.id}/${name}`;
+    // Fingerprint of the original photo (for spotting re-posted items); a missing or bad one is skipped.
+    await savePhotoHash(saved,user.id,String(form.get("hash")||"")).catch(()=>{});
+    return reply({path:saved},201);
   }catch{return reply({error:"UPLOAD_FAILED"},503);}
 }
 

@@ -2880,3 +2880,21 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 /* Store page without a cover photo: plain brand gradient — the name is shown right below, so the faded
    copy (which got cut on phones) is not repeated in the cover. */
 .kzStoreCover span{display:none!important}
+/* Leader panel → «Sayt sağlamlığı» (results of the 5-minute server check) */
+.kzHealthBadge{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:999px;font-size:var(--fs-12);font-weight:600;white-space:nowrap}
+.kzHealthBadge.ok{background:#ecfdf3;color:#067647}
+.kzHealthBadge.warn{background:#fffaeb;color:#b54708}
+.kzHealthBadge.bad{background:#fef3f2;color:#b42318}
+.kzHealthList{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin:0;padding:0;list-style:none}
+.kzHealthList li{display:grid;grid-template-columns:8px minmax(0,1fr);column-gap:10px;row-gap:2px;align-items:center;padding:10px 12px;border:1px solid var(--kz-line);border-radius:10px;min-width:0}
+.kzHealthList i{width:8px;height:8px;border-radius:50%;background:#12b76a}
+.kzHealthList li.warn i{background:#f79009}
+.kzHealthList li.bad i{background:#f04438}
+.kzHealthList li.warn{border-color:#fedf89;background:#fffcf5}
+.kzHealthList li.bad{border-color:#fecdca;background:#fffbfa}
+.kzHealthList strong{font-size:var(--fs-14);font-weight:600;line-height:1.35;color:#111827;white-space:nowrap}
+.kzHealthList span{grid-column:2;font-size:var(--fs-12);line-height:1.4;color:var(--kz-muted)}
+.kzHealthFoot{margin:10px 0 0;font-size:var(--fs-12);line-height:1.45;color:var(--kz-muted)}
+.kzHealthFoot.stale{color:#b42318}
+@media (max-width:767px){.kzHealthList{grid-template-columns:1fr}.kzHealthList li{grid-template-columns:8px minmax(0,1fr) auto;padding:9px 12px}.kzHealthList span{grid-column:3;grid-row:1;text-align:right;max-width:58vw}}
+@media (max-width:767px){.kzAdActivity .kzAdLink{min-height:0;padding:3px 0;text-align:left}.kzAdActivity li{row-gap:4px}}

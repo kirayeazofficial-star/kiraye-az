@@ -116,6 +116,12 @@ export async function GET(request:NextRequest){
       return reply({items,pageSize:REPORT_PAGE,role:auth.role});
     }
 
+    // Site health from the 5-minute server check (leader only).
+    if(action==="site_health"){
+      if(auth.role!=="leader")return reply({error:"FORBIDDEN"},403);
+      const items=await hostQuery(`select key,level,detail,checked_at from public.site_health order by key`).catch(()=>[]);
+      return reply({items});
+    }
     // Paid services switch (leader only). The free-listing rule itself is fixed in code.
     // Site settings (leader only): the announcement bar and maintenance mode.
     if(action==="site_settings"){

@@ -2,7 +2,7 @@
 import { rentalCategorySpecs, rentalSpecs } from "../../lib/rental-category-specs";
 import { useState } from "react";
 import type { Listing } from "../../lib/marketplace";
-import { amenities, isProperty } from "../../lib/rental-details";
+import { amenitiesBy, isProperty } from "../../lib/rental-details";
 import {
   carModels,
   motorcycleModels,
@@ -531,11 +531,14 @@ function PropertyFields({
           </label>
         </div>
       )}
+      {category === "commercial" && <div className="formGrid">
+        <SelectField name="repair" label="Təmir" options={["Təmirli", "Təmirsiz"]} value={attributes?.repair} />
+        <label>Mərtəbə<input name="floor" type="number" min="-5" max="200" step="1" defaultValue={attributes?.floor} placeholder="Məsələn: 1" /></label>
+      </div>}
       {category === "villa" && <label>Mərtəbə sayı<input name="total_floors" type="number" min="1" max="200" step="1" defaultValue={attributes?.total_floors} placeholder="Məsələn: 3" /></label>}
       <div className="amenitiesField">
         <p>İmkanlar</p>
-        {amenities
-          .filter((value) => category !== "commercial" || value !== "Hovuz")
+        {(amenitiesBy[category] || amenitiesBy.property)
           .map((value) => (
             <label className="checkLabel" key={value}>
               <input
@@ -551,6 +554,8 @@ function PropertyFields({
     </section>
   );
 }
+// These have their own categories ("Foto və video", "Tədbir üçün"), so they are not offered under tools.
+const otherCategoryKinds = ["Foto və video", "Səs və işıq"];
 function ItemFields({
   category,
   attributes,
@@ -569,7 +574,7 @@ function ItemFields({
   return (
     <section className="categoryFields" aria-label="Kateqoriya məlumatları">
       <SelectField name="kind" label={definition?.label || "Məhsulun növü"}
-        options={Array.from(new Set([...Object.keys(definition?.kinds || {}), ...(category === "equipment" ? Object.keys(equipmentModels) : []), "Digər"]))}
+        options={Array.from(new Set([...Object.keys(definition?.kinds || {}), ...(category === "equipment" ? Object.keys(equipmentModels).filter(item => !otherCategoryKinds.includes(item)) : []), ...(attributes?.kind && otherCategoryKinds.includes(String(attributes.kind)) ? [String(attributes.kind)] : []), "Digər"]))}
         value={kind} required onChange={(value) => { setKind(value); suggest(value ? `${value} kirayəsi` : ""); setPowerSource(value === attributes?.kind ? String(attributes?.power_source || "") : ""); }} />
       {!kind && <p className="muted">Əvvəl növü seç. Sonra yalnız həmin məhsula uyğun suallar açılacaq.</p>}
       {kind && <div key={kind}>

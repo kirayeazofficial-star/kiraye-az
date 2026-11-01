@@ -2583,7 +2583,6 @@ html{-webkit-tap-highlight-color:transparent}
   .kzLogo,.logo{display:inline-block;padding-top:10px!important;padding-bottom:10px!important;margin-top:-10px;margin-bottom:-10px}
   .kzFooter a{display:inline-block;padding-top:7px;padding-bottom:7px}
   .kzFooter .kzContactLine{padding-top:7px;padding-bottom:7px}
-  .kzFavorite{position:relative}
   .kzFavorite::after{content:"";position:absolute;inset:-8px}
   .textButton{min-height:36px}
   .kzMore,.kzMoreLink{display:inline-flex;align-items:center;min-height:36px}
@@ -2782,3 +2781,32 @@ html{-webkit-tap-highlight-color:transparent}
 .kzFooterPlaces summary::after{content:"";width:7px;height:7px;margin-top:-3px;border-right:2px solid var(--kz-muted);border-bottom:2px solid var(--kz-muted);transform:rotate(45deg);transition:transform .2s}
 .kzFooterPlaces details[open] summary::after{margin-top:3px;transform:rotate(-135deg)}
 @media (max-width:767px){.kzFooterPlaces summary{display:flex!important;justify-content:space-between}}
+
+/* New listing form: tidy agreement tick and arrows on optional sections */
+.listingForm .checkLabel.kzAgree{display:flex!important;flex-direction:row!important;align-items:flex-start!important;gap:10px!important;margin:4px 0 0!important;padding:0!important;border:0!important;background:none!important;font-size:var(--fs-14,14px)!important;font-weight:400!important;line-height:1.5;color:var(--kz-text)}
+.listingForm .checkLabel.kzAgree input[type=checkbox]{flex:none;width:20px!important;height:20px!important;min-height:0!important;margin:1px 0 0!important;padding:0!important;border-radius:5px;accent-color:var(--kz-accent);box-shadow:none!important;background:none!important}
+.listingForm .checkLabel.kzAgree a{color:var(--kz-accent);font-weight:600}
+.listingForm .kzOtherPrices>summary,.listingForm .optionalRentalTerms>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+.listingForm .kzOtherPrices>summary::-webkit-details-marker,.listingForm .optionalRentalTerms>summary::-webkit-details-marker{display:none}
+.listingForm .kzOtherPrices>summary::after,.listingForm .optionalRentalTerms>summary::after{content:"";flex:none;width:8px;height:8px;margin:-3px 4px 0 0;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s;opacity:.7}
+.listingForm .kzOtherPrices[open]>summary::after,.listingForm .optionalRentalTerms[open]>summary::after{margin-top:3px;transform:rotate(-135deg)}
+/* Payment dialog amount row: label left, amount right, full width */
+.kzPayBody .kzPayPrice{align-self:stretch;justify-self:stretch;width:100%;box-sizing:border-box;gap:12px}
+
+/* Report form on the listing page: same calm card and buttons as the rest of the site */
+.reportForm{background:#fff!important;border:1px solid var(--kz-line)!important;border-radius:14px!important}
+.reportForm h2,.reportForm h3{font-size:var(--fs-17,17px)!important;color:var(--kz-ink)}
+.reportForm .kzReportActions{display:grid!important;grid-template-columns:1fr 1fr;gap:10px}
+.reportForm .kzReportActions button{height:46px;margin:0;border-radius:12px;font-size:var(--fs-15,15px);font-weight:600;justify-content:center}
+.reportForm .kzReportActions button.secondary{border:0!important;background:var(--kz-accent)!important;color:#fff!important}
+.reportForm .kzReportActions button.textButton{border:1px solid var(--kz-line)!important;background:#fff!important;color:var(--kz-ink)!important;text-decoration:none}
+
+/* Readability floor on small phones: short labels never go below 11–12px */
+@media (max-width:767px){
+  .kzCardMeta,.kzCardMeta>span{font-size:max(11.5px,var(--fs-12))!important}
+  .accountListings article .status,.accountListings article .kzOwnPromo,.kzOwnTop .status,.kzOwnPromo{font-size:max(11px,var(--fs-11))!important}
+  .publishSteps button,.publishSteps button span{font-size:max(11px,var(--fs-11))!important}
+  .kzPrice small{font-size:max(12px,var(--fs-12))!important}
+}
+/* Category names under the round pictures: smaller words never split in the middle */
+@media (max-width:767px){.kzCategories button>span:last-child{font-size:max(11px,var(--fs-11))!important;word-break:normal!important;overflow-wrap:normal!important;hyphens:none}}

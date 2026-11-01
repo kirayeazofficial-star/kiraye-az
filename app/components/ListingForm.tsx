@@ -38,6 +38,8 @@ import {
 
 const limitDate=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",day:"2-digit",month:"2-digit",year:"numeric"}).formatToParts(new Date(value));const part=(type:string)=>parts.find(item=>item.type===type)?.value||"";return `${part("day")}.${part("month")}.${part("year")}`;};
 const limitMessage=(_next?:string|null)=>"Bu kateqoriyada pulsuz limitiniz dolub.";
+// "+994551112233" → "+994 55 111 22 33" (the number is shown read-only on the last step).
+const prettyPhone = (value: string) => { const d = value.replace(/\D/g, "").replace(/^994/, "").replace(/^0/, ""); return d.length === 9 ? `+994 ${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5, 7)} ${d.slice(7)}` : value; };
 export default function ListingForm({ listingId }: { listingId?: string }) {
   const [step, setStep] = useState(1);
   const flags = useSiteFlags();
@@ -471,7 +473,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         )}
         {!success && step === 1 && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></section>}
         {loading ? (
-          <section><p role="status">Hesab yoxlanılır...</p>
+          <section><p role="status">Hesab yoxlanılır…</p>
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
         ) : success ? (
           <section className={`successPanel${paymentWaiting ? " waiting" : ""}`} role="status">
@@ -888,20 +890,20 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       )}
                       <label>
                         Telefon nömrəsi <span className="requiredMark">*</span>
+                        <input type="hidden" name="contact" value={initial?.contact || loginPhone} />
                         <input
-                          name="contact"
-                          defaultValue={initial?.contact || loginPhone}
+                          aria-label="Telefon nömrəsi"
+                          value={prettyPhone(initial?.contact || loginPhone)}
                           readOnly
                           type="tel"
                           required
-                          maxLength={25}
-                          placeholder="050 123 45 67"
+                          placeholder="+994 50 123 45 67"
                         />
                         <small>
                           Yeni elanda hesabın əsas telefonu istifadə olunur. Telefonu Profil bölməsindən dəyişə bilərsiniz. Mövcud elanın nömrəsi avtomatik dəyişdirilmir.
                         </small>
                       </label>
-                      <label className="checkLabel">
+                      <label className="checkLabel kzAgree">
                         <input type="checkbox" required />{" "}
                         <span>
                           <Link href="/rules" target="_blank">
@@ -954,7 +956,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       )}
                       <button className="add wide" disabled={busy || (!!listingId && !!editBlockedUntil && editBlockedUntil.getTime() > Date.now())}>
                         {busy
-                          ? "Göndərilir, gözləyin..."
+                          ? "Göndərilir, gözləyin…"
                           : "Elanı yoxlamaya göndər"}
                       </button>
                     </section>

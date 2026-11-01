@@ -40,7 +40,7 @@ export default function GoogleLogin() {
             d="M24 12c3 0 5.6 1 7.7 3l5.8-5.7A19.5 19.5 0 0 0 24 4 20.4 20.4 0 0 0 5.8 15.2l6.8 5.2C14.2 15.6 18.7 12 24 12Z"
           />
         </svg>
-        {busy ? "Google-a yönləndirilir..." : "Google ilə davam et"}
+        {busy ? "Google-a yönləndirilir…" : "Google ilə davam et"}
       </button>
       {notice && (
         <p className="notice" role="status">

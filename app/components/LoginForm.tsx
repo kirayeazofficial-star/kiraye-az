@@ -301,7 +301,7 @@ export default function Login({
           />
         </label>
         <button className="authSubmit" disabled={busy || verifyBlocked}>
-          {busy ? "Yoxlanılır..." : "Kodu təsdiqlə"}
+          {busy ? "Yoxlanılır…" : "Kodu təsdiqlə"}
         </button>
       </form>
     );
@@ -507,7 +507,7 @@ export default function Login({
                       disabled={!ready || busy || submitBlocked}
                     >
                       {busy
-                        ? "Gözləyin..."
+                        ? "Gözləyin…"
                         : mode === "signup"
                           ? "Hesab yarat"
                           : mode === "reset"
@@ -542,7 +542,7 @@ export default function Login({
                       onClick={resend}
                     >
                       {busy
-                        ? "Sorğu göndərilir..."
+                        ? "Sorğu göndərilir…"
                         : cooldown > 0
                           ? `Yenidən göndər (${cooldown} san)`
                           : "Yenidən göndər"}

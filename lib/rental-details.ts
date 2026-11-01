@@ -1,13 +1,10 @@
-export const amenities = [
-  "Wi-Fi",
-  "Kondisioner",
-  "İstilik",
-  "Mebel",
-  "Park yeri",
-  "Hovuz",
-  "Lift",
-  "Mətbəx",
-];
+// What a place offers, per property category (only what fits that kind of place).
+export const amenitiesBy: Record<string, string[]> = {
+  property: ["Wi-Fi", "Kondisioner", "İstilik", "Mebel", "Mətbəx", "Paltaryuyan", "Balkon", "Lift", "Park yeri"],
+  villa: ["Wi-Fi", "Kondisioner", "İstilik", "Mebel", "Mətbəx", "Hovuz", "Barbekü", "Sauna", "Park yeri"],
+  commercial: ["Wi-Fi", "Kondisioner", "İstilik", "Mebel", "Lift", "Park yeri", "Mühafizə", "Vitrin"],
+};
+export const amenities = Array.from(new Set(Object.values(amenitiesBy).flat()));
 export const reportReasons = [
   "Saxta və ya şübhəli elan",
   "Yanlış qiymət və məlumat",

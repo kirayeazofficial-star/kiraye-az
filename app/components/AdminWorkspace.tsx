@@ -1,20 +1,22 @@
 "use client";
+import Notice from "./Notice";
 import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, UserRound, History, Image, LayoutDashboard, List, ShieldCheck, SlidersHorizontal, Users, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, UserRound, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { adminDate, staffRoleName } from "../../lib/admin-display";
 import { formatContact } from "../../lib/contact-mask";
 import { categories, categoryName, money, periodName, statusName, type Listing } from "../../lib/marketplace";
-import { cleanLimitRules, limitGroups, type LimitRules } from "../../lib/limit-rules";
+import { fixedLimitRules, listingPrice, manat } from "../../lib/limit-rules";
+import { toast } from "../../lib/toast";
 import { moderationActions, moderationFields, rejectionReasons, riskWords, type ModerationContext, type ModerationEvent } from "../../lib/moderation";
 import { useAutoClear } from "../../lib/use-auto-clear";
 
-type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup" | "stores" | "limits";
-type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string; signal_count?: number };
+type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup" | "stores" | "limits" | "settings";
+type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string; signal_count?: number; duplicate_note?: string | null; paid_reason?: string | null };
 type Counts = { users: number; listings: number; messages: number; reports: number; stores?: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
 type Activity = { id: number; listing_id: string; action: string; new_status: string | null; reason: string | null; created_at: string; actor_name: string | null; title: string | null };
@@ -24,10 +26,10 @@ type Member = { id: string; name: string | null; email: string; phone?: string; 
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
 const PAGE = 24;
-const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", limits: "Ödəniş və limitlər", staff: "Komanda", backup: "Ehtiyat nüsxə" };
+const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", limits: "Ödənişli xidmətlər", settings: "Sayt ayarları", staff: "Komanda", backup: "Ehtiyat nüsxə" };
 const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", user_blocked: "İstifadəçi bloklandı", user_unblocked: "Blok götürüldü", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
-const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, limits: SlidersHorizontal, staff: ShieldCheck, backup: CloudUpload };
+const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, limits: CreditCard, settings: Settings2, staff: ShieldCheck, backup: CloudUpload };
 
 async function api(params: Record<string, string | number>) {
   const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
@@ -98,6 +100,7 @@ function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, posi
           {(item.images?.length || 0) === 1 && <div className="kzAdGallery"><a href={item.images[0]} target="_blank" rel="noopener noreferrer"><img src={item.images[0]} alt="" loading="lazy" /></a></div>}
           {(item.images?.length || 0) > 1 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={onSaved} />}
           <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Qiymət</dt><dd>{money(item.price)} ₼ / {periodName(item.rental_period)}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
+          {(item as AdminListing).duplicate_note && <p className="kzRiskNote"><Images aria-hidden="true" size={16} strokeWidth={2.2} />{(item as AdminListing).duplicate_note}. Şəkillərin kimə aid olduğunu yoxlayın.</p>}
           {riskWords(item.title, item.description).length > 0 && <p className="kzRiskNote"><TriangleAlert aria-hidden="true" size={16} strokeWidth={2.2} />Mətndə şübhəli ifadə var: <b>{riskWords(item.title, item.description).join(", ")}</b>. Kontekstə baxın — «almıram» kimi inkar da ola bilər.</p>}
           <LongText text={item.description} />
           <a className="kzAdLink" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">Elanı saytda aç</a>
@@ -164,7 +167,7 @@ function ReportQueue({ onInspect, onChange }: { onInspect: (id: string) => void;
   }, [tab, page, query, from]);
   async function resolve(id: string) {
     if (busy) return; setBusy(id);
-    try { await post({ action: "resolve_report", id }); setReports(current => current.filter(item => item.id !== id)); onChange(); }
+    try { await post({ action: "resolve_report", id }); setReports(current => current.filter(item => item.id !== id)); onChange(); toast("Şikayətə baxıldı"); }
     catch { setError("Şikayətin vəziyyəti saxlanmadı."); } finally { setBusy(""); }
   }
   return <Panel title="Şikayətlər">
@@ -216,7 +219,7 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
   }, [query, revision]);
   return <Panel title="İstifadəçilər" actions={<span className="kzAdMuted">{users.length >= 100 ? "Son 100 hesab" : `${users.length} hesab`}</span>}>
     <div className="kzAdFilters kzAdInline"><input type="text" inputMode="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Ad, e-poçt, telefon, №" aria-label="İstifadəçi axtar" /></div>
-    {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
+    {error && <p className="kzAdError" role="alert">{error}</p>}<Notice text={notice} />
     {loading && !users.length ? <p className="kzAdMuted" role="status">Yüklənir…</p> : !users.length ? <Empty title="İstifadəçi tapılmadı" /> : <div className="kzAdTable kzAdUsers" role="table" aria-label="İstifadəçilər">
       <div className="kzAdTableHead" role="row"><span>Ad</span><span>Əlaqə</span><span>Elan</span><span>Qeydiyyat</span><span>Rol</span><span /></div>
       {users.map(user => <div className="kzAdTableRow" role="row" key={user.id}>
@@ -224,7 +227,7 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
         <span className="kzAdContact"><span>{user.email}</span><small>{user.phone ? formatContact(user.phone) : "Telefon yoxdur"}</small></span>
         <span className="kzAdNum" data-label="Elan">{user.listing_count}</span>
         <span data-label="Qeydiyyat">{user.created_at ? adminDate(user.created_at).split(",")[0] : "—"}</span>
-        <span>{user.staff_role ? <em className={`kzAdPill${user.staff_role === "leader" ? " strong" : ""}`}>{user.staff_role === "leader" ? "Rəhbər" : "Admin"}</em> : user.blocked ? <em className="kzAdPill danger" title={user.blocked_reason || ""}>Bloklanıb</em> : <span className="kzAdMuted">İstifadəçi</span>}</span>
+        <span>{user.staff_role ? <em className={`kzAdPill${user.staff_role === "leader" ? " strong" : ""}`}>{user.staff_role === "leader" ? "Rəhbər" : "Admin"}</em> : user.blocked ? <em className="kzAdPill danger" title={user.blocked_reason || ""}>Bloklanıb</em> : <em className="kzAdPill">İstifadəçi</em>}</span>
         <span className="kzAdRowEnd"><button type="button" className="kzAdBtn small" disabled={!user.listing_count} onClick={() => onListings(user)}>Elanları</button>
           {!user.staff_role && (user.blocked
             ? <button type="button" className="kzAdBtn small" disabled={busy === user.id} onClick={() => void block(user, false)}>Bloku götür</button>
@@ -267,7 +270,7 @@ function StaffManagement() {
     <h3 className="kzAdSub">Yeni admin təyin et</h3>
     <p className="kzAdHint">İstifadəçinin e-poçtunu, telefonunu, adını və ya profil nömrəsini yazıb hesabını tapın. Admin elanları yoxlaya və şikayətlərə baxa bilər; admin təyin etmək və geri almaq yalnız Rəhbərin işidir.</p>
     <form className="kzAdFilters kzAdInline" onSubmit={event => void find(event)}><input aria-label="Telefon, e-poçt və ya hesab nömrəsi" value={query} onChange={event => { setQuery(event.target.value); setFound(null); setMatches([]); }} maxLength={254} placeholder="E-poçt, telefon, ad və ya №" minLength={3} required /><button className="kzAdBtn primary" disabled={busy}>Hesabı tap</button></form>
-    {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
+    {error && <p className="kzAdError" role="alert">{error}</p>}<Notice text={notice} />
     {found && <div className="kzAdFound">{person(found, found.role === "user" ? <button className="kzAdBtn primary" type="button" disabled={busy || !found.confirmed} onClick={() => void change(found, true)}>{found.confirmed ? "Admin təyin et" : "E-poçt təsdiqlənməyib"}</button> : found.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(found, false)}>Səlahiyyəti geri al</button> : undefined)}</div>}
     {!!matches.length && <div className="kzAdFound"><p className="kzAdHint">{matches.length} hesab tapıldı. Lazım olanı seçin:</p><div className="kzAdList">{matches.map(account => person(account, account.role === "user" ? <button className="kzAdBtn" type="button" onClick={() => { setFound(account); setMatches([]); }}>Seç</button> : undefined))}</div></div>}
     <h3 className="kzAdSub">Son dəyişikliklər</h3>
@@ -314,6 +317,7 @@ export default function AdminWorkspace() {
       setReasons(current => { const next = { ...current }; delete next[item.id]; return next; });
       setRejecting("");
       setRevision(value => value + 1);
+      toast(status === "published" ? `Elan № ${item.listing_no ?? ""} təsdiqləndi` : `Elan № ${item.listing_no ?? ""} rədd edildi`);
       return true;
     } catch { setError("Dəyişiklik saxlanmadı. Siyahını yenilə və yenidən yoxla."); return false; }
     finally { setBusy(""); }
@@ -327,7 +331,7 @@ export default function AdminWorkspace() {
 
   if (allowed === null) return <p className="kzAdMuted" role="status">İcazə yoxlanılır…</p>;
   if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil ol." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
-  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (!["staff", "backup", "limits"].includes(item) || role === "leader"));
+  const sections = (Object.keys(sectionLabels) as Section[]).filter(item => item !== "history" && (!["staff", "backup", "limits", "settings"].includes(item) || role === "leader"));
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0, storeRequests = counts?.stores || 0;
   const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : item === "stores" ? storeRequests : 0;
   const menuNote = (item: Section): { text: string; alert?: boolean } =>
@@ -336,7 +340,8 @@ export default function AdminWorkspace() {
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
     : item === "backup" ? { text: "Hər gecə Google Drive-a" }
-    : item === "limits" ? { text: "Ödənişli xidmətlər və pulsuz elan" }
+    : item === "limits" ? { text: "Açar, elan qaydası və qiymətlər" }
+    : item === "settings" ? { text: "Elan zolağı və texniki iş rejimi" }
     : item === "stores" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: "Müraciətlər və paketlər" })
     : { text: "Rəhbər və adminlər" };
 
@@ -419,7 +424,7 @@ export default function AdminWorkspace() {
           {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.map(item => <article className="kzAdRow kzAdListing" key={item.id}>
             <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={item.images[0]} alt="" loading="lazy" /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
             <div className="kzAdRowMain">
-              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{riskWords(item.title, item.description).length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${riskWords(item.title, item.description).join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {riskWords(item.title, item.description)[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
+              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{item.duplicate_note && <span className="kzAdPill danger" title={item.duplicate_note}><Images aria-hidden="true" size={12} strokeWidth={2.4} />Eyni şəkil</span>}{riskWords(item.title, item.description).length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${riskWords(item.title, item.description).join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {riskWords(item.title, item.description)[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
               <h3>{item.title}</h3>
               <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
               <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>
@@ -448,6 +453,7 @@ export default function AdminWorkspace() {
       {section === "banners" && <BannerManager />}
       {section === "stores" && <StoreAdmin leader={role === "leader"} />}
       {section === "limits" && role === "leader" && <LimitAdmin />}
+      {section === "settings" && role === "leader" && <SiteSettingsAdmin />}
       {section === "backup" && role === "leader" && <BackupStatus />}
       {section === "users" && <UserList revision={revision} onListings={ownerListings} />}
       {section === "staff" && role === "leader" && <StaffManagement />}
@@ -568,7 +574,7 @@ function StoreAdmin({ leader }: { leader: boolean }) {
   }
   const statusText: Record<string, string> = { pending: "Müraciət", active: "Aktiv", rejected: "Rədd edilib", expired: "Dayandırılıb" };
   return <Panel title="Mağazalar">
-    {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
+    {error && <p className="kzAdError" role="alert">{error}</p>}<Notice text={notice} />
     <p className="kzAdHint">Mağaza sahibi kabinetdən müraciət edir. Ödənişi aldıqdan sonra «Aktivləşdir» basın — mağaza seçilən müddətə açılır, elanlarında «Mağaza» nişanı görünür və limiti paketə görə artır.</p>
     {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : !items.length ? <Empty title="Hələ mağaza müraciəti yoxdur" text="Müraciət gələndə burada görünəcək." /> :
       <div className="kzAdList">{items.map(store => { const live = store.status === "active" && !!store.active_until && Date.parse(store.active_until) > Date.now(); return <article className="kzAdRow kzStoreRow" key={store.id}>
@@ -601,55 +607,79 @@ function StoreAdmin({ leader }: { leader: boolean }) {
   </Panel>;
 }
 
-// Leader → "Limitlər": the free listing rule. Off = one free listing per category (as now);
-// on = one free listing per group, and the ticked categories always paid.
+// Leader → "Ödənişli xidmətlər": the on/off switch for paid services. The free-listing rule and the
+// prices are fixed in code (lib/limit-rules.ts) and shown here only for reference.
 function LimitAdmin() {
-  const [rules, setRules] = useState<LimitRules | null>(null), [payments, setPayments] = useState<boolean | null>(null), [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState(false);
-  useAutoClear(notice, () => setNotice(""));
-  useEffect(() => { api({ action: "limit_rules" }).then(data => { setRules(cleanLimitRules(data.rules)); setPayments(data.payments !== false); }).catch(() => setError("Ayarlar yüklənmədi.")); }, []);
-  async function save(next: LimitRules) {
-    setBusy(true); setError("");
-    try { await post({ action: "save_limit_rules", rules: next }); setRules(next); setNotice(next.enabled ? "Yeni limit qaydası açıqdır." : "Ayarlar saxlanıldı. Qayda bağlıdır."); }
-    catch { setError("Ayarlar saxlanmadı."); } finally { setBusy(false); }
-  }
+  const [payments, setPayments] = useState<boolean | null>(null), [error, setError] = useState(""), [busy, setBusy] = useState(false);
+  useEffect(() => { api({ action: "limit_rules" }).then(data => setPayments(data.payments !== false)).catch(() => setError("Ayarlar yüklənmədi.")); }, []);
   async function switchPayments() {
     const next = !payments;
     if (!next && !window.confirm("Bütün ödənişli xidmətlər dayandırılsın? İstifadəçilər «Reklam et», VIP, Premium, ödənişli bərpa və mağaza müraciəti düymələrini görməyəcək.")) return;
     setBusy(true); setError("");
-    try { await post({ action: "save_payments", enabled: next }); setPayments(next); setNotice(next ? "Ödənişli xidmətlər açıldı." : "Ödənişli xidmətlər dayandırıldı."); }
-    catch { setError("Dəyişiklik saxlanmadı."); } finally { setBusy(false); }
+    try { await post({ action: "save_payments", enabled: next }); setPayments(next); toast(next ? "Ödənişli xidmətlər açıldı" : "Ödənişli xidmətlər dayandırıldı"); }
+    catch { toast("Dəyişiklik saxlanmadı", { kind: "error" }); } finally { setBusy(false); }
   }
   const name = (id: string) => categories.find(item => item.id === id)?.name || id;
-  return <Panel title="Ödəniş və limitlər">
+  return <Panel title="Ödənişli xidmətlər">
     {payments !== null && <div className={`kzPaySwitch${payments ? " on" : ""}`}>
       <span className="kzPaySwitchIcon"><CreditCard aria-hidden="true" size={22} strokeWidth={2} /></span>
-      <div><strong>Ödənişli xidmətlər: {payments ? "Açıq" : "Dayandırılıb"}</strong>
-        <small>{payments ? "İrəli çək, VIP, Premium, ödənişli yerləşdirmə, bərpa və mağaza paketləri istifadəçilərə görünür." : "İstifadəçilər heç bir ödənişli düymə görmür. Aktiv mağazalar və artıq alınmış xidmətlər müddəti bitənədək işləyir. Sizin üçün hər şey pulsuzdur."}</small></div>
+      <div><strong>Ödənişli xidmətlər <em className={`kzSwState${payments ? " on" : ""}`}>{payments ? "Açıq" : "Bağlı"}</em></strong>
+        <small>{payments ? "İrəli çək, VIP, Premium, ödənişli elan, bərpa və mağaza paketləri istifadəçilərə görünür." : "İstifadəçilər heç bir ödənişli düymə görmür. Aktiv mağazalar və artıq alınmış xidmətlər müddəti bitənədək işləyir."}</small></div>
       <button type="button" role="switch" aria-checked={payments} aria-label="Ödənişli xidmətlər" className="kzToggle" disabled={busy} onClick={() => void switchPayments()}><i aria-hidden="true" /></button>
     </div>}
-    {error && <p className="kzAdError" role="alert">{error}</p>}{notice && <p className="kzAdNotice" role="status">{notice}</p>}
-    {!rules ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
-      <div className={`kzLimitSwitch${rules.enabled ? " on" : ""}`}>
-        <span className="kzPaySwitchIcon"><SlidersHorizontal aria-hidden="true" size={22} strokeWidth={2} /></span>
-        <div><strong>Yeni limit qaydası: {rules.enabled ? "Açıq" : "Bağlı"}</strong>
-          <small>{rules.enabled ? "Hər qrupda 30 gündə aşağıdakı sayda pulsuz elan; seçilmiş kateqoriyalar həmişə ödənişlidir." : "İndi hər kateqoriyada 30 gündə 1 pulsuz elan verilir. Ödəniş sistemi qoşulanda qaydanı açın."}</small></div>
-        <button type="button" role="switch" aria-checked={rules.enabled} aria-label="Yeni limit qaydası" className="kzToggle" disabled={busy} onClick={() => { if (rules.enabled || window.confirm("Yeni limit qaydası açılsın? Limitdən artıq elanlar «Ödəniş gözləyir» bölməsinə düşəcək.")) void save({ ...rules, enabled: !rules.enabled }); }}><i aria-hidden="true" /></button>
+    {error && <p className="kzAdError" role="alert">{error}</p>}
+    <h3 className="kzAdSub">Elan qaydası</h3>
+    <p className="kzAdHint">30 gün ərzində hər qrupda (Nəqliyyat, Əmlak, Əşya) 1 elan pulsuzdur. {fixedLimitRules.paid.map(name).join(" və ")} həmişə ödənişlidir. Müddəti bitmiş elanın bərpası — elan qiymətinin yarısı. Mağaza sahiblərinin limiti paketə görədir; sizin üçün limit yoxdur və hər şey pulsuzdur.</p>
+    <div className="kzPriceList" role="table" aria-label="Əlavə elanın qiyməti">
+      {categories.map(item => <div role="row" key={item.id}><span role="cell">{item.name}</span><b role="cell">{manat(listingPrice(item.id))}</b></div>)}
+    </div>
+  </Panel>;
+}
+
+// Leader → "Sayt ayarları": the announcement bar shown on top of every page, and maintenance mode
+// (visitors see a "technical work" page; the leader and admins keep using the site).
+type AnnouncementValue = { enabled: boolean; text: string; tone: "info" | "warn"; link: string };
+type MaintenanceValue = { enabled: boolean; text: string };
+function SiteSettingsAdmin() {
+  const [bar, setBar] = useState<AnnouncementValue | null>(null), [works, setWorks] = useState<MaintenanceValue | null>(null);
+  const [error, setError] = useState(""), [busy, setBusy] = useState("");
+  useEffect(() => { api({ action: "site_settings" }).then(data => { setBar(data.announcement as AnnouncementValue); setWorks(data.maintenance as MaintenanceValue); }).catch(() => setError("Ayarlar yüklənmədi.")); }, []);
+  async function save(key: "announcement" | "maintenance", value: AnnouncementValue | MaintenanceValue, message: string) {
+    setBusy(key); setError("");
+    try { await post({ action: "save_site_setting", key, value }); if (key === "announcement") setBar(value as AnnouncementValue); else setWorks(value as MaintenanceValue); toast(message); return true; }
+    catch { toast("Dəyişiklik saxlanmadı", { kind: "error" }); return false; } finally { setBusy(""); }
+  }
+  if (error) return <Panel title="Sayt ayarları"><p className="kzAdError" role="alert">{error}</p></Panel>;
+  if (!bar || !works) return <Panel title="Sayt ayarları"><p className="kzAdMuted" role="status">Yüklənir…</p></Panel>;
+  return <Panel title="Sayt ayarları">
+    <section className="kzSetCard">
+      <div className={`kzPaySwitch${bar.enabled ? " on" : ""}`}>
+        <span className="kzPaySwitchIcon kzIconBar"><Megaphone aria-hidden="true" size={22} strokeWidth={2} /></span>
+        <div><strong>Elan zolağı <em className={`kzSwState${bar.enabled ? " on" : ""}`}>{bar.enabled ? "Açıq" : "Bağlı"}</em></strong>
+          <small>Saytın ən yuxarısında hamıya görünən qısa elan. Ziyarətçi ✕ ilə bağlaya bilər; mətni dəyişəndə yenidən görünür.</small></div>
+        <button type="button" role="switch" aria-checked={bar.enabled} aria-label="Elan zolağı" className="kzToggle" disabled={!!busy || (!bar.enabled && !bar.text.trim())} title={!bar.text.trim() ? "Əvvəl mətni yazın" : undefined} onClick={() => void save("announcement", { ...bar, enabled: !bar.enabled }, bar.enabled ? "Elan zolağı bağlandı" : "Elan zolağı açıldı")}><i aria-hidden="true" /></button>
       </div>
-      <h3 className="kzAdSub">Qruplar üzrə pulsuz elan (30 gün)</h3>
-      <div className="kzLimitGroups">
-        {limitGroups.map(group => <label key={group.id} className="kzLimitGroup">
-          <span><strong>{group.name}</strong><small>{group.categories.filter(id => !rules.paid.includes(id)).map(name).join(", ") || "Hamısı ödənişli"}</small></span>
-          <input type="number" min="0" max="100" value={rules.free[group.id]} onChange={event => setRules({ ...rules, free: { ...rules.free, [group.id]: Math.max(0, Math.min(100, Number(event.target.value) || 0)) } })} aria-label={`${group.name}: pulsuz elan sayı`} />
-        </label>)}
+      <form className="kzSetForm" onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); void save("announcement", { enabled: bar.enabled, text: String(data.get("text") || ""), tone: data.get("tone") === "warn" ? "warn" : "info", link: String(data.get("link") || "") }, "Elan zolağı yadda saxlanıldı"); }}>
+        <label className="kzSetField"><span>Mətn</span><textarea name="text" maxLength={200} rows={2} defaultValue={bar.text} placeholder="Məsələn: Bayram günlərində elanlar daha gec yoxlanılır." /></label>
+        <fieldset className="kzSetTone"><legend>Rəng</legend>
+          <label><input type="radio" name="tone" value="info" defaultChecked={bar.tone !== "warn"} /><i className="info" aria-hidden="true" />Məlumat</label>
+          <label><input type="radio" name="tone" value="warn" defaultChecked={bar.tone === "warn"} /><i className="warn" aria-hidden="true" />Xəbərdarlıq</label>
+        </fieldset>
+        <label className="kzSetField"><span>Keçid (istəyə görə)</span><input name="link" type="text" inputMode="url" maxLength={300} defaultValue={bar.link} placeholder="/rules və ya https://…" /></label>
+        <button type="submit" className="kzAdBtn primary" disabled={!!busy}>{busy === "announcement" ? "Saxlanılır…" : "Yadda saxla"}</button>
+      </form>
+    </section>
+    <section className="kzSetCard">
+      <div className={`kzPaySwitch${works.enabled ? " on warn" : ""}`}>
+        <span className="kzPaySwitchIcon kzIconWorks"><Wrench aria-hidden="true" size={22} strokeWidth={2} /></span>
+        <div><strong>Texniki iş rejimi <em className={`kzSwState${works.enabled ? " warn" : ""}`}>{works.enabled ? "Açıq" : "Bağlı"}</em></strong>
+          <small>Açıq olanda ziyarətçilər «Saytda texniki iş gedir» səhifəsini görür. Siz və adminlər saytı adi qaydada istifadə edirsiniz; giriş səhifəsi açıq qalır.</small></div>
+        <button type="button" role="switch" aria-checked={works.enabled} aria-label="Texniki iş rejimi" className="kzToggle" disabled={!!busy} onClick={() => { if (works.enabled || window.confirm("Texniki iş rejimi açılsın? Ziyarətçilər sayta girə bilməyəcək.")) void save("maintenance", { ...works, enabled: !works.enabled }, works.enabled ? "Sayt yenidən hamı üçün açıqdır" : "Texniki iş rejimi açıldı"); }}><i aria-hidden="true" /></button>
       </div>
-      <h3 className="kzAdSub">Həmişə ödənişli kateqoriyalar</h3>
-      <div className="kzLimitPaid">
-        {categories.map(item => <label key={item.id} className={rules.paid.includes(item.id) ? "on" : ""}>
-          <input type="checkbox" checked={rules.paid.includes(item.id)} onChange={event => setRules({ ...rules, paid: event.target.checked ? [...rules.paid, item.id] : rules.paid.filter(id => id !== item.id) })} />{item.name}
-        </label>)}
-      </div>
-      <p className="kzAdHint">0 yazsanız, həmin qrupda pulsuz elan olmur. Mağazası olanlara bu qayda aid deyil — onların limiti paketə görədir. Rəhbər üçün limit yoxdur.</p>
-      <button type="button" className="kzAdBtn primary kzLimitSave" disabled={busy} onClick={() => void save(rules)}>{busy ? "Saxlanılır…" : "Yadda saxla"}</button>
-    </>}
+      <form className="kzSetForm" onSubmit={event => { event.preventDefault(); const data = new FormData(event.currentTarget); void save("maintenance", { enabled: works.enabled, text: String(data.get("text") || "") }, "Mətn yadda saxlanıldı"); }}>
+        <label className="kzSetField"><span>Ziyarətçilərə mətn (istəyə görə)</span><textarea name="text" maxLength={300} rows={2} defaultValue={works.text} placeholder="Saytda texniki iş gedir. Tezliklə qayıdacağıq." /></label>
+        <button type="submit" className="kzAdBtn primary" disabled={!!busy}>{busy === "maintenance" ? "Saxlanılır…" : "Yadda saxla"}</button>
+      </form>
+    </section>
   </Panel>;
 }

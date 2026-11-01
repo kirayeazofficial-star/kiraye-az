@@ -1,4 +1,5 @@
 "use client";
+import Notice from "./Notice";
 import { useAutoClear } from "../../lib/use-auto-clear";
 import { ChevronLeft, ChevronRight, Pencil, Plus, ShieldCheck, Store, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
 import PaymentDialog from "./PaymentDialog";
+import { listingPrice, restorePrice } from "../../lib/limit-rules";
 import PromotionOptions from "./PromotionOptions";
 import EmptyArt from "./EmptyArt";
 import { activePromotion } from "./PromotionBadges";
@@ -52,7 +54,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [statusFilter, setStatusFilter] = useState(() => { const tab = params.get("tab"); return tab && listingTabs.some(([key]) => key === tab) ? tab : "published"; }),
     [reloadKey, setReloadKey] = useState(0),
     [fullCategories, setFullCategories] = useState<string[]>([]),
-    [payment, setPayment] = useState<{ title: string; text: string } | null>(null),
+    [payment, setPayment] = useState<{ title: string; text: string; price?: number } | null>(null),
     [refreshing, setRefreshing] = useState(false);
   useAutoClear(notice, () => setNotice(""));
   // Tapping the cabinet link while already here reloads the data.
@@ -113,13 +115,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     }
   }
 
-  const paidRestore = () => setPayment({ title: "Ödənişlə bərpa", text: paidVisible(flags) ? "Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir. Bərpa edilən elan yenidən 30 gün yayımlanır." : "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
-  const paidSubmit = () => setPayment({ title: "Ödənişlə göndərmə", text: paidVisible(flags) ? "Bu kateqoriyada aylıq pulsuz elan limitiniz dolub. Elanı yoxlamaya göndərmək üçün ödəniş lazımdır." : "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
+  const paidRestore = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişlə bərpa", text: "Bərpa edilən elan yenidən 30 gün yayımlanır.", price: restorePrice(item.category) } : { title: "Ödənişlə bərpa", text: "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
+  const paidSubmit = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişli elan", text: "Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır.", price: listingPrice(item.category) } : { title: "Ödənişli elan", text: "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
   // Restoring is a paid step (payments are not connected yet, so this opens the payment notice).
   // Only the leader restores their own listings for free.
   async function restore(item: Listing) {
     if (busy) return;
-    if (!leader) { paidRestore(); return; }
+    if (!leader) { paidRestore(item); return; }
     setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
@@ -134,7 +136,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
-      if (response.status === 429) { paidSubmit(); return; }
+      if (response.status === 429) { paidSubmit(item); return; }
       if (response.status === 409) { setError("Bu elan artıq ödəniş gözləmir. Siyahı yeniləndi."); setReloadKey(key => key + 1); return; }
       if (!response.ok) throw new Error();
       setNotice("Elan yoxlamaya göndərildi.");
@@ -208,8 +210,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   </button>
                 ))}
               </div>
-              {notice && <p className="kzOwnNotice" role="status">{notice}</p>}
-              {payment && <PaymentDialog title={payment.title} text={payment.text} onClose={() => setPayment(null)} />}
+              <Notice text={notice} />
+              {payment && <PaymentDialog title={payment.title} text={payment.text} price={payment.price} onClose={() => setPayment(null)} />}
               {!listings.some((x) => matchesTab(x, statusFilter)) ? (
                 <div className="kzOwnEmpty">
                   <EmptyArt kind="listings" />

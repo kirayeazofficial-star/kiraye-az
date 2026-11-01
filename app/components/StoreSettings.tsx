@@ -1,4 +1,5 @@
 "use client";
+import Notice from "./Notice";
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, Clock, ExternalLink, ImagePlus, Store as StoreIcon, TriangleAlert } from "lucide-react";
@@ -82,7 +83,7 @@ export default function StoreSettings() {
         <div className="kzStoreHours"><span>İş saatları (hər gün)</span><div><input type="time" name="open_from" defaultValue={store?.open_from || "09:00"} aria-label="Açılır" /><b>—</b><input type="time" name="open_to" defaultValue={store?.open_to || "19:00"} aria-label="Bağlanır" /></div></div>
       </div>
       <label>Ünvan<input name="address" maxLength={120} defaultValue={store?.address} placeholder="Bakı, Nəsimi r., ..." /></label>
-      {error && <p className="kzFormError" role="alert">{error}</p>}{notice && <p className="kzFormNotice" role="status">{notice}</p>}
+      {error && <p className="kzFormError" role="alert">{error}</p>}<Notice text={notice} />
       <button className="kzButton" disabled={busy || (!!flags && !paidVisible(flags) && !active)}>{busy ? "Göndərilir…" : store ? "Yadda saxla" : "Müraciət göndər"}</button>
       <p className="muted">Ödəniş sistemi qoşulana qədər mağazanı administrasiya aktivləşdirir. Müraciətdən sonra sizinlə əlaqə saxlanılacaq.</p>
     </form>

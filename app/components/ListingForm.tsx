@@ -1,4 +1,6 @@
 "use client";
+import { photoHash } from "../../lib/photo-hash";
+import { listingPrice, manat } from "../../lib/limit-rules";
 import { Check, ChevronLeft, ChevronRight, Clock, ImagePlus, RotateCcw, X } from "lucide-react";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
 import { sharePreview, watermarkPhoto } from "../../lib/photo-watermark";
@@ -99,7 +101,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [success, setSuccess] = useState(false),
-    [paymentWaiting, setPaymentWaiting] = useState(false),
+    [paymentWaiting, setPaymentWaiting] = useState(false), [repeatListing, setRepeatListing] = useState(false),
     [photos, setPhotoList] = useState<ListingPhoto[]>([]),
     [category, setCategory] = useState(""),
     [initial, setInitial] = useState<Listing | null>(null),
@@ -377,6 +379,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         if (!photo.file) { images.push(photo.src); continue; }
         const branded = await watermarkPhoto(photo.file);
         const uploadForm=new FormData();uploadForm.set("file",branded,"listing.jpg");
+        const fingerprint = await photoHash(photo.file).catch(() => "");
+        if (fingerprint) uploadForm.set("hash", fingerprint);
         const small = await sharePreview(branded).catch(() => null);
         if (small) uploadForm.set("share",small,"share.jpg");
         const uploadResponse=await fetch("/api/uploads",{method:"POST",body:uploadForm});
@@ -419,7 +423,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       if(resultResponse.status===429){const data=await resultResponse.json().catch(()=>({}));throw new Error(limitMessage(data.next_free_at));}
       if(!resultResponse.ok)throw new Error("Elanı saxlamaq mümkün olmadı. Məlumatları yoxlayıb yenidən cəhd edin.");
       const saveResult=await resultResponse.json().catch(()=>({}));
-      setPaymentWaiting(!!saveResult.payment_required);
+      setPaymentWaiting(!!saveResult.payment_required); setRepeatListing(!!saveResult.repeat);
       saved = true;
       draftDirty.current=false;
       if(!listingId)void clearListingDraft(user);
@@ -473,7 +477,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           <section className={`successPanel${paymentWaiting ? " waiting" : ""}`} role="status">
             <span>{paymentWaiting ? <Clock aria-hidden="true" size={18} strokeWidth={2.5} /> : <Check aria-hidden="true" size={18} strokeWidth={2.5} />}</span>
             <h2>{paymentWaiting ? "Elanınız yoxlamaya göndərilə bilmədi" : "Elan yoxlamaya göndərildi"}</h2>
-            <p>{paymentWaiting ? "Bu kateqoriyada pulsuz elan limitiniz dolub. Elan saxlanıldı və «Ödəniş gözləyir» bölməsinə keçirildi. Ödənişdən sonra yoxlamaya göndəriləcək." : "Təsdiqdən sonra elan 30 gün yayımda olacaq. Nəticəni «Elanlarım» bölməsində görəcəksiniz."}</p>
+            <p>{paymentWaiting && repeatListing ? `Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir — bu, təkrar elan sayılır və ödənişlidir (${manat(listingPrice(category))}). Elan «Ödəniş gözləyir» bölməsində saxlanıldı.` : paymentWaiting ? `Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Elan saxlanıldı və «Ödəniş gözləyir» bölməsinə keçirildi. Ödənişdən (${manat(listingPrice(category))}) sonra yoxlamaya göndəriləcək.` : "Təsdiqdən sonra elan 30 gün yayımda olacaq. Nəticəni «Elanlarım» bölməsində görəcəksiniz."}</p>
             <Link className="add" href={paymentWaiting ? "/profile?section=listings&tab=payment" : "/profile?section=listings&tab=pending"}>
               {paymentWaiting ? "Ödəniş gözləyir bölməsinə keç" : "Elanlarıma keç"}
             </Link>

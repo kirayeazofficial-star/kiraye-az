@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { categories } from "../../lib/marketplace";
+import { listingPrice, manat } from "../../lib/limit-rules";
 
 export const metadata: Metadata = {
   title: "Elan yerləşdirmə qaydaları | kirayeal.az",
@@ -85,11 +87,14 @@ export default async function Rules() {
       <section id="muddet-ve-limit">
         <h2>8. Elan müddəti və limit qaydaları</h2>
         <p><strong>8.1.</strong> Təsdiqlənmiş elan 30 gün yayımda qalır. Müddət bitdikdə elan silinmir, kabinetdə «Müddəti bitib» bölməsinə keçir.</p>
-        <p><strong>8.2.</strong> Hər kateqoriyada ayda 1 elan pulsuzdur. Pulsuz yer elan təsdiqlənəndə istifadə olunur və 30 gün sonra yenidən açılır. Rədd edilmiş elan limit sərf etmir, elanı silmək isə limiti geri qaytarmır.</p>
-        <p><strong>8.3.</strong> Limit dolduqda elan yenə yerləşdirilə bilər: o «Ödəniş gözləyir» bölməsinə düşür və ödənişdən sonra yoxlamaya göndərilir.</p>
-        <p><strong>8.4.</strong> Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir. Bərpa edilən elan yenidən 30 gün yayımlanır.</p>
-        <p><strong>8.5.</strong> Müddəti bitmiş, silinmiş və ya rədd edilmiş elan 180 gün ərzində bərpa olunmazsa, birdəfəlik arxivə keçir və kabinetdə görünmür.</p>
-        <p><strong>8.6.</strong> Ödəniş sistemi hələ qoşulmayıb: ödənişli addımlarda heç bir məbləğ tutulmur. Qiymətlər ödəniş aktivləşdirilməzdən əvvəl göstəriləcək.</p>
+        <p><strong>8.2.</strong> 30 gün ərzində hər qrupda 1 elan pulsuzdur. Qruplar: Nəqliyyat (avtomobil, motosiklet, elektrik skuter, velosiped), Əmlak (ev və mənzil), Əşya və avadanlıq. «Villa və bağ» və «Kommersiya» kateqoriyalarında elan həmişə ödənişlidir. Pulsuz yer elan təsdiqlənəndə istifadə olunur və 30 gün sonra yenidən açılır. Rədd edilmiş elan limit sərf etmir, elanı silmək isə limiti geri qaytarmır.</p>
+        <p><strong>8.3.</strong> Limit dolduqda elan yenə yerləşdirilə bilər: o «Ödəniş gözləyir» bölməsinə düşür və ödənişdən sonra yoxlamaya göndərilir. Bir elanın qiyməti (30 gün): {categories.map(item => `${item.name} — ${manat(listingPrice(item.id))}`).join("; ")}.</p>
+        <p><strong>8.4.</strong> Müddəti bitmiş və ya silinmiş elanın bərpası ödənişlidir və elan qiymətinin yarısı qədərdir. Bərpa edilən elan yenidən 30 gün yayımlanır. Hər hansı ödənişli xidmət (irəli çək, VIP, Premium) elanın müddətini həmin xidmətin müddəti qədər uzadır.</p>
+        <p><strong>8.5.</strong> Pulsuz limit hesaba və elandakı telefon nömrəsinə görə hesablanır: eyni nömrə ilə başqa hesabdan verilən elan da həmin limitdən sayılır.</p>
+        <p><strong>8.6.</strong> Təkrar elan: eyni əşyanı və ya əmlakı (eyni şəkillərlə) 90 gün ərzində yenidən yerləşdirmək, o cümlədən kateqoriyanı dəyişərək, ödənişlidir. Sayt şəkilləri avtomatik müqayisə edir.</p>
+        <p><strong>8.7.</strong> Başqasına məxsus şəkillərdən, eləcə də üzərində başqa saytın loqosu və ya su nişanı olan şəkillərdən istifadə qadağandır — belə elan rədd edilir.</p>
+        <p><strong>8.8.</strong> Mağaza sahiblərinin elan limiti seçdikləri paketə görədir.</p>
+        <p><strong>8.9.</strong> Müddəti bitmiş, silinmiş və ya rədd edilmiş elan 180 gün ərzində bərpa olunmazsa, birdəfəlik arxivə keçir və kabinetdə görünmür.</p>
       </section>
       <section id="odenis-ve-geri-qaytarma">
         <h2>9. Ödəniş və geri qaytarma</h2>

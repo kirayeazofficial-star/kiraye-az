@@ -1,3 +1,5 @@
+import {activeStore} from "../../../lib/host/stores";
+import {photoMatches} from "../../../lib/host/photo-hashes";
 import {contactInText} from "../../../lib/contact-filter";
 import {NextRequest,NextResponse} from "next/server";
 import {freeLimit} from "../../../lib/host/limits";
@@ -88,11 +90,20 @@ export async function POST(request:NextRequest){
     if(contactInText(`${item.title} ${item.description}`))return reply({error:'CONTACT_IN_TEXT'},400);
     // Over the free limit the listing is still saved, as a draft waiting for payment.
     // Staff (owner, leader, admins) have no free-listing limit.
-    const paid=await isLeader(user)?false:(await freeLimit(user.id,item.category)).remaining<=0;
+    const leader=await isLeader(user);
+    // Same photos as a listing of the last 90 days: by the same person (or the same number) it is a repeat
+    // listing and is paid; by someone else the moderators get a note.
+    const matches=await photoMatches(item.images,null).catch(()=>[]);
+    const digits=(value:string)=>value.replace(/\D/g,'').slice(-9);
+    const repeat=!leader&&!await activeStore(user.id)&&matches.some(match=>match.owner_id===user.id);
+    const others=matches.filter(match=>match.owner_id!==user.id);
+    const note=others.length?`Eyni şəkil başqa hesabın elanında var: ${others.map(match=>`№ ${match.listing_no??'—'}`).join(', ')}`:repeat?`Təkrar elan: eyni şəkillər № ${matches.filter(match=>match.owner_id===user.id).map(match=>match.listing_no??'—').join(', ')} elanında var`:null;
+    const paid=leader?false:repeat||(await freeLimit(user.id,item.category,digits(item.contact))).remaining<=0;
     const id=newId();
     await hostQuery(`insert into public.listings(id,owner_id,category,title,description,contact,city,district,price,rental_period,images,status,deposit,min_days,rooms,area_m2,attributes,available_from,available_until,payment_required,lat,lng,location_exact) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$19,$12,$13,$14,$15,$16,$17,$18,$20,$21,$22,$23)`,[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,paid?'draft':'pending',paid,item.point?.[0]??null,item.point?.[1]??null,item.exact]);
+    if(paid||note)await hostQuery(`update public.listings set paid_reason=$2,duplicate_note=$3 where id=$1`,[id,paid?(repeat?'repeat':'limit'):null,note]).catch(()=>{});
     if(!paid)await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','submitted',null,'pending')`,[id,user.id]);
-    return reply({id,payment_required:paid},201);
+    return reply({id,payment_required:paid,repeat},201);
   }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}
 }
 
@@ -116,6 +127,11 @@ export async function PATCH(request:NextRequest){
     const update=`update public.listings set last_edited_at=now(),edit_log=array_append(array(select x from unnest(edit_log) x where x>now()-interval '1 day'),now()),category=$3,title=$4,description=$5,contact=$6,city=$7,district=$8,previous_price=case when $9<price then price when $9>price then null else previous_price end,price_lowered_at=case when $9<price then now() when $9>price then null else price_lowered_at end,price=$9,rental_period=$10,images=$11,status=case when payment_required then 'draft' else 'pending' end,deposit=$12,min_days=$13,rooms=$14,area_m2=$15,attributes=$16,available_from=$17,available_until=$18,lat=$19,lng=$20,location_exact=$21,review_kind='edited',updated_at=now() where id=$1 and owner_id=$2 and status not in('archived','expired') returning id,status`,params=[id,user.id,item.category,item.title,item.description,item.contact,item.city,item.district||null,item.price,item.rentalPeriod,item.images,item.deposit,item.minDays,item.rooms,item.area,item.attributes as never,item.availableFrom,item.availableUntil,item.point?.[0]??null,item.point?.[1]??null,item.exact];
     // Price history columns may be missing if the database was not updated yet: then the edit is saved without them.
     const rows=await hostQuery<{id:string;status:string}>(update,params).catch(()=>hostQuery<{id:string;status:string}>(update.replace(`previous_price=case when $9<price then price when $9>price then null else previous_price end,price_lowered_at=case when $9<price then now() when $9>price then null else price_lowered_at end,`,''),params));
+    if(rows[0]){
+      // New photos may belong to someone else's listing: keep the note for moderators up to date.
+      const others=(await photoMatches(item.images,id).catch(()=>[])).filter(match=>match.owner_id!==user.id);
+      await hostQuery(`update public.listings set duplicate_note=$2 where id=$1`,[id,others.length?`Eyni şəkil başqa hesabın elanında var: ${others.map(match=>`№ ${match.listing_no??'—'}`).join(', ')}`:null]).catch(()=>{});
+    }
     if(rows[0]?.status==='pending')await hostQuery(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status) values($1,$2,$2,'owner','resubmitted',null,'pending')`,[id,user.id]);
     return rows[0]?reply({id:rows[0].id}):reply({error:'LISTING_NOT_FOUND'},404);
   }catch{return reply({error:'LISTING_SAVE_FAILED'},503);}

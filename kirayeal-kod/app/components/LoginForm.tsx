@@ -408,6 +408,8 @@ export default function Login({
                   action="/login"
                   onInvalid={(event) => {
                     const field = event.target as HTMLInputElement;
+                    // Login with the password still empty: no warning, the cursor simply moves to the password field.
+                    if (mode === "login" && field.type === "password" && !field.value) { event.preventDefault(); setNotice(""); field.focus(); return; }
                     setNotice(
                       field.name === "full_name" ? "Ad və soyadını yaz." : field.type === "tel" ? "+994-dən sonra 0 olmadan 9 rəqəm yaz (məsələn: 50 123 45 67)." : field.name === "email"
                         ? "Düzgün e-poçt ünvanı yaz."
@@ -552,27 +554,20 @@ export default function Login({
                       ? "E-poçtuna gələn 6 rəqəmli kodu daxil et."
                       : "Məktubdakı 6 rəqəmli təsdiq kodunu daxil et."}
                   </p>
-                  <p className="mailHelp">
-                    Məktub gəlməyib? Spam qovluğunu da yoxla.
-                  </p>
-                  {verification === "recovery" && codeForm()}
-                  <div className="confirmationActions">
+                  {codeForm()}
+                  {!busy && <div className="confirmationActions kzCodeHelp">
+                    <p className="mailHelp">Kod gəlmədi? Spam qovluğunu da yoxla.</p>
                     <button
-                      className="authSubmit"
+                      className="link"
                       type="button"
-                      disabled={busy || cooldown > 0 || mailBlocked}
+                      disabled={cooldown > 0 || mailBlocked}
                       onClick={resend}
                     >
-                      {busy
-                        ? "Sorğu göndərilir…"
-                        : cooldown > 0
-                          ? `Yenidən göndər (${cooldown} san)`
-                          : "Yenidən göndər"}
+                      {cooldown > 0 ? `Yenidən göndər (${cooldown} san)` : "Kodu yenidən göndər"}
                     </button>
                     <button
                       type="button"
                       className="link"
-                      disabled={busy}
                       onClick={() =>
                         changeMode(
                           verification === "recovery" ? "reset" : verification === "staff" ? "login" : "signup",
@@ -581,8 +576,7 @@ export default function Login({
                     >
                       {verification === "staff" ? "Geri qayıt" : "E-poçtu dəyiş"}
                     </button>
-                  </div>
-                  {verification !== "recovery" && codeForm()}
+                  </div>}
                 </div>
               )}
               {unconfirmed && (
@@ -616,7 +610,7 @@ export default function Login({
                   )}
                 </div>
               )}
-              {verification !== "staff" && <div className="authFooter">
+              {!verification && <div className="authFooter">
                 <a
                   className="link"
                   href={
@@ -647,9 +641,9 @@ export default function Login({
             </>
           )}
         </section>
-        <Link className="authBack" href="/">
+        {!verification && <Link className="authBack" href="/">
           <ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Elanlara qayıt
-        </Link>
+        </Link>}
       </div>
     </main>
   );

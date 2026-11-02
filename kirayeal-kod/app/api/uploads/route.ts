@@ -22,6 +22,8 @@ export async function POST(request:NextRequest){
     // Optional small copy for link previews (share-<same name>); a bad or missing one is simply skipped.
     const share=form.get("share");
     if(share instanceof File&&share.size>0&&share.size<=1024*1024){const small=Buffer.from(await share.arrayBuffer());if(small[0]===0xff&&small[1]===0xd8)await writeFile(path.join(directory,`share-${name}`),small,{mode:0o600,flag:"wx"}).catch(()=>{});}
+    const thumb=form.get("thumb");
+    if(thumb instanceof File&&thumb.size>0&&thumb.size<=512*1024){const small=Buffer.from(await thumb.arrayBuffer());if(small[0]===0xff&&small[1]===0xd8)await writeFile(path.join(directory,`thumb-${name}`),small,{mode:0o600,flag:"wx"}).catch(()=>{});}
     const saved=`/api/media/${user.id}/${name}`;
     // Fingerprint of the original photo (for spotting re-posted items); a missing or bad one is skipped.
     await savePhotoHash(saved,user.id,String(form.get("hash")||"")).catch(()=>{});
@@ -36,6 +38,7 @@ export async function DELETE(request:NextRequest){
     if(!root||parts.length!==5||parts[3]!==user.id||!fileName.test(parts[4]))return reply({error:"INVALID_PATH"},400);
     await unlink(path.join(root,user.id,parts[4])).catch(error=>{if((error as NodeJS.ErrnoException).code!=="ENOENT")throw error;});
     await unlink(path.join(root,user.id,`share-${parts[4]}`)).catch(()=>{});
+    await unlink(path.join(root,user.id,`thumb-${parts[4]}`)).catch(()=>{});
     return reply({ok:true});
   }catch{return reply({error:"DELETE_FAILED"},503);}
 }

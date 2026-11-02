@@ -23,5 +23,5 @@ export default function TabIcon({ name, active = false, size = 24 }: { name: Nam
   const shape = shapes[name];
   return active
     ? <svg className="kzTabIcon on" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" fill="currentColor">{shape.solid}</svg>
-    : <svg className="kzTabIcon" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{shape.outline}</svg>;
+    : <svg className="kzTabIcon" viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" fill="currentColor" fillOpacity="0.13" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{shape.outline}</svg>;
 }

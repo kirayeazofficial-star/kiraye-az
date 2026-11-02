@@ -241,7 +241,7 @@ button,input,select,textarea{font-family:inherit}
   .messagesPage{padding:14px 0 calc(78px + env(safe-area-inset-bottom))!important}
   .messagesTitle{padding:0 14px!important}
   .messagesTitle h1{font-size:24px!important}
-  .messagesLayout{display:block!important;height:calc(100dvh - 232px)!important;min-height:350px!important;border-inline:0!important;border-radius:0!important;box-shadow:none!important}
+  .messagesLayout{display:block!important;height:calc(100vh - 232px)!important;height:calc(100dvh - 232px)!important;min-height:350px!important;border-inline:0!important;border-radius:0!important;box-shadow:none!important}
   .conversationList{height:100%!important;border:0!important}
   .conversationBody{height:100%!important}
   .hasConversation .conversationList{display:none!important}
@@ -255,7 +255,7 @@ button,input,select,textarea{font-family:inherit}
   .newConversation .conversationHeading{min-height:auto!important;padding:13px 14px!important}
   .newConversation .conversationBack{min-height:38px!important}
   .newConversation .messageComposer{position:sticky!important;bottom:0!important}
-  .promotionOptions .promotionPanel{top:auto!important;right:0!important;bottom:0!important;left:0!important;width:100%!important;max-width:none!important;max-height:82dvh!important;margin:0!important;padding:20px 16px calc(20px + env(safe-area-inset-bottom))!important;border-radius:22px 22px 0 0!important;transform:none!important}
+  .promotionOptions .promotionPanel{top:auto!important;right:0!important;bottom:0!important;left:0!important;width:100%!important;max-width:none!important;max-height:82vh!important;max-height:82dvh!important;margin:0!important;padding:20px 16px calc(20px + env(safe-area-inset-bottom))!important;border-radius:22px 22px 0 0!important;transform:none!important}
 }
 
 @media(max-width:360px){

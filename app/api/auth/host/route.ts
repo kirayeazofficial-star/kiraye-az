@@ -59,11 +59,11 @@ export async function POST(request:NextRequest){
     if(action==="login"){
       const email=cleanEmail(body.email),password=String(body.password||""),ip=clientIp(request);
       const until=await lockedUntil(email,ip);if(until)return response({error:"TOO_MANY_ATTEMPTS",retry_at:until},429);
-      const rows=await hostQuery<{id:string;password_hash:string|null;email_confirmed_at:string|null;blocked:boolean}>(`select id,password_hash,email_confirmed_at,disabled_at is not null as blocked from auth.users where lower(email)=lower($1) order by disabled_at nulls first limit 1`,[email]);
+      const rows=await hostQuery<{id:string;password_hash:string|null;email_confirmed_at:string|null;blocked:boolean;blocked_reason:string|null}>(`select id,password_hash,email_confirmed_at,disabled_at is not null as blocked,blocked_reason from auth.users where lower(email)=lower($1) order by disabled_at nulls first limit 1`,[email]);
       const user=rows[0];if(!user||!user.password_hash||!await passwordMatches(password,user.password_hash)){await logAttempt(email,ip,false);return response({error:"INVALID_CREDENTIALS"},401);}
       await logAttempt(email,ip,true);
       // A blocked account learns why it cannot sign in only after the right password.
-      if(user.blocked)return response({error:"ACCOUNT_BLOCKED"},403);
+      if(user.blocked)return response({error:"ACCOUNT_BLOCKED",reason:user.blocked_reason||null},403);
       if(!user.email_confirmed_at)return response({error:"EMAIL_NOT_CONFIRMED"},403);
       await ensureOwnerRole(user.id,email);
       // Leader and admins on a device not confirmed in the last 3 days: an e-mailed code first.

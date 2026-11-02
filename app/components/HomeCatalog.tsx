@@ -1,6 +1,7 @@
 "use client";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon, Plus, SlidersHorizontal, X } from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon, Plus, SearchX, SlidersHorizontal, X } from "lucide-react";
+import StatusCard from "./StatusCard";
 import dynamic from "next/dynamic";
 const ListingsMap = dynamic(() => import("./ListingsMap"), { ssr: false, loading: () => <div className="kzMap kzMapBig kzMapLoading" /> });
 import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
@@ -676,14 +677,12 @@ export default function Home() {
               <p>{t("Bəyəndiyin elanın şəklindəki ürək işarəsinə toxun — elan burada saxlanacaq.")}</p>
               <a className="kzButton" href="/">{t("Elanlara bax")}</a>
             </div> :
-            <div className="kzEmpty">
-              <h3>{t("Uyğun elan tapılmadı")}</h3>
-              <p>{t("Başqa sözlə axtar və ya öz kirayə elanını yerləşdir.")}</p>
-              <Link className="kzButton" href="/new">
-                <Plus className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />{t("Elan yerləşdir")}</Link>
-              <button className="kzButtonGhost" onClick={reset}>
-                {t("Bütün elanlara bax")}</button>
-            </div>
+            <StatusCard as="h2" tone="info" icon={SearchX} badge={t("Nəticə yoxdur")} title={t("Uyğun elan tapılmadı")} className="kzScInline"
+              lead={query.trim() ? <>«<b>{query.trim()}</b>» {t("üzrə seçdiyiniz şərtlərə uyğun elan tapılmadı.")}</> : t("Seçdiyiniz şərtlərə uyğun elan tapılmadı.")}
+              list={{ title: t("Axtarışı genişləndirmək üçün"), items: [t("Filtrlərin sayını azaldın: qiymət, otaq sayı, tarix."), t("Başqa şəhər və ya rayon seçin."), t("Axtarış sözünü qısaldın və ya başqa sözlə yazın.")] }}
+              actions={[{ label: t("Bütün elanlara bax"), icon: LayoutGrid, primary: true, onClick: reset }, { label: t("Axtarışı yadda saxla"), icon: Bell, onClick: rememberFilters }, { href: "/new", label: t("Elan yerləşdir"), icon: Plus }]}>
+              <p className="kzScNote">{t("Axtarışı yadda saxlasanız, uyğun yeni elan yerləşdiriləndə sizə e-poçtla xəbər verəcəyik.")}</p>
+            </StatusCard>
           )}
           {!demo && total > PAGE_SIZE && (
             <nav className="kzPagination" aria-label="Elan səhifələri">

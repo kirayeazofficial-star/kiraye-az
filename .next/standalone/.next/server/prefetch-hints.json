@@ -1,9 +1,9 @@
 {
   "/_global-error": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -14,10 +14,10 @@
     }
   },
   "/_not-found": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -28,10 +28,10 @@
     }
   },
   "/account": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -42,10 +42,10 @@
     }
   },
   "/admin": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -56,10 +56,10 @@
     }
   },
   "/auth/callback": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 96,
@@ -75,10 +75,10 @@
     }
   },
   "/balance": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -89,10 +89,10 @@
     }
   },
   "/help": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -103,10 +103,10 @@
     }
   },
   "/messages": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -117,10 +117,10 @@
     }
   },
   "/new": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -131,19 +131,19 @@
     }
   },
   "/": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 160,
+        "hints": 128,
         "slots": null
       }
     }
   },
   "/privacy": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -154,10 +154,10 @@
     }
   },
   "/profile": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -168,10 +168,10 @@
     }
   },
   "/reset-password": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -182,10 +182,10 @@
     }
   },
   "/rules": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,
@@ -196,10 +196,10 @@
     }
   },
   "/terms": {
-    "hints": 64,
+    "hints": 0,
     "slots": {
       "children": {
-        "hints": 96,
+        "hints": 64,
         "slots": {
           "children": {
             "hints": 160,

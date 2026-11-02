@@ -1,5 +1,6 @@
 "use client";
-import { ChevronLeft, Eye, EyeOff } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff, House, Mail, ShieldX } from "lucide-react";
+import StatusCard from "./StatusCard";
 import { normalizePhone } from "../../lib/rental-details";
 import { createStrongPassword } from "../../lib/strong-password";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -18,7 +19,7 @@ const pendingKey = "kiraye:pending-confirmation";
 async function hostAuth(action:string,payload:Record<string,unknown>={}){
   const response=await fetch('/api/auth/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});
   const data=await response.json();
-  if(!response.ok){const error=new Error(data.error||'SERVICE_UNAVAILABLE') as Error&{code?:string;status?:number};error.code=data.error;error.status=response.status;throw error;}
+  if(!response.ok){const error=new Error(data.error||'SERVICE_UNAVAILABLE') as Error&{code?:string;status?:number};error.code=data.error;error.status=response.status;(error as Error&{reason?:string}).reason=data.reason;throw error;}
   return data;
 }
 export default function Login({
@@ -45,6 +46,7 @@ export default function Login({
   const [method, setMethod] = useState<"phone" | "email">("email");
   const [mode, setMode] = useState<"login" | "signup" | "reset">(initialMode),
     [notice, setNotice] = useState(""),
+    [blocked, setBlocked] = useState<false | string>(false),
     [busy, setBusy] = useState(false),
     [emailAddress, setEmailAddress] = useState(""),
     [verification, setVerification] = useState<Verification | null>(null),
@@ -60,7 +62,8 @@ export default function Login({
     requestScope === (mode === "login" ? "login" : "mail");
   function handleAuthError(error: unknown, scope: "mail" | "login" | "verify") {
     setNotice(authErrorMessage(error));
-    const value = error as { code?: string; message?: string };
+    const value = error as { code?: string; message?: string; reason?: string };
+    if (value?.code === "ACCOUNT_BLOCKED") setBlocked(value.reason || "");
     setLoginFailed(
       scope === "login" &&
         (value?.code === "invalid_credentials" ||
@@ -310,6 +313,17 @@ export default function Login({
       </form>
     );
   }
+  // A blocked account gets a clear explanation instead of a short error line under the form.
+  if (blocked !== false) return <main className="loginPage">
+    <div className="authHeader"><a className="logo" href="/">kirayeal<span>.az</span></a><Link href="/help">Kömək</Link></div>
+    <div className="kzScPage">
+      <StatusCard tone="danger" icon={ShieldX} badge="Hesab bloklanıb" title="Hesabınız bloklanıb"
+        lead="Hesabınız sayt qaydalarının pozulmasına görə məhdudlaşdırılıb. Bu səbəbdən hesaba daxil olmaq, elan yerləşdirmək və mesaj göndərmək mümkün deyil."
+        list={{ title: "Nə etmək olar", items: [<>Sayt <Link key="rules" href="/rules">qaydaları</Link> ilə tanış olun.</>, "Bloklanmanın səhvən baş verdiyini düşünürsünüzsə, hesabınızın e-poçt ünvanından bizə yazın.", "Müraciətlər iş günləri ərzində cavablandırılır."] }}
+        note={blocked ? <><strong>Bloklanma səbəbi:</strong> {blocked}</> : undefined}
+        actions={[{ href: "mailto:kirayeal.az@gmail.com?subject=Hesab%20bloku%20haqq%C4%B1nda%20m%C3%BCraci%C9%99t", label: "Müraciət göndər", icon: Mail, primary: true, external: true }, { href: "/", label: "Ana səhifə", icon: House }]} />
+    </div>
+  </main>;
   return (
     <main className="loginPage">
       <div className="authHeader">

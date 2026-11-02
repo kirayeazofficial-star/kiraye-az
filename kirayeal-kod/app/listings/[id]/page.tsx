@@ -1,6 +1,9 @@
 import { categoryName } from "../../../lib/marketplace";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CalendarX, Clock, CloudOff, House, RotateCw, Trash2 } from "lucide-react";
+import StatusCard from "../../components/StatusCard";
+import QuickCategories from "../../components/QuickCategories";
 import { notFound } from "next/navigation";
 import StructuredData from "../../components/StructuredData";
 import Header from "../../components/Header";
@@ -46,12 +49,11 @@ export default async function ListingPage({ params }: Props) {
   if (preview) item = preview;
   // Others get a soft note while a listing waits for review; deleted or expired ones stay "not active".
   if (!item && !unavailable) {
-    if (!(await waitingForReview(id))) notFound();
+    const gone = await goneListing(id);
+    if (!gone) notFound();
     return <>
       <Header />
-      <main className="wrap listingDetailPage">
-        <section className="empty"><h1>Bu elan hazırda yoxlamadadır</h1><p>Yoxlama başa çatan kimi elan bu linkdə görünəcək.</p><Link className="add" href="/">Digər elanlara bax</Link></section>
-      </main>
+      <main className="kzScPage">{statusFor(gone)}</main>
       <Footer />
     </>;
   }
@@ -66,13 +68,9 @@ export default async function ListingPage({ params }: Props) {
         {item ? (
           <ListingDetails item={item} />
         ) : (
-          <section className="empty">
-            <h1>Elanı yükləmək mümkün olmadı</h1>
-            <p>Bağlantını yoxlayıb səhifəni yenilə.</p>
-            <Link className="add" href="/">
-              Elanlara qayıt
-            </Link>
-          </section>
+          <StatusCard tone="danger" icon={CloudOff} badge="Texniki xəta" title="Elanı yükləmək mümkün olmadı"
+            lead="Texniki səbəbdən elan hazırda açılmır. Bir neçə saniyədən sonra səhifəni yeniləyin."
+            actions={[{ href: `/listings/${id}`, label: "Səhifəni yenilə", icon: RotateCw, primary: true }, { href: "/", label: "Elanlara qayıt", icon: House }]} />
         )}
       </main>
       <Footer />
@@ -94,10 +92,27 @@ async function privateListing(id: string): Promise<Listing | null> {
   } catch { return null; }
 }
 
-async function waitingForReview(id: string): Promise<boolean> {
-  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) return false;
+type Gone = { kind: "review" | "expired" | "deleted" | "inactive"; title: string; category: string };
+// Why a listing is not public: waiting for review, expired, deleted by its owner, or otherwise closed (rejected, blocked).
+async function goneListing(id: string): Promise<Gone | null> {
+  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(id)) return null;
   try {
-    const rows = await hostQuery<{ id: string }>(`select id from public.listings where id=$1 and status='pending' and deleted_at is null and not coalesce(payment_required,false) limit 1`, [id]);
-    return !!rows[0];
-  } catch { return false; }
+    const rows = await hostQuery<{ status: string; title: string; category: string; deleted_at: string | null; payment_required: boolean | null; expires_at: string | null }>(`select status,title,category,deleted_at,payment_required,expires_at from public.listings where id=$1 limit 1`, [id]);
+    const row = rows[0];
+    if (!row) return null;
+    const kind = row.deleted_at ? "deleted" : row.status === "pending" && !row.payment_required ? "review" : ["expired", "archived"].includes(row.status) || (row.status === "published" && !!row.expires_at && Date.parse(row.expires_at) <= Date.now()) ? "expired" : "inactive";
+    return { kind, title: row.title, category: row.category };
+  } catch { return null; }
+}
+function statusFor(gone: Gone) {
+  const more = { href: "/", label: "Digər elanlara bax", icon: House, primary: true };
+  const chips = <><p className="kzScSub">Bu kateqoriyada digər elanlar</p><QuickCategories only={gone.category} /></>;
+  if (gone.kind === "review") return <StatusCard tone="info" icon={Clock} badge="Yoxlamadadır" title="Bu elan hazırda yoxlamadadır"
+    lead="Elan moderatorlar tərəfindən yoxlanılır. Yoxlama başa çatdıqdan sonra elan bu keçiddə hamı üçün görünəcək." actions={[more]} />;
+  if (gone.kind === "expired") return <StatusCard tone="warn" icon={CalendarX} badge="Müddəti bitib" title="Bu elanın müddəti bitib"
+    lead={<>«<b>{gone.title}</b>» elanının yayım müddəti başa çatıb və elan artıq aktiv deyil.</>} actions={[more]}>{chips}</StatusCard>;
+  if (gone.kind === "deleted") return <StatusCard tone="warn" icon={Trash2} badge="Elan silinib" title="Bu elan silinib"
+    lead="Elan sahibi tərəfindən silinib və artıq aktiv deyil." actions={[more]}>{chips}</StatusCard>;
+  return <StatusCard tone="warn" icon={CalendarX} badge="Elan aktiv deyil" title="Bu elan artıq aktiv deyil"
+    lead="Bu elan hazırda saytda yayımlanmır." actions={[more]}>{chips}</StatusCard>;
 }

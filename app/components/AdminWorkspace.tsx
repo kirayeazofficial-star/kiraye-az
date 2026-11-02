@@ -28,7 +28,9 @@ type StaffEvent = { id: number; action: string; created_at: string; actor_email?
 
 const PAGE = 24;
 const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", limits: "Ödənişli xidmətlər", settings: "Sayt ayarları", staff: "Komanda", backup: "Ehtiyat nüsxə" };
-const statuses: [string, string][] = [["pending", "Gözləmədə"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"], ["archived", "Müddəti bitib"], ["all", "Hamısı"]];
+// Main tabs; expired and deleted listings are in the extra filters (rarely needed, e.g. when someone asks where a listing went).
+const statuses: [string, string][] = [["all", "Hamısı"], ["pending", "Gözləmədə"], ["reported", "Şikayət olunan"], ["payment", "Ödəniş gözləyir"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"]];
+const otherStatuses: [string, string][] = [["archived", "Müddəti bitib"], ["deleted", "Silinib"]];
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", user_blocked: "İstifadəçi bloklandı", user_unblocked: "Blok götürüldü", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
 const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, limits: CreditCard, settings: Settings2, staff: ShieldCheck, backup: CloudUpload };
 
@@ -404,17 +406,19 @@ export default function AdminWorkspace() {
       </>}
 
       {section === "moderation" && <Panel title="Elanlar" actions={<><button type="button" className="kzAdBtn" onClick={() => open("history")}><History aria-hidden="true" size={15} strokeWidth={2} />Tarixçə</button><button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" disabled={loading || !!busy} onClick={() => setRevision(x => x + 1)}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button></>}>
-        <div className="kzAdTabs" role="group" aria-label="Elan vəziyyəti">{statuses.map(([status, label]) => <button key={status} type="button" aria-pressed={filter === status} disabled={!!busy} onClick={() => { setFilter(status); setPage(1); }}>{label}{counts && <small>{status === "all" ? counts.listings : status === "archived" ? (counts.statuses.archived || 0) + (counts.statuses.expired || 0) : counts.statuses[status] || 0}</small>}</button>)}</div>
+        <div className="kzAdTabs" role="group" aria-label="Elan vəziyyəti">{statuses.map(([status, label]) => <button key={status} type="button" aria-pressed={filter === status} disabled={!!busy} onClick={() => { setFilter(status); setPage(1); }}>{label}{counts && <small>{status === "all" ? counts.listings : counts.statuses[status] || 0}</small>}</button>)}</div>
         <form className="kzAdFilters" onSubmit={find}>
           <input type="text" inputMode="search" value={search} onChange={event => setSearch(event.target.value)} maxLength={100} placeholder="Başlıq, telefon, № elan" aria-label="Elan axtar" />
           <button type="button" className="kzAdBtn kzAdFilterToggle" aria-expanded={moreFilters} onClick={() => setMoreFilters(value => !value)}><SlidersHorizontal aria-hidden="true" size={16} strokeWidth={2} /></button>
           <span className={`kzAdExtra${moreFilters ? " open" : ""}`}>
           <AzerbaijaniDateInput label="Elanın tarixi" value={dateFrom} onChange={value => { setDateFrom(value); setPage(1); }} />
+          <select aria-label="Digər vəziyyətlər" value={otherStatuses.some(([status]) => status === filter) ? filter : ""} onChange={event => { setFilter(event.target.value || "all"); setPage(1); }}><option value="">Digər vəziyyətlər</option>{otherStatuses.map(([status, label]) => <option key={status} value={status}>{label}{counts ? ` (${status === "archived" ? (counts.statuses.archived || 0) + (counts.statuses.expired || 0) : counts.statuses[status] || 0})` : ""}</option>)}</select>
           <select aria-label="Yoxlama növü" value={reviewKind} onChange={event => { setReviewKind(event.target.value); setPage(1); }}><option value="">Hamısı</option><option value="new">Yeni</option><option value="edited">Dəyişdirilmiş</option></select>
           </span>
           <button className="kzAdBtn primary" disabled={!!busy}>Axtar</button>
         </form>
-        {(query || dateFrom || reviewKind || owner) && <div className="kzAdActive" aria-label="Aktiv filtrlər">
+        {(query || dateFrom || reviewKind || owner || otherStatuses.some(([status]) => status === filter)) && <div className="kzAdActive" aria-label="Aktiv filtrlər">
+          {otherStatuses.filter(([status]) => status === filter).map(([status, label]) => <button key={status} type="button" onClick={() => { setFilter("all"); setPage(1); }}>{label} <X aria-hidden="true" size={13} strokeWidth={2.25} /></button>)}
           <span>Filtr:</span>
           {owner && <button type="button" onClick={() => { setOwner(null); setPage(1); }}>Sahibi: {owner.name} <X aria-hidden="true" size={13} strokeWidth={2.25} /></button>}
           {query && <button type="button" onClick={() => { setSearch(""); setQuery(""); setPage(1); }}>{/^[0-9a-f-]{36}$/i.test(query) ? "Seçilmiş elan" : `Axtarış: ${query}`} <X aria-hidden="true" size={13} strokeWidth={2.25} /></button>}

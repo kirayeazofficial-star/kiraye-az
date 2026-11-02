@@ -24,19 +24,19 @@ export async function watermarkPhoto(file: File): Promise<File> {
 
 // Small copy of a (branded) photo for link previews in WhatsApp/Telegram/Facebook: they skip images
 // that are several megabytes, so shares get a ~1200px JPEG of roughly 100–250 KB.
-export async function sharePreview(file: Blob): Promise<Blob> {
+export async function sharePreview(file: Blob, side = 1200, quality = 0.8): Promise<Blob> {
   const url = URL.createObjectURL(file);
   try {
     const image = new Image();
     await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("preview")); image.src = url; });
-    const scale = Math.min(1, 1200 / Math.max(image.naturalWidth, image.naturalHeight));
+    const scale = Math.min(1, side / Math.max(image.naturalWidth, image.naturalHeight));
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, Math.round(image.naturalWidth * scale)); canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
     const context = canvas.getContext("2d");
     if (!context) throw new Error("preview");
     context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high";
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    return await new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("preview")), "image/jpeg", 0.8));
+    return await new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("preview")), "image/jpeg", quality));
   } finally { URL.revokeObjectURL(url); }
 }
 

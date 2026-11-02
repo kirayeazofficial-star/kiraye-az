@@ -22,3 +22,27 @@ if (typeof document !== "undefined" && typeof CSS !== "undefined" && !CSS.suppor
   const start = () => { sync(); new MutationObserver(sync).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["class"] }); };
   if (document.body) start(); else document.addEventListener("DOMContentLoaded", start);
 }
+
+// Several parts of a page ask the server the same questions at load (who is signed in, the profile, unread
+// messages). On shared hosting each answer takes about a second, so identical GET requests made at the same
+// moment share one network request (for 2 seconds). Signing in or out clears it.
+if (typeof window !== "undefined" && typeof window.fetch === "function") {
+  const shared = new Map<string, { at: number; response: Promise<Response> }>();
+  const sharable = /^\/api\/(auth\/host|account\/profile|settings|messages\?action=unread|stores\?mine=1|listings\/limits)$/;
+  const original = window.fetch.bind(window);
+  window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+    try {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      const path = url.startsWith(location.origin) ? url.slice(location.origin.length) : url;
+      const method = (init?.method || (typeof input === "object" && "method" in input ? input.method : "GET")).toUpperCase();
+      if (method !== "GET") { if (path.startsWith("/api/auth/") || path.startsWith("/api/account/")) shared.clear(); return original(input, init); }
+      if (!sharable.test(path) || init?.signal) return original(input, init);
+      const hit = shared.get(path);
+      if (hit && Date.now() - hit.at < 2000) return hit.response.then(response => response.clone());
+      const response = original(input, init);
+      shared.set(path, { at: Date.now(), response });
+      response.catch(() => shared.delete(path));
+      return response.then(r => r.clone());
+    } catch { return original(input, init); }
+  };
+}

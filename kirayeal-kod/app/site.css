@@ -3025,11 +3025,14 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 @media (max-width:520px){.kzAdTabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important}.kzAdTabs button{min-height:38px!important;padding:0 10px!important}}
 /* Phone field: "+994" and the number in the same font, weight and colour. */
 .kzPhoneInput .kzPhonePrefix,.kzPhoneInput input[type]{font-family:inherit!important;font-size:16px!important;font-weight:500!important;letter-spacing:.2px!important;font-variant-numeric:tabular-nums;color:var(--kz-ink)!important}
-/* Side menu "Bizimlə əlaqə": e-mail on its own line, Instagram and TikTok as two equal buttons below. */
-.siteMenuPanel.kzSide .siteContact .kzContactLine{display:flex!important;align-items:center;gap:8px}
-.siteMenuPanel.kzSide .siteContact .socialLinks{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important;margin-top:4px}
-.siteMenuPanel.kzSide .siteContact .socialLinks a{justify-content:center;gap:7px!important;height:38px!important;border-radius:10px!important}
-.siteMenuPanel.kzSide .siteContact .socialLinks svg,.siteMenuPanel.kzSide .siteContact .kzContactLine svg{width:16px!important;height:16px!important;flex:none}
+/* Side menu "Bizimlə əlaqə": e-mail, Instagram and TikTok as three plain rows, same icon size, no frames. */
+.siteMenuPanel.kzSide .siteContact .socialLinks{display:grid!important;grid-template-columns:1fr;gap:0!important;margin:0!important}
+.siteMenuPanel.kzSide .siteContact .kzContactLine,.siteMenuPanel.kzSide .siteContact .socialLinks a{display:flex!important;align-items:center;justify-content:flex-start!important;gap:10px!important;height:auto!important;min-height:40px!important;margin:0!important;padding:0 6px!important;border:0!important;border-radius:0!important;background:none!important;font-size:var(--fs-14)!important;font-weight:500;color:var(--kz-ink)!important}
+.siteMenuPanel.kzSide .siteContact .kzContactLine svg,.siteMenuPanel.kzSide .siteContact .socialLinks svg{width:18px!important;height:18px!important;flex:none;color:var(--kz-ink)}
 /* Code screen: small help links under the code field. */
 .kzCodeHelp{display:flex!important;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 14px;margin-top:14px!important}
 .kzCodeHelp .mailHelp{flex-basis:100%;margin:0!important;text-align:center}
+.kzPhoneInput input[type="tel"]:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]){font-weight:500!important;font-size:16px!important;letter-spacing:.2px!important;color:var(--kz-ink)!important;-webkit-text-fill-color:var(--kz-ink)}
+.siteMenuPanel.kzSide .siteContact{gap:0!important}
+.siteMenuPanel.kzSide .siteContact>strong{margin-bottom:4px}
+.siteMenuPanel.kzSide .siteContact .kzContactLine,.siteMenuPanel.kzSide .siteContact .socialLinks a{padding:0!important;min-height:40px!important}

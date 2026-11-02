@@ -283,7 +283,7 @@ export const extraAttributeLabels = {
   color: "Rəng",
   fuel: "Yanacaq növü",
   engine_cc: "Mühərrik həcmi (sm³)",
-  condition: "Vəziyyət",
+  condition: "Yeni / işlənmiş",
   kind: "Növ",
   frame_size: "Çərçivə ölçüsü",
   wheel_size: "Təkər ölçüsü",

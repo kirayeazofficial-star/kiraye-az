@@ -18,6 +18,7 @@ import { moderationActions, moderationFields, rejectionReasons, riskWords, type 
 import { useAutoClear } from "../../lib/use-auto-clear";
 
 type Section = "overview" | "moderation" | "reports" | "history" | "users" | "banners" | "staff" | "backup" | "stores" | "limits" | "settings";
+const allSections: string[] = ["overview", "moderation", "reports", "history", "users", "banners", "staff", "backup", "stores", "limits", "settings"];
 type AdminListing = Listing & { listing_no?: number | string; owner_email: string; owner_name?: string; views?: number; review_kind?: string; signal_count?: number; duplicate_note?: string | null; paid_reason?: string | null };
 type Counts = { users: number; listings: number; messages: number; reports: number; stores?: number; statuses: Record<string, number> };
 type Period = { today: number; week: number; month: number };
@@ -286,7 +287,14 @@ function StaffManagement() {
 export default function AdminWorkspace() {
   const [allowed, setAllowed] = useState<boolean | null>(null), [role, setRole] = useState(""), [section, setSection] = useState<Section>("overview");
   // Coming back from Google Drive (connect) opens the backup section.
-  useEffect(() => { if (new URLSearchParams(window.location.search).get("section") === "backup") setSection("backup"); }, []);
+  // The open section lives in the address (?section=…), so the phone's Back gesture and the browser Back button
+  // return to the previous panel section instead of leaving the panel.
+  useEffect(() => {
+    const read = () => { const wanted = new URLSearchParams(window.location.search).get("section") as Section | null; setSection(wanted && allSections.includes(wanted) ? wanted : "overview"); };
+    read();
+    window.addEventListener("popstate", read);
+    return () => window.removeEventListener("popstate", read);
+  }, []);
   const [filter, setFilter] = useState("pending"), [items, setItems] = useState<AdminListing[]>([]), [total, setTotal] = useState(0), [page, setPage] = useState(1);
   const [search, setSearch] = useState(""), [query, setQuery] = useState(""), [dateFrom, setDateFrom] = useState(""), [reviewKind, setReviewKind] = useState(""), [owner, setOwner] = useState<{ id: string; name: string } | null>(null);
   const [reasons, setReasons] = useState<Record<string, string>>({}), [rejecting, setRejecting] = useState(""), [revision, setRevision] = useState(0), [loading, setLoading] = useState(false), [busy, setBusy] = useState(""), [error, setError] = useState("");
@@ -328,7 +336,11 @@ export default function AdminWorkspace() {
     } catch { setError("Dəyişiklik saxlanmadı. Siyahını yenilə və yenidən yoxla."); return false; }
     finally { setBusy(""); }
   }
-  function open(next: Section) { setSection(next); setError(""); window.scrollTo({ top: 0 }); }
+  function open(next: Section) {
+    setSection(next); setError(""); window.scrollTo({ top: 0 });
+    const url = next === "overview" ? "/admin" : `/admin?section=${next}`;
+    if (window.location.pathname + window.location.search !== url) window.history.pushState({ section: next }, "", url);
+  }
   function clearFilters() { setSearch(""); setQuery(""); setDateFrom(""); setReviewKind(""); setOwner(null); setPage(1); }
   function showListings(status: string) { clearFilters(); setFilter(status); open("moderation"); }
   function ownerListings(user: User) { clearFilters(); setOwner({ id: user.id, name: user.display_name || user.email }); setFilter("all"); open("moderation"); }

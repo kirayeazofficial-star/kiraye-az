@@ -9,13 +9,13 @@ const OWNER = "kirayeal.az@gmail.com";
 let pool: Pool | undefined;
 const db = () => pool ??= new Pool({
   host: process.env.KIRAYE_DB_HOST, port: Number(process.env.KIRAYE_DB_PORT || 5432), database: process.env.KIRAYE_DB_NAME,
-  user: process.env.KIRAYE_DB_USER, password: process.env.KIRAYE_DB_PASSWORD, max: 2, idleTimeoutMillis: 30_000, connectionTimeoutMillis: 3_000,
+  user: process.env.KIRAYE_DB_USER, password: process.env.KIRAYE_DB_PASSWORD, max: 2, idleTimeoutMillis: 300_000, connectionTimeoutMillis: 3_000,
 });
 let flag = { on: false, at: 0 };
 const staffCache = new Map<string, { staff: boolean; at: number }>();
 
 async function maintenanceOn() {
-  if (Date.now() - flag.at < 15_000) return flag.on;
+  if (Date.now() - flag.at < 60_000) return flag.on;
   const rows = await db().query<{ on: boolean | null }>(`select (value->>'enabled')::boolean as on from public.site_settings where key='maintenance'`);
   flag = { on: rows.rows[0]?.on === true, at: Date.now() };
   return flag.on;

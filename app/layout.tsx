@@ -31,14 +31,18 @@ export const metadata: Metadata = {
   description: "Ev, avtomobil və motosiklet kirayəsi üçün elan platforması.",
   openGraph: { siteName: "kirayeal.az", locale: "az_AZ", type: "website", images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "kirayeal.az — Kirayə üçün bir ünvan" }] },
   twitter: { card: "summary_large_image", images: ["/og-default.jpg"] },
+  other: { google: "notranslate" },
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="az">
+    // translate="no": the site is already in Azerbaijani (with RU/EN built in); a browser's automatic page
+    // translation rewrites the page under React and makes buttons stop working on some phones.
+    <html lang="az" translate="no" className="notranslate">
       <body>
+        <Script src="/translate-guard.js" strategy="beforeInteractive" />
         <Script src="/browser-compat.js" strategy="beforeInteractive" />
         <AnnouncementBar />
         <InstallPrompt />

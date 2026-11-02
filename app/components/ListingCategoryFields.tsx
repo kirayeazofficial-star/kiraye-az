@@ -228,6 +228,7 @@ function VehicleFields({
   const [fuel, setFuel] = useState(attributes?.fuel || "");
   const [isNew, setIsNew] = useState(attributes?.is_new || "");
   const [mileage, setMileage] = useState(attributes?.is_new === "Yeni" ? "0" : attributes?.mileage_km || "");
+  const extra = (key: string) => (attributes as Record<string, unknown> | undefined)?.[key] as string | undefined;
   const years = Array.from(
     { length: new Date().getFullYear() - 1958 },
     (_, i) => String(new Date().getFullYear() + 1 - i),
@@ -287,19 +288,7 @@ function VehicleFields({
             required
             onChange={setFuel}
           />
-        ) : !bicycle ? (
-          <SelectField
-            name="is_new"
-            label="Yeni / işlənmiş"
-            options={["Yeni", "İşlənmiş"]}
-            value={isNew}
-            required
-            onChange={(value) => {
-              setIsNew(value);
-              setMileage(value === "Yeni" ? "0" : "");
-            }}
-          />
-        ) : (
+        ) : !bicycle ? null : (
           <SelectField
             name="condition"
             label="Yeni / işlənmiş"
@@ -364,21 +353,6 @@ function VehicleFields({
               />
             </div>
           )}
-          <div className="formGrid">
-            {car && (
-              <SelectField
-                name="is_new"
-                label="Yeni / işlənmiş"
-                options={["Yeni", "İşlənmiş"]}
-                value={isNew}
-                required
-                onChange={(value) => {
-                  setIsNew(value);
-                  setMileage(value === "Yeni" ? "0" : "");
-                }}
-              />
-            )}
-          </div>
           {!bicycle && (
             <label>
               Yürüş, km<span className="requiredMark"> *</span>
@@ -400,12 +374,22 @@ function VehicleFields({
         </>
       )}
       {car && (
-        <SelectField
-          name="driver_service"
-          label="Sürücü xidməti (istəyə bağlı)"
-          options={["Sürücüsüz", "Sürücülü", "Hər iki variant"]}
-          value={attributes?.driver_service}
-        />
+        <div className="formGrid">
+          <SelectField
+            name="driver_service"
+            label="Sürücü xidməti (istəyə bağlı)"
+            options={["Sürücüsüz", "Sürücülü", "Hər iki variant"]}
+            value={attributes?.driver_service}
+          />
+          <SelectField name="seats" label="Oturacaq sayı" options={["2", "4", "5", "7", "8", "9 və çox"]} value={extra("seats")} />
+          <SelectField name="insurance" label="Sığorta" options={["Qiymətə daxildir", "Daxil deyil"]} value={extra("insurance")} />
+        </div>
+      )}
+      {!car && !bicycle && (
+        <div className="formGrid">
+          <SelectField name="helmet" label="Kask verilir" options={["Bəli", "Xeyr"]} value={extra("helmet")} />
+          <SelectField name="license_class" label="Lazım olan sürücülük vəsiqəsi" options={["A", "A1", "B kifayətdir", "Vəsiqə lazım deyil"]} value={extra("license_class")} />
+        </div>
       )}
       {bicycle && (
         <>
@@ -436,6 +420,10 @@ function VehicleFields({
               value={attributes?.wheel_size}
             />
           </div>
+          <div className="formGrid">
+            <SelectField name="bike_for" label="Kim üçün" options={["Böyük", "Uşaq"]} value={extra("bike_for")} />
+            <SelectField name="helmet_lock" label="Kask və kilid verilir" options={["Bəli", "Xeyr"]} value={extra("helmet_lock")} />
+          </div>
         </>
       )}
     </section>
@@ -450,6 +438,7 @@ function PropertyFields({
 }) {
   const attributes = initial?.attributes;
   const [kind, setKind] = useState(category === "property" && attributes?.kind === "Bağ evi" ? "Həyət evi" : attributes?.kind || "");
+  const a = (key: string) => (attributes as Record<string, unknown> | undefined)?.[key] as string | undefined;
   return (
     <section className="categoryFields" aria-label="Kateqoriya məlumatları">
       <SelectField
@@ -479,7 +468,8 @@ function PropertyFields({
             />
           </label>
         )}
-        {category !== "commercial" && <label>Hamam otağı sayı<input name="bathrooms" aria-label="Hamam otağı sayı" type="number" min="1" max="20" step="1" defaultValue={attributes?.bathrooms as string | undefined} placeholder="Məsələn: 1" /></label>}
+        {category === "property" && <SelectField name="bathroom_type" label="Hamam və tualet" options={["Birlikdə", "Ayrı", "Bir neçə hamam"]} value={a("bathroom_type")} />}
+        {category === "villa" && <label>Hamam otağı sayı<input name="bathrooms" aria-label="Hamam otağı sayı" type="number" min="1" max="20" step="1" defaultValue={a("bathrooms")} placeholder="Məsələn: 2" /></label>}
         <label className="propertyArea">
           Sahə (m²)
           <input
@@ -531,14 +521,29 @@ function PropertyFields({
           </label>
         </div>
       )}
+      {category === "property" && <div className="formGrid">
+        <SelectField name="tenant" label="Kimə verilir" options={["Ailəyə", "Tələbəyə", "İşləyən şəxsə", "Fərqi yoxdur"]} value={a("tenant")} />
+        <SelectField name="pets" label="Ev heyvanı" options={["Olar", "Olmaz"]} value={a("pets")} />
+      </div>}
       {category === "commercial" && <div className="formGrid">
         <SelectField name="repair" label="Təmir" options={["Təmirli", "Təmirsiz"]} value={attributes?.repair} />
         <label>Mərtəbə<input name="floor" type="number" min="-5" max="200" step="1" defaultValue={attributes?.floor} placeholder="Məsələn: 1" /></label>
+        <SelectField name="separate_entrance" label="Ayrıca giriş" options={["Var", "Yoxdur"]} value={a("separate_entrance")} />
+        <SelectField name="street_facing" label="Küçəyə baxır" options={["Bəli", "Xeyr"]} value={a("street_facing")} />
+        <label>Elektrik gücü (kVt, istəyə bağlı)<input name="electric_kw" type="number" min="1" max="10000" step="1" defaultValue={a("electric_kw")} placeholder="Məsələn: 15" /></label>
       </div>}
-      {category === "villa" && <label>Mərtəbə sayı<input name="total_floors" type="number" min="1" max="200" step="1" defaultValue={attributes?.total_floors} placeholder="Məsələn: 3" /></label>}
+      {category === "villa" && <div className="formGrid">
+        <label>Mərtəbə sayı<input name="total_floors" type="number" min="1" max="200" step="1" defaultValue={attributes?.total_floors} placeholder="Məsələn: 2" /></label>
+        <label>Neçə nəfər qala bilər<input name="guests" type="number" min="1" max="500" step="1" defaultValue={a("guests")} placeholder="Məsələn: 8" /></label>
+        <label>Həyətin sahəsi (sot)<input name="land_sot" type="number" min="1" max="10000" step="0.5" defaultValue={a("land_sot")} placeholder="Məsələn: 6" /></label>
+        <SelectField name="pool" label="Hovuz" options={["Adi hovuz", "Qızdırılan hovuz", "Yoxdur"]} value={a("pool")} />
+        <SelectField name="events_allowed" label="Tədbir keçirmək olar" options={["Bəli", "Xeyr"]} value={a("events_allowed")} />
+      </div>}
       <div className="amenitiesField">
         <p>İmkanlar</p>
         {(amenitiesBy[category] || amenitiesBy.property)
+          // A yard house or a room has no lift.
+          .filter((value) => !(category === "property" && value === "Lift" && kind !== "Mənzil"))
           .map((value) => (
             <label className="checkLabel" key={value}>
               <input

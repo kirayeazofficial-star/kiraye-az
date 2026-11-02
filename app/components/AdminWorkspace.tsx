@@ -1,7 +1,8 @@
 "use client";
 import TabIcon from "./TabIcon";
+import { sized } from "../../lib/image-size";
 import Notice from "./Notice";
-import { FormEvent, ReactNode, useCallback, useEffect, useState } from "react";
+import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CircleAlert, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
@@ -309,6 +310,8 @@ export default function AdminWorkspace() {
     api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); setIncome(data.income || null); }).catch(() => {});
   }, [allowed, revision]);
 
+  // Words worth a look in each listing's text, worked out once per list (not on every render).
+  const riskOf = useMemo(() => new Map(items.map(item => [item.id, riskWords(item.title, item.description)])), [items]);
   const [details, setDetails] = useState<AdminListing | null>(null);
   async function moderate(item: AdminListing, status: "published" | "rejected", given?: string): Promise<boolean> {
     if (busy || loading) return false;
@@ -432,9 +435,9 @@ export default function AdminWorkspace() {
         {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
           <p className="kzAdMuted kzAdCount">{(query || dateFrom || reviewKind || owner) ? "Filtrə uyğun: " : ""}{total} elan{total > PAGE ? ` · səhifə ${page} / ${Math.ceil(total / PAGE)}` : ""}</p>
           {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.map(item => <article className="kzAdRow kzAdListing" key={item.id}>
-            <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={item.images[0]} alt="" loading="lazy" /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
+            <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={sized(item.images[0])} alt="" loading="lazy" decoding="async" /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
             <div className="kzAdRowMain">
-              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{item.duplicate_note && <span className="kzAdPill danger" title={item.duplicate_note}><Images aria-hidden="true" size={12} strokeWidth={2.4} />Eyni şəkil</span>}{riskWords(item.title, item.description).length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${riskWords(item.title, item.description).join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {riskWords(item.title, item.description)[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
+              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{item.duplicate_note && <span className="kzAdPill danger" title={item.duplicate_note}><Images aria-hidden="true" size={12} strokeWidth={2.4} />Eyni şəkil</span>}{(riskOf.get(item.id) || []).length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${(riskOf.get(item.id) || []).join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {(riskOf.get(item.id) || [])[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
               <h3>{item.title}</h3>
               <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
               <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>

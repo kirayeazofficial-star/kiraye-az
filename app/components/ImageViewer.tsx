@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { sized } from "../../lib/image-size";
 import { useEffect, useRef, useState } from "react";
 
 type View = { scale: number; x: number; y: number };
@@ -151,7 +152,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
       </>}
     </div>
     <div className="kzViewerBottom">
-      {many && <div className="kzViewerThumbs">{images.map((src, i) => <button key={src + i} type="button" aria-current={i === current} aria-label={`${i + 1}-ci şəkil`} onClick={() => { setView(still); onChange(i); }}><img src={src} alt="" draggable={false} /></button>)}</div>}
+      {many && <div className="kzViewerThumbs">{images.map((src, i) => <button key={src + i} type="button" aria-current={i === current} aria-label={`${i + 1}-ci şəkil`} onClick={() => { setView(still); onChange(i); }}><img src={sized(src)} alt="" draggable={false} loading="lazy" decoding="async" /></button>)}</div>}
       <p className="kzViewerHint">{view.scale > 1 ? "Baxmaq üçün sürüşdürün · iki dəfə toxunun — kiçilt" : "İki dəfə toxunun və ya iki barmaqla böyüdün"}</p>
     </div>
   </dialog>;

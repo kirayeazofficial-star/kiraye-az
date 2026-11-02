@@ -8,7 +8,8 @@ export function hostPool(){
   if(!config)throw new Error("Host backend is not enabled.");
   pool??=new Pool({
     host:config.db.host,port:config.db.port,database:config.db.name,user:config.db.user,password:config.db.password,
-    max:5,idleTimeoutMillis:30_000,connectionTimeoutMillis:10_000,
+    // Connections stay open for 5 minutes: reconnecting to the database on shared hosting costs up to a few seconds.
+    max:5,idleTimeoutMillis:300_000,connectionTimeoutMillis:10_000,
     keepAlive:true,keepAliveInitialDelayMillis:0,
   });
   return pool;

@@ -1,6 +1,6 @@
 "use client";
 import TopBanner from "./TopBanner";
-import { LayoutGrid, Plus, X } from "lucide-react";
+import { CirclePlus, LayoutGrid, Plus, X } from "lucide-react";
 import AccountMenu from "./AccountMenu";
 import TabIcon from "./TabIcon";
 import NavigationIcon from "./NavigationIcon";
@@ -124,7 +124,7 @@ export default function Header() {
               : <Link className="kzGuest" href="/login"><span className="kzAvatar"><TabIcon name="user" active={pathname === "/login"}/></span><span>{t("Daxil ol")}</span></Link>}
           </nav>
           <Link className="kzPublish" href="/new">
-            <Plus aria-hidden="true" size={18} strokeWidth={2.5} /><span>{t("Yeni elan")}</span>
+            <CirclePlus aria-hidden="true" size={20} strokeWidth={2} /><span>{t("Yeni elan")}</span>
           </Link>
           <LanguageSelect />
           <Link className="kzMobilePublish" href="/new" aria-label={t("Yeni elan")}>

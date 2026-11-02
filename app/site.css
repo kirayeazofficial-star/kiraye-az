@@ -3015,30 +3015,8 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
   .kzMtFollow a{justify-content:center}
 }
 
-/* ===== Modern mobile navigation (2026): quieter header, flat tab bar, rounded-square "new listing" button ===== */
 /* No double-tap zoom / 300 ms delay on taps (iPhone). */
 a,button,input,select,textarea,label,summary,[role=button]{touch-action:manipulation}
-@media (max-width:767px){
-  /* Header: dark thin menu icon, small rounded-square plus instead of a shadowed orange circle. */
-  .kzHeader .mobileMenuButton,.header .mobileMenuButton,.kzHeader .mobileMenuButton svg,.header .mobileMenuButton svg{color:var(--kz-ink)!important}
-  .mobileMenuButton svg{width:24px!important;height:24px!important;stroke-width:1.75!important}
-  .kzMobilePublish .kzRoundPlus{width:36px!important;height:36px!important;border-radius:11px!important;background:var(--kz-accent)!important;box-shadow:none!important}
-  .kzMobilePublish .kzRoundPlus svg{width:20px!important;height:20px!important;stroke-width:2.25!important}
-  /* Tab bar: white, hairline, slight blur; labels in normal case. */
-  .kzTabbar{height:calc(58px + env(safe-area-inset-bottom))!important;background:#fff!important;border-top:1px solid rgba(17,24,39,.08)!important;box-shadow:none!important}
-  .kzTabbar>a{gap:3px!important;padding-top:6px!important;justify-content:flex-start!important;color:#6b7280!important;font-size:11px!important;font-weight:500!important;letter-spacing:0!important;text-transform:none!important}
-  .kzTabbar>a svg{width:26px!important;height:26px!important}
-  .kzTabbar>a .kzTabIcon:not(.on){stroke-width:1.8!important}
-  .kzTabbar>a[aria-current=page]{color:var(--kz-accent)!important;font-weight:600!important}
-  .kzTabbar>a[aria-current=page] svg.kzTabIcon.on{stroke:none!important;fill:currentColor!important;fill-opacity:1!important}
-  /* "Yeni elan": flat rounded square in the brand colour, same height as the other icons. */
-  .kzTabbar>a.kzTabbarPublish{justify-content:flex-start!important;padding-bottom:0!important}
-  .kzTabbar>a.kzTabbarPublish .kzTabPlus{display:flex!important;align-items:center;justify-content:center;width:40px!important;height:24px!important;margin:0!important;border:0!important;border-radius:9px!important;background:var(--kz-accent)!important;color:#fff!important;box-shadow:none!important}
-  .kzTabbar>a .kzTabPlus svg{width:18px!important;height:18px!important;stroke-width:2.5!important;fill:none!important}
-  .kzTabbar>a.kzTabbarPublish{color:#6b7280!important}
-  .kzTabbar>a.kzTabbarPublish[aria-current=page]{color:var(--kz-accent)!important}
-  .kzTabbar .unreadMessages{top:2px!important;left:calc(50% + 5px)!important;min-width:17px!important;height:17px!important;border:2px solid #fff;font-size:10px!important;line-height:13px!important}
-}
 /* Same layout states for browsers without :has() (classes set by instrumentation-client.ts). */
 @media (max-width:767px){
   body.kz-tabbar-hidden{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
@@ -3047,16 +3025,6 @@ a,button,input,select,textarea,label,summary,[role=button]{touch-action:manipula
   body.kz-messages .kzFooter{display:none}
 }
 body.kz-messages .kzFooter,body.kz-compact .kzFooter{display:none!important}
-/* Navigation icons: soft duotone when inactive, solid brand colour when active; both "+" buttons the same rounded square. */
-.kzTabbar>a .kzTabIcon:not(.on),.kzHeaderNav .kzTabIcon:not(.on),.kzTabIcon:not(.on){fill:currentColor!important;fill-opacity:.13!important}
-@media (max-width:767px){
-  .kzTabbar>a{padding-top:4px!important;gap:1px!important}
-  .kzTabbar>a>svg{margin:4px 0!important}
-  .kzTabbar>a.kzTabbarPublish .kzTabPlus{width:34px!important;height:34px!important;border-radius:11px!important}
-  .kzTabbar>a .kzTabPlus svg{width:20px!important;height:20px!important}
-  .kzMobilePublish .kzRoundPlus{width:34px!important;height:34px!important;border-radius:11px!important}
-  .kzMobilePublish .kzRoundPlus svg{width:20px!important;height:20px!important}
-}
 /* Leader panel → Elanlar: status tabs as light, even buttons (selected = soft orange, not black) */
 .kzAdTabs{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px!important;margin:0 0 14px!important;padding:0!important;overflow:visible!important}
 .kzAdTabs button{display:flex!important;align-items:center;justify-content:space-between;gap:8px;min-height:40px!important;padding:0 12px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;color:var(--kz-text)!important;font-size:var(--fs-13)!important;font-weight:500!important;white-space:nowrap;transition:border-color .15s,background .15s}
@@ -3074,3 +3042,15 @@ body.kz-messages .kzFooter,body.kz-compact .kzFooter{display:none!important}
   .kzOwnTabs>*{flex-shrink:1!important;min-width:0}
   .kzOwnTabs button{padding:0 6px!important;gap:4px!important;white-space:nowrap;font-size:var(--fs-12)!important}
 }
+/* Contact block (footer and side menu): e-mail, Instagram and TikTok as equal tidy buttons with coloured icon badges. */
+.kzFooter .kzContactLine,.kzFooter .kzSocial a,.siteContact .kzContactLine,.siteContact .socialLinks a{display:flex!important;align-items:center;gap:10px;min-height:44px;margin:0!important;padding:0 12px 0 6px!important;border:1px solid var(--kz-line);border-radius:12px;background:#fff;color:var(--kz-ink)!important;font-size:var(--fs-14)!important;font-weight:500;text-decoration:none!important;line-height:1.2}
+.kzFooter .kzContactLine:hover,.kzFooter .kzSocial a:hover,.siteContact .kzContactLine:hover,.siteContact .socialLinks a:hover{border-color:#d0d5dd}
+.kzSocialIcon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:9px}
+.kzSocialIcon svg{width:17px!important;height:17px!important}
+.kzSocialIcon.mail{background:#fff1ea;color:#ff5a1f}
+.kzSocialIcon.ig{background:linear-gradient(135deg,#feda75 0%,#fa7e1e 30%,#d62976 60%,#962fbf 85%,#4f5bd5 100%);color:#fff}
+.kzSocialIcon.tt{background:#111827;color:#fff}
+.kzFooter .kzSocial,.siteContact .socialLinks{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important;margin-top:8px!important}
+.kzFooter .kzContactLine,.siteContact .kzContactLine{margin-top:10px!important;overflow-wrap:anywhere}
+.kzFooter .kzContactLine{width:100%;box-sizing:border-box}
+.kzFooter .kzSocial,.siteContact .socialLinks{width:100%;box-sizing:border-box}

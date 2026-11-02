@@ -370,7 +370,6 @@ export default function AdminWorkspace() {
             <ChevronRight className="kzAdMenuArrow" aria-hidden="true" size={18} strokeWidth={2} />
           </button>; })}
         </nav>
-        {role === "leader" && <SiteHealth />}
         <Panel title="Görüləcək işlər" className="kzAdTodoPanel">
           <div className="kzAdTodo">
             {([[pending, "Yoxlama gözləyən elan", "attention", ListChecks, () => showListings("pending")], [openReports, "Açıq şikayət", "warn", Flag, () => open("reports")], [storeRequests, "Mağaza müraciəti", "attention", Store, () => open("stores")]] as const).map(([count, label, tone, Icon, go]) =>
@@ -381,6 +380,7 @@ export default function AdminWorkspace() {
               </button>)}
           </div>
         </Panel>
+        {role === "leader" && <SiteHealth />}
         <Panel title="Statistika" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" onClick={() => setRevision(x => x + 1)}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>
           <div className="kzAdKpis">
             <button type="button" onClick={() => showListings("published")}><b>{counts?.statuses?.published ?? "—"}</b><span>Yayımda olan elan</span></button>
@@ -709,7 +709,7 @@ const healthNames: Record<string, string> = { site: "Sayt", database: "Baza", di
 function SiteHealth() {
   const [items, setItems] = useState<HealthRow[] | null>(null);
   useEffect(() => { api({ action: "site_health" }).then(data => setItems(data.items as HealthRow[])).catch(() => setItems([])); }, []);
-  if (!items) return null;
+  if (!items || !items.length) return null;
   const bad = items.filter(item => item.level === "bad").length, warn = items.filter(item => item.level === "warn").length;
   const last = items.reduce((max, item) => item.checked_at > max ? item.checked_at : max, "");
   const fresh = last && Date.now() - Date.parse(last) < 20 * 60000;

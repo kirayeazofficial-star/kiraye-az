@@ -132,7 +132,7 @@ button,a { -webkit-tap-highlight-color:transparent; }
   .messagesPage { padding:14px 0 calc(76px + env(safe-area-inset-bottom)); }
   .messagesTitle { padding-inline:14px; }
   .messagesTitle h1 { font-size:25px; }
-  .messagesLayout { height:calc(100dvh - 190px);min-height:420px;border-width:1px 0;border-radius:0;box-shadow:none; }
+  .messagesLayout { height:calc(100vh - 190px);height:calc(100dvh - 190px);min-height:420px;border-width:1px 0;border-radius:0;box-shadow:none; }
   .conversationList { border-right:0; }
   .adminDashboard { padding-top:14px;padding-inline:12px; }
   .adminDashboard>.sectionTitle { padding:14px;box-shadow:none; }

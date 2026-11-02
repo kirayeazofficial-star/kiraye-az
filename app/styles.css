@@ -637,7 +637,7 @@ footer > div:last-child {
 .modal {
   position: relative;
   width: min(100%, 650px);
-  max-height: 90dvh;
+  max-height: 90vh;max-height: 90dvh;
   overflow: auto;
   background: #fff;
   border-radius: 15px;
@@ -1257,7 +1257,7 @@ footer > div:last-child {
   }
   .modal {
     padding: 22px;
-    max-height: 93dvh;
+    max-height: 93vh;max-height: 93dvh;
   }
   .detailImage {
     margin: -22px -22px 20px;

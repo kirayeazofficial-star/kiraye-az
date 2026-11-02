@@ -1,19 +1,11 @@
 "use client";
-export default function ErrorPage({
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  return (
-    <main className="wrap">
-      <section className="empty">
-        <h1>Səhifə yüklənmədi</h1>
-        <p>Yenidən cəhd et və ya bir az sonra qayıt.</p>
-        <button className="add" onClick={reset}>
-          Yenidən yoxla
-        </button>
-      </section>
-    </main>
-  );
+import { House, RotateCw, TriangleAlert } from "lucide-react";
+import StatusCard from "./components/StatusCard";
+
+export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  return <main className="kzScPage">
+    <StatusCard tone="danger" icon={TriangleAlert} badge="Texniki xəta" title="Səhifə yüklənmədi"
+      lead="Texniki səbəbdən səhifəni açmaq mümkün olmadı. Bir neçə saniyədən sonra yenidən cəhd edin. Problem təkrarlanarsa, kirayeal.az@gmail.com ünvanına yazın."
+      actions={[{ label: "Yenidən yoxla", icon: RotateCw, primary: true, onClick: reset }, { href: "/", label: "Ana səhifə", icon: House }]} />
+  </main>;
 }

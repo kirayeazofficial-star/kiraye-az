@@ -288,7 +288,7 @@ export default function AdminWorkspace() {
   const [search, setSearch] = useState(""), [query, setQuery] = useState(""), [dateFrom, setDateFrom] = useState(""), [reviewKind, setReviewKind] = useState(""), [owner, setOwner] = useState<{ id: string; name: string } | null>(null);
   const [reasons, setReasons] = useState<Record<string, string>>({}), [rejecting, setRejecting] = useState(""), [revision, setRevision] = useState(0), [loading, setLoading] = useState(false), [busy, setBusy] = useState(""), [error, setError] = useState("");
   const [moreFilters, setMoreFilters] = useState(false);
-  const [counts, setCounts] = useState<Counts | null>(null), [periods, setPeriods] = useState<{ users: Period; listings: Period } | null>(null), [activity, setActivity] = useState<Activity[]>([]);
+  const [counts, setCounts] = useState<Counts | null>(null), [periods, setPeriods] = useState<{ users: Period; listings: Period } | null>(null), [activity, setActivity] = useState<Activity[]>([]), [income, setIncome] = useState<(Period & { total: number }) | null>(null);
 
   useEffect(() => { api({ action: "access" }).then(data => { setAllowed(true); setRole(data.role); }).catch(() => setAllowed(false)); }, []);
   useEffect(() => {
@@ -304,7 +304,7 @@ export default function AdminWorkspace() {
   }, [allowed, section, filter, query, page, revision, dateFrom, reviewKind, owner]);
   useEffect(() => {
     if (!allowed) return;
-    api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); }).catch(() => {});
+    api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); setIncome(data.income || null); }).catch(() => {});
   }, [allowed, revision]);
 
   const [details, setDetails] = useState<AdminListing | null>(null);
@@ -388,8 +388,11 @@ export default function AdminWorkspace() {
             <tbody>
               <tr><th scope="row">İstifadəçi</th><td>{periods?.users.today ?? "—"}</td><td>{periods?.users.week ?? "—"}</td><td>{periods?.users.month ?? "—"}</td></tr>
               <tr><th scope="row">Elan</th><td>{periods?.listings.today ?? "—"}</td><td>{periods?.listings.week ?? "—"}</td><td>{periods?.listings.month ?? "—"}</td></tr>
+              {income && <tr className="kzAdIncome"><th scope="row">Gəlir, ₼</th><td>{manatNumber(income.today)}</td><td>{manatNumber(income.week)}</td><td>{manatNumber(income.month)}</td></tr>}
             </tbody>
           </table>
+          {income && <p className="kzAdIncomeTotal"><span>Ümumi gəlir</span><b>{manatNumber(income.total)} ₼</b></p>}
+          {income && !income.total && <p className="kzAdMuted">Ödəniş sistemi qoşulduqdan sonra daxil olan ödənişlər burada avtomatik hesablanacaq.</p>}
         </Panel>
         <Panel title="Son fəaliyyətlər" actions={<button type="button" className="kzAdBtn" onClick={() => open("history")}>Hamısı</button>}>
           {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.map(item => <li key={item.id}>
@@ -712,3 +715,6 @@ function SiteHealth() {
     </>}
   </Panel>;
 }
+
+// 1234.5 → "1 234,50" (Azerbaijani money format, without the currency sign).
+function manatNumber(value: number) { const [whole, cents] = value.toFixed(2).split("."); return `${whole.replace(/\B(?=(\d{3})+(?!\d))/g, " ")},${cents}`; }

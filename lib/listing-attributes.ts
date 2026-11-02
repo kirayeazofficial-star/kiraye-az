@@ -19,6 +19,8 @@ export function readListingAttributes(
       "min_driver_age",
       "license_years",
       "included_km_day",
+      "seats",
+      "insurance",
     ],
     motorcycle: [
       ...vehicle.filter((key) => key !== "condition"),
@@ -29,13 +31,15 @@ export function readListingAttributes(
       "min_driver_age",
       "license_years",
       "included_km_day",
+      "helmet",
+      "license_class",
     ],
-    bicycle: [...vehicle, "kind", "frame_size", "wheel_size"],
+    bicycle: [...vehicle, "kind", "frame_size", "wheel_size", "bike_for", "helmet_lock"],
     equipment: ["kind", "brand", "model", "condition"],
     event: ["kind", "condition", "capacity"],
-    property: ["kind", "building_type", "complex", "repair", "floor", "total_floors", "bathrooms"],
-    villa: ["kind", "bathrooms", "total_floors"],
-    commercial: ["kind", "repair", "floor"],
+    property: ["kind", "building_type", "complex", "repair", "floor", "total_floors", "bathrooms", "bathroom_type", "tenant", "pets"],
+    villa: ["kind", "bathrooms", "total_floors", "guests", "land_sot", "pool", "events_allowed"],
+    commercial: ["kind", "repair", "floor", "separate_entrance", "street_facing", "electric_kw"],
   };
   if (rentalCategorySpecs[category]) {
     keys[category] = ["kind", "brand", "model", "condition",
@@ -128,11 +132,10 @@ export function validateListingAttributes(
         attributes.gearbox,
         attributes.body_type,
         attributes.drivetrain,
-        attributes.is_new,
         attributes.year,
       ].every(Boolean)
     )
-      return "Avtomobilin rəngini, yanacağını, sürətlər qutusunu, kuzovunu, ötürücüsünü, ilini və vəziyyətini seçin.";
+      return "Avtomobilin rəngini, yanacağını, sürətlər qutusunu, kuzovunu, ötürücüsünü və ilini seçin.";
     if (attributes.mileage_km === undefined)
       return "Avtomobilin yürüşünü yazın.";
     if (attributes.fuel !== "Elektrik" && !attributes.engine_cc)
@@ -141,8 +144,6 @@ export function validateListingAttributes(
       return "Yeni avtomobilin yürüşü 0 km olmalıdır.";
   }
   if (category === "motorcycle") {
-    if (!["Yeni", "İşlənmiş"].includes(attributes.is_new || ""))
-      return "Motosikletin yeni və ya işlənmiş olduğunu seçin.";
     if (attributes.mileage_km === undefined)
       return "Motosikletin yürüşünü yazın.";
     if (attributes.is_new === "Yeni" && Number(attributes.mileage_km) !== 0)

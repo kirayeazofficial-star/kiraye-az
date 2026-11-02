@@ -1,7 +1,7 @@
 // What a place offers, per property category (only what fits that kind of place).
 export const amenitiesBy: Record<string, string[]> = {
-  property: ["Wi-Fi", "Kondisioner", "İstilik", "Mebel", "Mətbəx", "Paltaryuyan", "Balkon", "Lift", "Park yeri"],
-  villa: ["Wi-Fi", "Kondisioner", "İstilik", "Mebel", "Mətbəx", "Hovuz", "Barbekü", "Sauna", "Park yeri"],
+  property: ["Wi-Fi", "Kondisioner", "Kombi", "İstilik", "Qaz", "24 saat su", "Mebel", "Mətbəx", "Soyuducu", "Paltaryuyan", "Qabyuyan", "Televizor", "Balkon", "Lift", "Park yeri"],
+  villa: ["Wi-Fi", "Kondisioner", "İstilik", "Mebel", "Mətbəx", "Barbekü", "Sauna", "Kamin", "Bilyard", "Uşaq meydançası", "Mühafizə", "Park yeri"],
   commercial: ["Wi-Fi", "Kondisioner", "İstilik", "Mebel", "Lift", "Park yeri", "Mühafizə", "Vitrin"],
 };
 export const amenities = Array.from(new Set(Object.values(amenitiesBy).flat()));

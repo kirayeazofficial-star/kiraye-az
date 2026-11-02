@@ -1118,7 +1118,7 @@ input[type="number"]::-webkit-outer-spin-button {
  .rentalHome .activeFilters button { padding:6px 9px;min-height:32px;font-size:11px; }
  .catalogFilterLayer { position:fixed;inset:0;z-index:1500;display:flex;align-items:flex-end;justify-content:center; }
  .catalogFilterShade { display:block;position:absolute;inset:0;border:0;background:#102f29a8; }
- .catalogFilterPanel { position:relative;width:100%;max-height:88vh;max-height:88vh;max-height:88dvh;overflow-y:auto;background:#fff;border-radius:16px 16px 0 0;padding:0 16px calc(12px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch; }
+ .catalogFilterPanel { position:relative;width:100%;max-height:88vh;max-height:88dvh;overflow-y:auto;background:#fff;border-radius:16px 16px 0 0;padding:0 16px calc(12px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch; }
  .catalogFilterHeading { display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:80;padding:10px 0;background:#fff; }
  .catalogFilterHeading h2 { font-size:19px; }
  .catalogFilterHeading button { width:44px;height:44px;border:0;border-radius:8px;background:#f2f2f4;color:#e84a10;font-size:28px; }
@@ -1213,7 +1213,7 @@ footer .footerLinks { flex-wrap:wrap; }
  .siteMenuPanel { padding-bottom:calc(24px + env(safe-area-inset-bottom)); }
 }
 /* Clearer signed-in navigation and a full-height branded mobile menu. */
-.siteMenuPanel { display:flex;flex-direction:column;min-height:100vh;height:100vh;height:100dvh;background:linear-gradient(160deg,#f3f3f5 0,#fff 45%); }
+.siteMenuPanel { display:flex;flex-direction:column;min-height:100vh;height:100dvh;background:linear-gradient(160deg,#f3f3f5 0,#fff 45%); }
 .siteMenuHeading { padding-bottom:22px;border-bottom:1px solid #e2e2e4; }
 .siteMenuHeading .logo { color:#143f3b;font-size:29px;font-weight:800;letter-spacing:-1.6px; }
 .siteMenuHeading .logo span { color:#ed7249; }
@@ -1233,7 +1233,7 @@ footer .footerLinks { flex-wrap:wrap; }
  .siteMenuPanel { width:min(380px,92vw);padding:22px 18px calc(24px + env(safe-area-inset-bottom)); }
 }
 @media(max-width:360px){ .rentalHome .searchWrap { padding-left:12px;padding-right:12px; } }
-.siteMenuPanel { min-height:0;height:100%;height:100vh;height:100dvh; }
+.siteMenuPanel { min-height:0;height:100%;height:100dvh; }
 @media(max-width:720px){ .rentalHome .searchPanel label { padding:0;border-right:0; } }
 @media(max-height:740px){
  .siteMenuPanel { padding-top:16px; }
@@ -1600,7 +1600,7 @@ footer .footerLinks { flex-wrap:wrap; }
 .conversationHeading h2 { font-size:18px; }
 .conversationHeading button,.chatReport button { padding:8px;border:1px solid #e0e0e2;border-radius:8px;background:white;margin-top:8px; }
 .conversationBack { display:none; }
-.messageHistory { min-height:160px;max-height:50vh;max-height:50dvh;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:16px 0; }
+.messageHistory { min-height:160px;max-height:50dvh;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:16px 0; }
 .messageHistory article { max-width:90%;border-radius:12px;padding:10px 14px;overflow-wrap:anywhere; }
 .messageHistory article p { white-space:pre-wrap;margin:0 0 6px; }
 .messageHistory article small { font-size:11px;color:#3d4450; }
@@ -1623,7 +1623,7 @@ footer .footerLinks { flex-wrap:wrap; }
  .hasConversation .conversationList { display:none; }
  .hasConversation .conversationBody { display:flex; }
  .conversationBack { display:inline-block; }
- .messageHistory { max-height:45vh;max-height:45dvh; }
+ .messageHistory { max-height:45dvh; }
  .contactActions { display:flex;flex-wrap:wrap;gap:8px; }
  .contactActions>a,.contactActions>button { min-height:44px;flex:1 1 auto; }
 }
@@ -1813,7 +1813,7 @@ footer .footerLinks { flex-wrap:wrap; }
   .messagesTitle { padding:0 14px;margin-bottom:12px; }
   .messagesTitle h1 { font-size:25px; }
   .messagesTitle p:not(.eyebrow) { font-size:12px; }
-  .messagesLayout { display:block;height:calc(100vh - 190px);height:calc(100dvh - 190px);min-height:430px;border-width:1px 0;border-radius:0;box-shadow:none; }
+  .messagesLayout { display:block;height:calc(100dvh - 190px);min-height:430px;border-width:1px 0;border-radius:0;box-shadow:none; }
   .conversationList { height:100%;border:0; }
   .conversationList>button:not(.loadOlder) { min-height:82px;padding:12px 14px; }
   .conversationBody { height:100%; }
@@ -1929,7 +1929,7 @@ footer .footerLinks { flex-wrap:wrap; }
 .galleryOpen { display:block;width:100%;padding:0;border:0;border-radius:20px;background:transparent;cursor:zoom-in; }
 .galleryStage .photoMark { pointer-events:none; }
 .moderationImages>button { flex:0 0 auto;padding:0;border:0;background:transparent;cursor:zoom-in;border-radius:8px; }
-.imageViewer { max-width:none;max-height:none;width:100%;height:100%;height:100vh;height:100dvh;margin:0;padding:0;border:0;background:#101a18f5;color:#fff; }
+.imageViewer { max-width:none;max-height:none;width:100%;height:100%;height:100dvh;margin:0;padding:0;border:0;background:#101a18f5;color:#fff; }
 .imageViewer::backdrop { background:#101a18ee; }
 .imageViewerContent { display:flex;flex-direction:column;height:100%;max-width:1500px;margin:auto;padding:16px;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));box-sizing:border-box; }
 .imageViewer header { display:flex;align-items:center;justify-content:space-between;gap:16px;flex:none; }
@@ -2026,7 +2026,7 @@ footer .footerLinks { flex-wrap:wrap; }
   .rentalHome .categories button { flex-basis:74px;min-height:83px;height:83px;padding:6px 3px; }
   .rentalHome .categories .categoryArtwork,.rentalHome .categories .categoryIcon,.categoryVisual { width:50px;height:50px;flex-basis:50px; }
   .messagesPage { margin-top:0; }
-  .messagesPage .messagesLayout { height:calc(100vh - 235px);height:calc(100dvh - 235px);min-height:390px;border-radius:0; }
+  .messagesPage .messagesLayout { height:calc(100dvh - 235px);min-height:390px;border-radius:0; }
   .messagesPage .conversationBody { padding:0; }
   .messagesPage .conversationList>button:not(.loadOlder) { min-height:82px;padding:12px 14px; }
   .messagesPage.isKeyboardOpen .messagesLayout { height:100%;min-height:0; }

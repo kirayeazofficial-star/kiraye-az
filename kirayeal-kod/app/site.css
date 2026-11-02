@@ -371,7 +371,7 @@ body:has(.kzMessages){--kz-bg:var(--kz-soft)}
 .kzMessagesState{display:grid;justify-items:center;gap:10px;padding:56px 16px;background:#fff;border-radius:16px;text-align:center}
 .kzMessagesState h1{margin:0;font-size:var(--fs-24)}
 .kzMessagesState p{margin:0 0 6px;color:var(--kz-muted)}
-.kzChat{display:grid;grid-template-columns:360px minmax(0,1fr);height:calc(100vh - 76px - 52px);height:calc(100vh - 76px - 52px);height:calc(100dvh - 76px - 52px);min-height:520px;max-height:860px;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--kz-line)}
+.kzChat{display:grid;grid-template-columns:360px minmax(0,1fr);height:calc(100vh - 76px - 52px);height:calc(100dvh - 76px - 52px);min-height:520px;max-height:860px;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--kz-line)}
 .kzChatList{display:flex;flex-direction:column;min-height:0;overflow-y:auto;border-right:1px solid var(--kz-line)}
 .kzChatListHead{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:10px;padding:18px 20px 14px;background:#fff}
 .kzChatListHead h1{margin:0;font-size:var(--fs-24);font-weight:600}
@@ -431,11 +431,11 @@ body:has(.kzMessages){--kz-bg:var(--kz-soft)}
   .kzChatItem{padding:12px 16px}
   .kzChatBody{display:none}
   .kzMessages.hasConversation .kzChatList{display:none}
-  .kzMessages.hasConversation .kzChatBody{display:flex;height:100vh;height:100vh;height:100dvh}
+  .kzMessages.hasConversation .kzChatBody{display:flex;height:100vh;height:100dvh}
   body:has(.kzMessages.hasConversation){padding-bottom:0}
   body:has(.kzMessages.hasConversation) .kzHeader,body:has(.kzMessages.hasConversation) .kzTabbar{display:none!important}
   .kzMessages.hasConversation{padding:0}
-  .kzChat{min-height:calc(100vh - 190px);min-height:calc(100vh - 190px);min-height:calc(100dvh - 190px)}
+  .kzChat{min-height:calc(100vh - 190px);min-height:calc(100dvh - 190px)}
   .kzChatHead{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top))}
   .kzChatBack{display:flex}
   .kzChatBlock{padding:0 10px}
@@ -816,7 +816,7 @@ main h1,main h2,main h3{color:var(--kz-ink)!important}
 .kzSheetFoot .kzButton{width:100%;height:48px}
 @media (max-width:767px){
   .kzSheetLayer{align-items:flex-end;padding:0}
-  .kzSheet{width:100%;max-height:92vh;max-height:92vh;max-height:92dvh;border-radius:18px 18px 0 0}
+  .kzSheet{width:100%;max-height:92vh;max-height:92dvh;border-radius:18px 18px 0 0}
   .kzSheetBody .advancedFilters{grid-template-columns:1fr}
   .kzHeaderCompact .kzSearch{display:none!important}
   .kzHeaderCompact .kzHeaderInner{padding-bottom:8px}
@@ -1468,7 +1468,7 @@ video.kzBannerThumb{display:block}
 .stickyContact .add .kzI{margin:0!important}
 
 /* ---- Photo viewer (full screen) ---- */
-.imageViewer.kzViewer{position:fixed;inset:0;display:flex!important;flex-direction:column;width:100vw!important;max-width:none!important;height:100vh!important;height:100dvh!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;background:#000!important;color:#fff;overflow:hidden;user-select:none;-webkit-user-select:none}
+.imageViewer.kzViewer{position:fixed;inset:0;display:flex!important;flex-direction:column;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;background:#000!important;color:#fff;overflow:hidden;user-select:none;-webkit-user-select:none}
 .imageViewer.kzViewer::backdrop{background:#000}
 .kzViewerTop{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;z-index:2}
 .kzViewerCount{padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:var(--fs-13);font-weight:600;font-variant-numeric:tabular-nums}
@@ -1924,7 +1924,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzSegmented label:has(input:focus-visible){outline:2px solid var(--kz-accent);outline-offset:1px}
 
 /* ===== Promotion dialog (bina.az style) ===== */
-.kzPromoDlg{width:min(480px,calc(100vw - 24px));max-height:min(88vh,760px);max-height:min(88dvh,760px);margin:auto;padding:0;border:0;border-radius:18px;background:#fff;color:var(--kz-ink);box-shadow:0 24px 60px rgba(16,24,40,.28);overflow:hidden}
+.kzPromoDlg{width:min(480px,calc(100vw - 24px));max-height:min(88dvh,760px);margin:auto;padding:0;border:0;border-radius:18px;background:#fff;color:var(--kz-ink);box-shadow:0 24px 60px rgba(16,24,40,.28);overflow:hidden}
 .kzPromoDlg::backdrop{background:rgba(15,18,22,.5)}
 .kzPromoBody{display:flex;flex-direction:column;max-height:inherit;overflow-y:auto;outline:none}
 .kzPromoHead{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:8px;padding:16px 16px 14px 20px;border-bottom:1px solid var(--kz-line);background:#fff}
@@ -1967,7 +1967,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzPromoOptionText small{font-size:var(--fs-12);line-height:1.45;color:var(--kz-muted)}
 .kzPromoOptionPrice{display:inline-flex;align-items:center;gap:2px;flex:none;font-size:var(--fs-13);font-weight:600;color:#2f6fe4;white-space:nowrap}
 @media (max-width:767px){
-  .kzPromoDlg{width:100vw;max-width:100vw;max-height:92vh;max-height:92dvh;margin:auto 0 0;border-radius:18px 18px 0 0}
+  .kzPromoDlg{width:100vw;max-width:100vw;max-height:92dvh;margin:auto 0 0;border-radius:18px 18px 0 0}
 }
 /* Empty-state line illustrations */
 .kzEmptyArt{display:block;width:150px;height:auto;margin:0 auto 6px;color:#c3c8d1}
@@ -2213,7 +2213,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzSheetTabs button.on{background:#fff!important;color:var(--kz-ink,#111)!important;box-shadow:0 1px 3px rgba(16,24,40,.12)}
 .kzSheetHead{border-bottom:0!important}
 /* Yan menyu: telefonda aşağıdakı əlaqə hissəsi brauzer zolağının altında qalmasın */
-.siteMenuPanel.kzSide{height:100vh!important;height:100dvh!important;max-height:100vh;max-height:100dvh;overflow-y:auto!important;padding-bottom:calc(28px + env(safe-area-inset-bottom))!important}
+.siteMenuPanel.kzSide{height:100dvh!important;max-height:100dvh;overflow-y:auto!important;padding-bottom:calc(28px + env(safe-area-inset-bottom))!important}
 .siteMenuPanel.kzSide nav a{min-height:44px!important}
 /* Elan forması: "İmkanlar" — səliqəli seçim düymələri (işarə qutusu yazı ilə bir sırada) */
 .listingForm .amenitiesField{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px!important;margin-bottom:20px}
@@ -2632,13 +2632,13 @@ html{-webkit-tap-highlight-color:transparent}
 }
 
 /* Story üçün şəkil: önizləmə pəncərəsi */
-.kzStoryDlg{width:min(420px,calc(100vw - 24px));max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);margin:auto;padding:0;border:0;border-radius:18px;background:#fff;box-shadow:0 24px 60px rgba(17,24,39,.3);overflow:auto}
+.kzStoryDlg{width:min(420px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:0;border:0;border-radius:18px;background:#fff;box-shadow:0 24px 60px rgba(17,24,39,.3);overflow:auto}
 .kzStoryDlg::backdrop{background:rgba(17,24,39,.55)}
 .kzStoryBody{display:grid;gap:12px;padding:14px 16px 16px}
 .kzStoryBody header{display:flex;align-items:center;justify-content:space-between}
 .kzStoryBody header strong{font-size:16px;color:var(--kz-ink)}
 .kzStoryClose{display:grid;place-items:center;width:36px;height:36px;margin:0;padding:0;border:0;border-radius:50%;background:var(--kz-soft);color:var(--kz-ink);cursor:pointer;box-shadow:none}
-.kzStoryBody img{display:block;width:100%;max-height:min(62vh,560px);max-height:min(62dvh,560px);object-fit:contain;border-radius:12px;background:#f3f4f6}
+.kzStoryBody img{display:block;width:100%;max-height:min(62dvh,560px);object-fit:contain;border-radius:12px;background:#f3f4f6}
 .kzStoryBody p{margin:0;font-size:13px;line-height:1.5;color:var(--kz-muted);text-align:center}
 .kzStoryActions{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:10px}
 .kzStoryActions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px}
@@ -2941,7 +2941,7 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 .kzAdIncomeTotal b{font-size:var(--fs-18);font-weight:700}
 
 /* Maintenance page (/maintenance): header, main card, rental tips on the side, footer */
-.kzMt{display:flex;flex-direction:column;min-height:100vh;min-height:100vh;min-height:100dvh;background:radial-gradient(900px 420px at 15% -5%,#fff1ec 0,transparent 60%),radial-gradient(700px 380px at 100% 100%,#eaf3f1 0,transparent 60%),var(--kz-soft)}
+.kzMt{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:radial-gradient(900px 420px at 15% -5%,#fff1ec 0,transparent 60%),radial-gradient(700px 380px at 100% 100%,#eaf3f1 0,transparent 60%),var(--kz-soft)}
 .kzMtHead{background:#fff;border-bottom:1px solid var(--kz-line)}
 .kzMtBar{display:flex;align-items:center;justify-content:space-between;gap:12px;width:min(1120px,100%);height:64px;margin:0 auto;padding:0 20px}
 .kzMtLogo{margin:0;font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--kz-brand)}
@@ -3014,17 +3014,6 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
   .kzMtFollow{flex-direction:column;align-items:stretch;text-align:left}
   .kzMtFollow a{justify-content:center}
 }
-
-/* No double-tap zoom / 300 ms delay on taps (iPhone). */
-a,button,input,select,textarea,label,summary,[role=button]{touch-action:manipulation}
-/* Same layout states for browsers without :has() (classes set by instrumentation-client.ts). */
-@media (max-width:767px){
-  body.kz-tabbar-hidden{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
-  body.kz-chat-open{padding-bottom:0}
-  body.kz-chat-open .kzHeader,body.kz-chat-open .kzTabbar{display:none!important}
-  body.kz-messages .kzFooter{display:none}
-}
-body.kz-messages .kzFooter,body.kz-compact .kzFooter{display:none!important}
 /* Leader panel → Elanlar: status tabs as light, even buttons (selected = soft orange, not black) */
 .kzAdTabs{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px!important;margin:0 0 14px!important;padding:0!important;overflow:visible!important}
 .kzAdTabs button{display:flex!important;align-items:center;justify-content:space-between;gap:8px;min-height:40px!important;padding:0 12px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;color:var(--kz-text)!important;font-size:var(--fs-13)!important;font-weight:500!important;white-space:nowrap;transition:border-color .15s,background .15s}
@@ -3034,23 +3023,3 @@ body.kz-messages .kzFooter,body.kz-compact .kzFooter{display:none!important}
 .kzAdTabs button[aria-pressed=true] small{background:#ff5a1f!important;color:#fff!important}
 @media (max-width:1100px){.kzAdTabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:520px){.kzAdTabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important}.kzAdTabs button{min-height:38px!important;padding:0 10px!important}}
-/* Listing page: the facts table spans the whole "Elan haqqında" card on desktop. */
-@media (min-width:900px){.listingDetails .detailSpecs{max-width:none!important}}
-/* Cabinet status tabs: even tabs that fit the phone screen (very narrow phones keep the side scroll). */
-@media (min-width:361px) and (max-width:767px){
-  .kzOwnTabs{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:4px!important;overflow:visible!important}
-  .kzOwnTabs>*{flex-shrink:1!important;min-width:0}
-  .kzOwnTabs button{padding:0 6px!important;gap:4px!important;white-space:nowrap;font-size:var(--fs-12)!important}
-}
-/* Contact block (footer and side menu): e-mail, Instagram and TikTok as equal tidy buttons with coloured icon badges. */
-.kzFooter .kzContactLine,.kzFooter .kzSocial a,.siteContact .kzContactLine,.siteContact .socialLinks a{display:flex!important;align-items:center;gap:10px;min-height:44px;margin:0!important;padding:0 12px 0 6px!important;border:1px solid var(--kz-line);border-radius:12px;background:#fff;color:var(--kz-ink)!important;font-size:var(--fs-14)!important;font-weight:500;text-decoration:none!important;line-height:1.2}
-.kzFooter .kzContactLine:hover,.kzFooter .kzSocial a:hover,.siteContact .kzContactLine:hover,.siteContact .socialLinks a:hover{border-color:#d0d5dd}
-.kzSocialIcon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:9px}
-.kzSocialIcon svg{width:17px!important;height:17px!important}
-.kzSocialIcon.mail{background:#fff1ea;color:#ff5a1f}
-.kzSocialIcon.ig{background:linear-gradient(135deg,#feda75 0%,#fa7e1e 30%,#d62976 60%,#962fbf 85%,#4f5bd5 100%);color:#fff}
-.kzSocialIcon.tt{background:#111827;color:#fff}
-.kzFooter .kzSocial,.siteContact .socialLinks{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important;margin-top:8px!important}
-.kzFooter .kzContactLine,.siteContact .kzContactLine{margin-top:10px!important;overflow-wrap:anywhere}
-.kzFooter .kzContactLine{width:100%;box-sizing:border-box}
-.kzFooter .kzSocial,.siteContact .socialLinks{width:100%;box-sizing:border-box}

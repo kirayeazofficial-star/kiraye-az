@@ -1,8 +1,8 @@
 // Installs a prebuilt release (built by GitHub) into the live cPanel app folder.
 // The previous build is kept in .kirayeal-backups so it can be restored.
-import { access, cp, mkdir, readFile, readdir, rename, rm, writeFile, copyFile } from "node:fs/promises";
+import { access, cp, mkdir, readFile, rename, rm, writeFile, copyFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 
 const target = resolve(process.argv[2] || "");
 if (!process.argv[2]) throw new Error("Usage: node install-release.mjs <app-folder>");
@@ -59,22 +59,6 @@ try {
   await mkdir(fresh, { recursive: true });
   await cp(join(source, ".next/standalone"), join(fresh, "standalone"), { recursive: true });
   await copyFile(join(source, ".next/BUILD_ID"), join(fresh, "BUILD_ID"));
-  // Keep the previous version's CSS/JS files next to the new ones: a page opened (or cached on a phone) just
-  // before the update still finds its files, instead of showing the site without design until a reload.
-  // Only the previous version's own files (listed in OWN-STATIC.json) are carried over, so old files do not pile up.
-  const newStatic = join(fresh, "standalone/.next/static"), oldStatic = join(target, ".next/standalone/.next/static");
-  const listFiles = async (dir, base = dir) => (await Promise.all((await readdir(dir, { withFileTypes: true }).catch(() => [])).map(entry => entry.isDirectory() ? listFiles(join(dir, entry.name), base) : [relative(base, join(dir, entry.name))]))).flat();
-  const own = await listFiles(newStatic);
-  await writeFile(join(fresh, "OWN-STATIC.json"), JSON.stringify(own));
-  if (await exists(oldStatic)) {
-    const previousOwn = JSON.parse(await readFile(join(target, ".next/OWN-STATIC.json"), "utf8").catch(() => "null")) || await listFiles(oldStatic);
-    for (const file of previousOwn) {
-      const to = join(newStatic, file);
-      if (await exists(to)) continue;
-      await mkdir(dirname(to), { recursive: true }).catch(() => {});
-      await copyFile(join(oldStatic, file), to).catch(() => {});
-    }
-  }
   if (await exists(join(target, ".next"))) await rename(join(target, ".next"), previous);
   swapped = true;
   await rename(fresh, join(target, ".next"));

@@ -386,9 +386,6 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         if (fingerprint) uploadForm.set("hash", fingerprint);
         const small = await sharePreview(branded).catch(() => null);
         if (small) uploadForm.set("share",small,"share.jpg");
-        // Small copy for cards and lists (phones load ~50 KB instead of the 1–4 MB original).
-        const thumb = await sharePreview(branded, 560, 0.78).catch(() => null);
-        if (thumb) uploadForm.set("thumb",thumb,"thumb.jpg");
         const uploadResponse=await fetch("/api/uploads",{method:"POST",body:uploadForm});
         const uploaded=await uploadResponse.json();
         if (!uploadResponse.ok || !uploaded.path)

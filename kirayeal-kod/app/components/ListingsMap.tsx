@@ -1,6 +1,5 @@
 "use client";
 import "leaflet/dist/leaflet.css";
-import { sized } from "../../lib/image-size";
 import { useEffect, useRef } from "react";
 import { MapPinOff } from "lucide-react";
 import type { Map as LeafletMap } from "leaflet";
@@ -28,7 +27,7 @@ export default function ListingsMap({ items }: { items: Listing[] }) {
         const at: [number, number] = [item.lat!, item.lng!];
         bounds.push(at);
         const icon = L.divIcon({ className: "kzPriceTag", html: `<span>${esc(money(item.price))} ₼</span>`, iconSize: undefined });
-        L.marker(at, { icon }).addTo(instance).bindPopup(`<a class="kzMapCard" href="/listings/${item.id}">${item.images?.[0] ? `<img src="${esc(sized(item.images[0]))}" alt="" loading="lazy">` : ""}<strong>${esc(money(item.price))} ₼ / ${esc(periodName(item.rental_period))}</strong><span>${esc(item.title)}</span><small>${esc(item.city)}${item.district ? `, ${esc(item.district)}` : ""}</small></a>`, { closeButton: false, maxWidth: 240 });
+        L.marker(at, { icon }).addTo(instance).bindPopup(`<a class="kzMapCard" href="/listings/${item.id}">${item.images?.[0] ? `<img src="${esc(item.images[0])}" alt="">` : ""}<strong>${esc(money(item.price))} ₼ / ${esc(periodName(item.rental_period))}</strong><span>${esc(item.title)}</span><small>${esc(item.city)}${item.district ? `, ${esc(item.district)}` : ""}</small></a>`, { closeButton: false, maxWidth: 240 });
       }
       if (bounds.length > 1) instance.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
       else if (bounds.length === 1) instance.setView(bounds[0], 14);

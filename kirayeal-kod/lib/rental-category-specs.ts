@@ -8,11 +8,11 @@ type Category = { label: string; kinds: Record<string, Kind> };
 const number = (key: string, label: string, min: number, max: number, step = "1"): RentalSpec => ({key,label,min,max,step});
 const choice = (key: string,label: string,options: string[]): RentalSpec => ({key,label,options});
 const electricFields = [
-  number("range_km","Bir şarjla yürüş məsafəsi (km)",1,1000,"0.1"),
-  number("runtime_hours","Bir şarjla işləmə müddəti (saat)",0.1,100,"0.1"),
+  number("range_km","Bir şarjla neçə km gedir",1,1000,"0.1"),
+  number("max_speed_kmh","Maksimum sürət (km/saat)",1,120),
   number("charge_hours","Tam şarj müddəti (saat)",0.1,48,"0.1"),
-  number("battery_wh","Batareya tutumu (Wh)",1,20000),
   number("max_load_kg","Maksimum daşıma çəkisi (kq)",1,500),
+  choice("charger","Şarj cihazı verilir",["Bəli","Xeyr"]),
 ];
 const power = choice("power_source","Enerji növü",["Şəbəkə / kabel","Akkumulyator","Benzin","Əl ilə","Digər"]);
 const toolFields = [power,number("power_w","Güc (W)",1,100000),number("battery_voltage","Akkumulyator gərginliyi (V)",1,120,"0.1")];
@@ -23,21 +23,35 @@ const clothingBrands: Record<string, Record<string,string[]>> = {
   "Uşaq tədbir geyimi": { "LC Waikiki":[], Koton:[], Zara:[], "H&M":[], Mothercare:[], DeFacto:[] },
 };
 const suitFit = choice("suit_fit","Kostyumun növü",["Klassik kostyum","Dar kəsimli kostyum","Smokinq","Üçlük (jiletli)","Digər"]);
-const clothingFields = [
-  choice("clothing_size","Geyim ölçüsü",["XS","S","M","L","XL","XXL","XXXL","34","36","38","40","42","44","46","48","50","52","54","56","Ölçüyə uyğun tənzimlənir","Digər"]),
-  {key:"size_note",label:"Ölçü haqqında əlavə məlumat",placeholder:"Məsələn: bel 80 sm, boy 175 sm"},
-  choice("audience","Kim üçün",["Qadın","Kişi","Uşaq","Uniseks"]),
-  {key:"material",label:"Parça / material",placeholder:"Məsələn: yun, atlas, pambıq"},
-  choice("cleaning_terms","Təmizləmə şərti",["Qiymətə daxildir","Sahib təmizləyir, ayrıca ödənişlə","Təmiz qaytarılmalıdır","Razılaşma ilə"]),
+const clothingSize = choice("clothing_size","Geyim ölçüsü",["XS","S","M","L","XL","XXL","XXXL","34","36","38","40","42","44","46","48","50","52","54","56","Ölçüyə uyğun tənzimlənir","Digər"]);
+const sizeNote = {key:"size_note",label:"Ölçü haqqında əlavə məlumat",placeholder:"Məsələn: bel 80 sm, boy 175 sm"};
+const material = {key:"material",label:"Parça / material",placeholder:"Məsələn: yun, atlas, pambıq"};
+const cleaning = choice("cleaning_terms","Təmizləmə şərti",["Qiymətə daxildir","Sahib təmizləyir, ayrıca ödənişlə","Təmiz qaytarılmalıdır","Razılaşma ilə"]);
+// "Kim üçün" only offers what fits the kind (a wedding dress never asks it; a suit is for men or boys).
+const audience = (options: string[]) => choice("audience","Kim üçün",options);
+const clothingFields = [clothingSize,sizeNote,audience(["Qadın","Kişi","Uşaq","Uniseks"]),material,cleaning];
+const weddingFields = [
+  clothingSize,sizeNote,
+  choice("silhouette","Fason",["A-siluet","Prenses (balon)","Su pərisi","Düz","Digər"]),
+  choice("train","Quyruq",["Var","Yoxdur"]),
+  choice("veil_included","Fata və aksesuar daxildir",["Bəli","Xeyr"]),
+  choice("alterations","Ölçüyə görə düzəliş mümkündür",["Bəli","Xeyr"]),
+  cleaning,
 ];
+const clothingFieldsFor = (kind: string) => kind === "Gəlinlik" ? weddingFields
+  : kind === "Aksesuar" ? [{key:"accessory_size",label:"Ölçü / uyğunluq"}]
+  : kind === "Kostyum" ? [suitFit,clothingSize,sizeNote,audience(["Kişi","Uşaq"]),material,cleaning]
+  : kind === "Ziyafət geyimi" ? [clothingSize,sizeNote,audience(["Qadın","Kişi"]),material,cleaning]
+  : kind === "Uşaq tədbir geyimi" ? [clothingSize,sizeNote,audience(["Qız","Oğlan"]),material,cleaning]
+  : clothingFields;
 export const rentalCategorySpecs: Record<string,Category> = {
-  clothing: {label:"Geyimin növü", kinds: Object.fromEntries(["Kostyum","Gəlinlik","Ziyafət geyimi","Milli geyim","Uşaq tədbir geyimi","Aksesuar","Digər"].map(kind => [kind,{models:clothingBrands[kind] || {},fields: kind === "Aksesuar" ? [{key:"accessory_size",label:"Ölçü / uyğunluq"}] : kind === "Kostyum" ? [suitFit,...clothingFields] : clothingFields}]))},
+  clothing: {label:"Geyimin növü", kinds: Object.fromEntries(["Kostyum","Gəlinlik","Ziyafət geyimi","Milli geyim","Uşaq tədbir geyimi","Aksesuar","Digər"].map(kind => [kind,{models:clothingBrands[kind] || {},fields: clothingFieldsFor(kind)}]))},
   electric: {label:"Elektrik nəqliyyatının növü", kinds:{
     "Elektrik skuter":{models:{Xiaomi:["Electric Scooter 4","Electric Scooter 4 Pro","Mi Electric Scooter Pro 2"],"Segway-Ninebot":["MAX G2","F2","F2 Pro"],KuKirin:["G2","G2 Pro","G2 Max","G3","G4"],Kugoo:["S1","S3","M4","M4 Pro"],NIU:["KQi2 Pro","KQi3 Pro","KQi3 Max"],Dualtron:["Mini","Thunder","Victor"],Inokim:["Light 2","OX","OXO"],Kaabo:["Mantis 10","Wolf Warrior 11"],Apollo:["City","Ghost","Phantom"],Ultron:["X1","X3"],Joyor:["S5","Y5S"],Halten:["RS-01","RS-02"],Kugookirin:["M4","G2"],Ecodrift:["R8","Twin"]},fields:electricFields},
     "Elektrik velosiped":{models:{ENGWE:["EP-2 Pro","Engine Pro","L20"],Fiido:["D11","M1 Pro","D4S"],ADO:["A20","Air 20"],Cube:[],Giant:[],Trek:[],Specialized:[],Merida:[],Scott:[],HIMO:["C20","Z20"],SAMEBIKE:[],Xiaomi:["Mi Smart Electric Folding Bike"],"Segway":["Xafari","Xyber"],"Haibike":[],"Cube Hybrid":[]},fields:[...electricFields,choice("frame_size","Çərçivə ölçüsü",["XS","S","M","L","XL","Digər"])]},
   }},
   photo: {label:"Çəkiliş avadanlığının növü", kinds:{
-    "Fotoaparat":{models:{Canon:["EOS R5","EOS R6","EOS R6 Mark II","EOS R8","EOS 5D Mark IV","EOS 6D Mark II","EOS 90D","EOS 250D"],Nikon:["Z5","Z6","Z6 II","Z7","Z8","D750","D850","D7500"],Sony:["A6400","A6700","A7 III","A7 IV","A7R V","A7S III","ZV-E10"],Fujifilm:["X-H2","X-S20","X-T4","X-T5","X100VI"],Panasonic:["S5 II","GH6"],Leica:["Q2","Q3"]},fields:[number("resolution_mp","Şəkil ölçüsü (MP)",1,500,"0.1")]},
+    "Fotoaparat":{models:{Canon:["EOS R5","EOS R6","EOS R6 Mark II","EOS R8","EOS 5D Mark IV","EOS 6D Mark II","EOS 90D","EOS 250D"],Nikon:["Z5","Z6","Z6 II","Z7","Z8","D750","D850","D7500"],Sony:["A6400","A6700","A7 III","A7 IV","A7R V","A7S III","ZV-E10"],Fujifilm:["X-H2","X-S20","X-T4","X-T5","X100VI"],Panasonic:["S5 II","GH6"],Leica:["Q2","Q3"]},fields:[number("resolution_mp","Şəkil ölçüsü (MP)",1,500,"0.1"),choice("lens_included","Obyektiv daxildir",["Bəli","Xeyr"]),choice("extras_included","Batareya və yaddaş kartı daxildir",["Bəli","Xeyr"])]},
     "Videokamera":{models:{Sony:["FX3","FX30","FX6"],Canon:["EOS C70","XA60"],Panasonic:["GH5","GH6","AG-CX10"],Blackmagic:["Pocket 4K","Pocket 6K"],DJI:["Osmo Pocket 3","Osmo Action 4"],GoPro:["HERO 12","HERO 13"],Insta360:["X3","X4"]},fields:[choice("video_resolution","Video keyfiyyəti",["Full HD","4K","6K","8K","Digər"])]},
     "Obyektiv":{models:{Canon:["RF 24-70mm f/2.8","RF 50mm f/1.8","RF 70-200mm f/2.8","EF 24-105mm f/4"],Nikon:["Z 24-70mm f/4","Z 50mm f/1.8"],Sony:["FE 24-70mm f/2.8 GM","FE 50mm f/1.8","FE 70-200mm f/2.8 GM"],Sigma:["24-70mm f/2.8 Art","35mm f/1.4 Art"],Tamron:["28-75mm f/2.8","70-180mm f/2.8"],Samyang:[],Viltrox:[]},fields:[{key:"lens_mount",label:"Uyğun kamera bağlantısı",placeholder:"Məsələn: Canon RF, Sony E"},{key:"focal_length",label:"Fokus məsafəsi",placeholder:"Məsələn: 24–70 mm"}]},
     "İşıq":{models:{Godox:["SL60W","SL150W","AD200","AD600","V1"],Aputure:["Amaran 100d","Amaran 200d","LS 300d","LS 600d"],Nanlite:["Forza 60","Forza 300"],Profoto:["A10","B10"],Neewer:[]},fields:[number("power_w","Güc (W)",1,100000)]},
@@ -62,7 +76,7 @@ export const rentalCategorySpecs: Record<string,Category> = {
     "Bağ avadanlığı":{models:{Stihl:["FS 55","FS 131","MS 180","MS 250","RE 98"],Husqvarna:["120 Mark II","135 Mark II","LC 140"],Makita:["DUC254","DUR181"],Bosch:[],Champion:[],Patriot:[]},fields:toolFields},
   }},
   event: {label:"Tədbir üçün nə təklif edirsən?",kinds:{
-    "Səs və işıq":{models:{JBL:["EON 712","EON 715","PartyBox 310","PartyBox 710","PRX 815"],Yamaha:["DBR12","DXR12","MG10XU","Stagepas 1K"],Bose:["L1 Pro","S1 Pro"],RCF:["ART 712","ART 745"],"Electro-Voice":["EKX","ZLX"],Pioneer:["DDJ-FLX4","XDJ-RX3","CDJ-3000"],Behringer:["X32","XR18"],Shure:["SM58","BLX","SLX-D"],Godox:[]},fields:[number("capacity","Neçə nəfər üçün uyğundur",1,100000),number("power_w","Güc (W)",1,100000)]},
+    "Səs və işıq":{models:{JBL:["EON 712","EON 715","PartyBox 310","PartyBox 710","PRX 815"],Yamaha:["DBR12","DXR12","MG10XU","Stagepas 1K"],Bose:["L1 Pro","S1 Pro"],RCF:["ART 712","ART 745"],"Electro-Voice":["EKX","ZLX"],Pioneer:["DDJ-FLX4","XDJ-RX3","CDJ-3000"],Behringer:["X32","XR18"],Shure:["SM58","BLX","SLX-D"],Godox:[]},fields:[number("capacity","Neçə nəfər üçün uyğundur",1,100000),number("power_w","Güc (W)",1,100000),choice("with_operator","Operator / DJ ilə",["Bəli","Xeyr"])]},
     "Masa və stul":{models:{},fields:[number("quantity","Dəstdə neçə ədəd var",1,100000),number("capacity","Neçə nəfər üçün uyğundur",1,100000)]},
     "Çadır":{models:{},fields:[number("capacity","Neçə nəfər üçün uyğundur",1,100000),number("width_m","En (metr)",0.1,1000,"0.1"),number("length_m","Uzunluq (metr)",0.1,1000,"0.1")]},
     "Dekorasiya":{models:{},fields:[{key:"material",label:"Material"},number("quantity","Dəstdə neçə ədəd var",1,100000)]},

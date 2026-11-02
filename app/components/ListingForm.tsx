@@ -1,7 +1,8 @@
 "use client";
 import { photoHash } from "../../lib/photo-hash";
 import { listingPrice, manat } from "../../lib/limit-rules";
-import { Check, ChevronLeft, ChevronRight, Clock, ImagePlus, RotateCcw, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, CircleCheck, Clock, ImagePlus, Plus, RotateCcw, X } from "lucide-react";
+import StatusCard from "./StatusCard";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
 import { sharePreview, watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -476,20 +477,20 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           <section><p role="status">Hesab yoxlanılır…</p>
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
         ) : success ? (
-          <section className={`successPanel${paymentWaiting ? " waiting" : ""}`} role="status">
-            <span>{paymentWaiting ? <Clock aria-hidden="true" size={18} strokeWidth={2.5} /> : <Check aria-hidden="true" size={18} strokeWidth={2.5} />}</span>
-            <h2>{paymentWaiting ? "Elanınız yoxlamaya göndərilə bilmədi" : "Elan yoxlamaya göndərildi"}</h2>
-            <p>{paymentWaiting && repeatListing ? `Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir — bu, təkrar elan sayılır və ödənişlidir (${manat(listingPrice(category))}). Elan «Ödəniş gözləyir» bölməsində saxlanıldı.` : paymentWaiting ? `Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Elan saxlanıldı və «Ödəniş gözləyir» bölməsinə keçirildi. Ödənişdən (${manat(listingPrice(category))}) sonra yoxlamaya göndəriləcək.` : "Təsdiqdən sonra elan 30 gün yayımda olacaq. Nəticəni «Elanlarım» bölməsində görəcəksiniz."}</p>
-            <Link className="add" href={paymentWaiting ? "/profile?section=listings&tab=payment" : "/profile?section=listings&tab=pending"}>
-              {paymentWaiting ? "Ödəniş gözləyir bölməsinə keç" : "Elanlarıma keç"}
-            </Link>
+          <div role="status">{paymentWaiting ? <StatusCard as="h2" tone="warn" icon={Clock} badge="Ödəniş gözləyir" title="Elanınız yoxlamaya göndərilə bilmədi" className="kzScInline"
+            lead={repeatListing ? `Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir. Bu, təkrar elan sayılır və ödənişlidir (${manat(listingPrice(category))}). Elan «Ödəniş gözləyir» bölməsində saxlanıldı.` : `Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Elan saxlanıldı və «Ödəniş gözləyir» bölməsinə keçirildi. Ödənişdən (${manat(listingPrice(category))}) sonra yoxlamaya göndəriləcək.`}
+            actions={[{ href: "/profile?section=listings&tab=payment", label: "«Ödəniş gözləyir» bölməsinə keç", primary: true }]}>
             {/* Limit full: opening a store is usually cheaper than paying for every extra listing. */}
-            {paymentWaiting && paidVisible(flags) && <div className="kzStoreOffer">
-              <strong>Çox elan verirsiniz? Mağaza açın</strong>
-              <small>Hər kateqoriyada daha çox elan, ayda pulsuz irəli çək, öz mağaza səhifəniz və elanlarda «Mağaza» nişanı. Ayda 14,99 ₼-dan.</small>
-              <Link className="secondary" href="/profile?section=store">Mağaza paketlərinə bax</Link>
-            </div>}
-          </section>
+              {paymentWaiting && paidVisible(flags) && <div className="kzStoreOffer">
+                <strong>Çox elan verirsiniz? Mağaza açın</strong>
+                <small>Hər kateqoriyada daha çox elan, ayda pulsuz irəli çək, öz mağaza səhifəniz və elanlarda «Mağaza» nişanı. Ayda 14,99 ₼-dan.</small>
+                <Link className="secondary" href="/profile?section=store">Mağaza paketlərinə bax</Link>
+              </div>}
+            </StatusCard> : <StatusCard as="h2" tone="ok" icon={CircleCheck} badge="Göndərildi" title="Elanınız yoxlamaya göndərildi" className="kzScInline"
+            lead="Təşəkkür edirik! Elanınız qəbul edildi və moderatorlar tərəfindən yoxlanılır. Yoxlama adətən qısa müddətdə, ən gec 24 saat ərzində başa çatır."
+            steps={[{ title: "Elan qəbul edildi", text: "Məlumatlar və şəkillər uğurla yükləndi.", done: true }, { title: "Yoxlama", text: "Elan sayt qaydalarına uyğunluğu baxımından yoxlanılır.", now: true }, { title: "Yayım", text: "Təsdiqdən sonra elan 30 gün saytda görünəcək. Rədd edilərsə, səbəbi e-poçtunuza göndəriləcək." }]}
+            actions={[{ href: "/profile?section=listings&tab=pending", label: "Elanlarıma keç", primary: true }, { href: "/new", label: "Yeni elan yerləşdir", icon: Plus, external: true }]} />}
+          </div>
         ) : loadError ? (
           <div className="error" role="alert">
             {error} <button type="button" className="secondary" onClick={() => window.location.reload()}>Yenidən yoxla</button> <Link href="/profile">Kabinetə qayıt</Link> <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a>

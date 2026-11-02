@@ -1,6 +1,5 @@
 "use client";
 import TabIcon from "./TabIcon";
-import { sized } from "../../lib/image-size";
 import Notice from "./Notice";
 import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2, Store, TrendingDown } from "lucide-react";
 import { storeOpenState } from "../../lib/store-hours";
@@ -195,7 +194,7 @@ export default function ListingDetails({
         }}>
         <img
           className="listingMainImage"
-          src={sized(item.images?.[selectedImage], "view") || "/placeholder.svg"}
+          src={item.images?.[selectedImage] || "/placeholder.svg"}
           alt={item.title}
           onLoad={(e) => { const img = e.currentTarget; if (selectedImage === 0 && img.naturalWidth && img.naturalHeight) setPhotoRatio(Math.min(16 / 9, Math.max(1, img.naturalWidth / img.naturalHeight))); }}
           onError={(e) => {
@@ -222,7 +221,7 @@ export default function ListingDetails({
                 key={src}
                 onClick={() => setImage(i)}
               >
-                <img src={sized(src)} alt="" loading="lazy" decoding="async" />
+                <img src={src} alt="" />
               </button>
             ))}
           </div>

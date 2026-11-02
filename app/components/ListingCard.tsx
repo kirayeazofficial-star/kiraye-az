@@ -1,6 +1,5 @@
 "use client";
 import { loweredFrom, shownAt } from "../../lib/marketplace";
-import { sized } from "../../lib/image-size";
 import { useLanguage } from "./LanguageProvider";
 import PromotionBadges from "./PromotionBadges";
 import NavigationIcon from './NavigationIcon';
@@ -25,7 +24,7 @@ export default function ListingCard({
     <article className="kzCard">
       <Link prefetch={false} className="kzCardLink" href={`/listings/${item.id}`}>
         <span className="kzCardPhoto" style={{["--bg" as string]:`url("${item.images?.[0] || "/placeholder.svg"}")`} as React.CSSProperties}>
-          <img src={sized(item.images?.[0]) || "/placeholder.svg"} alt="" loading="lazy" decoding="async" onError={event=>{if(!event.currentTarget.src.endsWith('/placeholder.svg'))event.currentTarget.src='/placeholder.svg';}} />
+          <img src={item.images?.[0] || "/placeholder.svg"} alt="" loading="lazy" onError={event=>{if(!event.currentTarget.src.endsWith('/placeholder.svg'))event.currentTarget.src='/placeholder.svg';}} />
           
           {item.store && <em className="kzCardStore" title={item.store.name}>Mağaza</em>}
         </span>

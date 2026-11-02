@@ -1,5 +1,6 @@
 "use client";
 import Notice from "./Notice";
+import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
 import { ChevronLeft, ChevronRight, Pencil, Plus, ShieldCheck, Store, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -225,7 +226,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     const href = current === "published" ? `/listings/${x.id}` : `/profile/listings/${x.id}`;
                     const promo = activePromotion(x);
                     return <article key={x.id} className={x.deleted_at ? "kzOwnDeleted" : undefined}>
-                      <Link href={href} aria-label={`${x.title} — elana bax`} className="ownedPhoto"><img src={x.images?.[0] || "/placeholder.svg"} alt="" /></Link>
+                      <Link href={href} aria-label={`${x.title} — elana bax`} className="ownedPhoto"><img src={sized(x.images?.[0]) || "/placeholder.svg"} alt="" loading="lazy" decoding="async" /></Link>
                       <div className="kzOwnBody">
                         <div className="kzOwnTop"><span className={`status ${x.deleted_at ? "archived" : x.payment_required ? "payment" : expired ? "expired" : current}`}>{x.deleted_at ? "Silinib" : x.payment_required ? "Ödəniş gözləyir" : statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
                         <h3><Link href={href}>{x.title}</Link></h3>

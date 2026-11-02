@@ -47,7 +47,7 @@ export async function GET(request:NextRequest){
         hostQuery<{count:string}>(`select count(*)::text count from public.listings`),
         hostQuery<{count:string}>(`select count(*)::text count from public.chat_messages`),
         hostQuery<{count:string}>(`select count(*)::text count from public.listing_reports where status='open'`),
-        hostQuery<{status:string;count:string}>(`select status,count(*)::text count from public.listings group by status`),
+        hostQuery<{status:string;count:string}>(`select status,count(*)::text count from public.listings where deleted_at is null and not (status='pending' and coalesce(payment_required,false)) group by status union all select 'payment',count(*)::text from public.listings where coalesce(payment_required,false) and deleted_at is null union all select 'reported',count(distinct listing_id)::text from public.listing_reports where status='open' union all select 'deleted',count(*)::text from public.listings where deleted_at is not null`),
         hostQuery<{count:string}>(`select count(*)::text as count from public.stores where status='pending'`).catch(()=>[]),
       ]);
       // New accounts and listings for today (Baku time), the last 7 and 30 days.
@@ -70,7 +70,13 @@ export async function GET(request:NextRequest){
       const page=Math.max(1,Math.min(10000,Number(param(request,"page"))||1));
       const where:string[]=[],values:unknown[]=[];
       const add=(sql:string,value:unknown)=>{values.push(value);where.push(sql.replace("?",`$${values.length}`));};
-      if(status==="archived")where.push(`l.status in ('archived','expired')`);
+      // Tabs: pending (without listings waiting for payment), reported (open complaints), payment, published, rejected;
+      // in the extra filters: expired and deleted.
+      if(status==="archived")where.push(`l.status in ('archived','expired') and l.deleted_at is null`);
+      else if(status==="deleted")where.push(`l.deleted_at is not null`);
+      else if(status==="payment")where.push(`coalesce(l.payment_required,false) and l.deleted_at is null`);
+      else if(status==="reported")where.push(`exists(select 1 from public.listing_reports r where r.listing_id=l.id and r.status='open')`);
+      else if(status==="pending")where.push(`l.status='pending' and not coalesce(l.payment_required,false) and l.deleted_at is null`);
       else if(listingStatuses.has(status))add("l.status=?",status);
       if(search){
         if(uuid.test(search))add("l.id=?",search);

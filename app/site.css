@@ -3014,3 +3014,12 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
   .kzMtFollow{flex-direction:column;align-items:stretch;text-align:left}
   .kzMtFollow a{justify-content:center}
 }
+/* Leader panel → Elanlar: status tabs as light, even buttons (selected = soft orange, not black) */
+.kzAdTabs{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px!important;margin:0 0 14px!important;padding:0!important;overflow:visible!important}
+.kzAdTabs button{display:flex!important;align-items:center;justify-content:space-between;gap:8px;min-height:40px!important;padding:0 12px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;color:var(--kz-text)!important;font-size:var(--fs-13)!important;font-weight:500!important;white-space:nowrap;transition:border-color .15s,background .15s}
+.kzAdTabs button:hover{border-color:#d0d5dd!important}
+.kzAdTabs small{min-width:22px;padding:1px 7px!important;border-radius:999px!important;background:#f2f4f7!important;color:var(--kz-muted)!important;font-size:var(--fs-12)!important;font-weight:600;text-align:center}
+.kzAdTabs button[aria-pressed=true]{border-color:#ffb899!important;background:#fff4ef!important;color:#c2410c!important;font-weight:600!important;box-shadow:inset 0 0 0 1px #ffb899}
+.kzAdTabs button[aria-pressed=true] small{background:#ff5a1f!important;color:#fff!important}
+@media (max-width:1100px){.kzAdTabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.kzAdTabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important}.kzAdTabs button{min-height:38px!important;padding:0 10px!important}}

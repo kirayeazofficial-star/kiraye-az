@@ -1,3 +1,4 @@
+import { deviceName, letterDate } from "../../../../lib/device-name";
 import {isLeader,isStaff} from "../../../../lib/host/staff";
 import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../../lib/host/db";
@@ -17,7 +18,8 @@ async function issueCode(userId:string|null,email:string,purpose:"signup"|"recov
   if(Number(recent[0]?.count||0)>=6)throw new Error("RATE_LIMIT");
   const code=newEmailCode();
   await hostQuery(`insert into auth.verification_codes(user_id,email,purpose,code_hash,expires_at) values($1,$2,$3,$4,now()+interval '10 minutes')`,[userId,email,purpose,emailCodeHash(email,purpose,code)]);
-  await sendVerificationCode(email,code,purpose);
+  const named=await hostQuery<{name:string|null}>(`select p.display_name as name from auth.users u join public.profiles p on p.id=u.id where lower(u.email)=lower($1) limit 1`,[email]).catch(()=>[]);
+  await sendVerificationCode(email,code,purpose,named[0]?.name||"");
 }
 async function ensureOwnerRole(userId:string,email:string){if(email!==ownerEmail)return;await hostTransaction(async client=>{await client.query(`update public.profiles set role='admin',updated_at=now() where id=$1`,[userId]);await client.query(`insert into public.staff_members(user_id,staff_role,assigned_by) values($1,'leader',$1) on conflict(user_id) do update set staff_role='leader'`,[userId]);});}
 
@@ -76,8 +78,8 @@ export async function POST(request:NextRequest){
       await hostQuery(`update auth.verification_codes set consumed_at=now() where id=$1`,[item.id]);
       const agent=request.headers.get("user-agent")||"";
       await trustDevice(item.user_id,agent);
-      const when=new Intl.DateTimeFormat("az-AZ",{timeZone:"Asia/Baku",dateStyle:"short",timeStyle:"short"}).format(new Date());
-      void sendLetter(email,"Hesabınıza yeni cihazdan daxil olundu — kirayeal.az",noticeLetter({heading:"Yeni cihazdan giriş",intro:"İdarəetmə hüququ olan hesabınıza yeni cihazdan daxil olundu. Bu siz idinizsə, heç nə etməyin. Siz deyildinizsə, dərhal şifrənizi dəyişin.",rows:[{label:"Vaxt (Bakı)",value:when},{label:"IP ünvanı",value:clientIp(request)||"—"},{label:"Cihaz",value:agent.replace(/\s+/g," ").slice(0,60)||"—"}],button:{text:"Şifrəni dəyiş",href:"/login?mode=recovery"}}));
+      const named=await hostQuery<{name:string|null}>(`select display_name as name from public.profiles where id=$1`,[item.user_id]).catch(()=>[]);
+      void sendLetter(email,"Hesabınıza yeni cihazdan giriş edildi — kirayeal.az",noticeLetter({heading:"Hesabınıza yeni cihazdan giriş edildi",name:named[0]?.name||"",intro:"İdarəetmə hüququ olan hesabınıza yeni cihazdan giriş edildi. Əgər bu girişi siz etmisinizsə, heç bir tədbir görməyinizə ehtiyac yoxdur. Əks halda, dərhal şifrənizi dəyişməyiniz tövsiyə olunur.",rows:[{label:"Tarix",value:letterDate()},{label:"Cihaz",value:deviceName(agent)},{label:"IP ünvanı",value:clientIp(request)||"—"}],button:{text:"Şifrəni dəyiş",href:"/login?mode=recovery"}}));
       return response({session:await createSession(item.user_id,body.remember!==false)});
     }
     if(action==="signup"){

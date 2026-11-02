@@ -2936,6 +2936,9 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 .kzScSearch .kzScBtn{width:auto}
 .kzScPage{grid-template-columns:minmax(0,1fr)}
 .kzSc{grid-template-columns:minmax(0,1fr)}.kzSc>*{min-width:0}
+.kzAdPeriods tr.kzAdIncome th,.kzAdPeriods tr.kzAdIncome td{color:#067647}
+.kzAdIncomeTotal{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 6px;padding:12px 14px;border-radius:12px;background:#ecfdf3;color:#067647;font-size:var(--fs-14)}
+.kzAdIncomeTotal b{font-size:var(--fs-18);font-weight:700}
 
 /* Maintenance page (/maintenance): header, main card, rental tips on the side, footer */
 .kzMt{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:radial-gradient(900px 420px at 15% -5%,#fff1ec 0,transparent 60%),radial-gradient(700px 380px at 100% 100%,#eaf3f1 0,transparent 60%),var(--kz-soft)}

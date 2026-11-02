@@ -8,7 +8,8 @@ export default function ResetPassword() {
     [checking, setChecking] = useState(true),
     [busy, setBusy] = useState(false),
     [notice, setNotice] = useState(""),
-    [done, setDone] = useState(false);
+    [done, setDone] = useState(false),
+    [failed, setFailed] = useState(false);
   const recovery = useRef<{email:string;code:string}|null>(null);
   useEffect(() => {
     try{const saved=JSON.parse(sessionStorage.getItem('kiraye:recovery')||'null');if(saved?.email&&/^\d{6}$/.test(saved.code)&&saved.expiresAt>Date.now()){recovery.current=saved;setReady(true);}else setNotice('Bərpa kodunun vaxtı bitib. Yeni kod istə.');}catch{setNotice('Bərpa kodu tapılmadı. Yeni kod istə.');}finally{setChecking(false);}
@@ -34,6 +35,7 @@ export default function ResetPassword() {
       setDone(true);
       setNotice("Şifrən yeniləndi. İndi hesabından istifadə edə bilərsən.");
     } catch (error) {
+      setFailed(true);
       setNotice(authErrorMessage(error));
     } finally {
       setBusy(false);
@@ -97,7 +99,7 @@ export default function ResetPassword() {
           )}
           {done
             ? <Link className="kzButton kzAuthDone" href="/profile">Kabinetə keç</Link>
-            : <div className="kzAuthLinks"><Link href="/login">Girişə qayıt</Link><Link href="/login?mode=reset">Yeni bərpa kodu istə</Link></div>}
+            : (!ready && !checking) || failed ? <div className="kzAuthLinks"><Link href="/login?mode=reset">Yeni bərpa kodu istə</Link><Link href="/login">Girişə qayıt</Link></div> : null}
         </section>
       </div>
     </main>

@@ -1,6 +1,5 @@
 "use client";
 import { ChevronLeft, MessageCircle, MoreHorizontal, SendHorizontal } from "lucide-react";
-import { sized } from "../../lib/image-size";
 import {FormEvent,useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";import Header from "../components/Header";import Footer from "../components/Footer";import {publicDate} from "../../lib/public-date";
 import UserAvatar from "../components/UserAvatar";
@@ -28,7 +27,7 @@ export default function MessagesPanel(){
      <div className="kzChatListHead"><h1>Mesajlar</h1>{!!threads.length&&<span>{threads.length}</span>}</div>
      <div className="kzChatTabs" role="group" aria-label="Söhbət növü">{([['all','Hamısı'],['buy','Götürürəm'],['sell','Verirəm']] as const).map(([key,label])=><button key={key} type="button" aria-pressed={tab===key} onClick={()=>setTab(key)}>{label}</button>)}</div>
      {inboxLoading&&!threads.length?<p className="kzChatHint" role="status">Söhbətlər yüklənir…</p>:!threads.filter(item=>tab==='all'||(tab==='buy')===!!item.is_buyer).length?<div className="kzChatEmpty"><EmptyArt kind="chat" /><strong>Hələ söhbət yoxdur</strong><p>Bəyəndiyin elanda “Mesaj yaz” düyməsini bas.</p></div>:threads.filter(item=>tab==='all'||(tab==='buy')===!!item.is_buyer).map(item=><button type="button" key={item.id} className="kzChatItem" aria-pressed={thread?.id===item.id} onClick={()=>void open(item)}>
-      <span className="kzChatThumb">{item.listing_image?<img src={sized(item.listing_image)} alt="" loading="lazy" decoding="async"/>:<UserAvatar src={item.peer_avatar} name={item.peer_name}/>}<UserAvatar src={item.peer_avatar} name={item.peer_name} className="kzChatPeer"/></span>
+      <span className="kzChatThumb">{item.listing_image?<img src={item.listing_image} alt=""/>:<UserAvatar src={item.peer_avatar} name={item.peer_name}/>}<UserAvatar src={item.peer_avatar} name={item.peer_name} className="kzChatPeer"/></span>
       <span className="kzChatText"><span className="kzChatTop"><strong>{item.peer_name}</strong>{item.last_message_at&&<time>{publicDate(item.last_message_at).replace('Bu gün, ','')}</time>}</span><span className="kzChatListing">{item.listing_title}</span><span className="kzChatBottom"><small>{item.preview||'Yeni söhbət'}</small>{!!item.unread&&<b>{item.unread}</b>}</span></span>
      </button>)}
     </aside>
@@ -39,7 +38,7 @@ export default function MessagesPanel(){
        {thread?<>
         <UserAvatar src={thread.peer_avatar} name={thread.peer_name}/>
         <div className="kzChatWho"><strong>{thread.peer_name}</strong>{thread.listing_active?<Link href={`/listings/${thread.listing_id}`}>{thread.listing_title}</Link>:<span>{thread.listing_title} · aktiv deyil</span>}</div>
-        {thread.listing_image&&<Link className="kzChatListingThumb" href={thread.listing_active?`/listings/${thread.listing_id}`:'#'} aria-label="Elana bax"><img src={sized(thread.listing_image)} alt=""/></Link>}
+        {thread.listing_image&&<Link className="kzChatListingThumb" href={thread.listing_active?`/listings/${thread.listing_id}`:'#'} aria-label="Elana bax"><img src={thread.listing_image} alt=""/></Link>}
         <details className="kzChatMore" ref={moreMenu}>
          <summary aria-label="Söhbət seçimləri"><MoreHorizontal aria-hidden="true" size={20} strokeWidth={2} /></summary>
          <div className="kzChatMenu" role="menu">

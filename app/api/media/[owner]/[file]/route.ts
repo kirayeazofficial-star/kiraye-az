@@ -2,7 +2,7 @@ import {open,readFile,stat} from "node:fs/promises";
 import path from "node:path";
 import {NextResponse} from "next/server";
 
-const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i,fileName=/^(?:branded-v3-|share-|thumb-)?[0-9a-f-]{36}\.(jpg|mp4|webm)$/i;
+const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i,fileName=/^(?:branded-v3-|share-)?[0-9a-f-]{36}\.(jpg|mp4|webm)$/i;
 const types:Record<string,string>={jpg:"image/jpeg",mp4:"video/mp4",webm:"video/webm"};
 const cache={"Cache-Control":"public, max-age=31536000, immutable","X-Content-Type-Options":"nosniff"};
 export async function GET(request:Request,{params}:{params:Promise<{owner:string;file:string}>}){
@@ -11,14 +11,7 @@ export async function GET(request:Request,{params}:{params:Promise<{owner:string
     const match=fileName.exec(file);
     if(!root||!uuid.test(owner)||!match)return new NextResponse(null,{status:404});
     const extension=match[1].toLowerCase(),location=path.join(root,owner,file);
-    if(extension==="jpg"){
-      // ?s=thumb (cards, lists) and ?s=view (listing page) use the small copies saved at upload,
-      // falling back to the next bigger one for older photos: thumb → share (1200 px) → original.
-      const size=new URL(request.url).searchParams.get("s"),plain=/^(?:thumb-|share-)/.test(file)?null:file;
-      const tries=plain&&size==="thumb"?[`thumb-${plain}`,`share-${plain}`]:plain&&size==="view"?[`share-${plain}`]:[];
-      for(const name of tries){const found=await readFile(path.join(root,owner,name)).catch(()=>null);if(found)return new NextResponse(found,{headers:{"Content-Type":types.jpg,...cache}});}
-      return new NextResponse(await readFile(location),{headers:{"Content-Type":types.jpg,...cache}});
-    }
+    if(extension==="jpg")return new NextResponse(await readFile(location),{headers:{"Content-Type":types.jpg,...cache}});
     // Videos are sent in parts: phones (Safari above all) only play a video that supports Range requests.
     const size=(await stat(location)).size;
     const range=/^bytes=(\d*)-(\d*)$/.exec(request.headers.get("range")||"");

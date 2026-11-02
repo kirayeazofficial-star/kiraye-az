@@ -52,13 +52,17 @@ export async function GET(request:NextRequest){
       ]);
       // New accounts and listings for today (Baku time), the last 7 and 30 days.
       const periods=`(created_at>=date_trunc('day',now() at time zone 'Asia/Baku') at time zone 'Asia/Baku')::int d1,(created_at>=now()-interval '7 days')::int d7,(created_at>=now()-interval '30 days')::int d30`;
-      const [userPeriods,listingPeriods,activity]=await Promise.all([
+      // Income (leader only): money paid in (top-ups) minus refunds, from the wallet ledger.
+      const income=auth.role==="leader"?hostQuery<{today:string;week:string;month:string;total:string}>(`select coalesce(sum(case when created_at>=date_trunc('day',now() at time zone 'Asia/Baku') at time zone 'Asia/Baku' then v end),0)::text as today,coalesce(sum(case when created_at>=now()-interval '7 days' then v end),0)::text as week,coalesce(sum(case when created_at>=now()-interval '30 days' then v end),0)::text as month,coalesce(sum(v),0)::text as total from (select created_at,case when kind='topup' then amount when kind='refund' then -amount else 0 end v from public.wallet_entries where kind in('topup','refund')) x`).catch(()=>[]):Promise.resolve([]);
+      const [userPeriods,listingPeriods,activity,incomeRows]=await Promise.all([
         hostQuery<{today:string;week:string;month:string}>(`select coalesce(sum(d1),0)::text as today,coalesce(sum(d7),0)::text as week,coalesce(sum(d30),0)::text as month from (select ${periods} from auth.users where created_at>=now()-interval '30 days') x`),
         hostQuery<{today:string;week:string;month:string}>(`select coalesce(sum(d1),0)::text as today,coalesce(sum(d7),0)::text as week,coalesce(sum(d30),0)::text as month from (select ${periods} from public.listings where created_at>=now()-interval '30 days') x`),
         hostQuery(`select e.id,e.listing_id,e.action,e.actor_kind,e.new_status,e.reason,e.created_at,p.display_name actor_name,l.title from public.moderation_events e left join public.profiles p on p.id=e.actor_id left join public.listings l on l.id=e.listing_id where e.actor_kind='admin' order by e.id desc limit 8`),
+        income,
       ]);
+      const money=(value?:string)=>Number(value||0);
       const period=(rows:{today:string;week:string;month:string}[])=>({today:Number(rows[0]?.today||0),week:Number(rows[0]?.week||0),month:Number(rows[0]?.month||0)});
-      return reply({role:auth.role,periods:{users:period(userPeriods),listings:period(listingPeriods)},activity,counts:{users:Number(users[0]?.count||0),listings:Number(listings[0]?.count||0),messages:Number(messages[0]?.count||0),reports:Number(reports[0]?.count||0),stores:Number(storeRequests[0]?.count||0),statuses:Object.fromEntries(statusRows.map(row=>[row.status,Number(row.count)]))}});
+      return reply({role:auth.role,income:incomeRows[0]?{today:money(incomeRows[0].today),week:money(incomeRows[0].week),month:money(incomeRows[0].month),total:money(incomeRows[0].total)}:null,periods:{users:period(userPeriods),listings:period(listingPeriods)},activity,counts:{users:Number(users[0]?.count||0),listings:Number(listings[0]?.count||0),messages:Number(messages[0]?.count||0),reports:Number(reports[0]?.count||0),stores:Number(storeRequests[0]?.count||0),statuses:Object.fromEntries(statusRows.map(row=>[row.status,Number(row.count)]))}});
     }
 
     if(action==="listings"){

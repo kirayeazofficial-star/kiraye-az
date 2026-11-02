@@ -38,7 +38,7 @@ export function SelectField({
         defaultValue={value || ""}
         onChange={(event) => onChange?.(event.target.value)}
       >
-        <option value="">Seçin</option>
+        <option value="">Seç</option>
         {value && !options.includes(value) && <option>{value}</option>}
         {options.map((option) => (
           <option key={option} value={option}>{option === "Hər ikisi" ? "Çatdırılma mümkündür" : option}</option>
@@ -105,7 +105,7 @@ function BrandModelPicker({
               notify(next === "__other__" ? "" : next, "");
             }}
           >
-            <option value="">Markanı seçin</option>
+            <option value="">Markanı seç</option>
             {Object.keys(models)
               .sort((a, b) => a.localeCompare(b, "az"))
               .map((item) => (
@@ -136,7 +136,7 @@ function BrandModelPicker({
             }}
           >
             <option value="">
-              {resolvedBrand ? "Modeli seçin" : "Əvvəl markanı seçin"}
+              {resolvedBrand ? "Modeli seç" : "Əvvəl markanı seç"}
             </option>
             {(Object.prototype.hasOwnProperty.call(models, resolvedBrand) ? models[resolvedBrand] : []).map((item) => (
               <option key={item}>{item}</option>
@@ -302,8 +302,8 @@ function VehicleFields({
         ) : (
           <SelectField
             name="condition"
-            label="Vəziyyət"
-            options={["Əla", "Yaxşı", "Orta"]}
+            label="Yeni / işlənmiş"
+            options={["Yeni", "İşlənmiş"]}
             value={attributes?.condition}
           />
         )}
@@ -584,7 +584,7 @@ function ItemFields({
             {category !== "clothing" && <label>Model / kolleksiya (istəyə bağlı)<input name="model" maxLength={60} defaultValue={initial?.model} /></label>}
           </div>
         )}
-        <SelectField name="condition" label="Vəziyyət" options={category === "clothing" ? ["Yeni, geyinilməyib", "Az geyinilib, qüsursuz", "Geyinilib, yaxşı vəziyyətdə"] : ["Əla", "Yaxşı", "Orta"]} value={initial?.condition} />
+        <SelectField name="condition" label="Yeni / işlənmiş" options={["Yeni", "İşlənmiş"]} value={initial?.condition} />
         {category === "clothing" && <SelectField name="color" label="Rəng" options={colors} value={initial?.color} />}
         <p className="muted">Əlavə xüsusiyyətlər istəyə bağlıdır. Dəqiq bilmədiyini boş saxla.</p>
         <div className="formGrid">
@@ -604,12 +604,12 @@ function ItemFields({
   );
 }
 
-// "Siz kimsiniz?" for homes and premises: owner or agent, shown under the seller's name on the listing.
+// "Elanı kim verir?" for homes and premises: owner or agent, shown under the seller's name on the listing.
 function OwnerTypeField({ value }: { value: string }) {
   const [current, setCurrent] = useState(value || "Mülkiyyətçi");
   return <div className="kzOwnerTypeField">
-    <p className="fieldLabel">Siz kimsiniz?</p>
-    <div className="kzSegmented" role="radiogroup" aria-label="Siz kimsiniz?">
+    <p className="fieldLabel">Elanı kim verir?</p>
+    <div className="kzSegmented" role="radiogroup" aria-label="Elanı kim verir?">
       {["Mülkiyyətçi", "Vasitəçi"].map(option => <label key={option} className={current === option ? "selected" : ""}>
         <input type="radio" name="owner_type" value={option} checked={current === option} onChange={() => setCurrent(option)} />
         <span>{option}</span>

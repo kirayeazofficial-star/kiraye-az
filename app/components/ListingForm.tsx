@@ -320,7 +320,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       description = String(form.get("description") ?? "").trim(),
       contact = String(form.get("contact") ?? "").trim();
     if (!categories.some((item) => item.id === category)) {
-      setError("Kateqoriya seçin.");
+      setError("Kateqoriya seç.");
       return;
     }
     const textContact = contactInText(`${title} ${description}`);
@@ -575,7 +575,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       }}
                     >
                       <option value="" disabled>
-                        Kateqoriya seçin
+                        Kateqoriya seç
                       </option>
                       {categories.map((c) => (
                         <option value={c.id} key={c.id}>
@@ -618,7 +618,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           autoComplete="off"
                         >
                           <option value="" disabled>
-                            Şəhər seçin
+                            Şəhər seç
                           </option>
                           {initial?.city && !cities.includes(initial.city) && (
                             <option>{initial.city}</option>
@@ -703,7 +703,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                               <div className="priceInputWrap"><input name={key} aria-label={`${label} qiymət`} type="number" inputMode="decimal" min="1" max="1000000" step="0.01" defaultValue={String(initial?.attributes?.[key] || "")} placeholder="Məsələn, 250" /><span>₼ / {periodName(period)}</span></div>
                             </label>)}
                           </div>
-                          <p className="muted">Məsələn, günlük 50 ₼, həftəlik 300 ₼. Uzun müddətə endirim edirsinizsə, burada yazın.</p>
+                          <p className="muted">Məsələn, günlük 50 ₼, həftəlik 300 ₼. Uzun müddətə endirim edirsənsə, burada yaz.</p>
                         </details>
                       </div>
                       {hasLocation && city && <LocationPicker city={city} district={district} metro={metro} point={point} exact={exactLocation}

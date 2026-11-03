@@ -130,7 +130,7 @@
 .categoryScroller .categories>button .categoryArtwork{display:grid;place-items:center;background:#f2f2f4!important;border:0!important;border-radius:16px;width:100%;aspect-ratio:1/1;max-width:96px;margin:0 auto}
 .categoryScroller .categories>button .categoryArtwork img{width:70%!important;height:70%!important;object-fit:contain}
 .categoryScroller .categories>button.active .categoryArtwork{outline:2px solid #f2653e}
-body:has(.rentalHome){background:#fff!important}
+body.kz-rental-home{background:#fff!important}
 .rentalHome{background:#fff}
 @media (min-width:900px){
 .categoryScroller .categories{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:14px 12px!important}
@@ -365,7 +365,7 @@ svg[stroke-linejoin]{stroke-linejoin:round}
 .accountDashboard .listingStatusStrip button{padding:10px 16px;border-radius:999px;border:0;background:#f4f4f8;color:#1f2230;font-weight:500}
 .accountDashboard .listingStatusStrip button[aria-pressed="true"]{background:#f2653e;color:#fff}
 @media (min-width:761px){
-body:has(.accountDashboard){background:#f6f7fb}
+body.kz-account{background:#f6f7fb}
 .accountDashboard .cabinetSidebar>*{background:#fff;border-radius:16px}
 .accountDashboard .cabinetContent{background:#fff;border-radius:20px;padding:26px 28px}
 .accountDashboard .cabinetContent>.sectionTitle h2{font-size:24px}

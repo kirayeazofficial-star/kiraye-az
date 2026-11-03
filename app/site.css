@@ -238,7 +238,7 @@ body{font-family:var(--kz-font)}
 }
 
 /* ---------- Cabinet ---------- */
-body:has(.accountDashboard){--kz-bg:var(--kz-soft)}
+body.kz-account{--kz-bg:var(--kz-soft)}
 .accountDashboard .cabinetLayout{grid-template-columns:270px minmax(0,1fr)!important;gap:32px!important;align-items:start}
 .kzProfileCard{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:0 0 14px}
 .kzProfileAvatar{display:flex;align-items:center;justify-content:center;width:68px;height:68px;margin-bottom:12px;border:1px solid var(--kz-line);border-radius:12px;background:#fff;color:#b9bec7}
@@ -287,7 +287,7 @@ body:has(.accountDashboard){--kz-bg:var(--kz-soft)}
   .kzTabbar>a svg{width:24px;height:24px}
   .kzTabbar>a[aria-current=page]{color:var(--kz-accent)!important}
   .kzTabbarHidden{display:none!important}
-  body:has(.kzTabbarHidden){padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  body.kz-tabbar-hidden{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
   .stickyContact{bottom:0!important;padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important}
   .stickyContact .add{background:var(--kz-green)!important}
   .stickyContact .messageAction{background:#4b7bf5!important}
@@ -340,7 +340,7 @@ body:has(.accountDashboard){--kz-bg:var(--kz-soft)}
 .kzSafety strong{display:block;margin-bottom:4px;font-size:var(--fs-15);color:#9a3d0a}
 .kzSafety p{margin:0;font-size:var(--fs-14);line-height:1.55;color:#6b4a2f}
 .kzPageTitle{margin:0 0 20px;font-size:var(--fs-28);font-weight:600;letter-spacing:-.3px}
-body:has(.kzAccountPage){--kz-bg:var(--kz-soft)}
+body.kz-account-page{--kz-bg:var(--kz-soft)}
 .kzAccountPage{max-width:calc(820px + 2*var(--kz-gutter))!important}
 .kzAccountGrid{display:grid;gap:16px}
 .kzPanel{display:grid;gap:14px;margin:0!important;padding:24px!important;background:#fff!important;border:0!important;border-radius:16px!important;box-shadow:none!important;max-width:none!important}
@@ -366,7 +366,7 @@ body:has(.kzAccountPage){--kz-bg:var(--kz-soft)}
 .kzPanel.listingForm label{margin:0!important}
 
 /* ---------- Messages ---------- */
-body:has(.kzMessages){--kz-bg:var(--kz-soft)}
+body.kz-messages{--kz-bg:var(--kz-soft)}
 .kzMessages{width:100%;max-width:calc(var(--kz-width) + 2*var(--kz-gutter));margin:0 auto;padding:20px var(--kz-gutter) 32px;box-sizing:border-box}
 .kzMessagesState{display:grid;justify-items:center;gap:10px;padding:56px 16px;background:#fff;border-radius:16px;text-align:center}
 .kzMessagesState h1{margin:0;font-size:var(--fs-24)}
@@ -422,7 +422,7 @@ body:has(.kzMessages){--kz-bg:var(--kz-soft)}
 .kzChatBlocked{margin:0;padding:14px;background:#fff;border-top:1px solid var(--kz-line);color:var(--kz-muted);text-align:center;font-size:var(--fs-14)}
 .srOnly{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:767px){
-  body:has(.kzMessages) .kzFooter{display:none}
+  body.kz-messages .kzFooter{display:none}
   .kzMessages{padding:0 0 12px}
   .kzMessages>.kzNotice{margin:12px}
   .kzChat{display:block;height:auto;min-height:0;max-height:none;border:0;border-radius:0}
@@ -432,8 +432,8 @@ body:has(.kzMessages){--kz-bg:var(--kz-soft)}
   .kzChatBody{display:none}
   .kzMessages.hasConversation .kzChatList{display:none}
   .kzMessages.hasConversation .kzChatBody{display:flex;height:100vh;height:100dvh}
-  body:has(.kzMessages.hasConversation){padding-bottom:0}
-  body:has(.kzMessages.hasConversation) .kzHeader,body:has(.kzMessages.hasConversation) .kzTabbar{display:none!important}
+  body.kz-chat-open{padding-bottom:0}
+  body.kz-chat-open .kzHeader,body.kz-chat-open .kzTabbar{display:none!important}
   .kzMessages.hasConversation{padding:0}
   .kzChat{min-height:calc(100vh - 190px);min-height:calc(100dvh - 190px)}
   .kzChatHead{padding:10px 12px;padding-top:calc(10px + env(safe-area-inset-top))}
@@ -543,7 +543,7 @@ main .add,main .secondary,main .kzButton,main .kzButtonGhost{font-size:var(--fs-
 @media (max-width:767px){.kzChatTabs{margin:0 16px 8px}}
 
 /* ---------- Leader / admin panel ---------- */
-body:has(.kzAdmin){--kz-bg:var(--kz-soft)}
+body.kz-admin{--kz-bg:var(--kz-soft)}
 .kzAdminHead{margin:0 0 18px}
 .kzAdminHead h1{margin:0!important}
 .kzAdminHead p{margin:4px 0 0;font-size:var(--fs-14);color:var(--kz-muted)}
@@ -1259,8 +1259,8 @@ form select{font-weight:400!important}
   .kzSafety p{font-size:var(--fs-13)!important;line-height:1.5!important}
   .publishSteps{margin-bottom:18px!important;padding-bottom:14px!important}
 }
-body:has(.kzMessages) .kzFooter{display:none!important}
-@media (max-width:767px){body:has(.kzMessages){background:#fff!important}}
+body.kz-messages .kzFooter{display:none!important}
+@media (max-width:767px){body.kz-messages{background:#fff!important}}
 /* Cabinet listing actions: one even row — Edit | Promote | Delete */
 .accountDashboard .accountListings article .accountItemActions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;align-items:center;gap:8px!important}
 .accountDashboard .accountListings article .accountItemActions>*{width:100%!important;min-width:0!important;flex:none!important}
@@ -1278,8 +1278,8 @@ body:has(.kzMessages) .kzFooter{display:none!important}
   .accountDashboard .kzOwnHead{display:none!important}
 }
 input:not([type=checkbox]):not([type=radio]):not([type=submit]):not([type=button]),textarea,select{font-weight:400!important}
-@media (max-width:767px){body:has(.kzHeaderCompact) .kzFooter{display:none!important}}
-html:has(.accountDashboard,.kzAccountPage,.kzAdmin),html:has(.accountDashboard,.kzAccountPage,.kzAdmin)>body{background:var(--kz-soft)!important}
+@media (max-width:767px){body.kz-compact .kzFooter{display:none!important}}
+html.kz-soft-page,html.kz-soft-page>body{background:var(--kz-soft)!important}
 /* ---- Leader panel overview: phone = settings-style list, colours carry meaning ---- */
 .kzAdMenuText small.alert{color:var(--tone)!important;font-weight:600}
 .kzAdIconBtn{width:34px;padding:0!important;justify-content:center}
@@ -1343,7 +1343,7 @@ details.helpCard>p{margin:0!important;padding:0 16px 14px!important;font-size:va
 .loginPage .forgotPassword{min-height:32px!important;margin:-6px 0 4px!important;display:flex;align-items:center;justify-content:flex-end}
 .loginPage .rememberLogin{min-height:36px!important;margin:0 0 12px!important}
 .loginPage .passwordToggle{display:grid!important;place-items:center;width:48px;min-width:48px!important;padding:0!important;color:var(--kz-text)}
-html:has(.loginPage),html:has(.loginPage)>body{background:var(--kz-soft)!important}
+html.kz-login,html.kz-login>body{background:var(--kz-soft)!important}
 .kzFavorite:not(.selected){filter:drop-shadow(0 0 1px rgba(0,0,0,.5)) drop-shadow(0 1px 3px rgba(0,0,0,.35))!important}
 /* Gallery thumbnails: one clear selected state, no browser focus ring on tap */
 .listingDetails .thumbnails button{padding:0!important;border:2px solid transparent!important;outline:0!important;box-shadow:none!important;overflow:hidden;opacity:.75}

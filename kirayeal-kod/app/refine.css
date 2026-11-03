@@ -16,8 +16,8 @@
 .stickyContact>*{display:flex;align-items:center;justify-content:center;min-height:46px;border:0;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer}
 .stickyContact .add{background:#3db460;color:#fff}
 .stickyContact .messageAction{background:#3b5bfd;color:#fff}
-body:has(.stickyContact) .mobileNav{display:none!important}
-body:has(.stickyContact){padding-bottom:70px}
+body.kz-sticky-contact .mobileNav{display:none!important}
+body.kz-sticky-contact{padding-bottom:70px}
 }
 
 /* Placeholder photos: show the whole picture on a matching background */

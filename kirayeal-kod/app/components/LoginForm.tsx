@@ -348,7 +348,7 @@ export default function Login({
           </noscript>
           {mode !== "reset" && !verification && <nav className="authModeLinks" aria-label="Hesab seçimi">
             <a href={`/login?next=${encodeURIComponent(next)}`} aria-current={mode === "login" ? "page" : undefined}>Daxil ol</a>
-            <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyatdan keç</a>
+            <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyat</a>
           </nav>}
           {!ready && (
             // Shown only if the form is still not ready after a few seconds (see .authSlowNote), so a normal load never flashes it.
@@ -359,7 +359,7 @@ export default function Login({
               </a>.
             </p></div>
           )}
-          <h1 id="auth-title">
+          <h1 id="auth-title" className={!verification && mode !== "reset" && method === "email" ? "srOnly" : undefined}>
             {method === "phone"
               ? "Hesabınıza daxil olun"
               : verification
@@ -372,7 +372,7 @@ export default function Login({
                   ? "Yeni hesab yaradın"
                   : mode === "reset"
                     ? "Şifrənizi yeniləyin"
-                    : "Hesabınıza daxil olun"}
+                    : "Daxil olun"}
           </h1>
           {!verification && mode !== "reset" && method === "email" && (
             <GoogleLogin />
@@ -502,7 +502,7 @@ export default function Login({
                                 }
                               } catch { setNotice("Avtomatik şifrə yaratmaq mümkün olmadı. Şifrəni özünüz yaza bilərsiniz."); }
                             }}>Güclü şifrə yarat</button>
-                            <small className="passwordHint" id="password-hint">Şifrə ən azı 8 simvoldan ibarət olmalıdır. Yaradılan şifrəni şifrə menecerində saxlayın.</small>
+                            <small className="passwordHint" id="password-hint">Şifrə ən azı 8 simvoldan ibarət olmalıdır.</small>
                           </>
                         )}
                       </div>
@@ -628,10 +628,10 @@ export default function Login({
               </div>}
             </>
           )}
-        </section>
         {!verification && <Link className="authBack" href="/">
           <ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Elanlara qayıt
         </Link>}
+        </section>
         </AuthLayout>
       </div>
     </main>

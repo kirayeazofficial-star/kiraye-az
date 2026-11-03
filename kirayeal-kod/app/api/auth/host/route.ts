@@ -79,7 +79,7 @@ export async function POST(request:NextRequest){
       const agent=request.headers.get("user-agent")||"";
       await trustDevice(item.user_id,agent);
       const named=await hostQuery<{name:string|null}>(`select display_name as name from public.profiles where id=$1`,[item.user_id]).catch(()=>[]);
-      void sendLetter(email,"Hesabınıza yeni cihazdan giriş edildi — kirayeal.az",noticeLetter({label:"Təhlükəsizlik",heading:"Hesabınıza yeni cihazdan giriş edildi",name:named[0]?.name||"",intro:"İdarəetmə hüququ olan hesabınıza yeni cihazdan giriş edildi. Əgər bu girişi siz etmisinizsə, heç bir tədbir görməyinizə ehtiyac yoxdur. Əks halda, dərhal şifrənizi dəyişməyiniz tövsiyə olunur.",rows:[{label:"Tarix",value:letterDate()},{label:"Cihaz",value:deviceName(agent)},{label:"IP ünvanı",value:clientIp(request)||"—"}],button:{text:"Şifrəni dəyişin",href:"/login?mode=recovery"},footerNote:"Bu məktub hesabınızın təhlükəsizliyi üçün avtomatik göndərilib."}));
+      void sendLetter(email,"Hesabınıza yeni cihazdan giriş edildi — kirayeal.az",noticeLetter({label:"Təhlükəsizlik",heading:"Hesabınıza yeni cihazdan giriş edildi",name:named[0]?.name||"",intro:"İdarəetmə hüququ olan hesabınıza yeni cihazdan giriş edildi. Əgər bu girişi siz etmisinizsə, heç bir tədbir görməyinizə ehtiyac yoxdur. Əks halda, dərhal şifrənizi dəyişməyiniz tövsiyə olunur.",rows:[{label:"Tarix",value:letterDate()},{label:"Cihaz",value:deviceName(agent)},{label:"IP ünvanı",value:clientIp(request)||"—"}],button:{text:"Şifrəni dəyişin",href:"/login?mode=reset"},footerNote:"Bu məktub hesabınızın təhlükəsizliyi üçün avtomatik göndərilib."}));
       return response({session:await createSession(item.user_id,body.remember!==false)});
     }
     if(action==="signup"){

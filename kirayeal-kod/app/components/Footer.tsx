@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="kzFooterInner">
         <div className="kzFooterBrand">
           <Link href="/" className="kzLogo">kirayeal<span>.az</span></Link>
-          <p>{t("Ehtiyacın olanı almalı deyilsən.")}</p>
+          <p>{t("Ehtiyacınız olanı kirayələyin.")}</p>
         </div>
         <nav aria-label={t("Populyar kateqoriyalar")}>
           <strong>{t("Kateqoriyalar")}</strong>
@@ -28,7 +28,7 @@ export default function Footer() {
           <Link href="/terms">{t("İstifadəçi razılaşması")}</Link>
           <Link href="/new">{t("Elan yerləşdir")}</Link>
         </nav>
-        <div className="kzFooterContact">
+        <div className="kzFooterContact kzContactCard">
           <strong>{t("Bizimlə əlaqə")}</strong>
           <ContactLinks />
         </div>

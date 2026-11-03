@@ -1,9 +1,10 @@
 "use client";
 import { dateFormat } from "../../lib/date-format";
 import Notice from "./Notice";
+import type { NoticeKind } from "../../lib/toast";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { ChevronLeft, ChevronRight, Pencil, Plus, ShieldCheck, Store, Trash2 } from "lucide-react";
+import { CalendarClock, ChevronLeft, ChevronRight, CircleCheck, CircleX, Clock3, Pencil, Plus, ShieldCheck, Store, Trash2, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -32,6 +33,7 @@ import {
   periodName,
 } from "../../lib/marketplace";
 const listingTabs = [["published", "Aktiv"], ["pending", "Gözləmədə"], ["payment", "Ödəniş gözləyir"], ["rejected", "Rədd edilib"], ["expired", "Müddəti bitib"], ["deleted", "Silinmiş"]];
+const tabIcons: Record<string, typeof CircleCheck> = {published: CircleCheck, pending: Clock3, payment: Wallet, rejected: CircleX, expired: CalendarClock, deleted: Trash2};
 const emptyText: Record<string, string> = { published: "Aktiv elanınız yoxdur. İstifadə etmədiyiniz əşyanı kirayəyə verin.", pending: "Gözləmədə olan elan yoxdur.", payment: "Ödəniş gözləyən elan yoxdur.", rejected: "Rədd edilmiş elan yoxdur.", expired: "Müddəti bitmiş elan yoxdur.", deleted: "Silinmiş elan yoxdur." };
 const shortDate = (value?: string | null) => { if (!value) return "—"; const parts = dateFormat("en-GB", { timeZone: "Asia/Baku", day: "2-digit", month: "2-digit", year: "numeric" }).formatToParts(new Date(value)); const part = (type: string) => parts.find(item => item.type === type)?.value || ""; return `${part("day")}.${part("month")}.${part("year")}`; };
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
@@ -53,6 +55,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [hasStore, setHasStore] = useState<boolean | null>(null),
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
+    [noticeKind, setNoticeKind] = useState<NoticeKind>("success"),
     [statusFilter, setStatusFilter] = useState(() => { const tab = params.get("tab"); return tab && listingTabs.some(([key]) => key === tab) ? tab : "published"; }),
     [reloadKey, setReloadKey] = useState(0),
     [fullCategories, setFullCategories] = useState<string[]>([]),
@@ -101,7 +104,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const [deleteConfirm,setDeleteConfirm]=useState("");
   async function archive(item: Listing) {
     if (busy) return;
-    setBusy(item.id);
+    setNoticeKind("success"); setBusy(item.id);
     setError("");
     setNotice("");
     try {
@@ -124,7 +127,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   async function restore(item: Listing) {
     if (busy) return;
     if (!leader) { paidRestore(item); return; }
-    setBusy(item.id); setError(""); setNotice("");
+    setNoticeKind("success"); setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
       if (!response.ok) throw new Error();
@@ -135,13 +138,15 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   }
   async function submitWaiting(item: Listing) {
     if (busy) return;
-    setBusy(item.id); setError(""); setNotice("");
+    setNoticeKind("success"); setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
       if (response.status === 429) { paidSubmit(item); return; }
-      if (response.status === 409) { setError("Bu elan artıq ödəniş gözləmir. Siyahı yeniləndi."); setReloadKey(key => key + 1); return; }
+      if (response.status === 409) { setNoticeKind("info"); setNotice("Elanın vəziyyəti dəyişib. Siyahı yeniləndi."); setReloadKey(key => key + 1); return; }
       if (!response.ok) throw new Error();
-      setNotice("Elan yoxlamaya göndərildi.");
+      const result = await response.json();
+      if (result.already_submitted) setNoticeKind("info");
+      setNotice(result.status === "published" ? "Elan artıq aktivdir. Ödəniş tələb olunmur." : result.already_submitted ? "Elan artıq yoxlamaya göndərilib." : leader ? "Elan rəhbər səlahiyyəti ilə pulsuz yoxlamaya göndərildi." : "Elan yoxlamaya göndərildi.");
       setReloadKey(key => key + 1);
     } catch { setError("Elanı göndərmək mümkün olmadı. Yenidən cəhd edin."); }
     finally { setBusy(""); }
@@ -178,15 +183,15 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </section>
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
-              <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
+              <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined} data-tone="green">
                 <span className="kzNavIcon"><NavigationIcon name="home"/></span><span>Mənim elanlarım
               </span></Link>
               
-              <Link href="/account"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>Profil</span></Link>
-                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="history"/></span><span>Əməliyyat tarixçəsi</span></Link>
-              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="card"/></span><span>Mənim kartlarım</span></Link>
-              <Link href="/profile?section=store" aria-current={section === "store" ? "page" : undefined}><span className="kzNavIcon"><Store aria-hidden="true" size={19} strokeWidth={2} /></span><span>Mağaza</span></Link>
-              <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
+              <Link href="/account" data-tone="blue"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>Profil</span></Link>
+                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined} data-tone="amber"><span className="kzNavIcon"><NavigationIcon name="history"/></span><span>Əməliyyat tarixçəsi</span></Link>
+              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined} data-tone="violet"><span className="kzNavIcon"><NavigationIcon name="card"/></span><span>Mənim kartlarım</span></Link>
+              <Link href="/profile?section=store" aria-current={section === "store" ? "page" : undefined} data-tone="rose"><span className="kzNavIcon"><Store aria-hidden="true" size={19} strokeWidth={2} /></span><span>Mağaza</span></Link>
+              <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined} data-tone="teal"><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
                 {admin && <Link className="kzMenuRow" href="/admin"><span className="kzMenuIcon admin"><ShieldCheck size={18} strokeWidth={2} /></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={18} strokeWidth={1.75} /></Link>}
               </div>
@@ -206,13 +211,14 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </div>}
               <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
                 {/* Core states stay in place. Payment stays available to the leader, when enabled, or for existing waiting listings. */}
-                {listingTabs.filter(([status]) => status !== "payment" || leader || paidVisible(flags) || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => (
-                  <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setNotice(""); setError(""); }}>
-                    {label}<b>{listings.filter((x) => matchesTab(x, status)).length}</b>
-                  </button>
-                ))}
+                {listingTabs.filter(([status]) => status !== "payment" || leader || paidVisible(flags) || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => {
+                  const Icon = tabIcons[status];
+                  return <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setNotice(""); setError(""); }}>
+                    <span className="kzOwnTabLabel"><Icon aria-hidden="true" size={16} strokeWidth={1.8} /><span>{label}</span></span><b>{listings.filter((x) => matchesTab(x, status)).length}</b>
+                  </button>;
+                })}
               </div>
-              <Notice text={notice} />
+              <Notice text={notice} kind={noticeKind} />
               {payment && <PaymentDialog title={payment.title} text={payment.text} price={payment.price} onClose={() => setPayment(null)} />}
               {!listings.some((x) => matchesTab(x, statusFilter)) ? (
                 <div className="kzOwnEmpty">
@@ -236,20 +242,20 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         <p className="kzOwnDates">
                           {current === "published" && x.expires_at && <span>Aktivdir: {shortDate(x.expires_at)} tarixinədək</span>}
                           {expired && !x.deleted_at && <span>Müddəti bitib: {shortDate(x.expires_at || x.created_at)}</span>}
-                          {current === "pending" && <span>Təsdiqdən sonra yayımlanacaq.</span>}
+                          {current === "pending" && !x.payment_required && <span>Təsdiqdən sonra yayımlanacaq.</span>}
                           {promo && x.promotion_until && <span>{promo === "premium" ? "Premium" : "VIP"}: {shortDate(x.promotion_until)} tarixinədək</span>}
                         </p>
-                        {x.payment_required && !x.deleted_at && <p className="kzOwnHint">{leader ? "Rəhbər üçün limit yoxdur — elanı pulsuz yoxlamaya göndərin." : "Bu kateqoriyada pulsuz limit dolub. Ödənişdən sonra elan yoxlamaya göndəriləcək."}</p>}
+                        {x.payment_required && !x.deleted_at && <p className="kzOwnHint">{leader ? "Rəhbər səlahiyyəti ilə bu elanı pulsuz göndərə bilərsiniz." : "Bu kateqoriyada pulsuz limit dolub. Ödənişdən sonra elan yoxlamaya göndəriləcək."}</p>}
                         {current === "rejected" && x.rejection_reason && <p className="kzOwnReason"><strong>Rədd səbəbi:</strong> {x.rejection_reason}</p>}
                         {expired && !x.deleted_at && <p className="kzOwnHint">{leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} Bərpa olunmasa, 180 gün sonra arxivə keçir.</p>}
                         {x.deleted_at && <p className="kzOwnHint">Silinib: {shortDate(x.deleted_at)}. {leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} 180 gün sonra arxivə keçir.</p>}
                       </div>
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
-                            <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Göndər" : "Ödəniş et"}</button>
+                            <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Pulsuz göndər" : "Davam et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>
                           </>
-                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Bərpa et" : "Ödənişlə bərpa et"}</button>
+                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Pulsuz bərpa et" : "Ödənişlə bərpa et"}</button>
                           : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Düzəlt və göndər</Link>
                           : <>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>

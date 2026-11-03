@@ -3302,3 +3302,66 @@ input[type=password]::placeholder{letter-spacing:normal!important}
 .accountDashboard .kzOwnTabs button{min-width:0;white-space:normal;text-align:left;line-height:1.4;justify-content:space-between}
 .accountDashboard .kzOwnTabs button b{flex:none}
 @media(max-width:767px){.accountDashboard .kzOwnTabs button:last-child:nth-child(odd){grid-column:1/-1}}
+
+/* Shared wordmark and account controls. Keep brand typography identical across entry points. */
+.kzHeader .kzLogo,.loginPage .authHeader .logo,.siteMenuPanel.kzSide .siteMenuHeading .logo{font-family:var(--kz-font)!important;font-size:24px!important;font-weight:750!important;letter-spacing:-.8px!important;color:var(--kz-brand)!important}
+.kzHeader .kzLogo span,.loginPage .authHeader .logo span,.siteMenuPanel.kzSide .siteMenuHeading .logo span{color:#f65320!important}
+.kzHeader .kzRoundPlus,.kzHeader .kzPublish{background:#f65320!important;color:#fff!important}
+.kzHeader .kzPublish{background:var(--kz-accent)!important}
+.kzHeader .kzPublish:hover{background:var(--kz-accent-dark)!important}
+.kzUserAvatar.large{background:var(--kz-brand);color:#fff;border-color:var(--kz-brand)}
+.kzUserAvatar.large b{color:#fff}
+.kzUserAvatar{background:var(--kz-brand);color:#fff}
+.cabinetNav.cabinetCards>a[data-tone=green] .kzNavIcon{--tone:#257052!important;--tint:#e5f2e9!important}
+.cabinetNav.cabinetCards>a[data-tone=blue] .kzNavIcon{--tone:#3269ac!important;--tint:#e9f0fc!important}
+.cabinetNav.cabinetCards>a[data-tone=amber] .kzNavIcon{--tone:#966318!important;--tint:#fcf2df!important}
+.cabinetNav.cabinetCards>a[data-tone=violet] .kzNavIcon{--tone:#7755ae!important;--tint:#f0eafa!important}
+.cabinetNav.cabinetCards>a[data-tone=rose] .kzNavIcon{--tone:#b04373!important;--tint:#faeaf1!important}
+.cabinetNav.cabinetCards>a[data-tone=teal] .kzNavIcon{--tone:#248080!important;--tint:#e6f3f3!important}
+.accountDashboard .kzOwnTabs{gap:8px;background:none;border:0;border-radius:0;padding:0!important}
+.accountDashboard .kzOwnTabs button{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--kz-line);border-radius:12px;background:#fff;min-height:46px}
+.accountDashboard .kzOwnTabs button[aria-pressed=true]{border-color:#9cbfb3;background:var(--kz-brand-soft);color:var(--kz-brand);box-shadow:none}
+.kzOwnTabLabel{display:flex;align-items:center;gap:7px;min-width:0}
+.kzOwnTabLabel>svg{flex:none}
+.kzOwnTabLabel>span{min-width:0}
+.accountDashboard .kzOwnTabs button b{display:grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:7px;background:#f1f3f5;font-size:11px;box-sizing:border-box}
+.accountDashboard .kzOwnTabs button[aria-pressed=true] b{background:#dbeae3;color:var(--kz-brand)}
+.siteMenuPanel.kzSide nav a{font-size:15px!important;line-height:1.45!important;min-height:46px!important}
+.siteMenuPanel.kzSide .siteMenuLanguage{font-size:14px!important}
+.siteMenuPanel.kzSide .siteContact>strong{font-size:13px!important;color:#475467!important}
+.siteMenuPanel.kzSide .siteContact .kzContactSocials a{min-height:44px;font-size:14px!important}
+.loginPage .authLayout section{max-width:400px!important;padding:22px!important}
+.loginPage .authLayout h1{font-size:20px!important;line-height:1.3!important;margin-bottom:12px!important}
+.loginPage .authLayout .authModeLinks{margin-bottom:18px!important;border-radius:10px!important}
+.loginPage .authLayout .authModeLinks a{min-height:44px!important;border-radius:8px!important;font-size:13px!important;white-space:nowrap}
+.loginPage .authLayout .googleButton{max-width:280px;font-size:13px!important}
+.loginPage .authBack{justify-content:flex-start;gap:4px;min-height:40px;margin:16px 0 0;padding:8px 0 0;border-top:1px solid var(--kz-line);font-size:13px!important;text-decoration:none}
+@media(min-width:1024px){.authLayout{grid-template-columns:minmax(0,1fr) 400px;gap:56px;max-width:920px}}
+@media(max-width:767px){
+ .kzTabbar>a,.kzTabbar>a.kzTabbarPublish,.kzTabbar>a.kzTabbarPublish span{text-transform:uppercase!important;font-size:clamp(9px,2.55vw,11px)!important;letter-spacing:0!important}
+ .loginPage .authLayout section{padding:18px!important}
+ .accountDashboard .kzOwnTabs button{padding:9px 8px;font-size:12px!important;gap:5px}
+ .kzOwnTabLabel{gap:5px}
+ .accountDashboard .kzOwnTabs .kzOwnTabLabel>svg{width:15px;height:15px}
+}
+
+/* Footer uses the same contact card and restrained text hierarchy as the side menu. */
+.kzFooterInner>nav{gap:4px!important}
+.kzFooter .kzFooterInner>nav>a{font-family:var(--kz-font);font-weight:400!important;font-size:14px!important;line-height:1.5;min-height:36px;display:flex;align-items:center;padding:2px 0}
+.kzFooter .kzFooterInner strong{font-family:var(--kz-font);font-size:14px!important;font-weight:600!important;letter-spacing:0!important;color:#344054}
+.kzContactCard,.kzFooterInner>.kzContactCard{box-sizing:border-box;min-width:0;padding:12px!important;border:1px solid var(--kz-line);border-radius:14px;background:#f7f9f8;gap:6px!important}
+.kzContactCard .kzContactLinks{width:100%;gap:6px!important}
+.kzContactCard .kzContactSocials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kzContactCard .kzContactSocials a{justify-content:center;gap:6px;padding:0 7px!important;border:1px solid var(--kz-line);border-radius:9px;background:#fff;font-size:13px!important;min-height:44px;font-weight:400!important}
+.kzContactCard .kzContactSocials .kzContactIcon{width:22px;height:22px;border-radius:0;background:none!important}
+.kzFooter .kzFooterBrand .kzLogo{font-family:var(--kz-font);font-weight:750;letter-spacing:-.8px}
+.kzFooter .kzFooterBrand .kzLogo span{color:#f65320}
+@media(min-width:1024px){.kzFooterInner{grid-template-columns:1.2fr 1fr 1fr minmax(250px,1.2fr);gap:28px}}
+@media(max-width:767px){.kzFooter .kzFooterInner>nav>a{font-size:13px!important;min-height:36px}.kzFooterInner>.kzContactCard{width:100%;max-width:400px}.kzFooterBrand p{font-weight:400!important}}
+
+/* The mode selector names the form; keep the repeated heading available to screen readers only. */
+.loginPage #auth-title.srOnly{margin:0!important;padding:0!important;border:0!important}
+.loginPage .authLayout .authModeLinks{padding:4px!important;background:#fff!important;border:1px solid var(--kz-line)!important}
+.loginPage .authLayout .authModeLinks a[aria-current=page]{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;box-shadow:inset 0 0 0 1px #c9ded5!important;font-weight:600!important}
+/* Authentication pages have no bottom navigation, including the tablet breakpoint. */
+html.kz-login>body{padding-bottom:0!important}

@@ -7,7 +7,7 @@ import { readFile, writeFile, statfs } from "node:fs/promises";
 import { join } from "node:path";
 import tls from "node:tls";
 import { noticeLetter } from "./email-frame.mjs";
-const HEALTH_FOOTER = "Bu məktub saytın avtomatik yoxlamasından göndərilib.";
+const HEALTH_FOOTER = "Bu bildiriş saytın avtomatik yoxlanılmasının nəticələrinə əsasən göndərilib.";
 
 const OWNER = "kirayeal.az@gmail.com";
 const DAY = 86400000;
@@ -85,8 +85,8 @@ export async function runHealth(appDir, db, requireFromApp) {
   const transport = nodemailer.createTransport({ host: process.env.KIRAYE_SMTP_HOST, port, secure: port === 465, auth: { user: process.env.KIRAYE_SMTP_USER, pass: process.env.KIRAYE_SMTP_PASSWORD } });
   const bad = problems.some(([, r]) => r.level === "bad");
   const letter = problems.length
-    ? noticeLetter({ label: "Sayt yoxlaması", heading: bad ? "Saytda nasazlıq aşkar edilmişdir" : "Saytın işində diqqət tələb edən vəziyyət", name: "Rəhbər", intro: bad ? "Avtomatik yoxlama zamanı saytda nasazlıq aşkar edilmişdir. Aşağıdakı məlumatları nəzərdən keçirməyiniz xahiş olunur:" : "Avtomatik yoxlama zamanı diqqət tələb edən vəziyyət aşkar edilmişdir:", rows: problems.map(([key, r]) => ({ label: names[key] || key, value: r.detail })), button: { text: "Rəhbər panelinə keçin", href: "/admin" }, note: "Bu bildiriş hər 5 dəqiqədən bir aparılan avtomatik yoxlama əsasında göndərilmişdir. Eyni nasazlıq barədə gündə ən çox bir bildiriş göndərilir. Nasazlıq aradan qaldırıldıqda ayrıca məlumat veriləcək.", footerNote: HEALTH_FOOTER })
-    : noticeLetter({ label: "Sayt yoxlaması", heading: "Nasazlıq aradan qaldırılmışdır", name: "Rəhbər", intro: "Əvvəl bildirilmiş nasazlığın aradan qaldırıldığı təsdiqlənmişdir:", rows: fixed.map(([key, r]) => ({ label: names[key] || key, value: r.detail })), button: { text: "Rəhbər panelinə keçin", href: "/admin" }, footerNote: HEALTH_FOOTER });
+    ? noticeLetter({ label: "Sayt yoxlaması", heading: bad ? "Saytda nasazlıq aşkar edilmişdir" : "Saytın işində diqqət tələb edən vəziyyət", name: "Rəhbər", intro: bad ? "Avtomatik yoxlama zamanı saytda nasazlıq aşkar edilib. Təfərrüatlar aşağıda təqdim olunur." : "Avtomatik yoxlama zamanı diqqət tələb edən vəziyyət aşkar edilib. Təfərrüatlar aşağıda təqdim olunur.", rows: problems.map(([key, r]) => ({ label: names[key] || key, value: r.detail })), button: { text: "Rəhbər panelinə keçin", href: "/admin" }, note: "Bu bildiriş hər 5 dəqiqədən bir aparılan avtomatik yoxlama əsasında göndərilmişdir. Eyni nasazlıq barədə gündə ən çox bir bildiriş göndərilir. Nasazlıq aradan qaldırıldıqda ayrıca məlumat veriləcək.", footerNote: HEALTH_FOOTER })
+    : noticeLetter({ label: "Sayt yoxlaması", heading: "Nasazlıq aradan qaldırılmışdır", name: "Rəhbər", intro: "Əvvəl bildirilmiş nasazlıq üzrə təkrar yoxlama aparılıb. Nasazlığın aradan qaldırıldığı təsdiqlənib.", rows: fixed.map(([key, r]) => ({ label: names[key] || key, value: r.detail })), button: { text: "Rəhbər panelinə keçin", href: "/admin" }, footerNote: HEALTH_FOOTER });
   const subject = problems.length ? `${bad ? "Diqqət" : "Xəbərdarlıq"}: ${problems.map(([key]) => names[key] || key).join(", ")} — kirayeal.az` : "Problem aradan qalxdı — kirayeal.az";
   for (const address of to) await transport.sendMail({ from: `kirayeal.az <${process.env.KIRAYE_SMTP_USER}>`, to: address, subject, text: letter.text, html: letter.html }).catch((error) => console.error("health mail failed:", String(error?.message || error).slice(0, 120)));
 }

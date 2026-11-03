@@ -3197,3 +3197,42 @@ input[type=password]::placeholder{letter-spacing:normal!important}
 @media(max-width:767px){.kzTabbar>a:not([aria-current=page]){color:#596779!important}.kzMessages>.kzFeedback{margin:12px}}
 
 .kzFavorite:not(.selected){filter:none!important}
+
+/* ===== Təmiz marketplace görünüşü (2026-11): ağ başlıq, aydın düymələr, çərçivəsiz kartlar ===== */
+/* Başlıq: ağ fon, rəngli loqo, nazik alt xətt. */
+.kzHeader{background:#fff!important;border-bottom:1px solid #eceef2!important;box-shadow:0 1px 2px rgba(16,24,40,.03)}
+.kzHeader .kzLogo{color:var(--kz-brand)!important}
+.kzHeader .kzLogo span{color:#f15a22!important}
+.kzHeader .mobileMenuButton{color:#1f2937!important}
+/* Axtarış: çərçivəli sahə və ona bitişik rəngli düymə. */
+.kzHeader .kzSearch{border:1.5px solid #e2e5ea!important;background:#fff!important;box-shadow:none!important}
+.kzHeader .kzSearch:focus-within{border-color:var(--kz-brand)!important}
+.kzHeader .kzSearch button{background:var(--kz-brand)!important;color:#fff!important;font-weight:600!important}
+.kzHeader .kzSearch button:hover{background:#0b3b34!important}
+/* Kataloq — yumşaq yaşıl, Yeni elan — əsas narıncı düymə; böyük hərflər yoxdur. */
+.kzHeader .kzCatalogButton{border:0!important;background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;font-weight:600}
+.kzHeader .kzCatalogButton:hover,.kzHeader .kzCatalogButton[aria-expanded=true]{background:#e0eee9!important}
+.kzPublish{text-transform:none!important;letter-spacing:0!important;font-weight:600!important;background:#f15a22!important;box-shadow:0 2px 6px rgba(241,90,34,.22)}
+.kzPublish:hover{background:#dc4c17!important}
+/* Seçilmişlər, mesajlar, hesab: tünd boz ikonlar, üzərinə gələndə açıq fon. */
+.kzHeaderNav>a,.kzHeaderNav .accountMenu>summary{color:#344054!important;background:transparent!important}
+.kzHeaderNav>a:hover,.kzHeaderNav>a[aria-current=page],.kzHeaderNav .accountMenu>summary:hover{background:#f2f4f7!important;color:#101828!important}
+.kzHeaderNav .kzGuest{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;font-weight:600}
+.kzHeaderNav .kzAvatar,.kzHeaderNav .accountMenu>summary>svg{background:transparent!important}
+.kzHeaderNav .kzTabIcon.on{stroke:#f15a22!important}
+/* Alt menyu: yazılar adi hərflərlə. */
+.kzTabbar>a{text-transform:none!important;letter-spacing:0!important}
+/* Kateqoriyalar: daha böyük, yumşaq fonlu şəkillər. */
+@media (min-width:768px){
+  .kzCategories>button .categoryVisual,.kzCategories>button>span:first-child{width:88px!important;height:88px!important;border-radius:18px!important;background-color:#f4f5f7!important}
+  .kzCategories>button>span:last-child{font-size:13px!important;color:#344054!important}
+}
+/* Elan kartları: çərçivəsiz, yuvarlaq künclü şəkil, təmiz mətn. */
+.kzHome .kzCard,.kzCard{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
+.kzCard .kzCardPhoto{border-radius:12px!important;overflow:hidden}
+.kzCard .kzCardBody{padding:9px 2px 0!important}
+.kzCard .kzPrice{font-size:17px!important;font-weight:700!important;color:#101828!important}
+.kzCard .kzCardTitle{font-size:14px!important;font-weight:400!important;color:#1d2939!important;line-height:1.4!important}
+.kzCard .kzCardMeta{font-size:12.5px!important;color:#8a919c!important}
+.kzSectionHead h2{font-weight:600!important}
+.kzTabbar>a.kzTabbarPublish,.kzTabbar>a.kzTabbarPublish span{text-transform:none!important;letter-spacing:0!important}

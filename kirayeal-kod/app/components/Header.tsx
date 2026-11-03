@@ -15,7 +15,6 @@ import CategoryVisual from "./CategoryVisual";
 import { categories } from "../../lib/marketplace";
 export default function Header() {
   const {t, language} = useLanguage();
-  const letterLocale = language === "az" ? "az-AZ" : language;
   const [accountId,setAccountId]=useState(""),[accountName,setAccountName]=useState(""),[accountPhone,setAccountPhone]=useState("");
   const [signedIn, setSignedIn] = useState(false);
   const pathname = usePathname();
@@ -125,7 +124,7 @@ export default function Header() {
               : <Link className="kzGuest" href="/login"><span className="kzAvatar"><TabIcon name="user" active={pathname === "/login"}/></span><span>{t("Daxil ol")}</span></Link>}
           </nav>
           <Link className="kzPublish" href="/new">
-            <CirclePlus aria-hidden="true" size={20} strokeWidth={2} /><span>{t("Yeni elan").toLocaleUpperCase(letterLocale)}</span>
+            <CirclePlus aria-hidden="true" size={20} strokeWidth={2} /><span>{t("Yeni elan")}</span>
           </Link>
           <LanguageSelect />
           <Link className="kzMobilePublish" href="/new" aria-label={t("Yeni elan")}>
@@ -135,19 +134,19 @@ export default function Header() {
       </header>
       <nav className={`kzTabbar${pathname?.startsWith("/listings/") ? " kzTabbarHidden" : ""}`} aria-label="Mobil menyu">
         <a href="/" onClick={sameSection("home")} aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
-          <TabIcon name="home" active={pathname === "/" && !favoritesPage}/><span>{t("Əsas").toLocaleUpperCase(letterLocale)}</span>
+          <TabIcon name="home" active={pathname === "/" && !favoritesPage}/><span>{t("Əsas")}</span>
         </a>
         <a href="/?favorites=1" onClick={sameSection("favorites")} aria-current={favoritesPage ? "page" : undefined}>
-          <TabIcon name="heart" active={favoritesPage}/><span>{t("Seçilmişlər").toLocaleUpperCase(letterLocale)}</span>
+          <TabIcon name="heart" active={favoritesPage}/><span>{t("Seçilmişlər")}</span>
         </a>
         <Link className="kzTabbarPublish" href="/new" aria-label={t("Yeni elan")} aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
-          <span className="kzTabPlus" aria-hidden="true"><Plus size={24} strokeWidth={2.25} /></span><span>{(language === "ru" ? "Подать" : language === "en" ? "Post" : t("Yeni elan")).toLocaleUpperCase(letterLocale)}</span>
+          <span className="kzTabPlus" aria-hidden="true"><Plus size={24} strokeWidth={2.25} /></span><span>{(language === "ru" ? "Подать" : language === "en" ? "Post" : t("Yeni elan"))}</span>
         </Link>
         <Link href="/messages" onClick={sameSection("messages")} aria-current={pathname === "/messages" ? "page" : undefined}>
-          <TabIcon name="chat" active={pathname === "/messages"}/><span>{t("Mesajlar").toLocaleUpperCase(letterLocale)}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
+          <TabIcon name="chat" active={pathname === "/messages"}/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
         </Link>
         <Link href={signedIn ? "/profile" : "/login"} onClick={signedIn ? sameSection("account") : undefined} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
-          <TabIcon name="user" active={!!(accountPage || pathname === "/login")}/><span>{t("Kabinet").toLocaleUpperCase(letterLocale)}</span>
+          <TabIcon name="user" active={!!(accountPage || pathname === "/login")}/><span>{t("Kabinet")}</span>
         </Link>
       </nav>
     </>

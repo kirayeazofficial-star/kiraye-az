@@ -23,7 +23,9 @@ export default function MessagesPanel(){
  useEffect(()=>{const close=(event:Event)=>{const menu=moreMenu.current;if(menu?.open&&!menu.contains(event.target as Node))menu.open=false;};document.addEventListener('pointerdown',close);return()=>document.removeEventListener('pointerdown',close);},[]);
  const time=(value:string)=>dateFormat('az-AZ',{timeZone:'Asia/Baku',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));
  const day=(value:string)=>publicDate(value).split(',')[0];
- const shortTime=(value:string)=>day(value)===day(new Date().toISOString())?time(value):dateFormat('az-AZ',{timeZone:'Asia/Baku',day:'numeric',month:'short'}).format(new Date(value));
+ // Month names written out: browsers often lack Azerbaijani month names and print "M11 1".
+ const months=['yan','fev','mar','apr','may','iyn','iyl','avq','sen','okt','noy','dek'];
+ const shortTime=(value:string)=>{if(day(value)===day(new Date().toISOString()))return time(value);const parts=Object.fromEntries(dateFormat('en-GB',{timeZone:'Asia/Baku',day:'numeric',month:'numeric'}).formatToParts(new Date(value)).map(part=>[part.type,part.value]));return `${Number(parts.day)} ${months[Number(parts.month)-1]}`;};
  const conversationOpen=!!(thread||listing);
  return <><Header/><main className={`kzMessages${conversationOpen?' hasConversation':''}`}>
   {!ready?<p className="kzMessagesState" role="status">Hesab yoxlanılır…</p>:!user?<div className="kzMessagesState"><span className="kzChatWelcomeIcon"><MessageSquareText aria-hidden="true" size={30} strokeWidth={1.7}/></span><h1>Mesajlar</h1><p>Yazışmalar yalnız hesab sahibi üçün görünür.</p>{error&&<Feedback>{error}</Feedback>}<Link className="kzButton" href="/login?next=%2Fmessages">Daxil ol</Link></div>:<>

@@ -2645,10 +2645,10 @@ html{-webkit-tap-highlight-color:transparent}
 .kzToolbar,.kzTypeChips,.kzOwnTabs,.kzStoreCats,.kzAdTabs,.kzSeoCities{padding-top:4px!important;padding-bottom:4px!important;margin-top:-4px!important;margin-bottom:-4px!important}
 .kzToolbar>*,.kzTypeChips>*,.kzOwnTabs>*,.kzStoreCats>*{flex-shrink:0}
 
-/* Telefonun alt menyusu: aktiv bölmə dolu ikon + narıncı + yuxarıda nazik xətt; yazılar adi hərflə, bərabər ölçüdə */
+/* Telefonun alt menyusu: aktiv bölmə dolu ikon + narıncı + yuxarıda nazik xətt; yazılar böyük hərflə, bərabər ölçüdə */
 @media (max-width:767px){
   .kzTabbar{height:62px!important;box-shadow:0 -4px 16px rgba(17,24,39,.05)}
-  .kzTabbar>a{gap:4px!important;font-size:11px!important;font-weight:500!important;text-transform:none!important;letter-spacing:0!important;color:#7b8190!important}
+  .kzTabbar>a{gap:4px!important;font-size:clamp(9px,2.6vw,11px)!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:0!important;color:#7b8190!important}
   .kzTabbar>a:not(.kzTabbarPublish) svg{width:23px!important;height:23px!important;stroke-width:1.8}
   .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish){color:var(--kz-accent)!important;font-weight:600!important}
   .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish)::before{content:"";position:absolute;top:0;left:50%;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--kz-accent);transform:translateX(-50%)}
@@ -2675,7 +2675,7 @@ html{-webkit-tap-highlight-color:transparent}
   .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish)::before{display:none!important}
   .kzTabbar>a .kzTabIcon{width:25px!important;height:25px!important;flex:none}
   .kzTabbar>a .kzTabIcon:not(.on){fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
-  .kzTabbar>a .kzTabIcon.on{fill:currentColor!important;stroke:none!important}
+  .kzTabbar>a .kzTabIcon.on{fill:none!important;stroke:currentColor!important;stroke-width:2.2!important}
   .kzTabbar>a{color:#6b7280!important;font-weight:500!important}
   .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish){color:var(--kz-accent)!important;font-weight:600!important}
 }
@@ -2808,7 +2808,7 @@ html{-webkit-tap-highlight-color:transparent}
 /* Desktop header uses the same drawn icons as the phone bottom menu */
 .kzHeaderNav .kzTabIcon{width:24px!important;height:24px!important;flex:none}
 .kzHeaderNav .kzTabIcon:not(.on){fill:none!important;fill-opacity:0!important;stroke:currentColor!important;stroke-width:1.7!important}
-.kzHeaderNav .kzTabIcon.on{fill:var(--kz-accent)!important;fill-opacity:1!important;stroke:none!important}
+.kzHeaderNav .kzTabIcon.on{fill:none!important;stroke:var(--kz-accent)!important;stroke-width:2.2!important}
 .kzHeaderNav .kzAvatar .kzTabIcon{width:20px!important;height:20px!important}
 
 /* Leader panel: tabs inside a section (Elanlar | Şikayətlər, İstifadəçilər | Mağazalar, Ayarlar …) */
@@ -3024,8 +3024,8 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 @media (max-width:520px){.kzAdTabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important}.kzAdTabs button{min-height:38px!important;padding:0 10px!important}}
 /* Phone field: "+994" and the number in the same font, weight and colour. */
 .kzPhoneInput .kzPhonePrefix,.kzPhoneInput input[type]{font-family:inherit!important;font-size:16px!important;font-weight:500!important;letter-spacing:.2px!important;font-variant-numeric:tabular-nums;color:var(--kz-ink)!important}
-/* Side menu "Bizimlə əlaqə": e-mail, Instagram and TikTok as three plain rows, same icon size, no frames. */
-.siteMenuPanel.kzSide .siteContact .socialLinks{display:grid!important;grid-template-columns:1fr;gap:0!important;margin:0!important}
+/* Side menu contact links share the same icon size, without frames. */
+.siteMenuPanel.kzSide .siteContact .socialLinks{display:flex!important;flex-wrap:nowrap;gap:0 22px!important;margin:0!important}
 .siteMenuPanel.kzSide .siteContact .kzContactLine,.siteMenuPanel.kzSide .siteContact .socialLinks a{display:flex!important;align-items:center;justify-content:flex-start!important;gap:10px!important;height:auto!important;min-height:40px!important;margin:0!important;padding:0 6px!important;border:0!important;border-radius:0!important;background:none!important;font-size:var(--fs-14)!important;font-weight:500;color:var(--kz-ink)!important}
 .siteMenuPanel.kzSide .siteContact .kzContactLine svg,.siteMenuPanel.kzSide .siteContact .socialLinks svg{width:18px!important;height:18px!important;flex:none;color:var(--kz-ink)}
 /* Code screen: small help links under the code field. */
@@ -3042,13 +3042,10 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 input[type=password]{color:#6b7280!important;-webkit-text-fill-color:#6b7280!important;letter-spacing:.12em!important}
 input[type=password]::placeholder{letter-spacing:normal!important}
 .loginPage .authHint{display:block;margin:-6px 0 4px}
-/* Müvəqqəti test açarları (admin donmasının səbəbini telefonda tapmaq üçün, ?test=...). */
-.kz-test-noimg .kzAdm img{display:none!important}
-.kz-test-nosvg .kzAdm svg{display:none!important}
 /* Yan menyu "Bizimlə əlaqə": yığcam qrup — e-poçt bir sətirdə, Instagram və TikTok yan-yana. */
 .siteMenuPanel.kzSide .siteContact{gap:2px!important;padding-top:12px!important}
 .siteMenuPanel.kzSide .siteContact>strong{margin-bottom:2px!important}
-.siteMenuPanel.kzSide .siteContact .socialLinks{display:flex!important;flex-wrap:wrap;gap:0 22px!important}
+.siteMenuPanel.kzSide .siteContact .socialLinks{display:flex!important;flex-wrap:nowrap;gap:0 22px!important}
 .siteMenuPanel.kzSide .siteContact .kzContactLine,.siteMenuPanel.kzSide .siteContact .socialLinks a{min-height:32px!important;gap:8px!important}
 /* Story pəncərəsi: pəncərənin özü fokus alır, X ətrafında rəngli çərçivə çəkilmir. */
 .kzStoryDlg:focus{outline:none}

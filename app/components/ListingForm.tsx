@@ -175,7 +175,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       active = false;
       setLoading(false);
       setLoadError(true);
-      setError("Hesab yoxlaması gecikir. Bağlantını yoxlayıb yenidən cəhd et.");
+      setError("Hesab yoxlaması gecikir. Bağlantını yoxlayıb yenidən cəhd edin.");
     }, 15000);
     fetch("/api/auth/host",{cache:"no-store"})
       .then(async response => {
@@ -209,7 +209,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             );
             return;
           }
-          if(["archived","expired"].includes(result.item.status)){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetindən baxa bilərsən.");return;}
+          if(["archived","expired"].includes(result.item.status)){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetinizdən baxa bilərsiniz.");return;}
           setInitial(result.item as Listing);
           setMinimumUnit(result.item.attributes?.min_rental_unit || "day");
           setRentalPeriod(result.item.rental_period);
@@ -294,7 +294,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       }
     }
     if (current === 3 && !files.length && !existingImages.length) {
-      setError("Ən azı bir şəkil əlavə et.");
+      setError("Ən azı bir şəkil əlavə edin.");
       return false;
     }
     return true;
@@ -321,7 +321,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       description = String(form.get("description") ?? "").trim(),
       contact = String(form.get("contact") ?? "").trim();
     if (!categories.some((item) => item.id === category)) {
-      setError("Kateqoriya seç.");
+      setError("Kateqoriya seçin.");
       return;
     }
     const textContact = contactInText(`${title} ${description}`);

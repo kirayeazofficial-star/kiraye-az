@@ -3053,3 +3053,26 @@ input[type=password]::placeholder{letter-spacing:normal!important}
 /* Story pəncərəsi: pəncərənin özü fokus alır, X ətrafında rəngli çərçivə çəkilmir. */
 .kzStoryDlg:focus{outline:none}
 .kzStoryClose:focus:not(:focus-visible){outline:none!important;box-shadow:none!important}
+/* ===== Mobil görünüş 2026-11: axtarış, kateqoriyalar, elan kartları ===== */
+@media (max-width:767px){
+  /* Axtarış: boz fonlu, hündür, yumşaq künclü sahə. */
+  html body .kzHeader .kzSearch{height:44px!important;min-height:44px!important;border:1px solid transparent!important;border-radius:12px!important;background:#f2f3f5!important;box-shadow:none!important}
+  html body .kzHeader .kzSearch:focus-within{border-color:var(--kz-accent)!important;background:#fff!important;box-shadow:0 0 0 3px rgba(255,90,31,.12)!important}
+  html body .kzHeader .kzSearch input{background:transparent!important;font-size:16px!important}
+  html body .kzHeader .kzSearch input::placeholder{color:#8a909c}
+  /* Kateqoriyalar: eyni ölçülü kartlar, aydın yazı. */
+  html body .kzCategories>button{gap:6px!important}
+  html body .kzCategories>button>span:first-child{border-radius:16px!important;box-shadow:inset 0 0 0 1px rgba(17,24,39,.04)}
+  html body .kzCategories>button>span:last-child{font-size:12px!important;font-weight:500!important;line-height:1.25!important;color:#374151!important;min-height:2.5em}
+  /* Bölmə başlıqları. */
+  html body .kzSectionHead h2{font-size:19px!important;font-weight:700!important;letter-spacing:-.2px}
+  html body .kzSectionHead .kzMore{font-size:14px!important;font-weight:600!important}
+  /* Elan kartları: ağ kart, nazik çərçivə, yumşaq kölgə, səliqəli boşluqlar. */
+  html body .kzHome .kzCard{overflow:hidden;border:1px solid #eceef2!important;border-radius:14px!important;background:#fff!important;box-shadow:0 1px 2px rgba(16,24,40,.04),0 4px 12px rgba(16,24,40,.04)!important}
+  html body .kzHome .kzCard .kzCardPhoto{border-radius:0!important}
+  html body .kzHome .kzCard .kzCardBody{padding:9px 10px 11px!important}
+  html body .kzHome .kzCard .kzPrice{font-size:16px!important;font-weight:800!important;letter-spacing:-.2px}
+  html body .kzHome .kzCard .kzCardTitle{margin-top:2px;font-size:13.5px!important;font-weight:500!important;line-height:1.35!important;color:#1f2937!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  html body .kzHome .kzCard .kzCardMeta{margin-top:4px;font-size:12px!important;color:#8a909c!important}
+  html body .kzHome .kzGrid{gap:12px 10px!important}
+}

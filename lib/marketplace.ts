@@ -206,7 +206,7 @@ export async function loadListings(
   scope: "public" | "mine" | "admin" = "public",
 ) {
   const response=await fetch(`/api/listings?scope=${scope}&limit=200`,{cache:'no-store',signal:AbortSignal.timeout(15000)});const result=await response.json();
-  if(!response.ok)throw new Error(response.status===401?"Əvvəl hesabınıza daxil olun.":"Elanları yükləmək mümkün olmadı. Yenidən yoxla.");return result.items as Listing[];
+  if(!response.ok)throw new Error(response.status===401?"Əvvəl hesabınıza daxil olun.":"Elanları yükləmək mümkün olmadı. Yenidən yoxlayın.");return result.items as Listing[];
 }
 export function readFavorites(): string[] {
   try {

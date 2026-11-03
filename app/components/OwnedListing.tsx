@@ -13,7 +13,7 @@ export default function OwnedListing({ id }: { id: string }) {
     async function load() {
       const response=await fetch(`/api/listings?id=${encodeURIComponent(id)}`,{cache:'no-store'}),result=await response.json();
       if (!response.ok || !result.item)
-        throw new Error("Bu elan tapılmadı və ya sənin hesabına aid deyil.");
+        throw new Error("Bu elan tapılmadı və ya sizin hesabınıza aid deyil.");
       if (active) setItem(result.item as Listing);
     }
     finishWithin(load(), 20000)

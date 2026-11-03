@@ -67,17 +67,17 @@ export function calculateRental(
   today = "",
 ): RentalQuote {
   const fail = (error: string): RentalQuote => ({ error });
-  if (!validRentalDate(input.start)) return fail("Götürmə tarixini seç.");
+  if (!validRentalDate(input.start)) return fail("Götürmə tarixini seçin.");
   if (today && input.start < today) return fail("Keçmiş tarix seçmək olmaz.");
   const monthly = item.rental_period === "monthly";
   const weekly = item.rental_period === "weekly";
   if (!["daily", "weekly", "monthly"].includes(item.rental_period))
-    return fail("Qiymət müddətini elan sahibi ilə dəqiqləşdir.");
+    return fail("Qiymət müddətini elan sahibi ilə dəqiqləşdirin.");
   if (
     monthly &&
     (!Number.isInteger(input.months) || input.months < 1 || input.months > 120)
   )
-    return fail("Ay sayını 1–120 arasında yaz.");
+    return fail("Ay sayını 1–120 arasında yazın.");
   const end = monthly ? rentalMonthEnd(input.start, input.months) : input.end;
   if (!validRentalDate(end) || end <= input.start)
     return fail("Qaytarma tarixi götürmə tarixindən sonra olmalıdır.");
@@ -119,7 +119,7 @@ export function calculateRental(
     deposit < 0 ||
     deposit > 1000000
   )
-    return fail("Qiymət və depoziti elan sahibi ilə dəqiqləşdir.");
+    return fail("Qiymət və depoziti elan sahibi ilə dəqiqləşdirin.");
   // A weekly price also covers part of a week: the remaining days cost a seventh of the week each.
   const partialWeek = weekly && days % 7 !== 0;
   const units = monthly ? input.months : weekly ? days / 7 : days;

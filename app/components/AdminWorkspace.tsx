@@ -151,7 +151,7 @@ function ModerationHistory({ revision, onInspect }: { revision: number; onInspec
     try {
       const data = await api(before ? { action: "history", before } : { action: "history" });
       setEvents(old => before ? [...old, ...data.events] : data.events); setCursor(data.next);
-    } catch { setError("Tarixçə yüklənmədi. Yenidən cəhd et."); }
+    } catch { setError("Tarixçə yüklənmədi. Yenidən cəhd edin."); }
     finally { setLoading(false); }
   }, []);
   useEffect(() => { void load(); }, [load, revision]);
@@ -255,7 +255,7 @@ function StaffManagement() {
   async function find(event: FormEvent) {
     event.preventDefault(); if (busy) return; setBusy(true); setError(""); setNotice(""); setFound(null); setMatches([]);
     try { const data = await api({ action: "find", query: query.trim() }); if (data.account) setFound(data.account); else setMatches(data.accounts || []); }
-    catch (failure) { const { code, detail } = failure as { code?: string; detail?: string }; setError(code === "NOT_FOUND" ? "Bu məlumatla hesab tapılmadı. Hesab əvvəl saytda qeydiyyatdan keçməlidir." : code === "INVALID_REQUEST" ? "Ən azı 3 simvol yaz." : `Axtarış alınmadı.${detail ? ` Texniki kod: ${detail}` : ""}`); }
+    catch (failure) { const { code, detail } = failure as { code?: string; detail?: string }; setError(code === "NOT_FOUND" ? "Bu məlumatla hesab tapılmadı. Hesab əvvəl saytda qeydiyyatdan keçməlidir." : code === "INVALID_REQUEST" ? "Ən azı 3 simvol yazın." : `Axtarış alınmadı.${detail ? ` Texniki kod: ${detail}` : ""}`); }
     finally { setBusy(false); }
   }
   async function change(account: Member, enabled: boolean) {
@@ -373,7 +373,7 @@ export default function AdminWorkspace() {
       setRevision(value => value + 1);
       toast(status === "published" ? `Elan № ${item.listing_no ?? ""} təsdiqləndi` : `Elan № ${item.listing_no ?? ""} rədd edildi`);
       return true;
-    } catch { setError("Dəyişiklik saxlanmadı. Siyahını yenilə və yenidən yoxla."); return false; }
+    } catch { setError("Dəyişiklik saxlanmadı. Siyahını yeniləyib yenidən yoxlayın."); return false; }
     finally { setBusy(""); }
   }
   latest.current = { moderate: (item, status) => { void moderate(item, status); }, toggleReject: id => setRejecting(current => id && current !== id ? id : ""), setReason: (id, text) => setReasons(current => ({ ...current, [id]: text })), details: item => setDetails(item) };
@@ -389,7 +389,7 @@ export default function AdminWorkspace() {
   function find(event: FormEvent) { event.preventDefault(); setPage(1); setQuery(search.trim()); }
 
   if (allowed === null) return <p className="kzAdMuted" role="status">İcazə yoxlanılır…</p>;
-  if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil ol." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
+  if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil olun." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
   // Each job has its own section (as before); the paid-services switch lives inside "Sayt ayarları".
   const sections = (["overview", "moderation", "reports", "users", "stores", "banners", "settings", "staff", "backup"] as Section[]).filter(item => !["settings", "staff", "backup"].includes(item) || role === "leader");
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0, storeRequests = counts?.stores || 0;
@@ -487,7 +487,7 @@ export default function AdminWorkspace() {
         </div>}
         {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
           <p className="kzAdMuted kzAdCount">{(query || dateFrom || reviewKind || owner) ? "Filtrə uyğun: " : ""}{total} elan{total > PAGE ? ` · səhifə ${page} / ${Math.ceil(total / PAGE)}` : ""}</p>
-          {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.slice(0, shown).map(item => <ListingRow key={item.id} item={item} risk={riskOf.get(item.id) || noRisk} busy={busy} rejecting={rejecting === item.id} reason={reasons[item.id]} actions={rowActions} />)}</div>}
+          {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seçin və ya axtarışı dəyişin."} /> : <div className="kzAdList">{items.slice(0, shown).map(item => <ListingRow key={item.id} item={item} risk={riskOf.get(item.id) || noRisk} busy={busy} rejecting={rejecting === item.id} reason={reasons[item.id]} actions={rowActions} />)}</div>}
           {total > PAGE && <nav className="kzAdPager" aria-label="Elan səhifələri"><button type="button" className="kzAdBtn" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page} / {Math.ceil(total / PAGE)}</span><button type="button" className="kzAdBtn" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
         </>}
       </Panel>}
@@ -517,7 +517,7 @@ function PhotoOrder({ listingId, images, onSaved }: { listingId: string; images:
   async function save() {
     setSaving(true); setMessage("");
     try { await post({ action: "reorder_images", id: listingId, images: photos.map(photo => photo.src) }); setMessage("Sıra saxlanıldı."); onSaved(); }
-    catch { setMessage("Sıra saxlanmadı. Siyahını yenilə və yenidən yoxla."); }
+    catch { setMessage("Sıra saxlanmadı. Siyahını yeniləyib yenidən yoxlayın."); }
     finally { setSaving(false); }
   }
   return <div className="kzAdPhotos">

@@ -15,7 +15,7 @@ const sections = [
   {
     title: "Ümumi şərtlər",
     rules: [
-      "Kirayeal.az kirayə elanları platformasıdır. Yalnız sahibi olduğun və ya kirayəyə verməyə icazən olan əmlak və əşyaları yerləşdir.",
+      "Kirayeal.az kirayə elanları platformasıdır. Yalnız sahibi olduğunuz və ya kirayəyə verməyə icazəniz olan əmlak və əşyaları yerləşdirin.",
       "Elanın məlumatları düzgün, qanunvericiliyə uyğun və üçüncü şəxslərin hüquqlarını pozmayan olmalıdır. Saxta və qanunsuz təkliflər qəbul edilmir.",
       "Elanın yoxlanılması elan sahibinin etibarlılığına və əşyanın vəziyyətinə zəmanət deyil. Bu qaydalar reklam xidmətindən istifadə olunub-olunmamasından asılı olmayaraq bütün elanlara aiddir.",
     ],
@@ -23,7 +23,7 @@ const sections = [
   {
     title: "Elanın yerləşdirilməsi",
     rules: [
-      "Elan yerləşdirmək üçün hesabına daxil ol. Yayımlanmış elanlara qeydiyyatsız baxmaq mümkündür.",
+      "Elan yerləşdirmək üçün hesabınıza daxil olun. Yayımlanmış elanlara qeydiyyatsız baxmaq mümkündür.",
       "Elanı əşyanın növünə uyğun kateqoriyada yerləşdir. Limitdən yayınmaq üçün yanlış kateqoriya seçmək olmaz.",
       "Elan yerləşdirməyə kateqoriya üzrə müəyyən edilən limit tətbiq olunur. Elan göndərilərkən kateqoriya üzrə limit yoxlanılır.",
       "Bir elan konkret əmlakı, əşyanı və ya birlikdə kirayəyə verilən dəsti təsvir etməlidir. Əlaqəsiz məhsulları bir elanda birləşdirmək olmaz.",
@@ -33,7 +33,7 @@ const sections = [
     title: "Təkrar elanlar və redaktə",
     rules: [
       "Eyni əmlak və ya əşya üçün təkrar aktiv və ya yoxlamada olan elan yaratma. Elanı silib yenidən yerləşdirməklə və ya başqa hesabdan istifadə etməklə limitdən yayınmaq olmaz.",
-      "Qiymət, təsvir, şəkil və əlaqə məlumatlarında dəyişiklik üçün mövcud elanın “Redaktə et” seçimini istifadə et. Elanı 24 saat ərzində ən çox 2 dəfə redaktə etmək olar; dəyişikliklər yenidən yoxlamaya göndərilir.",
+      "Qiymət, təsvir, şəkil və əlaqə məlumatlarında dəyişiklik üçün mövcud elanın «Redaktə et» seçimindən istifadə edin. Elanı 24 saat ərzində ən çox 2 dəfə redaktə etmək olar; dəyişikliklər yenidən yoxlamaya göndərilir.",
       "Mövcud elanın məlumatlarını başqa əmlakın və ya əşyanın məlumatları ilə əvəz etmək olmaz. Redaktə elanı avtomatik irəli çəkmir.",
       "Artıq kirayəyə verilməyən və ya aktual olmayan elanı sil. Silinən elan geri qaytarılmır, hesab məlumatların qalır.",
     ],
@@ -43,7 +43,7 @@ const sections = [
     rules: [
       "Başlıq qısa, aydın və təklifə uyğun olmalıdır. Başlıqda və təsvirdə telefon nömrəsi, sayt linkləri, başqa elanların reklamı, təkrarlanan açar sözlər və aldadıcı ifadələr yerləşdirmə — sayt belə mətni qəbul etmir. Nömrə yalnız “Əlaqə” xanasında göstərilir.",
       "Qiyməti AZN ilə və hansı müddətə aid olduğunu göstərərək yaz. Real kirayə haqqını gizlədən şərti qiymət göstərmək olmaz.",
-      "Depozit, minimum kirayə müddəti, çatdırılma və digər əlavə ödənişlər varsa, onları açıq qeyd et. Əşyanın məlum qüsurlarını və istifadə məhdudiyyətlərini gizlətmə.",
+      "Depozit, minimum kirayə müddəti, çatdırılma və digər əlavə ödənişlər varsa, onları açıq qeyd edin. Əşyanın məlum qüsurlarını və istifadə məhdudiyyətlərini gizlətməyin.",
     ],
   },
   {
@@ -60,7 +60,7 @@ const sections = [
       "Yeni və redaktə edilmiş elanlar yoxlanılır. Qaydalara uyğun olmayan elan rədd edilə bilər; rədd səbəbi şəxsi kabinetdə göstərilir.",
       "Şübhəli elan barədə elan səhifəsindəki şikayət funksiyasından istifadə et. Səbəbi və araşdırmaya kömək edəcək məlumatları göstər.",
       "Qayda pozuntusu aşkarlandıqda düzəliş tələb oluna və ya elanın yayımı dayandırıla bilər. Təkrar və ciddi pozuntular hesabın məhdudlaşdırılması üçün əsas ola bilər.",
-      "Şikayətə araşdırma əsasında baxılır. Qərarla razılaşmadıqda elan nömrəsini və izahını göstərərək yenidən baxılmasını istəyə bilərsən.",
+      "Şikayətə araşdırma əsasında baxılır. Qərarla razılaşmadıqda elan nömrəsini və izahınızı göstərərək yenidən baxılmasını istəyə bilərsiniz.",
     ],
   },
   {
@@ -68,7 +68,7 @@ const sections = [
     rules: [
       "VIP, Premium, irəli çəkmə və balans artırılması hazırda aktiv deyil. Paket və ödəniş üsulu seçimləri önbaxışdır; pul tutulmur və elanın sıralaması dəyişmir.",
       "Ödənişli xidmətlər aktivləşdirildikdə qiymət, müddət, tətbiq və geri qaytarma şərtləri ödənişdən əvvəl göstəriləcək. Reklam xidməti elan qaydalarını və yerləşdirmə limitlərini aradan qaldırmır.",
-      "Kirayə razılaşması hazırda tərəflər arasında bağlanır. Əşyanı və qarşı tərəfi yoxlamadan beh göndərmə; qiymət, depozit, müddət, zərər və qaytarılma şərtlərini əvvəlcədən yazılı razılaşdır.",
+      "Kirayə razılaşması hazırda tərəflər arasında bağlanır. Əşyanı və qarşı tərəfi yoxlamadan beh göndərməyin; qiymət, depozit, müddət, zərər və qaytarılma şərtlərini əvvəlcədən yazılı razılaşdırın.",
     ],
   },
 ];

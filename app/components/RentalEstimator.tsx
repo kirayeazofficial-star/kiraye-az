@@ -80,7 +80,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
       : item.rental_period === "monthly" && durationUnit !== "month"
         ? {
             error:
-              "Bu elanda yalnız aylıq qiymət göstərilib. Günlük kirayə qiymətini elan sahibi ilə dəqiqləşdir və ya ay seç.",
+              "Bu elanda yalnız aylıq qiymət göstərilib. Günlük kirayə qiymətini elan sahibi ilə dəqiqləşdirin və ya ay seçin.",
           }
         : calculateRental(
             item,
@@ -153,7 +153,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
             <p className="notice">
               {quote.error}{" "}
               {end && end < minimumRentalEnd(item, start)
-                ? "Seçdiyin müddət bu elanın minimumundan qısadır."
+                ? "Seçdiyiniz müddət bu elanın minimumundan qısadır."
                 : ""}
             </p>
             {phone && !item.demo && end && (

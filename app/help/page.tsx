@@ -21,19 +21,19 @@ export default function Help() {
             ],
             [
               "Elanımı necə dəyişə bilərəm?",
-              "Şəxsi kabinetdə “Redaktə et” seç. Elanı gündə bir dəfə redaktə etmək olar, dəyişikliklər yenidən yoxlamaya göndərilir. Artıq aktual olmayan elanı silə bilərsən.",
+              "Şəxsi kabinetdə «Redaktə et» seçin. Elanı 24 saat ərzində 2 dəfə redaktə etmək olar, dəyişikliklər yenidən yoxlamaya göndərilir. Artıq aktual olmayan elanı silə bilərsiniz.",
             ],
             [
               "Kirayəni necə razılaşdırım?",
-              "Elan səhifəsində zəng və ya WhatsApp düyməsi ilə sahibinə müraciət et. Tarix, depozit, qaytarılma və zərərə görə məsuliyyəti yazılı dəqiqləşdir.",
+              "Elan səhifəsində zəng və ya WhatsApp düyməsi ilə sahibinə müraciət edin. Tarix, depozit, qaytarılma və zərərə görə məsuliyyəti yazılı dəqiqləşdirin.",
             ],
             [
               "Kirayə xərcini necə hesablayım?",
-              "Elan səhifəsində götürmə və qaytarma tarixlərini seç. Günlük qiymət gün sayına, aylıq qiymət təqvim aylarının sayına vurulur. Depozit ayrıca göstərilir. Çatdırılma təklif edilirsə, seçə bilərsən. Haqqı yazılmayıbsa, sahibindən dəqiqləşdir. Kommunal və digər əlavə xərcləri də ayrıca razılaşdır.",
+              "Elan səhifəsində götürmə və qaytarma tarixlərini seçin. Günlük qiymət gün sayına, aylıq qiymət təqvim aylarının sayına vurulur. Depozit ayrıca göstərilir. Çatdırılma təklif edilirsə, onu seçə bilərsiniz. Haqqı yazılmayıbsa, sahibindən dəqiqləşdirin. Kommunal və digər əlavə xərcləri də ayrıca razılaşdırın.",
             ],
             [
               "Tarix seçmək rezervasiya yaradır?",
-              "Xeyr. Hesablama və WhatsApp müraciəti tarixləri tutmur. Mövcudluğu və son qiyməti elan sahibi təsdiqləməlidir. Depozitin qaytarılması, gecikmə, zərər və ləğv şərtlərini əvvəlcədən yazılı razılaşdır.",
+              "Xeyr. Hesablama və WhatsApp müraciəti tarixləri tutmur. Mövcudluğu və son qiyməti elan sahibi təsdiqləməlidir. Depozitin qaytarılması, gecikmə, zərər və ləğv şərtlərini əvvəlcədən yazılı razılaşdırın.",
             ],
             [
               "Saytda ödəniş edə bilərəm?",
@@ -45,11 +45,11 @@ export default function Help() {
             ],
             [
               "Hesabıma necə daxil olum?",
-              "“Daxil ol” bölməsində qeydiyyatdan keçdiyin e-poçt ünvanını və şifrəni yaz. Hesabın yoxdursa, “Qeydiyyatdan keç” seç. Şifrəni unutmusansa, “Şifrəni unutdum” ilə bərpa et.",
+              "«Daxil ol» bölməsində qeydiyyatdan keçdiyiniz e-poçt ünvanını və şifrəni yazın. Hesabınız yoxdursa, «Qeydiyyatdan keç» seçin. Şifrənizi unutmusunuzsa, «Şifrəni unutmusunuz?» keçidi ilə bərpa edin.",
             ],
             [
               "Təsdiq məktubu gəlmir?",
-              "Spam qovluğunu yoxla. Giriş səhifəsində yeni təsdiq məktubu istə. Yalnız ən son link və ya məktubdakı koddan istifadə et.",
+              "«Spam» qovluğunu yoxlayın. Giriş səhifəsində yeni təsdiq kodu istəyin. Yalnız ən son məktubdakı koddan istifadə edin.",
             ],
           ].map(([q, a]) => (
             <details key={q} className="helpCard">

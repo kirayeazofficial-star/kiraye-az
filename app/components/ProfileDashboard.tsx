@@ -111,7 +111,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       setDeleteConfirm("");
       setNotice("Elan silindi.");
     } catch {
-      setError("Elanı silmək mümkün olmadı. Yenidən cəhd et.");
+      setError("Elanı silmək mümkün olmadı. Yenidən cəhd edin.");
     } finally {
       setBusy("");
     }

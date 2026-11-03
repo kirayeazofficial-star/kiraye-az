@@ -36,9 +36,9 @@ const otherStatuses: [string, string][] = [["archived", "Müddəti bitib"], ["de
 const staffActions: Record<string, string> = { moderator_granted: "Admin təyin edildi", user_blocked: "İstifadəçi bloklandı", user_unblocked: "Blok götürüldü", moderator_revoked: "Səlahiyyət geri alındı", leader_initialized: "Rəhbər təyin edildi", report_resolved: "Şikayətə baxıldı" };
 const icons: Record<Section, LucideIcon> = { overview: LayoutDashboard, moderation: List, reports: Flag, history: History, users: Users, banners: Image, stores: Store, limits: CreditCard, settings: Settings2, staff: ShieldCheck, backup: CloudUpload };
 
-async function api(params: Record<string, string | number>) {
-  const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store" });
-  const data = await response.json().catch(() => ({}));
+async function api(params: Record<string, string | number>, signal?: AbortSignal) {
+  const response = await fetch("/api/admin?" + new URLSearchParams(Object.entries(params).map(([key, value]) => [key, String(value)])).toString(), { cache: "no-store", signal });
+  const data = await response.json();
   if (!response.ok) throw Object.assign(new Error(data.error || "FAILED"), { status: response.status, code: data.error, detail: data.detail });
   return data;
 }
@@ -289,7 +289,7 @@ type RowActions = { moderate: (item: AdminListing, status: "published" | "reject
 // buttons) does not redraw every row — on old iPhones redrawing the whole list on each tap froze the panel.
 const ListingRow = memo(function ListingRow({ item, risk, busy, rejecting, reason, actions }: { item: AdminListing; risk: string[]; busy: string; rejecting: boolean; reason: string | undefined; actions: RowActions }) {
   return <article className="kzAdRow kzAdListing">
-            <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={sized(item.images[0])} alt="" decoding="async" onError={event => { event.currentTarget.style.visibility = "hidden"; }} /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
+            <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={sized(item.images[0])} alt="" width={160} height={120} loading="lazy" decoding="async" onError={event => { event.currentTarget.style.visibility = "hidden"; }} /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
             <div className="kzAdRowMain">
               <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{item.duplicate_note && <span className="kzAdPill danger" title={item.duplicate_note}><Images aria-hidden="true" size={12} strokeWidth={2.4} />Eyni şəkil</span>}{risk.length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${risk.join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {risk[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
               <h3>{item.title}</h3>
@@ -331,30 +331,26 @@ export default function AdminWorkspace() {
   useEffect(() => { api({ action: "access" }).then(data => { setAllowed(true); setRole(data.role); }).catch(() => setAllowed(false)); }, []);
   useEffect(() => {
     if (!allowed || section !== "moderation") return;
-    let active = true; setLoading(true); setError("");
-    api({ action: "listings", status: filter, query, page, from: dateFrom, kind: reviewKind, owner: owner?.id || "" }).then(data => {
+    let active = true; const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    setLoading(true); setError("");
+    api({ action: "listings", status: filter, query, page, from: dateFrom, kind: reviewKind, owner: owner?.id || "" }, controller.signal).then(data => {
       if (!active) return;
+      if (!Array.isArray(data.items) || !Number.isFinite(data.total) || data.total < 0) throw new Error("INVALID_LISTINGS_RESPONSE");
       const maxPage = Math.max(1, Math.ceil(data.total / PAGE));
       if (page > maxPage) { setPage(maxPage); return; }
-      setItems(data.items); setTotal(data.total);
-    }).catch(() => { if (active) setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin."); }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      setShown(8); setItems(data.items); setTotal(data.total);
+    }).catch(() => { if (active) setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin."); }).finally(() => { clearTimeout(timeout); if (active) setLoading(false); });
+    return () => { active = false; clearTimeout(timeout); controller.abort(); };
   }, [allowed, section, filter, query, page, revision, dateFrom, reviewKind, owner]);
   useEffect(() => {
     if (!allowed) return;
     api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); setIncome(data.income || null); }).catch(() => {});
   }, [allowed, revision]);
 
-  // A long list is drawn a few rows at a time, so an old phone stays responsive to taps while the rest appears.
+  // Keep the first draw small. Extra rows are mounted only on request, rather than
+  // starting more layout and image decoding every 80 ms while someone uses the tabs.
   const [shown, setShown] = useState(8);
-  useEffect(() => {
-    setShown(8);
-    if (items.length <= 8) return;
-    let count = 8, timer: ReturnType<typeof setTimeout>;
-    const more = () => { count += 4; setShown(count); if (count < items.length) timer = setTimeout(more, 80); };
-    timer = setTimeout(more, 80);
-    return () => clearTimeout(timer);
-  }, [items]);
   // Words worth a look in each listing's text, worked out once per list (not on every render).
   const riskOf = useMemo(() => new Map(items.map(item => [item.id, riskWords(item.title, item.description)])), [items]);
   const [details, setDetails] = useState<AdminListing | null>(null);
@@ -488,6 +484,7 @@ export default function AdminWorkspace() {
         {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
           <p className="kzAdMuted kzAdCount">{(query || dateFrom || reviewKind || owner) ? "Filtrə uyğun: " : ""}{total} elan{total > PAGE ? ` · səhifə ${page} / ${Math.ceil(total / PAGE)}` : ""}</p>
           {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.slice(0, shown).map(item => <ListingRow key={item.id} item={item} risk={riskOf.get(item.id) || noRisk} busy={busy} rejecting={rejecting === item.id} reason={reasons[item.id]} actions={rowActions} />)}</div>}
+          {shown < items.length && <button type="button" className="kzAdBtn" onClick={() => setShown(value => value + 8)}>Daha çox göstər ({Math.min(8, items.length - shown)})</button>}
           {total > PAGE && <nav className="kzAdPager" aria-label="Elan səhifələri"><button type="button" className="kzAdBtn" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page} / {Math.ceil(total / PAGE)}</span><button type="button" className="kzAdBtn" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
         </>}
       </Panel>}

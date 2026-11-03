@@ -13,10 +13,11 @@ export async function GET(request:Request,{params}:{params:Promise<{owner:string
     if(!root||!uuid.test(owner)||!match)return new NextResponse(null,{status:404});
     const extension=match[1].toLowerCase(),location=path.join(root,owner,file);
     if(extension==="jpg"){
-      // ?s=thumb (cards, lists) and ?s=view (listing page) use the small copies saved at upload,
-      // falling back to the next bigger one for older photos: thumb → share (1200 px) → original.
+      // ?s=thumb (cards, lists) and ?s=view (listing page) use small copies saved at upload.
+      // List thumbnails must never fall back to an unbounded original: old photos can be
+      // small on disk but tens of megapixels when decoded by a phone.
       const size=new URL(request.url).searchParams.get("s"),plain=/^(?:thumb-|share-)/.test(file)?null:file;
-      const tries=plain&&size==="thumb"?[`thumb-${plain}`,`share-${plain}`]:plain&&size==="view"?[`share-${plain}`]:[];
+      const tries=plain&&size==="view"?[`share-${plain}`]:[];
       if(plain&&size==="thumb"){
         // Older photos have no small copy yet: make it once from the 1200 px copy (or the original), keep it on
         // disk next to the photo, and send that. Phones then never load the 1–4 MB original in lists.
@@ -30,6 +31,9 @@ export async function GET(request:Request,{params}:{params:Promise<{owner:string
           return small;
         });
         if(made)return new NextResponse(made,{headers:{"Content-Type":types.jpg,...cache}});
+        // The list can still show the listing and open its detail page. A failed thumbnail
+        // must not silently make every list row decode a full-resolution photograph.
+        return new NextResponse(null,{status:422,headers:{"Cache-Control":"no-store"}});
       }
       for(const name of tries){const found=await readFile(path.join(root,owner,name)).catch(()=>null);if(found)return new NextResponse(found,{headers:{"Content-Type":types.jpg,...cache}});}
       return new NextResponse(await readFile(location),{headers:{"Content-Type":types.jpg,...cache}});

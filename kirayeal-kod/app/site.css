@@ -3236,3 +3236,17 @@ input[type=password]::placeholder{letter-spacing:normal!important}
 .kzCard .kzCardMeta{font-size:12.5px!important;color:#8a919c!important}
 .kzSectionHead h2{font-weight:600!important}
 .kzTabbar>a.kzTabbarPublish,.kzTabbar>a.kzTabbarPublish span{text-transform:none!important;letter-spacing:0!important}
+
+/* ===== Vahid ikon üslubu (2026-11): rəngarəng qutular əvəzinə bir brend rəngi ===== */
+/* Yan menyu: bütün bölmə ikonları eyni açıq yaşıl qutuda, tünd yaşıl xətli ikon. */
+.siteMenuPanel.kzSide .kzSideIcon,.kzSideIcon{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important}
+.siteMenuPanel.kzSide .kzSideIcon svg{color:var(--kz-brand)!important;stroke:var(--kz-brand)!important}
+.siteMenuPanel.kzSide nav a[aria-current=page],.siteMenuPanel.kzSide nav a:hover{background:#f4f7f6!important}
+/* Kabinet qısayolları: eyni tonda. */
+.cabinetNav.cabinetCards>a .kzNavIcon{--tone:var(--kz-brand)!important;--tint:var(--kz-brand-soft)!important}
+.cabinetNav.cabinetCards>a:nth-of-type(n) .kzNavIcon{--tone:var(--kz-brand);--tint:var(--kz-brand-soft)}
+/* "Bizimlə əlaqə": e-poçt, Instagram, TikTok eyni qutularda. */
+.kzContactIcon,.kzContactIcon.instagram,.kzContactIcon.tiktok{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important}
+/* Mesajlar: söhbət siyahısında aktiv söhbət və tab seçimi brend rəngində. */
+.kzChatTabs button[aria-pressed=true],.kzChatTabs button[aria-selected=true]{color:var(--kz-brand)!important;font-weight:600!important}
+.kzMenuIcon,.kzMenuIcon.admin{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important}

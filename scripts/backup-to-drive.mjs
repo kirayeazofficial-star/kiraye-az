@@ -45,6 +45,9 @@ let dbReady = true;
 try { await db.connect(); } catch (error) { dbReady = false; console.error("Database connection failed:", String(error?.message || error).slice(0, 200)); }
 try { const { runHealth } = await import("./health-check.mjs"); await runHealth(appDir, dbReady ? db : null, requireFromApp); }
 catch (error) { console.error("Health check failed:", String(error?.message || error).slice(0, 200)); }
+// Small copies for older photos (phones load ~50 KB instead of the original in lists).
+try { const { runThumbs } = await import("./thumbs.mjs"); await runThumbs(requireFromApp); }
+catch (error) { console.error("Thumbnails failed:", String(error?.message || error).slice(0, 200)); }
 if (!dbReady) process.exit(1);
 
 // E-mail notices (expiring listings, saved searches, weekly report) ride on the same cron job.

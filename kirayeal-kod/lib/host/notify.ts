@@ -42,6 +42,7 @@ export async function notifyRejected(listingId:string,reason:string){
       rows:[{label:`Səbəb: ${reason}`}],
       button:{text:"Elanı düzəlt",href:`/edit/${listingId}`},
       note:"Elan yerləşdirmə qaydaları ilə saytın «Qaydalar» bölməsində tanış ola bilərsiniz. Sualınız olarsa, kirayeal.az@gmail.com ünvanına elan nömrəsini qeyd etməklə yazın.",
+      footerNote:"Bu məktub elanınızla bağlı avtomatik göndərilib.",
     }));
   }catch(error){console.error("rejection notice failed:",(error as Error).message);}
 }

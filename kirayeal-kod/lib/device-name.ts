@@ -1,3 +1,4 @@
+import { dateFormat } from "./date-format";
 // "Mozilla/5.0 (Windows NT 10.0; Win64; x64) … Chrome/130…" → "Windows kompüter · Chrome": a short, readable device line
 // for security e-mails (no model numbers or version strings).
 export function deviceName(agent: string) {
@@ -11,6 +12,6 @@ export function deviceName(agent: string) {
 // Date for e-mails, Baku time: "2 noyabr 2026, 01:17".
 const months = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avqust", "sentyabr", "oktyabr", "noyabr", "dekabr"];
 export function letterDate(date = new Date()) {
-  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Baku", year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(date).map(part => [part.type, part.value]));
+  const parts = Object.fromEntries(dateFormat("en-GB", { timeZone: "Asia/Baku", year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(date).map(part => [part.type, part.value]));
   return `${Number(parts.day)} ${months[Number(parts.month) - 1]} ${parts.year}, ${parts.hour}:${parts.minute}`;
 }

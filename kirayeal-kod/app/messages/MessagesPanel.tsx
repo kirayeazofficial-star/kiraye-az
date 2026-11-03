@@ -1,4 +1,5 @@
 "use client";
+import { dateFormat } from "../../lib/date-format";
 import { ChevronLeft, MessageCircle, MoreHorizontal, SendHorizontal } from "lucide-react";
 import { sized } from "../../lib/image-size";
 import {FormEvent,useCallback,useEffect,useRef,useState} from "react";
@@ -17,7 +18,7 @@ export default function MessagesPanel(){
  async function block(){if(!thread||busy)return;setBusy(true);try{await api('block',{thread:thread.id,block:!thread.blocked_by_me});const response=await fetch(`/api/messages?action=thread&thread=${thread.id}`,{cache:'no-store'}),data=await response.json();if(response.ok)setThread(data.item);await inbox();}catch(e){setError(explain(e instanceof Error?e.message:''));}finally{setBusy(false);}}
  const moreMenu=useRef<HTMLDetailsElement>(null);
  useEffect(()=>{const close=(event:Event)=>{const menu=moreMenu.current;if(menu?.open&&!menu.contains(event.target as Node))menu.open=false;};document.addEventListener('pointerdown',close);return()=>document.removeEventListener('pointerdown',close);},[]);
- const time=(value:string)=>new Intl.DateTimeFormat('az-AZ',{timeZone:'Asia/Baku',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));
+ const time=(value:string)=>dateFormat('az-AZ',{timeZone:'Asia/Baku',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));
  const day=(value:string)=>publicDate(value).split(',')[0];
  const conversationOpen=!!(thread||listing);
  return <><Header/><main className={`kzMessages${conversationOpen?' hasConversation':''}`}>

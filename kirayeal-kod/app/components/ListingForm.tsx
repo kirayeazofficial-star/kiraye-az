@@ -1,4 +1,5 @@
 "use client";
+import { dateFormat } from "../../lib/date-format";
 import { photoHash } from "../../lib/photo-hash";
 import { listingPrice, manat } from "../../lib/limit-rules";
 import { Check, ChevronLeft, ChevronRight, CircleCheck, Clock, ImagePlus, Plus, RotateCcw, X } from "lucide-react";
@@ -37,7 +38,7 @@ import {
   type Listing,
 } from "../../lib/marketplace";
 
-const limitDate=(value:string)=>{const parts=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Baku",day:"2-digit",month:"2-digit",year:"numeric"}).formatToParts(new Date(value));const part=(type:string)=>parts.find(item=>item.type===type)?.value||"";return `${part("day")}.${part("month")}.${part("year")}`;};
+const limitDate=(value:string)=>{const parts=dateFormat("en-GB",{timeZone:"Asia/Baku",day:"2-digit",month:"2-digit",year:"numeric"}).formatToParts(new Date(value));const part=(type:string)=>parts.find(item=>item.type===type)?.value||"";return `${part("day")}.${part("month")}.${part("year")}`;};
 const limitMessage=(_next?:string|null)=>"Bu kateqoriyada pulsuz limitiniz dolub.";
 // "+994551112233" → "+994 55 111 22 33" (the number is shown read-only on the last step).
 const prettyPhone = (value: string) => { const d = value.replace(/\D/g, "").replace(/^994/, "").replace(/^0/, ""); return d.length === 9 ? `+994 ${d.slice(0, 2)} ${d.slice(2, 5)} ${d.slice(5, 7)} ${d.slice(7)}` : value; };

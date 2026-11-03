@@ -7,38 +7,38 @@ export function authErrorMessage(error: unknown) {
   const code = typeof e?.code === "string" ? e.code : "";
   const message = e?.message ?? "";
   const hostMessages: Record<string, string> = {
-    ACCOUNT_EXISTS: "Bu e-poçtla hesab artıq var. “Daxil ol” bölməsindən giriş et, şifrəni unutmusansa “Şifrəni unutdum” seç.",
+    ACCOUNT_EXISTS: "Bu e-poçtla hesab artıq var. «Daxil ol» bölməsindən daxil olun. Şifrənizi unutmusunuzsa, «Şifrəni unutmusunuz?» keçidindən istifadə edin.",
     INVALID_CREDENTIALS: "E-poçt və ya şifrə düzgün deyil.",
     ACCOUNT_BLOCKED: "Hesabınız sayt qaydalarının pozulmasına görə bloklanıb. Sual üçün kirayeal.az@gmail.com ünvanına yazın.",
-    EMAIL_NOT_CONFIRMED: "E-poçtun hələ təsdiqlənməyib. Aşağıdan yeni təsdiq kodu istə.",
-    INVALID_CODE: "Kod düzgün deyil və ya vaxtı bitib. Yeni kod istə.",
-    INVALID_INPUT: "Məlumatları yoxla: ad və soyad, düzgün e-poçt, telefon və ən azı 8 simvolluq şifrə yaz.",
-    RATE_LIMIT: "Çox sayda kod istənilib. Bir saat gözləyib yenidən yoxla.",
-    TOO_MANY_ATTEMPTS: "Şifrə bir neçə dəfə səhv yazılıb. Təhlükəsizlik üçün giriş 15 dəqiqə bağlandı. Şifrəni unutmusansa, “Şifrəni unutdum” seç.",
-    SERVICE_UNAVAILABLE: "Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən yoxla.",
+    EMAIL_NOT_CONFIRMED: "E-poçtunuz hələ təsdiqlənməyib. Aşağıdan yeni təsdiq kodu istəyin.",
+    INVALID_CODE: "Kod düzgün deyil və ya vaxtı bitib. Yeni kod istəyin.",
+    INVALID_INPUT: "Məlumatları yoxlayın: ad və soyad, düzgün e-poçt, telefon və ən azı 8 simvolluq şifrə yazın.",
+    RATE_LIMIT: "Çox sayda kod istənilib. Bir saat gözləyib yenidən yoxlayın.",
+    TOO_MANY_ATTEMPTS: "Şifrə bir neçə dəfə səhv yazılıb. Təhlükəsizlik üçün giriş 15 dəqiqə bağlandı. Şifrənizi unutmusunuzsa, «Şifrəni unutmusunuz?» keçidindən istifadə edin.",
+    SERVICE_UNAVAILABLE: "Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən yoxlayın.",
   };
   if (code && hostMessages[code]) return hostMessages[code];
   if (code === "email_not_confirmed" || /email not confirmed/i.test(message))
-    return "E-poçtun hələ təsdiqlənməyib. Aşağıdan yeni təsdiq məktubu istəyə bilərsən.";
+    return "E-poçtunuz hələ təsdiqlənməyib. Aşağıdan yeni təsdiq məktubu istəyə bilərsiniz.";
   if (
     code === "invalid_credentials" ||
     /invalid login credentials/i.test(message)
   )
-    return "E-poçt və ya şifrə düzgün deyil. Mövcud hesabının şifrəsini yaz və ya şifrəni yenilə.";
+    return "E-poçt və ya şifrə düzgün deyil. Hesabınızın şifrəsini yazın və ya şifrənizi yeniləyin.";
   if (code === "user_already_exists")
-    return "Bu e-poçtla artıq qeydiyyatdan keçmisən. Daxil ol və ya şifrəni yenilə.";
+    return "Bu e-poçtla artıq qeydiyyatdan keçmisiniz. Daxil olun və ya şifrənizi yeniləyin.";
   if (
     code === "email_address_not_authorized" ||
     /email.*not authorized/i.test(message)
   )
     return "Bu ünvana məktub göndərilə bilmədi. Xidmətin e-poçt göndəriş ayarları yoxlanmalıdır.";
   if (code === "email_address_invalid")
-    return "E-poçt ünvanını yoxla və yenidən yaz.";
+    return "E-poçt ünvanını yoxlayıb yenidən yazın.";
   if (code === "over_email_send_rate_limit")
-    return "E-poçt göndəriş limiti dolub. Hesabın artıq varsa, yenidən qeydiyyat yaratmadan daxil ol. Məktub üçün bir müddət gözlə.";
+    return "E-poçt göndəriş limiti dolub. Hesabınız artıq varsa, yenidən qeydiyyatdan keçmədən daxil olun. Yeni məktub üçün bir müddət gözləyin.";
   if (/^Çox sayda/.test(message)) return message;
   if (e?.status === 429 || code.includes("rate_limit"))
-    return "Çox sayda cəhd edildi. Bir qədər gözləyib yenidən yoxla.";
+    return "Çox sayda cəhd edildi. Bir qədər gözləyib yenidən yoxlayın.";
   if (
     code === "phone_provider_disabled" ||
     code === "sms_send_failed" ||
@@ -46,26 +46,26 @@ export function authErrorMessage(error: unknown) {
       message,
     )
   )
-    return "SMS xidməti hazırda əlçatan deyil. E-poçtla davam et və ya sonra yoxla.";
+    return "SMS xidməti hazırda əlçatan deyil. E-poçtla daxil olun və ya bir az sonra yoxlayın.";
   if (/error sending|failed to send|smtp/i.test(message))
     return "Təsdiq məktubu göndərilə bilmədi. Saytın e-poçt göndəriş xidməti yoxlanmalıdır. Bu cəhdlə qeydiyyatın tamamlandığı təsdiqlənmir.";
-  if (code === "phone_number_invalid") return "Düzgün mobil nömrə yaz.";
+  if (code === "phone_number_invalid") return "Düzgün mobil nömrə yazın.";
   if (code === "otp_disabled")
-    return "SMS ilə giriş hələ aktiv deyil. E-poçtla davam edə bilərsən.";
+    return "SMS ilə giriş hələ aktiv deyil. E-poçtla daxil ola bilərsiniz.";
   if (
     code === "otp_expired" ||
     /token.*expired|token.*invalid|otp.*expired/i.test(message)
   )
-    return "Kod və ya link düzgün deyil, yaxud vaxtı bitib. Yenisini istə.";
+    return "Kod və ya keçid düzgün deyil, yaxud vaxtı bitib. Yenisini istəyin.";
   if (code === "same_password")
     return "Yeni şifrə əvvəlki şifrədən fərqli olmalıdır.";
   if (code === "reauthentication_needed")
-    return "Yeni bərpa linki istəyib şifrəni yenidən təyin et.";
+    return "Yeni bərpa kodu istəyib şifrənizi yenidən təyin edin.";
   if (code === "weak_password")
-    return "Daha güclü şifrə seç: ən azı 8 simvol istifadə et.";
+    return "Daha güclü şifrə seçin: ən azı 8 simvol istifadə edin.";
   if (/fetch|network|timeout|abort|Bağlantı gecikir/i.test(e?.message ?? ""))
-    return "Bağlantı qurulmadı. İnternetini yoxlayıb yenidən cəhd et.";
-  return "Sorğu tamamlanmadı. Bir az sonra yenidən yoxla.";
+    return "Bağlantı qurulmadı. İnternet bağlantınızı yoxlayıb yenidən cəhd edin.";
+  return "Sorğu tamamlanmadı. Bir az sonra yenidən yoxlayın.";
 }
 export function safeLoginDestination(next: string | null) {
   if (

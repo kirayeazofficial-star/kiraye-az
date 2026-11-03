@@ -241,9 +241,9 @@ export default function ListingDetails({
         </span>}
         <div className="kzTitleRow">
         {compact ? (
-          <h2 id="detail-title">{item.title}</h2>
+          <h2 id="detail-title" translate="no">{item.title}</h2>
         ) : (
-          <h1>{item.title}</h1>
+          <h1 translate="no">{item.title}</h1>
         )}
         <div className="kzTitleActions">
           {!effectiveOwner&&<button type="button" aria-label={favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"} aria-pressed={favorite} onClick={toggleFavorite}><NavigationIcon name="heart" filled={favorite}/></button>}
@@ -348,7 +348,7 @@ export default function ListingDetails({
       </div>
       <div className="listingInfo">
         <h3>Elan haqqında</h3>
-        <p className="description">{item.description}</p>
+        <p className="description" translate="no">{item.description}</p>
         {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{(()=>{const edited=(item as Listing&{updated_at?:string}).updated_at||item.created_at,lifted=shownAt(item),updated=Date.parse(lifted)>Date.parse(edited)?lifted:edited;return updated&&Number.isFinite(Date.parse(updated))?<span>Yeniləndi: {publicDate(updated)}</span>:null;})()}{/* A small number makes a listing look unpopular: visitors see the count from 15 views, the owner always. */}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&(effectiveOwner||Number(publicInfo.views)>=15)&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
 
         <dl ref={specsList} className={`detailSpecs${specsOpen ? "" : " kzSpecsCollapsed"}`}>

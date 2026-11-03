@@ -574,6 +574,12 @@ body.kz-admin{--kz-bg:var(--kz-soft)}
 .kzAdHint{margin:0 0 12px;font-size:var(--fs-13);color:var(--kz-muted)}
 .kzAdError{margin:0 0 12px;padding:10px 14px;border-radius:10px;background:#fdecea;color:#b42318;font-size:var(--fs-14)}
 .kzAdNotice{margin:0 0 12px;padding:10px 14px;border-radius:10px;background:#e8f6ec;color:#23803d;font-size:var(--fs-14)}
+.kzAdReasonDisclosure{margin-top:6px;font-size:var(--fs-13)}
+.kzAdReasonDisclosure summary{display:inline-flex;align-items:center;gap:7px;min-height:32px;color:var(--kz-muted);cursor:pointer;list-style:none}
+.kzAdReasonDisclosure summary::-webkit-details-marker{display:none}
+.kzAdReasonDisclosure summary::before{content:"+";font-size:16px;line-height:1}
+.kzAdReasonDisclosure[open] summary::before{content:"−"}
+.kzAdReasonDisclosure .kzAdReason{overflow-wrap:anywhere}
 .kzAdReason{margin:4px 0 0;font-size:var(--fs-13);color:#b42318}
 .kzAdEmpty{display:grid;justify-items:center;gap:4px;padding:40px 16px;border-radius:12px;background:var(--kz-soft);text-align:center}
 .kzAdEmpty strong{font-size:var(--fs-16)}
@@ -2393,6 +2399,7 @@ html{-webkit-tap-highlight-color:transparent}
   .kzStoreMain .kzGrid{grid-template-columns:1fr 1fr!important}
 }
 /* Kartda "Mağaza" nişanı — şəklin altında solda */
+.kzSampleLabel{position:absolute;left:8px;bottom:8px;padding:3px 7px;background:#fff;color:#475467;border:1px solid var(--kz-line);border-radius:5px;font-size:11px;font-weight:600;line-height:1.4}
 .kzCardStore{position:absolute;left:8px;bottom:8px;z-index:2;padding:2px 8px;border-radius:6px;background:#4f6ef7;color:#fff;font-size:11px;font-style:normal;font-weight:700;line-height:18px}
 /* Ana səhifə: Mağazalar */
 .kzStores{margin:0 0 24px}
@@ -2649,23 +2656,19 @@ html{-webkit-tap-highlight-color:transparent}
 .kzToolbar,.kzTypeChips,.kzOwnTabs,.kzStoreCats,.kzAdTabs,.kzSeoCities{padding-top:4px!important;padding-bottom:4px!important;margin-top:-4px!important;margin-bottom:-4px!important}
 .kzToolbar>*,.kzTypeChips>*,.kzOwnTabs>*,.kzStoreCats>*{flex-shrink:0}
 
-/* Telefonun alt menyusu: aktiv bölmə dolu ikon + narıncı + yuxarıda nazik xətt; yazılar böyük hərflə, bərabər ölçüdə */
+/* Mobile navigation: uniform icon boxes, readable labels and safe-area spacing. */
 @media (max-width:767px){
-  .kzTabbar{height:62px!important;box-shadow:0 -4px 16px rgba(17,24,39,.05)}
-  .kzTabbar>a{gap:4px!important;font-size:clamp(9px,2.6vw,11px)!important;font-weight:600!important;text-transform:uppercase!important;letter-spacing:0!important;color:#7b8190!important}
-  .kzTabbar>a:not(.kzTabbarPublish) svg{width:23px!important;height:23px!important;stroke-width:1.8}
-  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish){color:var(--kz-accent)!important;font-weight:600!important}
-  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish)::before{content:"";position:absolute;top:0;left:50%;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--kz-accent);transform:translateX(-50%)}
-  .kzTabbarPublish{color:#7b8190!important}
-  .kzTabbarPublish .kzTabPlus{box-shadow:0 4px 12px rgba(255,90,31,.35)}
-}
-@media (max-width:767px){
-  .kzTabbar>a{justify-content:flex-end!important;padding-bottom:9px!important}
-  .kzTabbar .kzTabbarPublish .kzTabPlus{margin-top:-6px}
-}
-@media (max-width:767px){
-  .kzTabbar>a.kzTabbarPublish{justify-content:flex-end!important;padding-bottom:9px!important}
-  .kzTabbar>a.kzTabbarPublish .kzTabPlus{margin-top:-8px!important;margin-bottom:-2px}
+  body{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+  .kzTabbar{box-sizing:border-box;gap:0!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;height:calc(66px + env(safe-area-inset-bottom))!important;padding:4px 0 calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -2px 10px rgba(17,24,39,.04)}
+  .kzTabbar>a,.kzTabbar>a.kzTabbarPublish{justify-content:center!important;min-width:0;gap:5px!important;padding:0 2px!important;font-size:clamp(9px,2.6vw,11px)!important;font-weight:600!important;line-height:1.2;text-transform:uppercase!important;letter-spacing:0!important;color:#667085!important}
+  .kzTabbar>a>span:last-child{display:block;max-width:100%;white-space:nowrap}
+  .kzTabbar>a .kzTabIcon{width:23px!important;height:30px!important;flex:none}
+  .kzTabbar>a .kzTabIcon:not(.on){fill:none!important;stroke:currentColor!important;stroke-width:1.8!important}
+  .kzTabbar>a .kzTabIcon.on{fill:none!important;stroke:currentColor!important;stroke-width:2.2!important}
+  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish){color:var(--kz-accent)!important}
+  .kzTabbar>a[aria-current=page]::before{display:none!important}
+  .kzTabbar .kzTabbarPublish .kzTabPlus{width:30px!important;height:30px!important;margin:0!important;border-radius:50%;box-shadow:none!important}
+  .kzTabbar .kzTabbarPublish .kzTabPlus svg{width:18px!important;height:18px!important}
 }
 
 /* Rəhbər → Ödəniş və limitlər: telefonda «Yadda saxla» digər formalardakı kimi tam endə */
@@ -2674,16 +2677,6 @@ html{-webkit-tap-highlight-color:transparent}
 .kzAdPerson small .kzNoWrap,.kzAdRow .kzAdPerson small{word-break:keep-all}
 .kzNoWrap{white-space:nowrap}
 @media (max-width:767px){.kzLimitSave{width:100%;justify-content:center;min-height:44px}}
-/* Alt menyu — yeni ikonlar: aktivdə dolu narıncı forma, qalanlarında nazik boz kontur; yuxarı xətt və açıq fon yoxdur */
-@media (max-width:767px){
-  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish)::before{display:none!important}
-  .kzTabbar>a .kzTabIcon{width:25px!important;height:25px!important;flex:none}
-  .kzTabbar>a .kzTabIcon:not(.on){fill:none!important;stroke:currentColor!important;stroke-width:1.7!important}
-  .kzTabbar>a .kzTabIcon.on{fill:none!important;stroke:currentColor!important;stroke-width:2.2!important}
-  .kzTabbar>a{color:#6b7280!important;font-weight:500!important}
-  .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish){color:var(--kz-accent)!important;font-weight:600!important}
-}
-@media (max-width:767px){.kzTabbar>a .kzTabIcon.on{fill-opacity:1!important}.kzTabbar>a .kzTabIcon:not(.on){fill-opacity:0!important}}
 /* Telefon xanası: «+994» və nömrə eyni şrift, eyni qalınlıq, eyni ölçü */
 .kzPhonePrefix,.kzPhoneInput input{font-family:inherit!important;font-size:16px!important;font-weight:500!important;letter-spacing:.2px!important;font-variant-numeric:tabular-nums;color:var(--kz-ink)!important}
 .kzPhonePrefix{padding:0 10px 0 14px!important;background:transparent!important;border-right:1px solid var(--kz-line)}

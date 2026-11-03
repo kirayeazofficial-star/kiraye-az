@@ -3,7 +3,7 @@ import { ADMIN_LIST_PAGE_SIZE } from "../../lib/admin-list-page";
 import TabIcon from "./TabIcon";
 import { sized } from "../../lib/image-size";
 import Notice from "./Notice";
-import { FormEvent, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, ReactNode, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CircleAlert, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
@@ -152,7 +152,7 @@ function ModerationHistory({ revision, onInspect }: { revision: number; onInspec
     try {
       const data = await api(before ? { action: "history", before } : { action: "history" });
       setEvents(old => before ? [...old, ...data.events] : data.events); setCursor(data.next);
-    } catch { setError("Tarixçə yüklənmədi. Yenidən cəhd et."); }
+    } catch { setError("Tarixçə yüklənmədi. Yenidən cəhd edin."); }
     finally { setLoading(false); }
   }, []);
   useEffect(() => { void load(); }, [load, revision]);
@@ -293,10 +293,10 @@ const ListingRow = memo(function ListingRow({ item, risk, busy, rejecting, reaso
             <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={sized(item.images[0])} alt="" width={160} height={120} loading="lazy" decoding="async" onError={event => { event.currentTarget.style.visibility = "hidden"; }} /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
             <div className="kzAdRowMain">
               <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{item.duplicate_note && <span className="kzAdPill danger" title={item.duplicate_note}><Images aria-hidden="true" size={12} strokeWidth={2.4} />Eyni şəkil</span>}{risk.length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${risk.join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {risk[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
-              <h3>{item.title}</h3>
+              <h3 translate="no">{item.title}</h3>
               <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
               <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>
-              {item.rejection_reason && <p className="kzAdReason">Əvvəlki səbəb: {item.rejection_reason}</p>}
+              {item.rejection_reason && <details className="kzAdReasonDisclosure"><summary>Rədd səbəbi</summary><p className="kzAdReason" translate="no">{item.rejection_reason}</p></details>}
             </div>
             <div className="kzAdRowActions">
               {["pending", "rejected"].includes(item.status) && <button type="button" className="kzAdBtn success" disabled={!!busy} onClick={() => actions.moderate(item, "published")}><Check aria-hidden="true" size={16} strokeWidth={2.4} />{busy === item.id ? "Saxlanılır…" : "Təsdiqlə"}</button>}
@@ -307,7 +307,7 @@ const ListingRow = memo(function ListingRow({ item, risk, busy, rejecting, reaso
               <textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reason ?? ""} onChange={event => actions.setReason(item.id, event.target.value)} placeholder="Elan sahibinə görünəcək səbəb (ən azı 10 simvol)" />
               <div className="kzAdCenter start"><button type="button" className="kzAdBtn danger solid" disabled={!!busy || (reason?.trim().length || 0) < 10} onClick={() => actions.moderate(item, "rejected")}>Rədd et</button><button type="button" className="kzAdBtn" onClick={() => actions.toggleReject("")}>Ləğv et</button></div>
             </div>}
-            <button type="button" className="kzAdDetailsBtn" onClick={() => actions.details(item)}><Eye aria-hidden="true" size={16} strokeWidth={2} />Ətraflı bax{(item.signal_count || 0) > 0 && <span className="kzAdDot" aria-label="oxşar elan var" />}</button>
+            <button type="button" className="kzAdDetailsBtn" onClick={() => actions.details(item)}><Eye aria-hidden="true" size={16} strokeWidth={2} />Ətraflı bax</button>
           </article>;
 });
 const noRisk: string[] = [];
@@ -367,7 +367,7 @@ export default function AdminWorkspace() {
       setRevision(value => value + 1);
       toast(status === "published" ? `Elan № ${item.listing_no ?? ""} təsdiqləndi` : `Elan № ${item.listing_no ?? ""} rədd edildi`);
       return true;
-    } catch { setError("Dəyişiklik saxlanmadı. Siyahını yenilə və yenidən yoxla."); return false; }
+    } catch { setError("Dəyişiklik saxlanılmadı. Siyahını yeniləyin və təkrar cəhd edin."); return false; }
     finally { setBusy(""); }
   }
   latest.current = { moderate: (item, status) => { void moderate(item, status); }, toggleReject: id => setRejecting(current => id && current !== id ? id : ""), setReason: (id, text) => setReasons(current => ({ ...current, [id]: text })), details: item => setDetails(item) };
@@ -383,7 +383,7 @@ export default function AdminWorkspace() {
   function find(event: FormEvent) { event.preventDefault(); setPage(1); setQuery(search.trim()); }
 
   if (allowed === null) return <p className="kzAdMuted" role="status">İcazə yoxlanılır…</p>;
-  if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="Admin icazəsi olan hesabla daxil ol." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
+  if (allowed === false) return <div className="kzAdPanel"><Empty title="Bu bölmə yalnız idarəçilər üçündür" text="İdarəçi səlahiyyəti olan hesabla daxil olun." /><div className="kzAdCenter"><Link className="kzAdBtn primary" href="/login?next=/admin">Daxil ol</Link><Link className="kzAdBtn" href="/profile">Kabinetə qayıt</Link></div></div>;
   // Each job has its own section (as before); the paid-services switch lives inside "Sayt ayarları".
   const sections = (["overview", "moderation", "reports", "users", "stores", "banners", "settings", "staff", "backup"] as Section[]).filter(item => !["settings", "staff", "backup"].includes(item) || role === "leader");
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0, storeRequests = counts?.stores || 0;
@@ -481,7 +481,7 @@ export default function AdminWorkspace() {
         </div>}
         {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
           <p className="kzAdMuted kzAdCount">{(query || dateFrom || reviewKind || owner) ? "Filtrə uyğun: " : ""}{total} elan{total > PAGE ? ` · səhifə ${page} / ${Math.ceil(total / PAGE)}` : ""}</p>
-          {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.map(item => <ListingRow key={item.id} item={item} risk={riskOf.get(item.id) || noRisk} busy={busy} rejecting={rejecting === item.id} reason={reasons[item.id]} actions={rowActions} />)}</div>}
+          {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seçin və ya axtarış şərtlərini dəyişin."} /> : <div className="kzAdList">{items.map(item => <ListingRow key={item.id} item={item} risk={riskOf.get(item.id) || noRisk} busy={busy} rejecting={rejecting === item.id} reason={reasons[item.id]} actions={rowActions} />)}</div>}
           {total > PAGE && <nav className="kzAdPager" aria-label="Elan səhifələri"><button type="button" className="kzAdBtn" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page} / {Math.ceil(total / PAGE)}</span><button type="button" className="kzAdBtn" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
         </>}
       </Panel>}
@@ -526,11 +526,20 @@ function PhotoOrder({ listingId, images, onSaved }: { listingId: string; images:
 
 // Long descriptions start folded to four lines.
 function LongText({ text }: { text: string }) {
-  const [open, setOpen] = useState(false);
-  const long = text.length > 280 || text.split("\n").length > 4;
+  const [open, setOpen] = useState(false), [long, setLong] = useState(false);
+  const paragraph = useRef<HTMLParagraphElement>(null);
+  const id = useId();
+  useEffect(() => { setOpen(false); }, [text]);
+  useEffect(() => {
+    if (open) return;
+    const measure = () => { const node = paragraph.current; if (node) setLong(node.scrollHeight > node.clientHeight + 1); };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [text, open]);
   return <div className="kzAdDescriptionWrap">
-    <p className={`kzAdDescription${long && !open ? " folded" : ""}`}>{text}</p>
-    {long && <button type="button" className="kzAdLink" onClick={() => setOpen(value => !value)}>{open ? "Qısalt" : "Davamı"}</button>}
+    <p id={id} ref={paragraph} translate="no" className={`kzAdDescription${!open ? " folded" : ""}`}>{text}</p>
+    {long && <button type="button" className="kzAdLink" aria-expanded={open} aria-controls={id} onClick={() => setOpen(value => !value)}>{open ? "Yığcam göstər" : "Tam mətn"}</button>}
   </div>;
 }
 

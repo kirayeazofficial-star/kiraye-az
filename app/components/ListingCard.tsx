@@ -28,10 +28,11 @@ export default function ListingCard({
           <img src={sized(item.images?.[0]) || "/placeholder.svg"} alt="" loading="lazy" decoding="async" onError={event=>{if(!event.currentTarget.src.endsWith('/placeholder.svg'))event.currentTarget.src='/placeholder.svg';}} />
           
           {item.store && <em className="kzCardStore" title={item.store.name}>Mağaza</em>}
+          {item.demo && <span className="kzSampleLabel">{t("Nümunə elan")}</span>}
         </span>
         <span className="kzCardBody">
           <strong className="kzPrice">{money(item.price)} ₼ <small>/ {t(periodName(item.rental_period))}</small>{loweredFrom(item) && <s className="kzOldPrice">{money(loweredFrom(item)!)} ₼</s>}</strong>
-          <span className="kzCardTitle">{item.title}</span>
+          <span className="kzCardTitle" translate="no">{item.title}</span>
           <span className="kzCardMeta">
             <span>{item.city}{!item.demo && <>, {publicDate(shownAt(item))}</>}</span>
             <PromotionBadges item={item}/>

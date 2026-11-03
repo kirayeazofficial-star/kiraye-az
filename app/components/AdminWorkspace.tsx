@@ -2,7 +2,7 @@
 import TabIcon from "./TabIcon";
 import { sized } from "../../lib/image-size";
 import Notice from "./Notice";
-import { FormEvent, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CircleAlert, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
@@ -102,7 +102,7 @@ function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, posi
       <nav className="kzSheetTabs" role="tablist">{tabs.map(([key, text]) => <button key={key} type="button" role="tab" aria-selected={tab === key} className={tab === key ? "on" : ""} onClick={() => setTab(key)}>{text}</button>)}</nav>
       <div className="kzSheetBody">
         {tab === "listing" && <>
-          {(item.images?.length || 0) === 1 && <div className="kzAdGallery"><a href={item.images[0]} target="_blank" rel="noopener noreferrer"><img src={item.images[0]} alt="" loading="lazy" /></a></div>}
+          {(item.images?.length || 0) === 1 && <div className="kzAdGallery"><a href={item.images[0]} target="_blank" rel="noopener noreferrer"><img src={sized(item.images[0], "view")} alt="" loading="lazy" /></a></div>}
           {(item.images?.length || 0) > 1 && <PhotoOrder key={item.images.join("|")} listingId={item.id} images={item.images} onSaved={onSaved} />}
           <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Qiymət</dt><dd>{money(item.price)} ₼ / {periodName(item.rental_period)}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
           {(item as AdminListing).duplicate_note && <p className="kzRiskNote"><Images aria-hidden="true" size={16} strokeWidth={2.2} />{(item as AdminListing).duplicate_note}. Şəkillərin kimə aid olduğunu yoxlayın.</p>}
@@ -284,6 +284,33 @@ function StaffManagement() {
   </Panel>;
 }
 
+type RowActions = { moderate: (item: AdminListing, status: "published" | "rejected") => void; toggleReject: (id: string) => void; setReason: (id: string, text: string) => void; details: (item: AdminListing) => void };
+// One listing in the leader panel list. Memoised: a tap elsewhere (search box, "Ətraflı bax", another row's
+// buttons) does not redraw every row — on old iPhones redrawing the whole list on each tap froze the panel.
+const ListingRow = memo(function ListingRow({ item, risk, busy, rejecting, reason, actions }: { item: AdminListing; risk: string[]; busy: string; rejecting: boolean; reason: string | undefined; actions: RowActions }) {
+  return <article className="kzAdRow kzAdListing">
+            <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={sized(item.images[0])} alt="" loading="lazy" decoding="async" /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
+            <div className="kzAdRowMain">
+              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{item.duplicate_note && <span className="kzAdPill danger" title={item.duplicate_note}><Images aria-hidden="true" size={12} strokeWidth={2.4} />Eyni şəkil</span>}{risk.length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${risk.join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {risk[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
+              <h3>{item.title}</h3>
+              <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
+              <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>
+              {item.rejection_reason && <p className="kzAdReason">Əvvəlki səbəb: {item.rejection_reason}</p>}
+            </div>
+            <div className="kzAdRowActions">
+              {["pending", "rejected"].includes(item.status) && <button type="button" className="kzAdBtn success" disabled={!!busy} onClick={() => actions.moderate(item, "published")}><Check aria-hidden="true" size={16} strokeWidth={2.4} />{busy === item.id ? "Saxlanılır…" : "Təsdiqlə"}</button>}
+              <button type="button" className="kzAdBtn danger" disabled={!!busy || !["pending", "published"].includes(item.status)} onClick={() => actions.toggleReject(item.id)}><X aria-hidden="true" size={16} strokeWidth={2.4} />{item.status === "published" ? "Yayımdan çıxar" : "Rədd et"}</button>
+            </div>
+            {rejecting && <div className="kzAdReject">
+              <label>Səbəb<select value={rejectionReasons.includes(reason || "") ? reason : ""} onChange={event => actions.setReason(item.id, event.target.value)}><option value="">Hazır səbəb seç və ya aşağıda yaz</option>{rejectionReasons.map(reason => <option key={reason} value={reason}>{reason}</option>)}</select></label>
+              <textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reason ?? ""} onChange={event => actions.setReason(item.id, event.target.value)} placeholder="Elan sahibinə görünəcək səbəb (ən azı 10 simvol)" />
+              <div className="kzAdCenter start"><button type="button" className="kzAdBtn danger solid" disabled={!!busy || (reason?.trim().length || 0) < 10} onClick={() => actions.moderate(item, "rejected")}>Rədd et</button><button type="button" className="kzAdBtn" onClick={() => actions.toggleReject("")}>Ləğv et</button></div>
+            </div>}
+            <button type="button" className="kzAdDetailsBtn" onClick={() => actions.details(item)}><Eye aria-hidden="true" size={16} strokeWidth={2} />Ətraflı bax{(item.signal_count || 0) > 0 && <span className="kzAdDot" aria-label="oxşar elan var" />}</button>
+          </article>;
+});
+const noRisk: string[] = [];
+
 export default function AdminWorkspace() {
   const [allowed, setAllowed] = useState<boolean | null>(null), [role, setRole] = useState(""), [section, setSection] = useState<Section>("overview");
   // Coming back from Google Drive (connect) opens the backup section.
@@ -318,9 +345,22 @@ export default function AdminWorkspace() {
     api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); setIncome(data.income || null); }).catch(() => {});
   }, [allowed, revision]);
 
+  // A long list is drawn a few rows at a time, so an old phone stays responsive to taps while the rest appears.
+  const [shown, setShown] = useState(8);
+  useEffect(() => {
+    setShown(8);
+    if (items.length <= 8) return;
+    let count = 8, timer: ReturnType<typeof setTimeout>;
+    const more = () => { count += 4; setShown(count); if (count < items.length) timer = setTimeout(more, 80); };
+    timer = setTimeout(more, 80);
+    return () => clearTimeout(timer);
+  }, [items]);
   // Words worth a look in each listing's text, worked out once per list (not on every render).
   const riskOf = useMemo(() => new Map(items.map(item => [item.id, riskWords(item.title, item.description)])), [items]);
   const [details, setDetails] = useState<AdminListing | null>(null);
+  // Row buttons call the latest handlers through a ref, so the rows themselves receive one unchanging object.
+  const latest = useRef({ moderate: (_item: AdminListing, _status: "published" | "rejected") => {}, toggleReject: (_id: string) => {}, setReason: (_id: string, _text: string) => {}, details: (_item: AdminListing) => {} } as RowActions);
+  const rowActions = useMemo<RowActions>(() => ({ moderate: (item, status) => latest.current.moderate(item, status), toggleReject: id => latest.current.toggleReject(id), setReason: (id, text) => latest.current.setReason(id, text), details: item => latest.current.details(item) }), []);
   async function moderate(item: AdminListing, status: "published" | "rejected", given?: string): Promise<boolean> {
     if (busy || loading) return false;
     const reason = (given ?? reasons[item.id])?.trim() || "";
@@ -336,6 +376,7 @@ export default function AdminWorkspace() {
     } catch { setError("Dəyişiklik saxlanmadı. Siyahını yenilə və yenidən yoxla."); return false; }
     finally { setBusy(""); }
   }
+  latest.current = { moderate: (item, status) => { void moderate(item, status); }, toggleReject: id => setRejecting(current => id && current !== id ? id : ""), setReason: (id, text) => setReasons(current => ({ ...current, [id]: text })), details: item => setDetails(item) };
   function open(next: Section) {
     setSection(next); setError(""); window.scrollTo({ top: 0 });
     const url = next === "overview" ? "/admin" : `/admin?section=${next}`;
@@ -446,26 +487,7 @@ export default function AdminWorkspace() {
         </div>}
         {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
           <p className="kzAdMuted kzAdCount">{(query || dateFrom || reviewKind || owner) ? "Filtrə uyğun: " : ""}{total} elan{total > PAGE ? ` · səhifə ${page} / ${Math.ceil(total / PAGE)}` : ""}</p>
-          {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.map(item => <article className="kzAdRow kzAdListing" key={item.id}>
-            <a className="kzAdThumb" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">{item.images?.[0] ? <img src={sized(item.images[0])} alt="" loading="lazy" decoding="async" /> : null}{(item.images?.length || 0) > 1 && <small>{item.images.length}</small>}</a>
-            <div className="kzAdRowMain">
-              <div className="kzAdRowTop"><span className={`status ${item.status}`}>{statusName(item.status)}</span>{item.status === "pending" && item.review_kind === "edited" && <span className="kzAdPill warn">Dəyişdirilib</span>}{(item.signal_count || 0) > 0 && <span className="kzAdPill danger" title="Başqa hesabda eyni telefon və ya şəkil">Şübhəli: {item.signal_count} oxşar</span>}{item.duplicate_note && <span className="kzAdPill danger" title={item.duplicate_note}><Images aria-hidden="true" size={12} strokeWidth={2.4} />Eyni şəkil</span>}{(riskOf.get(item.id) || []).length > 0 && <span className="kzAdPill warn kzRisk" title={`Mətndə: ${(riskOf.get(item.id) || []).join(", ")}`}><TriangleAlert aria-hidden="true" size={12} strokeWidth={2.4} />Diqqət: {(riskOf.get(item.id) || [])[0]}</span>}<span className="kzAdMuted">{categoryName(item.category)}</span></div>
-              <h3>{item.title}</h3>
-              <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
-              <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>
-              {item.rejection_reason && <p className="kzAdReason">Əvvəlki səbəb: {item.rejection_reason}</p>}
-            </div>
-            <div className="kzAdRowActions">
-              {["pending", "rejected"].includes(item.status) && <button type="button" className="kzAdBtn success" disabled={!!busy} onClick={() => void moderate(item, "published")}><Check aria-hidden="true" size={16} strokeWidth={2.4} />{busy === item.id ? "Saxlanılır…" : "Təsdiqlə"}</button>}
-              <button type="button" className="kzAdBtn danger" disabled={!!busy || !["pending", "published"].includes(item.status)} onClick={() => setRejecting(rejecting === item.id ? "" : item.id)}><X aria-hidden="true" size={16} strokeWidth={2.4} />{item.status === "published" ? "Yayımdan çıxar" : "Rədd et"}</button>
-            </div>
-            {rejecting === item.id && <div className="kzAdReject">
-              <label>Səbəb<select value={rejectionReasons.includes(reasons[item.id] || "") ? reasons[item.id] : ""} onChange={event => setReasons(current => ({ ...current, [item.id]: event.target.value }))}><option value="">Hazır səbəb seç və ya aşağıda yaz</option>{rejectionReasons.map(reason => <option key={reason} value={reason}>{reason}</option>)}</select></label>
-              <textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reasons[item.id] ?? ""} onChange={event => setReasons({ ...reasons, [item.id]: event.target.value })} placeholder="Elan sahibinə görünəcək səbəb (ən azı 10 simvol)" />
-              <div className="kzAdCenter start"><button type="button" className="kzAdBtn danger solid" disabled={!!busy || (reasons[item.id]?.trim().length || 0) < 10} onClick={() => void moderate(item, "rejected")}>Rədd et</button><button type="button" className="kzAdBtn" onClick={() => setRejecting("")}>Ləğv et</button></div>
-            </div>}
-            <button type="button" className="kzAdDetailsBtn" onClick={() => setDetails(item)}><Eye aria-hidden="true" size={16} strokeWidth={2} />Ətraflı bax{(item.signal_count || 0) > 0 && <span className="kzAdDot" aria-label="oxşar elan var" />}</button>
-          </article>)}</div>}
+          {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.slice(0, shown).map(item => <ListingRow key={item.id} item={item} risk={riskOf.get(item.id) || noRisk} busy={busy} rejecting={rejecting === item.id} reason={reasons[item.id]} actions={rowActions} />)}</div>}
           {total > PAGE && <nav className="kzAdPager" aria-label="Elan səhifələri"><button type="button" className="kzAdBtn" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page} / {Math.ceil(total / PAGE)}</span><button type="button" className="kzAdBtn" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
         </>}
       </Panel>}

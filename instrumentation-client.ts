@@ -48,6 +48,20 @@ if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin
   };
   window.addEventListener("error", event => show(`Xəta: ${event.message} (${String(event.filename || "").split("/").pop()}:${event.lineno})`));
   window.addEventListener("unhandledrejection", event => show(`Xəta: ${String((event.reason && (event.reason.message || event.reason)) || "naməlum").slice(0, 160)}`));
+  // Photos: every loaded picture's real size, so a freeze can be matched with big photos arriving.
+  const loaded: { at: number; w: number; h: number; name: string }[] = [];
+  document.addEventListener("load", event => {
+    const image = event.target as HTMLImageElement | null;
+    if (!image || image.tagName !== "IMG") return;
+    loaded.push({ at: Date.now(), w: image.naturalWidth, h: image.naturalHeight, name: (image.currentSrc || image.src).split("/").pop()?.slice(0, 14) || "" });
+    if (loaded.length > 200) loaded.shift();
+  }, true);
+  const photoNote = (from: number) => {
+    const list = loaded.filter(item => item.at >= from);
+    if (!list.length) return "şəkil yüklənməyib";
+    const big = list.reduce((a, b) => (b.w * b.h > a.w * a.h ? b : a));
+    return `${list.length} şəkil yükləndi, ən böyüyü ${big.w}×${big.h} (${big.name}), 900px-dən böyük: ${list.filter(item => Math.max(item.w, item.h) > 900).length}`;
+  };
   // Each tap: how long the page's own code ran (JS) and how long the browser then needed to draw the result
   // (styles, layout, painting). Written only when the tap took longer than 0.4 s in total.
   document.addEventListener("click", event => {
@@ -65,5 +79,5 @@ if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin
     }, 0);
   }, true);
   let last = Date.now();
-  setInterval(() => { const now = Date.now(), gap = now - last - 250; last = now; if (gap > 1000 && !document.hidden) show(`Donma: ${(gap / 1000).toFixed(1)} san · ${window.location.search || "panel"}`); }, 250);
+  setInterval(() => { const now = Date.now(), gap = now - last - 250; last = now; if (gap > 1000 && !document.hidden) show(`Donma: ${(gap / 1000).toFixed(1)} san · ${window.location.search || "panel"} · ${photoNote(now - gap - 2000)}`); }, 250);
 }

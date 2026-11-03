@@ -7,7 +7,7 @@ export default function GoogleLogin() {
   const [notice, setNotice] = useState("");
   async function check() {try{const r=await fetch('/api/auth/google/status',{cache:'no-store'});const d=await r.json();setEnabled(d.enabled===true);}catch{setEnabled(false);}}
   useEffect(() => {
-    if(new URLSearchParams(window.location.search).get('google')==='error')setNotice('Google ilə giriş alınmadı. Yenidən cəhd et və ya e-poçtla davam et.');
+    if(new URLSearchParams(window.location.search).get('google')==='error')setNotice('Google ilə giriş alınmadı. Yenidən cəhd edin və ya e-poçtla daxil olun.');
     void check();
   }, []);
   async function login() {

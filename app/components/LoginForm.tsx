@@ -212,7 +212,7 @@ export default function Login({
       } else if (mode === "signup") {
         const fullName=String(form.get('full_name')||'').trim().replace(/\s+/g,' ');
         const contactPhone=normalizePhone(String(form.get('contact_phone')||''));
-        if(fullName.length>100 || fullName.split(' ').length<2 || !fullName.split(' ').every(part=>/\p{L}/u.test(part))){setNotice('Ad və soyadını yaz.');return;}
+        if(fullName.length>100 || fullName.split(' ').length<2 || !fullName.split(' ').every(part=>/\p{L}/u.test(part))){setNotice('Ad və soyadınızı yazın.');return;}
         if(!contactPhone){setNotice('Düzgün Azərbaycan telefon nömrəsi yaz.');return;}
         await hostAuth('signup',{email,password,name:fullName,phone:contactPhone});
         pending("signup", email);
@@ -239,8 +239,8 @@ export default function Login({
     if (!/^\d{6}$/.test(token)) {
       setNotice(
         verification === "recovery"
-          ? "E-poçtuna gələn 6 rəqəmli kodu yaz."
-          : "Məktubdakı 6 rəqəmli kodu yaz.",
+          ? "E-poçtunuza gələn 6 rəqəmli kodu yazın."
+          : "Məktubdakı 6 rəqəmli kodu yazın.",
       );
       return;
     }
@@ -336,7 +336,7 @@ export default function Login({
         <section aria-labelledby="auth-title">
           <noscript>
             <p className="notice">
-              Qeydiyyat və giriş üçün brauzerdə JavaScript-i aktiv et.
+              Qeydiyyat və giriş üçün brauzerdə JavaScript-i aktiv edin.
             </p>
           </noscript>
           {mode !== "reset" && !verification && <nav className="authModeLinks" aria-label="Hesab seçimi">
@@ -344,26 +344,27 @@ export default function Login({
             <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyatdan keç</a>
           </nav>}
           {!ready && (
-            <p className="notice" role="status">
-              Forma hazırlanır. Düymələr açılmırsa, {" "}
+            // Shown only if the form is still not ready after a few seconds (see .authSlowNote), so a normal load never flashes it.
+            <div className="authSlowNote"><p className="notice" role="status">
+              Forma yüklənir. Düymələr işləmirsə,{" "}
               <a href={`/login?mode=${initialMode}&next=${encodeURIComponent(next)}&reload=1`}>
-                səhifəni yenidən aç
+                səhifəni yeniləyin
               </a>.
-            </p>
+            </p></div>
           )}
           <h1 id="auth-title">
             {method === "phone"
               ? "Hesaba giriş"
               : verification
                 ? verification === "staff"
-                  ? "Yeni cihazı təsdiqlə"
+                  ? "Yeni cihazı təsdiqləyin"
                   : verification === "recovery"
-                  ? "Kodu daxil et"
-                  : "E-poçtunu yoxla"
+                  ? "Kodu daxil edin"
+                  : "E-poçtunuzu yoxlayın"
                 : mode === "signup"
                   ? "Hesab yarat"
                   : mode === "reset"
-                    ? "Şifrəni yenilə"
+                    ? "Şifrənizi yeniləyin"
                     : "Hesaba giriş"}
           </h1>
           {!verification && mode !== "reset" && method === "email" && (
@@ -395,10 +396,10 @@ export default function Login({
               {!verification && (
                 <p className="authLead">
                   {mode === "signup"
-                    ? "Elan yerləşdirmək üçün qeydiyyatdan keç."
+                    ? "Elan yerləşdirmək üçün qeydiyyatdan keçin."
                     : mode === "reset"
-                      ? "Hesabına bağlı e-poçt ünvanını yaz."
-                      : "Saytda qeydiyyatdan keçdiyin məlumatlarla daxil ol."}
+                      ? "Hesabınıza bağlı e-poçt ünvanını yazın."
+                      : "Qeydiyyat zamanı göstərdiyiniz e-poçt və şifrə ilə daxil olun."}
                 </p>
               )}
               {!verification ? (
@@ -411,17 +412,17 @@ export default function Login({
                     // Login with the password still empty: no warning, the cursor simply moves to the password field.
                     if (mode === "login" && field.type === "password" && !field.value) { event.preventDefault(); setNotice(""); field.focus(); return; }
                     setNotice(
-                      field.name === "full_name" ? "Ad və soyadını yaz." : field.type === "tel" ? "+994-dən sonra 0 olmadan 9 rəqəm yaz (məsələn: 50 123 45 67)." : field.name === "email"
-                        ? "Düzgün e-poçt ünvanı yaz."
+                      field.name === "full_name" ? "Ad və soyadınızı yazın." : field.type === "tel" ? "+994-dən sonra 0 olmadan 9 rəqəm yazın (məsələn: 50 123 45 67)." : field.name === "email"
+                        ? "Düzgün e-poçt ünvanı yazın."
                         : mode === "signup"
-                          ? "Ən azı 8 simvoldan ibarət şifrə yaz."
-                          : "Şifrəni yaz.",
+                          ? "Ən azı 8 simvoldan ibarət şifrə yazın."
+                          : "Şifrənizi yazın.",
                     );
                   }}
                 >
                   <fieldset className="authFields" disabled={busy}>
                     {mode === "signup" && <>
-                      <label>Ad və soyad<input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Adın və soyadın" /></label>
+                      <label>Ad və soyad<input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Adınız və soyadınız" /></label>
                       <label>Telefon nömrəsi<PhoneInput name="contact_phone" label="Telefon nömrəsi" required /></label>
                     </>}
                     <label>
@@ -438,11 +439,11 @@ export default function Login({
                         onChange={(e) => setEmailAddress(e.target.value)}
                         required
                         maxLength={254}
-                        placeholder="E-poçt ünvanını yaz"
+                        placeholder="E-poçt ünvanınız"
                       />
                     </label>
                     {emailAddress.includes("@") && !emailAddress.split("@")[1]?.includes(".") && (
-                      <div className="emailSuggestions" aria-label="E-poçt ünvanını tamamla">
+                      <div className="emailSuggestions" aria-label="E-poçt ünvanını tamamlayın">
                         {["gmail.com", "mail.ru", "outlook.com", "icloud.com"].filter(domain => domain.startsWith(emailAddress.split("@")[1] || "")).map(domain => (
                           <button type="button" key={domain} onClick={() => {
                             setEmailAddress(`${emailAddress.split("@")[0]}@${domain}`);
@@ -471,7 +472,7 @@ export default function Login({
                             maxLength={128}
                             required
                             placeholder={
-                              mode === "signup" ? "Ən azı 8 simvol" : "Şifrən"
+                              mode === "signup" ? "Ən azı 8 simvol" : "Şifrəniz"
                             }
                           />
                           <button
@@ -495,9 +496,9 @@ export default function Login({
                                   setShowPassword(true);
                                   passwordInput.current.focus();
                                 }
-                              } catch { setNotice("Avtomatik şifrə yaratmaq mümkün olmadı. Şifrəni özün yaza bilərsən."); }
+                              } catch { setNotice("Avtomatik şifrə yaratmaq mümkün olmadı. Şifrəni özünüz yaza bilərsiniz."); }
                             }}>Güclü şifrə yarat</button>
-                            <small className="passwordHint" id="password-hint">Ən azı 8 simvoldan ibarət şifrə yaz. Yaradılan şifrəni parol menecerində saxla.</small>
+                            <small className="passwordHint" id="password-hint">Şifrə ən azı 8 simvoldan ibarət olmalıdır. Yaradılan şifrəni şifrə menecerində saxlayın.</small>
                           </>
                         )}
                       </div>
@@ -551,12 +552,12 @@ export default function Login({
                   <div className="confirmationEmail">{emailAddress}</div>
                   <p className="confirmationInstruction">
                     {verification === "recovery" || verification === "staff"
-                      ? "E-poçtuna gələn 6 rəqəmli kodu daxil et."
-                      : "Məktubdakı 6 rəqəmli təsdiq kodunu daxil et."}
+                      ? "E-poçtunuza gələn 6 rəqəmli kodu daxil edin."
+                      : "Məktubdakı 6 rəqəmli təsdiq kodunu daxil edin."}
                   </p>
                   {codeForm()}
                   {!busy && <div className="confirmationActions kzCodeHelp">
-                    <p className="mailHelp">Kod gəlmədi? Spam qovluğunu da yoxla.</p>
+                    <p className="mailHelp">Kod gəlmədi? «Spam» qovluğunu da yoxlayın.</p>
                     <button
                       className="link"
                       type="button"
@@ -634,8 +635,8 @@ export default function Login({
                   }}
                 >
                   {mode === "login" && !verification
-                    ? "Hesabın yoxdur? Qeydiyyatdan keç"
-                    : "Hesabın var? Daxil ol"}
+                    ? "Hesabınız yoxdur? Qeydiyyatdan keçin"
+                    : "Hesabınız var? Daxil olun"}
                 </a>
               </div>}
             </>

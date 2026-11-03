@@ -1,6 +1,6 @@
 // Installs a prebuilt release (built by GitHub) into the live cPanel app folder.
-// The previous build is kept in .kirayeal-backups so it can be restored.
-import { access, cp, mkdir, readFile, rename, rm, writeFile, copyFile } from "node:fs/promises";
+// Only the previous build is kept in .kirayeal-backups so it can be restored; older ones are deleted.
+import { access, cp, mkdir, readdir, readFile, rename, rm, writeFile, copyFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 
@@ -75,6 +75,12 @@ try {
   await mkdir(join(target, "tmp"), { recursive: true });
   await writeFile(join(target, "tmp/restart.txt"), stamp);
   console.log("Release installed. Restart requested. Expected build:", buildId);
+  // Old builds used to pile up here (≈80 MB each, never removed) and filled the hosting disk. Only the build
+  // that was live just before this one is kept, so a failed release can still be rolled back.
+  const old = (await readdir(backups).catch(() => [])).filter((name) => /-previous-build$/.test(name)).sort();
+  let removed = 0;
+  for (const name of old.slice(0, -1)) { await rm(join(backups, name), { recursive: true, force: true }).catch(() => {}); removed++; }
+  if (removed) console.log(`Old builds removed: ${removed}. Kept: ${old.at(-1)}.`);
 } catch (error) {
   console.error("Install failed:", error.message);
   await rm(fresh, { recursive: true, force: true });

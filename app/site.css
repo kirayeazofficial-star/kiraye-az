@@ -3038,3 +3038,6 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 /* Giriş: "Forma yüklənir" qeydi yalnız forma 4 saniyədən çox hazırlanmırsa görünür. */
 .loginPage .authSlowNote{animation:kzSlowNote 0s linear 4s both}
 @keyframes kzSlowNote{from{visibility:hidden;max-height:0;overflow:hidden}to{visibility:visible;max-height:400px;overflow:visible}}
+/* Şifrə xanası: yazılan şifrənin nöqtələri qara deyil, sakit boz rəngdədir və bir-birindən bir az aralıdır. */
+input[type=password]{color:#6b7280!important;-webkit-text-fill-color:#6b7280!important;letter-spacing:.12em!important}
+input[type=password]::placeholder{letter-spacing:normal!important}

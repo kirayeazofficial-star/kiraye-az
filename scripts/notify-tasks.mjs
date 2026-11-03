@@ -80,7 +80,7 @@ async function savedSearches(db, send, claim) {
     await db.query(`update public.saved_search_alerts set last_checked=now() where id=$1`, [alert.id]);
     if (!found.length || !(await claim(alert.user_id, "search", `${alert.id}:${found[0].id}`))) continue;
     await send(alert.email, `Yeni elan: ${alert.label}`.slice(0, 120), letter({
-      heading: "Axtarışınıza uyğun yeni elanlar",
+      heading: "Axtarışınıza uyğun yeni elanlar dərc olunub",
       name: alert.name,
       intro: `Yadda saxladığınız «${alert.label}» axtarışına uyğun ${found.length > 5 ? "bir neçə" : found.length} yeni elan dərc olunub. Ən sonuncular aşağıdadır.`,
       rows: found.slice(0, 5).map((item) => ({ label: `${item.title} · ${item.city}`, value: `${money(item.price)} ₼/${period(item.rental_period)}`, href: `/listings/${item.id}` })),
@@ -109,7 +109,7 @@ async function weekly(db, send, claim) {
   const top = (await db.query(`select l.category,count(*) as n from public.listing_views v join public.listings l on l.id=v.listing_id where v.view_day>current_date-7 group by 1 order by 2 desc limit 3`).catch(() => ({ rows: [] }))).rows;
   const names = { property: "Ev və mənzil", car: "Avtomobil", motorcycle: "Motosiklet", villa: "Villa və bağ", commercial: "Kommersiya", equipment: "Alətlər və texnika", clothing: "Geyim", electric: "Elektrik nəqliyyat", photo: "Foto və video", camping: "Turizm", bicycle: "Velosiped", event: "Tədbir üçün" };
   await send(ownerEmail, `Həftəlik hesabat — kirayeal.az`, letter({
-    heading: "Həftəlik hesabat: son 7 gün",
+    heading: "Son 7 gündə saytın göstəriciləri",
     name: "Rəhbər",
     intro: "Saytın son 7 gün üzrə əsas göstəriciləri aşağıda təqdim olunur.",
     rows: [

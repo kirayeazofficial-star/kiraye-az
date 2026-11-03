@@ -3035,3 +3035,6 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 .siteMenuPanel.kzSide .siteContact{gap:0!important}
 .siteMenuPanel.kzSide .siteContact>strong{margin-bottom:4px}
 .siteMenuPanel.kzSide .siteContact .kzContactLine,.siteMenuPanel.kzSide .siteContact .socialLinks a{padding:0!important;min-height:40px!important}
+/* Giriş: "Forma yüklənir" qeydi yalnız forma 4 saniyədən çox hazırlanmırsa görünür. */
+.loginPage .authSlowNote{animation:kzSlowNote 0s linear 4s both}
+@keyframes kzSlowNote{from{visibility:hidden;max-height:0;overflow:hidden}to{visibility:visible;max-height:400px;overflow:visible}}

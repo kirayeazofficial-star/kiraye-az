@@ -33,7 +33,7 @@ export default function ResetPassword() {
         sessionStorage.removeItem("kiraye:recovery");
       } catch {}
       setDone(true);
-      setNotice("Şifrən yeniləndi. İndi hesabından istifadə edə bilərsən.");
+      setNotice("Şifrəniz yeniləndi. İndi hesabınızdan istifadə edə bilərsiniz.");
     } catch (error) {
       setFailed(true);
       setNotice(authErrorMessage(error));
@@ -51,7 +51,7 @@ export default function ResetPassword() {
       </div>
       <div className="authShell">
         <section>
-          <h1>{done ? "Şifrən yeniləndi" : "Yeni şifrə"}</h1>
+          <h1>{done ? "Şifrəniz yeniləndi" : "Yeni şifrə"}</h1>
           {checking ? (
             <p className="notice" role="status">
               Bərpa linki yoxlanılır...
@@ -99,7 +99,7 @@ export default function ResetPassword() {
           )}
           {done
             ? <Link className="kzButton kzAuthDone" href="/profile">Kabinetə keç</Link>
-            : (!ready && !checking) || failed ? <div className="kzAuthLinks"><Link href="/login?mode=reset">Yeni bərpa kodu istə</Link><Link href="/login">Girişə qayıt</Link></div> : null}
+            : (!ready && !checking) || failed ? <div className="kzAuthLinks"><Link href="/login?mode=reset">Yeni bərpa kodu istəyin</Link><Link href="/login">Girişə qayıt</Link></div> : null}
         </section>
       </div>
     </main>

@@ -1,4 +1,5 @@
 "use client";
+import { ADMIN_LIST_PAGE_SIZE } from "../../lib/admin-list-page";
 import TabIcon from "./TabIcon";
 import { sized } from "../../lib/image-size";
 import Notice from "./Notice";
@@ -28,7 +29,7 @@ type Report = { id: string; report_no: number | string; reason: string; message:
 type Member = { id: string; name: string | null; email: string; phone?: string; profile_no?: number; role: string; confirmed?: boolean; assigned_at?: string | null };
 type StaffEvent = { id: number; action: string; created_at: string; actor_email?: string | null; target_email?: string | null };
 
-const PAGE = 24;
+const PAGE = ADMIN_LIST_PAGE_SIZE;
 const sectionLabels: Record<Section, string> = { overview: "Ümumi baxış", moderation: "Elanlar", reports: "Şikayətlər", history: "Əməliyyatlar", users: "İstifadəçilər", banners: "Bannerlər", stores: "Mağazalar", limits: "Ödənişli xidmətlər", settings: "Sayt ayarları", staff: "Komanda", backup: "Ehtiyat nüsxə" };
 // Main tabs; expired and deleted listings are in the extra filters (rarely needed, e.g. when someone asks where a listing went).
 const statuses: [string, string][] = [["all", "Hamısı"], ["pending", "Gözləmədə"], ["reported", "Şikayət olunan"], ["payment", "Ödəniş gözləyir"], ["published", "Yayımlanıb"], ["rejected", "Rədd edilib"]];
@@ -339,7 +340,7 @@ export default function AdminWorkspace() {
       if (!Array.isArray(data.items) || !Number.isFinite(data.total) || data.total < 0) throw new Error("INVALID_LISTINGS_RESPONSE");
       const maxPage = Math.max(1, Math.ceil(data.total / PAGE));
       if (page > maxPage) { setPage(maxPage); return; }
-      setShown(8); setItems(data.items); setTotal(data.total);
+      setItems(data.items); setTotal(data.total);
     }).catch(() => { if (active) setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin."); }).finally(() => { clearTimeout(timeout); if (active) setLoading(false); });
     return () => { active = false; clearTimeout(timeout); controller.abort(); };
   }, [allowed, section, filter, query, page, revision, dateFrom, reviewKind, owner]);
@@ -348,9 +349,6 @@ export default function AdminWorkspace() {
     api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); setIncome(data.income || null); }).catch(() => {});
   }, [allowed, revision]);
 
-  // Keep the first draw small. Extra rows are mounted only on request, rather than
-  // starting more layout and image decoding every 80 ms while someone uses the tabs.
-  const [shown, setShown] = useState(8);
   // Words worth a look in each listing's text, worked out once per list (not on every render).
   const riskOf = useMemo(() => new Map(items.map(item => [item.id, riskWords(item.title, item.description)])), [items]);
   const [details, setDetails] = useState<AdminListing | null>(null);
@@ -483,8 +481,7 @@ export default function AdminWorkspace() {
         </div>}
         {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : <>
           <p className="kzAdMuted kzAdCount">{(query || dateFrom || reviewKind || owner) ? "Filtrə uyğun: " : ""}{total} elan{total > PAGE ? ` · səhifə ${page} / ${Math.ceil(total / PAGE)}` : ""}</p>
-          {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.slice(0, shown).map(item => <ListingRow key={item.id} item={item} risk={riskOf.get(item.id) || noRisk} busy={busy} rejecting={rejecting === item.id} reason={reasons[item.id]} actions={rowActions} />)}</div>}
-          {shown < items.length && <button type="button" className="kzAdBtn" onClick={() => setShown(value => value + 8)}>Daha çox göstər ({Math.min(8, items.length - shown)})</button>}
+          {!items.length ? <Empty title={filter === "pending" && !query ? "Yoxlanılacaq elan yoxdur" : "Elan tapılmadı"} text={filter === "pending" && !query ? "Hamısı baxılıb. Yeni elan gələndə burada görünəcək." : "Başqa vəziyyət seç və ya axtarışı dəyiş."} /> : <div className="kzAdList">{items.map(item => <ListingRow key={item.id} item={item} risk={riskOf.get(item.id) || noRisk} busy={busy} rejecting={rejecting === item.id} reason={reasons[item.id]} actions={rowActions} />)}</div>}
           {total > PAGE && <nav className="kzAdPager" aria-label="Elan səhifələri"><button type="button" className="kzAdBtn" disabled={page === 1 || !!busy} onClick={() => setPage(x => x - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page} / {Math.ceil(total / PAGE)}</span><button type="button" className="kzAdBtn" disabled={page * PAGE >= total || !!busy} onClick={() => setPage(x => x + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
         </>}
       </Panel>}

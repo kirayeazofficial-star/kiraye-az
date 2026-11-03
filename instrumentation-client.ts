@@ -28,6 +28,11 @@ if (typeof document !== "undefined") {
 // 3. Leader panel diagnostics: on the phone, JavaScript errors and freezes longer than a second are written in a
 //    small box at the bottom of /admin, so a screenshot shows what went wrong on that device.
 if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin")) {
+  // Temporary test switches for finding what makes old iPhones slow here:
+  // /admin?section=moderation&test=sekilsiz hides list photos, &test=ikonsuz hides icons, &test=sade hides both.
+  const test = new URLSearchParams(window.location.search).get("test") || "";
+  if (test === "sekilsiz" || test === "sade") document.documentElement.classList.add("kz-test-noimg");
+  if (test === "ikonsuz" || test === "sade") document.documentElement.classList.add("kz-test-nosvg");
   const notes: string[] = [];
   const show = (text: string) => {
     notes.unshift(`${new Date().toLocaleTimeString("az-AZ")} · ${text}`.slice(0, 220));
@@ -43,6 +48,22 @@ if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin
   };
   window.addEventListener("error", event => show(`Xəta: ${event.message} (${String(event.filename || "").split("/").pop()}:${event.lineno})`));
   window.addEventListener("unhandledrejection", event => show(`Xəta: ${String((event.reason && (event.reason.message || event.reason)) || "naməlum").slice(0, 160)}`));
+  // Each tap: how long the page's own code ran (JS) and how long the browser then needed to draw the result
+  // (styles, layout, painting). Written only when the tap took longer than 0.4 s in total.
+  document.addEventListener("click", event => {
+    const start = performance.now(), target = event.target as Element | null;
+    const what = (target?.closest("button,a,input,select")?.textContent || target?.tagName || "").trim().slice(0, 24);
+    setTimeout(() => {
+      const js = performance.now() - start;
+      requestAnimationFrame(() => {
+        const frame = performance.now();
+        setTimeout(() => {
+          const draw = performance.now() - frame, total = performance.now() - start;
+          if (total > 400) show(`Toxunuş «${what}»: cəmi ${(total / 1000).toFixed(1)} san · kod ${(js / 1000).toFixed(1)} · çəkmə ${(draw / 1000).toFixed(1)} · ${document.querySelectorAll("*").length} element, ${document.images.length} şəkil`);
+        }, 0);
+      });
+    }, 0);
+  }, true);
   let last = Date.now();
   setInterval(() => { const now = Date.now(), gap = now - last - 250; last = now; if (gap > 1000 && !document.hidden) show(`Donma: ${(gap / 1000).toFixed(1)} san · ${window.location.search || "panel"}`); }, 250);
 }

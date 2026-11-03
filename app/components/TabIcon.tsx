@@ -1,6 +1,6 @@
 // Bottom menu icons drawn for kirayeal.az on one 24px grid: thin outline when not active,
 // solid shape in the brand colour when active (like the big mobile apps do).
-type Name = "home" | "heart" | "chat" | "user";
+type Name = "home" | "heart" | "chat" | "user" | "plus";
 const shapes: Record<Name, { outline: React.ReactNode; solid: React.ReactNode }> = {
   home: {
     outline: <path d="M3.75 10.4 12 3.9l8.25 6.5v8.85A1.75 1.75 0 0 1 18.5 21h-3.75v-5.25a.75.75 0 0 0-.75-.75h-4a.75.75 0 0 0-.75.75V21H5.5a1.75 1.75 0 0 1-1.75-1.75z" />,
@@ -13,6 +13,10 @@ const shapes: Record<Name, { outline: React.ReactNode; solid: React.ReactNode }>
   chat: {
     outline: <><path d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7.5a3 3 0 0 1-3 3h-6.2l-4.15 3.2A.9.9 0 0 1 5.2 20v-2.55A3 3 0 0 1 4 14.5z" /><path d="M8.5 9.75h7M8.5 13h4.5" /></>,
     solid: <path fillRule="evenodd" d="M7 3a4 4 0 0 0-4 4v7.5a4 4 0 0 0 1.2 2.86V20a1.9 1.9 0 0 0 3.06 1.5l3.88-3h5.86a4 4 0 0 0 4-4V7a4 4 0 0 0-4-4zm1.5 6a.75.75 0 0 0 0 1.5h7a.75.75 0 0 0 0-1.5zm0 3.25a.75.75 0 0 0 0 1.5H13a.75.75 0 0 0 0-1.5z" />,
+  },
+  plus: {
+    outline: <><rect x="3.75" y="3.75" width="16.5" height="16.5" rx="4.75" /><path d="M12 8.25v7.5M8.25 12h7.5" /></>,
+    solid: <path fillRule="evenodd" d="M8 3a5 5 0 0 0-5 5v8a5 5 0 0 0 5 5h8a5 5 0 0 0 5-5V8a5 5 0 0 0-5-5zm4 4.5a.75.75 0 0 1 .75.75v3h3a.75.75 0 0 1 0 1.5h-3v3a.75.75 0 0 1-1.5 0v-3h-3a.75.75 0 0 1 0-1.5h3v-3A.75.75 0 0 1 12 7.5z" />,
   },
   user: {
     outline: <><circle cx="12" cy="8.25" r="3.75" /><path d="M4.75 20.25c.55-3.6 3.5-5.75 7.25-5.75s6.7 2.15 7.25 5.75" /></>,

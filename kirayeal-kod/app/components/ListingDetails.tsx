@@ -18,6 +18,7 @@ import BannerStrip from "./BannerStrip";
 import SideBanners from "./SideBanners";
 import ImageViewer from "./ImageViewer";
 import GalleryPhoto from "./GalleryPhoto";
+import ExpandableText from "./ExpandableText";
 import NavigationIcon from './NavigationIcon';
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
@@ -192,7 +193,7 @@ export default function ListingDetails({
             moveImage(event.key === "ArrowLeft" ? -1 : 1);
           }
         }}>
-        <div className="galleryStage" style={{["--ratio" as string]:String(photoRatio),["--bg" as string]:`url("${item.images?.[selectedImage]||"/placeholder.svg"}")`} as CSSProperties}
+        <div className="galleryStage" style={{["--ratio" as string]:String(photoRatio)} as CSSProperties}
           onTouchStart={(event) => {
             swiped.current = false;
             const touch = event.touches.length === 1 ? event.touches[0] : null;
@@ -275,7 +276,7 @@ export default function ListingDetails({
             : publicDate(shownAt(item))}
         </p>
       </div>
-      <div className="detailSide">
+      <div className="detailSide"><div className="detailContactCard">
         {effectiveOwner && !item.demo && (() => {
           // The owner sees where the listing stands, in colour, at the top of the side column.
           const status = item.deleted_at ? "deleted" : item.payment_required ? "payment" : isListingExpired(item) ? "expired" : item.status;
@@ -296,7 +297,6 @@ export default function ListingDetails({
         </strong>
         {loweredFrom(item) && <p className="kzPriceDrop"><TrendingDown aria-hidden="true" size={16} strokeWidth={2.2} />Qiymət endirildi: <s>{money(loweredFrom(item)!)} ₼</s> → <b>{money(item.price)} ₼</b></p>}
         {(() => { const other = ([["daily", "price_daily"], ["weekly", "price_weekly"], ["monthly", "price_monthly"]] as const).filter(([period, key]) => period !== item.rental_period && Number(item.attributes?.[key]) > 0); return other.length ? <p className="kzOtherPriceLine">{other.map(([period, key]) => <span key={key}>{money(Number(item.attributes?.[key]))} ₼ <small>/ {periodName(period)}</small></span>)}</p> : null; })()}
-        {facts.length > 0 && <dl className="kzKeyFacts">{facts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
         {isLeader && !effectiveOwner && item.status === "published" && !item.demo && <div className="kzLeaderPromo">
           <span>Rəhbər: bu elanı pulsuz reklam edə bilərsiniz</span>
           <PromotionOptions label="Reklam et" listingId={item.id} />
@@ -317,10 +317,10 @@ export default function ListingDetails({
         ) : phone && !item.demo ? (
           <div className="contactActions" ref={contactBox}>
             {ownerReady&&<Link className="secondary kzMsgBtn" href={`/messages?listing=${encodeURIComponent(item.id)}`}><TabIcon name="chat" size={18} />Mesaj yaz</Link>}
-            {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər"><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər · {partiallyHiddenContact(item.contact)}</button>}
+            {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone aria-hidden="true" size={22} strokeWidth={2} /><span><small>Zəng et</small><strong>{formatContact(item.contact)}</strong></span></a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)} aria-label="Nömrəni göstər"><Phone aria-hidden="true" size={22} strokeWidth={2} /><span><small>Nömrəni göstər</small><strong>{partiallyHiddenContact(item.contact)}</strong></span></button>}
             <a
               className="secondary kzWaBtn"
-              href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam!\n\nkirayeal.az saytındakı «${item.title}» elanınızla maraqlanıram.\nElan hələ aktualdırmı?\n\nElan: https://kirayeal.az/listings/${item.id} 🙂`)}`}
+              href={`https://wa.me/${phone.slice(1)}?text=${encodeURIComponent(`Salam!\n\nkirayeal.az saytındakı «${item.title}» elanınızla maraqlanıram.\nElan hələ aktualdırmı?\n\nElan: https://kirayeal.az/listings/${item.id}`)}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -332,7 +332,7 @@ export default function ListingDetails({
             ? <div className="kzSampleNote"><strong>Bu nümunə elandır</strong><p>Saytın necə işlədiyini göstərir — real kirayə təklifi deyil, əlaqə məlumatı yoxdur. Sizin də kirayə verəcəyiniz əşya varsa, elanı pulsuz yerləşdirin.</p><Link className="kzButton" href="/new">Elan yerləşdir</Link></div>
             : <p className="notice">Əlaqə nömrəsi düzgün göstərilməyib.</p>
         )}
-        {phoneShown && !effectiveOwner && <p className="phoneSafety" role="status">Diqqət: beh göndərməmişdən əvvəl sövdələşmənin təhlükəsiz olduğundan əmin ol. Kartının PIN/CVV-sini və SMS kodunu paylaşma.</p>}
+        {phoneShown && !effectiveOwner && <p className="phoneSafety" role="status">Beh göndərməzdən əvvəl elanı yoxlayın. Kartınızın PIN/CVV və SMS kodlarını paylaşmayın.</p>}
         {compact && (
           <div className="detailTools">
             <Link href={`/listings/${item.id}`} className="secondary">
@@ -340,6 +340,7 @@ export default function ListingDetails({
             </Link>
           </div>
         )}
+        </div>
         {!item.demo && item.owner_id && !effectiveOwner && item.store && (() => { const open = storeOpenState(item.store.open_from, item.store.open_to); return <section className="kzStoreCard">
           <div className="kzStoreCardTop">
             <div>
@@ -364,7 +365,8 @@ export default function ListingDetails({
       </div>
       <div className="listingInfo">
         <h3>Elan haqqında</h3>
-        <p className="description" translate="no">{item.description}</p>
+        {facts.length > 0 && <dl className="kzKeyFacts">{facts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
+        <ExpandableText text={item.description} lines={6} className="description" />
         {!item.demo && <div className="publicListingMeta footMeta">{item.listing_no&&<span>Elan № {item.listing_no}</span>}{(()=>{const edited=(item as Listing&{updated_at?:string}).updated_at||item.created_at,lifted=shownAt(item),updated=Date.parse(lifted)>Date.parse(edited)?lifted:edited;return updated&&Number.isFinite(Date.parse(updated))?<span>Yeniləndi: {publicDate(updated)}</span>:null;})()}{/* A small number makes a listing look unpopular: visitors see the count from 15 views, the owner always. */}{publicInfo?.views!==undefined&&Number.isFinite(Number(publicInfo.views))&&(effectiveOwner||Number(publicInfo.views)>=15)&&<span>Baxış sayı: {Number(publicInfo.views)}</span>}</div>}
 
         <dl ref={specsList} className={`detailSpecs${specsOpen ? "" : " kzSpecsCollapsed"}`}>

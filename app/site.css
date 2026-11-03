@@ -3045,3 +3045,17 @@ input[type=password]::placeholder{letter-spacing:normal!important}
 /* Müvəqqəti test açarları (admin donmasının səbəbini telefonda tapmaq üçün, ?test=...). */
 .kz-test-noimg .kzAdm img{display:none!important}
 .kz-test-nosvg .kzAdm svg{display:none!important}
+/* Yan menyu "Bizimlə əlaqə": yığcam qrup — e-poçt bir sətirdə, Instagram və TikTok yan-yana. */
+.siteMenuPanel.kzSide .siteContact{gap:2px!important;padding-top:12px!important}
+.siteMenuPanel.kzSide .siteContact>strong{margin-bottom:2px!important}
+.siteMenuPanel.kzSide .siteContact .socialLinks{display:flex!important;flex-wrap:wrap;gap:0 22px!important}
+.siteMenuPanel.kzSide .siteContact .kzContactLine,.siteMenuPanel.kzSide .siteContact .socialLinks a{min-height:32px!important;gap:8px!important}
+/* Mobil başlıq: "Yeni elan" — yuvarlaq dairə əvəzinə səliqəli düymə (mətnli). */
+@media (max-width:767px){
+  .kzMobilePublish .kzHeadPublish{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 12px 0 10px;border-radius:9px;background:var(--kz-accent);color:#fff;font-size:13px;font-weight:600;line-height:1;white-space:nowrap;box-shadow:none}
+  .kzMobilePublish .kzHeadPublish svg{width:16px!important;height:16px!important;flex:none}
+}
+@media (max-width:359px){.kzMobilePublish .kzHeadPublish{padding:0 9px}.kzMobilePublish .kzHeadPublish>span{display:none}}
+/* Story pəncərəsi: pəncərənin özü fokus alır, X ətrafında rəngli çərçivə çəkilmir. */
+.kzStoryDlg:focus{outline:none}
+.kzStoryClose:focus:not(:focus-visible){outline:none!important;box-shadow:none!important}

@@ -2,8 +2,8 @@
 import QRCode from "qrcode";
 import { money, periodName, type Listing } from "./marketplace";
 
-// A ready picture for Instagram / TikTok / WhatsApp story (1080×1920, 9:16): the photo with a small QR code
-// in its corner (opens the listing), then title, city and price. Drawn in the browser, nothing is uploaded.
+// A ready picture for Instagram / TikTok / WhatsApp story (1080×1920, 9:16): brand, the photo as a rounded
+// card, title, place and price, and a QR code (opens the listing) in a white panel at the bottom. Drawn in the browser, nothing is uploaded.
 // Rounded rectangle that also works on older Safari (no CanvasRenderingContext2D.roundRect there).
 function rounded(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
@@ -15,56 +15,61 @@ export async function makeShareCard(item: Listing, site = "https://kirayeal.az")
   if (!c) throw new Error("canvas");
   await Promise.race([document.fonts?.ready, new Promise(resolve => setTimeout(resolve, 1500))]);
   const family = getComputedStyle(document.body).fontFamily || "Inter, Arial, sans-serif";
-  c.fillStyle = "#ffffff"; c.fillRect(0, 0, W, H);
+  // Layout: soft background, brand on top, the photo as a rounded card, then title, place and price,
+  // and at the bottom a white panel with a QR code that opens the listing.
+  const M = 64, ink = "#111827", muted = "#6b7280";
+  c.fillStyle = "#f4f5f7"; c.fillRect(0, 0, W, H);
 
-  // Photo, cropped to fill the top. Nothing is drawn over it except a small QR square in the corner.
-  const photoH = 1240;
+  // Brand.
+  c.textBaseline = "middle"; c.font = `800 52px ${family}`;
+  c.fillStyle = "#143f3b"; c.fillText("kirayeal", M, 104);
+  const brandW = c.measureText("kirayeal").width;
+  c.fillStyle = "#ff5a1f"; c.fillText(".az", M + brandW, 104);
+  c.fillStyle = muted; c.font = `500 30px ${family}`; c.textAlign = "right";
+  c.fillText("Kirayə elanı", W - M, 106); c.textAlign = "left";
+
+  // Photo card.
+  const photoY = 172, photoH = 1040, photoW = W - 2 * M;
   const src = item.images?.[0];
   const img = src ? await new Promise<HTMLImageElement | null>(resolve => { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => resolve(i); i.onerror = () => resolve(null); i.src = src; setTimeout(() => resolve(null), 8000); }) : null;
+  c.save(); rounded(c, M, photoY, photoW, photoH, 36); c.clip();
   if (img && img.naturalWidth) {
-    const scale = Math.max(W / img.naturalWidth, photoH / img.naturalHeight), w = img.naturalWidth * scale, h = img.naturalHeight * scale;
-    // Clip to the photo area: a tall photo must never spill over the title below it.
-    c.save(); c.beginPath(); c.rect(0, 0, W, photoH); c.clip();
-    c.drawImage(img, (W - w) / 2, (photoH - h) / 2, w, h);
-    c.restore();
-  } else { c.fillStyle = "#f3f4f6"; c.fillRect(0, 0, W, photoH); }
+    const scale = Math.max(photoW / img.naturalWidth, photoH / img.naturalHeight), w = img.naturalWidth * scale, h = img.naturalHeight * scale;
+    c.drawImage(img, M + (photoW - w) / 2, photoY + (photoH - h) / 2, w, h);
+  } else { c.fillStyle = "#e5e7eb"; c.fillRect(M, photoY, photoW, photoH); }
+  c.restore();
 
-  // QR code that opens the listing: a small white square in the top-right corner of the photo.
-  const qr = document.createElement("canvas"), qrSize = 168, box = qrSize + 24;
-  await QRCode.toCanvas(qr, `${site}/listings/${item.id}`, { margin: 1, width: qrSize, color: { dark: "#13312e", light: "#ffffff" } });
-  c.fillStyle = "#ffffff"; rounded(c, W - 48 - box, 48, box, box, 18); c.fill();
-  c.drawImage(qr, W - 48 - box + 12, 60, qrSize, qrSize);
-
-  // Below the photo: title (three lines at most), city and the price.
-  c.fillStyle = "#111827"; c.font = `700 60px ${family}`; c.textBaseline = "top";
+  // Title (two lines at most), place and price.
+  c.textBaseline = "top"; c.fillStyle = ink; c.font = `700 58px ${family}`;
   const words = item.title.split(/\s+/), lines: string[] = [];
   let line = "";
   for (const word of words) {
     const next = line ? `${line} ${word}` : word;
-    if (c.measureText(next).width > W - 112 && line) { lines.push(line); line = word; if (lines.length === 3) break; } else line = next;
+    if (c.measureText(next).width > W - 2 * M && line) { lines.push(line); line = word; if (lines.length === 2) break; } else line = next;
   }
-  if (lines.length < 3 && line) lines.push(line);
-  if (lines.length === 3 && words.join(" ").length > lines.join(" ").length) lines[2] = `${lines[2].replace(/\s*\S*$/, "")}…`;
-  let y = photoH + 52;
-  lines.forEach(text => { c.fillText(text, 56, y); y += 74; });
-  c.fillStyle = "#6b7280"; c.font = `500 40px ${family}`;
-  c.fillText(`${item.city}${item.district ? `, ${item.district}` : ""}`, 56, y + 10);
-  y += 82;
+  if (lines.length < 2 && line) lines.push(line);
+  if (lines.length === 2 && words.join(" ").length > lines.join(" ").length) lines[1] = `${lines[1].replace(/\s*\S*$/, "")}…`;
+  let y = photoY + photoH + 52;
+  lines.forEach(text => { c.fillText(text, M, y); y += 72; });
+  c.fillStyle = muted; c.font = `500 38px ${family}`;
+  c.fillText(`${item.city}${item.district ? `, ${item.district}` : ""}`, M, y + 8);
+  y += 70;
   const price = `${money(item.price)} ₼`, unit = ` / ${periodName(item.rental_period)}`;
-  c.fillStyle = "#ff5a1f"; c.font = `800 64px ${family}`; c.fillText(price, 56, y);
+  c.fillStyle = "#ff5a1f"; c.font = `800 62px ${family}`; c.fillText(price, M, y);
   const priceW = c.measureText(price).width;
-  c.fillStyle = "#6b7280"; c.font = `600 40px ${family}`; c.fillText(unit, 56 + priceW, y + 20);
+  c.fillStyle = muted; c.font = `600 38px ${family}`; c.fillText(unit, M + priceW, y + 20);
 
-  // Bottom bar: brand on the left, short line on the right.
-  const barH = 190, barY = H - barH;
-  c.fillStyle = "#13312e"; c.fillRect(0, barY, W, barH);
-  c.textBaseline = "middle"; c.font = `800 68px ${family}`;
-  c.fillStyle = "#ffffff"; c.fillText("kirayeal", 56, barY + barH / 2);
-  const brandW = c.measureText("kirayeal").width;
-  c.fillStyle = "#ff7a33"; c.fillText(".az", 56 + brandW, barY + barH / 2);
-  c.fillStyle = "rgba(255,255,255,0.78)"; c.font = `500 34px ${family}`; c.textAlign = "right";
-  c.fillText("Azərbaycanda kirayə elanları", W - 56, barY + barH / 2);
-  c.textAlign = "left";
+  // Bottom panel with the QR code.
+  const panelH = 236, panelY = H - M - panelH, qrSize = 180;
+  c.fillStyle = "#ffffff"; rounded(c, M, panelY, W - 2 * M, panelH, 32); c.fill();
+  const qr = document.createElement("canvas");
+  await QRCode.toCanvas(qr, `${site}/listings/${item.id}`, { margin: 0, width: qrSize, color: { dark: "#111827", light: "#ffffff" } });
+  c.drawImage(qr, W - M - 28 - qrSize, panelY + (panelH - qrSize) / 2, qrSize, qrSize);
+  c.textBaseline = "middle"; c.fillStyle = ink; c.font = `700 40px ${family}`;
+  c.fillText("Elana baxmaq üçün", M + 40, panelY + 82);
+  c.fillText("QR kodu skan edin", M + 40, panelY + 132);
+  c.fillStyle = muted; c.font = `500 30px ${family}`;
+  c.fillText(`kirayeal.az${item.listing_no ? ` · № ${item.listing_no}` : ""}`, M + 40, panelY + 184);
 
   return await new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error("image")), "image/jpeg", 0.9));
 }

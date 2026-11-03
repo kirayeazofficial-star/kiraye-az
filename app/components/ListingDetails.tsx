@@ -16,6 +16,7 @@ import ListingSuggestions from "./ListingSuggestions";
 import BannerStrip from "./BannerStrip";
 import SideBanners from "./SideBanners";
 import ImageViewer from "./ImageViewer";
+import GalleryPhoto from "./GalleryPhoto";
 import NavigationIcon from './NavigationIcon';
 import PromotionBadges from "./PromotionBadges";
 import PhotoMark from "./PhotoMark";
@@ -211,9 +212,8 @@ export default function ListingDetails({
             if (!swiped.current) { setImage(i); setViewerOpen(true); }
             swiped.current = false;
           }}>
-            {Math.abs(i - selectedImage) <= 1 && <img className="listingMainImage" src={sized(src, i === selectedImage ? "view" : "thumb")} alt={`${item.title} — ${i + 1}-ci şəkil`} loading={i === 0 ? "eager" : "lazy"} decoding="async" draggable={false}
-              onLoad={event => { const img = event.currentTarget; if (i === 0 && img.naturalWidth && img.naturalHeight) setPhotoRatio(Math.min(16 / 9, Math.max(1, img.naturalWidth / img.naturalHeight))); }}
-              onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/placeholder.svg"; }} />}
+            {Math.abs(i - selectedImage) <= 1 && <GalleryPhoto key={src} src={src} alt={`${item.title} — ${i + 1}-ci şəkil`}
+              onDimensions={i === 0 ? (width, height) => setPhotoRatio(Math.min(16 / 9, Math.max(1, width / height))) : undefined} />}
           </button>)}
         </div>
         <PhotoMark src={item.images?.[selectedImage]} />

@@ -447,12 +447,11 @@ export default function AdminWorkspace() {
           {income && !income.total && <p className="kzAdMuted">Ödəniş sistemi qoşulduqdan sonra daxil olan ödənişlər burada avtomatik hesablanacaq.</p>}
         </Panel>
         <Panel title="Son fəaliyyətlər" actions={<button type="button" className="kzAdBtn" onClick={() => open("history")}>Hamısı</button>}>
-          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.map(item => <li key={item.id}>
-            <span className={`kzAdDot ${item.new_status || ""}`} aria-hidden="true" />
-            <div><p><strong>{item.actor_name || "İdarəçi"}</strong> · {moderationActions[item.action] || item.action}{item.new_status ? ` — ${statusName(item.new_status)}` : ""}</p>
-              <button type="button" className="kzAdLink" onClick={() => inspect(item.listing_id)}>{item.title || "Silinmiş elan"}</button>
-              {item.reason && <p className="kzAdReason">Səbəb: {item.reason}</p>}</div>
-            <time>{adminDate(item.created_at)}</time>
+          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.slice(0, 4).map(item => <li key={item.id}>
+            <div className="kzActivityHeading"><span className={`kzActivityStatus ${item.new_status || ""}`}>{moderationActions[item.action] || "Elan yeniləndi"}</span><time dateTime={item.created_at}>{adminDate(item.created_at)}</time></div>
+            <button type="button" className="kzAdLink kzActivityTitle" translate="no" onClick={() => inspect(item.listing_id)}>{item.title || "Silinmiş elan"}</button>
+            <p className="kzActivityActor" translate="no">{item.actor_name || "İdarəçi"}</p>
+            {item.reason && <details className="kzAdReasonDisclosure"><summary><ChevronDown aria-hidden="true" size={16} strokeWidth={2} />Qərarın səbəbi</summary><p className="kzActivityReason" translate="no">{item.reason}</p></details>}
           </li>)}</ul>}
         </Panel>
 

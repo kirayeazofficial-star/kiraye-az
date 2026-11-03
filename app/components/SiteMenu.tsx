@@ -1,6 +1,6 @@
 "use client";
 import TabIcon from "./TabIcon";
-import { ChevronRight, CirclePlus, Heart, LayoutGrid, LifeBuoy, Lock, Menu, MessageCircle, ShieldCheck, User, X, type LucideIcon, FileText } from "lucide-react";
+import { ChevronRight, CirclePlus, LayoutGrid, LifeBuoy, Lock, Menu, ShieldCheck, X, type LucideIcon, FileText } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -63,7 +63,7 @@ export default function SiteMenu() {
         }
       }}>
         <div className="siteMenuHeading">
-          <Link className="logo" href="/" onClick={() => setOpen(false)}>kirayeal<span>.az</span><small>{t("KİRAYƏ ÜÇÜN BİR ÜNVAN")}</small></Link>
+          <Link className="logo" href="/" onClick={() => setOpen(false)}>kirayeal<span>.az</span></Link>
           <button className="siteMenuClose" type="button" aria-label={t("Menyunu bağla")} onClick={() => setOpen(false)}>
             <X aria-hidden="true" size={22} strokeWidth={2} />
           </button>

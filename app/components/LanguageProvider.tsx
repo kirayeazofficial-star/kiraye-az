@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { extraDictionary } from "../../lib/i18n";
 export type Language = "az" | "ru" | "en";
 const dictionary: Record<string, [string, string]> = {
+ "Qərarın səbəbi":["Причина решения","Decision reason"],"Şəkil yüklənir…":["Загрузка фотографии…","Loading photo…"],"Elan yeniləndi":["Объявление обновлено","Listing updated"],
  "Elanlar üzrə yazışmalarınız":["Ваша переписка по объявлениям","Your listing conversations"],
  "Yazışmaların sayı":["Количество переписок","Conversation count"],
  "Hələ yazışmanız yoxdur":["У вас пока нет переписок","No conversations yet"],

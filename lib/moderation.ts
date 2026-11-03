@@ -1,13 +1,13 @@
 export const rejectionReasons = [
- "Şəkillər elana uyğun deyil. Zəhmət olmasa düzgün şəkillər əlavə et.",
- "Birinci şəkil kirayə verilən əşyanın özünü göstərməlidir (tualet, balkon, küçə, sənəd və ya ekran şəkli olmaz). Şəkillərin sırasını dəyişib yenidən göndər.",
- "Şəkillərdə başqa saytın loqosu və ya su nişanı var. Öz çəkdiyin şəkilləri əlavə et.",
- "Şəkillər başqa elandan götürülüb. Yalnız kirayə verdiyin əşyanın öz şəkillərini əlavə et.",
- "Təsvirdə və ya başlıqda telefon nömrəsi, link və ya reklam var. Onları silib elanı yenidən göndər.",
- "Elan yanlış kateqoriyada yerləşdirilib. Uyğun kateqoriyanı seç.",
- "Bu elan təkrar yerləşdirilib. Mövcud elanını redaktə et.",
- "Elan məlumatları natamamdır. Qiymət və kirayə şərtlərini dəqiqləşdir.",
- "Elanın məzmunu saytın qaydalarına uyğun deyil. Qaydaları nəzərdən keçir.",
+ "Şəkillər elana uyğun deyil. Elana uyğun şəkillər əlavə edin.",
+ "Birinci şəkil kirayə verilən əşyanın özünü göstərməlidir (tualet, balkon, küçə, sənəd və ya ekran şəkli olmaz). Şəkillərin sırasını dəyişib elanı yenidən göndərin.",
+ "Şəkillərdə başqa saytın loqosu və ya su nişanı var. Öz çəkdiyiniz şəkilləri əlavə edin.",
+ "Şəkillər başqa elandan götürülüb. Yalnız kirayə verdiyiniz əşyanın şəkillərini əlavə edin.",
+ "Təsvirdə və ya başlıqda telefon nömrəsi, link və ya reklam var. Onları silib elanı yenidən göndərin.",
+ "Elan yanlış kateqoriyada yerləşdirilib. Uyğun kateqoriyanı seçin.",
+ "Bu elan təkrar yerləşdirilib. Mövcud elanınızı redaktə edin.",
+ "Elan məlumatları natamamdır. Qiymət və kirayə şərtlərini dəqiqləşdirin.",
+ "Elanın məzmunu saytın qaydalarına uyğun deyil. Qaydaları nəzərdən keçirin.",
 ];
 export const moderationActions: Record<string,string> = {restored:"Bərpa edildi",submitted:"Elan göndərildi",resubmitted:"Dəyişiklik təkrar yoxlamaya göndərildi",approved:"Təsdiqləndi",rejected:"Rədd edildi",edited:"Məlumat dəyişdirildi",status_changed:"Vəziyyət dəyişdirildi",deleted:"Elan silindi",images_reordered:"Şəkillərin sırası dəyişdirildi"};
 export const moderationFields: Record<string,string> = {title:"Başlıq",description:"Təsvir",category:"Kateqoriya",city:"Şəhər",district:"Rayon",price:"Qiymət",rental_period:"Qiymət vahidi",contact:"Əlaqə nömrəsi",images:"Şəkillər",attributes:"Xüsusiyyətlər",deposit:"Depozit",min_days:"Minimum müddət",rooms:"Otaq sayı",area_m2:"Sahə",available_from:"Başlanğıc tarixi",available_until:"Son tarix"};

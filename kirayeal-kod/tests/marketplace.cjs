@@ -16,6 +16,7 @@ const pass=name=>{passed++;console.log('PASS',name)};
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    const response=await page.goto(base);assert.ok(response.ok(),'Local server must be running');
    await page.locator('.kzCategories').waitFor();await page.waitForFunction(()=>!document.querySelector('.kzSkeleton'));
+   if(width>=768){const contrast=await page.locator('.kzSearch button').evaluate(n=>{const s=getComputedStyle(n);return {text:s.color,background:s.backgroundColor}});assert.notEqual(contrast.text,contrast.background,'Search label must remain visible on its button');}
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
    assert.ok(await page.locator('.kzCard').count()<=18);
    const checkNavigation=async()=>{

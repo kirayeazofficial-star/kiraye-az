@@ -2,6 +2,7 @@
 import TabIcon from "./TabIcon";
 import { sized } from "../../lib/image-size";
 import Notice from "./Notice";
+import type { NoticeKind } from "../../lib/toast";
 import { Calculator, ChevronDown, Flag, ChevronLeft, ChevronRight, MapPin, Pencil, Phone, Share2, Store, TrendingDown } from "lucide-react";
 import { storeOpenState } from "../../lib/store-hours";
 import { WhatsAppIcon } from "./BrandIcons";
@@ -63,6 +64,8 @@ export default function ListingDetails({
     [report, setReport] = useState(false),
     [busy, setBusy] = useState(false),
     [reported, setReported] = useState(false);
+  const [noticeKind, setNoticeKind] = useState<NoticeKind>("info");
+  function notify(text: string, kind: NoticeKind) { setNoticeKind(kind); setNotice(text); }
   useAutoClear(notice, () => setNotice(""));
   useEffect(()=>{
     if(item.demo||item.status!=="published")return;
@@ -129,7 +132,7 @@ export default function ListingDetails({
       window.dispatchEvent(new Event("kiraye:favorites"));
       setFavorite(!favorite);
     } catch {
-      setNotice("Seçilmişləri saxlamaq mümkün olmadı.");
+      notify("Seçilmişləri saxlamaq mümkün olmadı.", "error");
     }
   }
   async function share() {
@@ -138,18 +141,18 @@ export default function ListingDetails({
       if (navigator.share) await navigator.share({ title: item.title, url });
       else {
         await navigator.clipboard.writeText(url);
-        setNotice("Elanın keçidi kopyalandı.");
+        notify("Elanın keçidi kopyalandı.", "success");
       }
     } catch (err) {
       if (!(err instanceof Error && err.name === "AbortError"))
-        setNotice(`Elanın ünvanı: ${url}`);
+        notify(`Elanın ünvanı: ${url}`, "info");
     }
   }
   async function sendReport(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (busy) return;
     if (item.demo) {
-      setNotice("Nümunə elana şikayət göndərilmir.");
+      notify("Nümunə elana şikayət göndərilmir.", "info");
       return;
     }
     setBusy(true);
@@ -157,18 +160,19 @@ export default function ListingDetails({
     try {
       const message = String(form.get("message") ?? "").trim();
       if (message.length < 10 || message.length > 1000) {
-        setNotice("Əlavə məlumat 10–1000 simvol olmalıdır.");
+        notify("Əlavə məlumat 10–1000 simvol olmalıdır.", "error");
         return;
       }
       const response=await fetch('/api/listing-info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:item.id,reason:form.get('reason'),message})}),result=await response.json();
       if(!response.ok){if(result.error==='SIGN_IN_REQUIRED')throw new Error('SIGN_IN_REQUIRED');if(result.error==='OWN_LISTING')throw new Error('OWN_LISTING');throw new Error(result.error||'REPORT_FAILED');}
       setReported(true);
       setReport(false);
-      setNotice("Şikayətiniz qeydə alındı. İdarəçi yoxlayacaq.");
+      notify("Şikayətiniz qeydə alındı. İdarəçi yoxlayacaq.", "success");
     } catch (error) {
       const code = error instanceof Error ? error.message : '';
-      setNotice(
-        code === 'SIGN_IN_REQUIRED' ? 'Şikayət göndərmək üçün hesabına daxil ol.' : code === 'OWN_LISTING' ? 'Öz elanına şikayət göndərə bilməzsən. Elanı kabinetdən redaktə et.' : 'Şikayət göndərilmədi. Bir az sonra yenidən yoxla.',
+      notify(
+        code === 'SIGN_IN_REQUIRED' ? 'Şikayət göndərmək üçün hesabınıza daxil olun.' : code === 'OWN_LISTING' ? 'Öz elanınıza şikayət göndərmək mümkün deyil. Elanı kabinetinizdən redaktə edə bilərsiniz.' : 'Şikayət göndərilmədi. Bir qədər sonra yenidən cəhd edin.',
+        'error',
       );
     } finally {
       setBusy(false);
@@ -510,7 +514,7 @@ export default function ListingDetails({
             </div>
           </form>
         )}
-        <Notice text={notice} />
+        <Notice text={notice} kind={noticeKind} />
       </div>
       {mounted && !compact && !effectiveOwner && phone && !item.demo && createPortal(<div className={`stickyContact${stickyShown ? " shown" : ""}`} role="group" aria-label="Əlaqə" aria-hidden={!stickyShown}>
         {phoneShown ? <a className="add kzPhoneShown" href={`tel:${phone}`} aria-label={`Zəng et: ${formatContact(item.contact)}`}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />{formatContact(item.contact)}</a> : <button type="button" className="add" onClick={()=>setPhoneShown(true)}><Phone className="kzI kzIL" aria-hidden="true" size={17} strokeWidth={2.25} />Nömrəni göstər</button>}

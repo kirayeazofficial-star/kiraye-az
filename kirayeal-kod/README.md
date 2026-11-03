@@ -40,3 +40,5 @@ Build zamanı yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`) lazı
 `npm run test:gallery` üçün yerli bazada üç şəkilli sınaq elanının yolunu `KIRAYE_TEST_LISTING_PATH=/listings/<id>` ilə verin. Bu sınaq həqiqi toxunuşla sürüşməni, barmaq qalxmamış hərəkəti, tam ekran keçidini, ləğv edilmiş jesti, şəkil sərhədini, klaviaturanı, böyütməni, gec yüklənən şəkli və native dialog/decode API-si olmadıqda ehtiyat davranışı yoxlayır. Statistik baxış sorğusu sınaqda əvəz olunur; elan və mesaj yaradılmır.
 
 `npm run test:messages` yazışma məlumatlarını təcrid olunmuş cavablarla əvəz edir: uzun ad/mətn, 320–1440 px düzülüş, mətn sahəsinin avtomatik böyüməsi və gecikən cavabların düzgün yazışmada qalması yoxlanılır. Real mesaj göndərilmir.
+
+`npm run test:auth` Google düyməsi açıq halda giriş formasını, səhv şifrə/kodu, serverin `retry_at` gözləmə müddətini və şifrə bərpasının xəta/uğur fərqini yoxlayır. Cavablar təcrid olunur; real hesab dəyişdirilmir və məktub göndərilmir.

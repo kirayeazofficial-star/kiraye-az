@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Feedback from "./Feedback";
 // Shown only once Google sign-in is configured on the server (GOOGLE_CLIENT_ID/SECRET); until then nothing renders.
 export default function GoogleLogin() {
   const [enabled, setEnabled] = useState(false);
@@ -13,7 +14,7 @@ export default function GoogleLogin() {
   async function login() {
     if(enabled!==true||busy)return;setBusy(true);setNotice("");window.location.assign('/api/auth/google');
   }
-  if (enabled !== true) return notice ? <p className="notice" role="status">{notice}</p> : null;
+  if (enabled !== true) return notice ? <Feedback>{notice}</Feedback> : null;
   return (
     <div className="googleLogin">
       <button
@@ -43,9 +44,7 @@ export default function GoogleLogin() {
         {busy ? "Google-a yönləndirilir…" : "Google ilə davam et"}
       </button>
       {notice && (
-        <p className="notice" role="status">
-          {notice}
-        </p>
+        <Feedback>{notice}</Feedback>
       )}
       <div className="authDivider">
         <span>və ya</span>

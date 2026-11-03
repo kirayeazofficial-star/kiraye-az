@@ -6,7 +6,7 @@
 // Sizes: title 19px, text 14px/22px, details 14px, small print 12px.
 const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://kirayeal.az").replace(/\/$/, "");
 const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
-const INK = "#111827", TEXT = "#374151", MUTED = "#6b7280", FAINT = "#9ca3af", LINE = "#e5e7eb", PANEL = "#f8fafc", ACCENT = "#ff5a1f", BRAND = "#143f3b";
+const INK = "#111827", TEXT = "#374151", MUTED = "#6b7280", FAINT = "#9ca3af", LINE = "#e5e7eb", PANEL = "#f8fafc", ACCENT = "#cb4618", BRAND = "#104c43";
 // "kirayeal.az" in running text: a zero-width space after the dot stops Gmail / iPhone Mail from turning it into a blue link.
 const BRAND_TEXT = "kirayeal.&#8203;az";
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
@@ -51,9 +51,9 @@ export function codeLetter({ heading: title, name, intro, code, note, label = "T
         <span style="font-family:${FONT};font-size:28px;line-height:34px;font-weight:600;letter-spacing:8px;color:${INK};">${esc(code)}</span>
       </td></tr></table>
       <p style="margin:0 0 4px;text-align:center;font-family:${FONT};font-size:13px;line-height:20px;color:${MUTED};">${esc(note)}</p>
-      ${small("Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın — hesabınızda heç nə dəyişməyəcək. Təsdiq kodunu heç kimlə paylaşmayın: kirayeal.az əməkdaşları kodunuzu heç vaxt soruşmur.")}`;
-  const html = frame({ label, title, preheader: `${sentence(title)} Kod: ${code}`, body, footerNote: "Bu məktub avtomatik göndərilmişdir. Bu ünvana cavab göndərməyiniz tələb olunmur." });
-  const text = textLetter(title, [greeting(name), "", intro, "", `Kod: ${code}`, note, "", "Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın. Təsdiq kodunu heç kimlə paylaşmayın."]);
+      ${small(codeSafety)}`;
+  const html = frame({ label, title, preheader: `${sentence(title)} ${note}`, body, footerNote: automaticNote });
+  const text = textLetter(title, [greeting(name), "", intro, "", `Təsdiq kodu: ${code}`, note, "", codeSafety, "", automaticNote]);
   return { html, text };
 }
 
@@ -67,6 +67,22 @@ export function noticeLetter({ heading: title, name, intro, rows = [], button, n
   const cta = button ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 0;"><tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="background:${BRAND};border-radius:6px;"><a href="${esc(link(button.href))}" style="display:inline-block;padding:11px 26px;font-family:${FONT};font-size:14px;line-height:20px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;">${esc(button.text)}</a></td></tr></table></td></tr></table>` : "";
   const body = `${para(greeting(name), INK)}${para(intro)}${list}${cta}${note ? small(note) : ""}`;
   const html = frame({ label, title, preheader: intro, body, footerNote });
-  const text = textLetter(title, [greeting(name), "", intro, ...rows.map((row) => `• ${row.label}${row.value ? ` — ${row.value}` : ""}${row.href ? ` ${link(row.href)}` : ""}`), ...(button ? ["", `${button.text}: ${link(button.href)}`] : []), ...(note ? ["", note] : [])]);
+  const text = textLetter(title, [greeting(name), "", intro, ...rows.map((row) => `• ${row.label}${row.value ? ` — ${row.value}` : ""}${row.href ? ` ${link(row.href)}` : ""}`), ...(button ? ["", `${button.text}: ${link(button.href)}`] : []), ...(note ? ["", note] : []), "", footerNote]);
   return { html, text };
+}
+
+const automaticNote = "Bu məktub avtomatik göndərilib. Yardım üçün kirayeal.az@gmail.com ünvanına müraciət edə bilərsiniz.";
+const codeSafety = "Bu sorğunu siz göndərməmisinizsə, kodu daxil etməyin. Təsdiq kodunu heç kimlə paylaşmayın. kirayeal.az əməkdaşları sizdən təsdiq kodunu tələb etmir.";
+const verificationCopy = {
+  signup: { label: "Qeydiyyat", heading: "Qeydiyyatınızı təsdiqləyin", intro: "kirayeal.az saytında qeydiyyatınızı tamamlamaq üçün aşağıdakı təsdiq kodunu qeydiyyat səhifəsində daxil edin." },
+  recovery: { label: "Şifrə bərpası", heading: "Şifrənizi bərpa edin", intro: "Hesabınızın şifrəsini bərpa etmək üçün sorğu göndərilib. Aşağıdakı təsdiq kodunu şifrə bərpası səhifəsində daxil edin. Daha sonra yeni şifrə təyin edə bilərsiniz." },
+  email_change: { label: "E-poçt dəyişikliyi", heading: "E-poçt dəyişikliyini təsdiqləyin", intro: "Hesabınıza bağlı e-poçt ünvanının dəyişdirilməsi üçün sorğu göndərilib. Dəyişikliyi təsdiqləmək üçün aşağıdakı kodu şəxsi kabinetinizin «Profil» bölməsində daxil edin." },
+  staff_login: { label: "İdarəetmə paneli", heading: "İdarəetmə panelinə girişi təsdiqləyin", intro: "İdarəetmə panelinə yeni cihazdan giriş üçün sorğu göndərilib. Girişi təsdiqləmək üçün aşağıdakı kodu giriş səhifəsində daxil edin. Təsdiqdən sonra cihaz 3 gün ərzində yadda saxlanılacaq." },
+};
+
+// The subject and both message formats always describe the same operation.
+export function verificationLetter(purpose, name, code) {
+  const copy = verificationCopy[purpose];
+  if (!copy) throw new Error("Unknown verification purpose");
+  return { subject: `${copy.label} üçün təsdiq kodu — kirayeal.az`, ...codeLetter({ ...copy, name, code, note: "Kod göndərildiyi andan 10 dəqiqə ərzində etibarlıdır." }) };
 }

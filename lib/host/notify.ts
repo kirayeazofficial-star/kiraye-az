@@ -20,9 +20,9 @@ export async function notifyNewMessage(threadId:string,authorId:string){
     if(!await claim(row.peer,"message",`${threadId}:${row.peer}:${slot}`))return;
     await sendLetter(row.email,`Yeni mesaj: ${row.title}`.slice(0,120),noticeLetter({
       label:"Yeni mesaj",
-      heading:"Sizə yeni mesaj daxil olub",
+      heading:"Yeni mesajınız var",
       name:row.name,
-      intro:`${row.author||"Saytın istifadəçisi"} «${row.title}» elanı ilə bağlı sizə mesaj göndərib. Mesajı oxumaq və cavablandırmaq üçün aşağıdakı düyməyə keçin.`,
+      intro:`${row.author||"Saytın istifadəçisi"} «${row.title}» elanı ilə bağlı sizə mesaj göndərib. Mesajı oxumaq və cavablandırmaq üçün «Mesajı oxuyun» düyməsini seçin.`,
       button:{text:"Mesajı oxuyun",href:`/messages`},
       note:"Kirayə tarixlərini və digər şərtləri yazışmada dəqiqləşdirməyiniz tövsiyə olunur.",
     }));
@@ -40,7 +40,7 @@ export async function notifyRejected(listingId:string,reason:string){
       label:"Elan yoxlaması",
       heading:"Elanınız rədd edildi",
       name:row.name,
-      intro:`«${row.title}»${row.no?` (№ ${row.no})`:""} elanınız yoxlamadan keçmədi və saytda dərc olunmadı. Səbəbi aşağıda göstərilib. Elanı düzəldib yenidən yoxlamaya göndərə bilərsiniz.`,
+      intro:`«${row.title}»${row.no?` (№ ${row.no})`:""} elanınız yoxlamadan keçmədi və saytda dərc olunmadı. Rədd edilmə səbəbi aşağıda göstərilib. Müvafiq düzəlişləri etdikdən sonra elanı yenidən yoxlamaya göndərə bilərsiniz.`,
       rows:[{label:`Səbəb: ${reason}`}],
       button:{text:"Elanı redaktə edin",href:`/edit/${listingId}`},
       note:"Elan yerləşdirmə qaydaları ilə saytın «Qaydalar» bölməsində tanış ola bilərsiniz. Sualınız olarsa, kirayeal.az@gmail.com ünvanına elan nömrəsini qeyd etməklə yazın.",

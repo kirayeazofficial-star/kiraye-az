@@ -245,8 +245,8 @@ export default function Login({
     if (!/^\d{6}$/.test(token)) {
       setNotice(
         verification === "recovery"
-          ? "E-poçtunuza gələn 6 rəqəmli kodu yazın."
-          : "Məktubdakı 6 rəqəmli kodu yazın.",
+          ? "E-poçt ünvanınıza göndərilən 6 rəqəmli təsdiq kodunu daxil edin."
+          : "Məktubdakı 6 rəqəmli təsdiq kodunu daxil edin.",
       );
       return;
     }
@@ -400,15 +400,7 @@ export default function Login({
           )}
           {method === "email" && (
             <>
-              {!verification && (
-                <p className="authLead">
-                  {mode === "signup"
-                    ? "Elan yerləşdirmək və yazışmaq üçün hesab yaradın."
-                    : mode === "reset"
-                      ? "Hesabınıza bağlı e-poçt ünvanını yazın. Həmin ünvana 6 rəqəmli bərpa kodu göndəriləcək."
-                      : "Elanlarınızı və yazışmalarınızı idarə etmək üçün daxil olun."}
-                </p>
-              )}
+              {!verification && mode === "reset" && <p className="authLead">Hesabınıza bağlı e-poçt ünvanını yazın. Həmin ünvana 6 rəqəmli bərpa kodu göndəriləcək.</p>}
               {!verification ? (
                 <form
                   onSubmit={submit}
@@ -573,7 +565,7 @@ export default function Login({
                   </p>
                   {codeForm()}
                   {!busy && <div className="confirmationActions kzCodeHelp">
-                    <p className="mailHelp">Kod gəlmədi? «Spam» qovluğunu da yoxlayın.</p>
+                    <p className="mailHelp">Məktub daxil olmayıbsa, «Spam» qovluğunu yoxlayın və ya kodu yenidən göndərin.</p>
                     <button
                       className="link"
                       type="button"
@@ -612,14 +604,10 @@ export default function Login({
                   Yenidən cəhd üçün {requestCooldown >= 60 ? `${Math.ceil(requestCooldown / 60)} dəqiqə` : `${requestCooldown} saniyə`} gözləyin.
                 </p>
               )}
-              {!verification && <div className="authFooter">
+              {!verification && mode === "reset" && <div className="authFooter">
                 <a
                   className="link"
-                  href={
-                    mode === "login" && !verification
-                      ? `/login?mode=signup&next=${encodeURIComponent(next)}`
-                      : `/login?next=${encodeURIComponent(next)}`
-                  }
+                  href={`/login?next=${encodeURIComponent(next)}`}
                   aria-disabled={busy}
                   onClick={(event) => {
                     if (busy) {
@@ -635,9 +623,7 @@ export default function Login({
                     } catch {}
                   }}
                 >
-                  {mode === "login" && !verification
-                    ? "Hesabınız yoxdur? Qeydiyyatdan keçin"
-                    : "Hesabınız var? Daxil olun"}
+                  Girişə qayıt
                 </a>
               </div>}
             </>

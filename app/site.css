@@ -3042,3 +3042,6 @@ svg.lucide[width="12"],svg.lucide[width="13"],svg.lucide[width="14"],svg.lucide[
 input[type=password]{color:#6b7280!important;-webkit-text-fill-color:#6b7280!important;letter-spacing:.12em!important}
 input[type=password]::placeholder{letter-spacing:normal!important}
 .loginPage .authHint{display:block;margin:-6px 0 4px}
+/* Müvəqqəti test açarları (admin donmasının səbəbini telefonda tapmaq üçün, ?test=...). */
+.kz-test-noimg .kzAdm img{display:none!important}
+.kz-test-nosvg .kzAdm svg{display:none!important}

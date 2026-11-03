@@ -1,4 +1,5 @@
-import {open,readFile,stat} from "node:fs/promises";
+import {open,readFile,stat,writeFile} from "node:fs/promises";
+import {makeThumbnail,queuedThumbnail} from "../../../../../lib/host/thumbnail";
 import path from "node:path";
 import {NextResponse} from "next/server";
 
@@ -16,6 +17,20 @@ export async function GET(request:Request,{params}:{params:Promise<{owner:string
       // falling back to the next bigger one for older photos: thumb → share (1200 px) → original.
       const size=new URL(request.url).searchParams.get("s"),plain=/^(?:thumb-|share-)/.test(file)?null:file;
       const tries=plain&&size==="thumb"?[`thumb-${plain}`,`share-${plain}`]:plain&&size==="view"?[`share-${plain}`]:[];
+      if(plain&&size==="thumb"){
+        // Older photos have no small copy yet: make it once from the 1200 px copy (or the original), keep it on
+        // disk next to the photo, and send that. Phones then never load the 1–4 MB original in lists.
+        const thumbPath=path.join(root,owner,`thumb-${plain}`);
+        const ready=await readFile(thumbPath).catch(()=>null);
+        if(ready)return new NextResponse(ready,{headers:{"Content-Type":types.jpg,...cache}});
+        const made=await queuedThumbnail(thumbPath,async()=>{
+          const source=await readFile(path.join(root,owner,`share-${plain}`)).catch(()=>null)||await readFile(location);
+          const small=makeThumbnail(source);
+          await writeFile(thumbPath,small,{mode:0o600,flag:"wx"}).catch(()=>{});
+          return small;
+        });
+        if(made)return new NextResponse(made,{headers:{"Content-Type":types.jpg,...cache}});
+      }
       for(const name of tries){const found=await readFile(path.join(root,owner,name)).catch(()=>null);if(found)return new NextResponse(found,{headers:{"Content-Type":types.jpg,...cache}});}
       return new NextResponse(await readFile(location),{headers:{"Content-Type":types.jpg,...cache}});
     }

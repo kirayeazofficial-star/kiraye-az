@@ -1,64 +1,72 @@
-// One branded letter frame for every e-mail kirayeal.az sends: the site itself (lib/host/email-template.ts)
-// and the 5-minute notice job (scripts/notify-tasks.mjs) both use this file, so all letters look the same.
-// E-mail apps (Gmail, Outlook, iPhone Mail) ignore stylesheets and web fonts: tables, inline styles and a
-// safe font stack only. Sizes: one calm scale — heading 17px, text and rows 14px/22px, small print 12px.
+// One letter design for every e-mail kirayeal.az sends: the site itself (lib/host/email-template.ts) and the
+// 5-minute notice job (scripts/notify-tasks.mjs) both use this file, so all letters look the same.
+// Layout in the manner of bank and security letters: brand on top, a small topic line, a centred title,
+// then the text, a details panel, one button and the signature. E-mail apps (Gmail, Outlook, iPhone Mail)
+// ignore stylesheets and web fonts, so only tables, inline styles and a safe font stack are used.
+// Sizes: title 19px, text 14px/22px, details 14px, small print 12px.
 const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://kirayeal.az").replace(/\/$/, "");
-const FONT = "'Helvetica Neue',Helvetica,Arial,sans-serif";
-const INK = "#111827", TEXT = "#374151", MUTED = "#6b7280", LINE = "#e5e7eb", ACCENT = "#ff5a1f", BRAND = "#143f3b";
+const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
+const INK = "#111827", TEXT = "#374151", MUTED = "#6b7280", FAINT = "#9ca3af", LINE = "#e5e7eb", PANEL = "#f8fafc", ACCENT = "#ff5a1f", BRAND = "#143f3b";
 // "kirayeal.az" in running text: a zero-width space after the dot stops Gmail / iPhone Mail from turning it into a blue link.
 const BRAND_TEXT = "kirayeal.&#8203;az";
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 const link = (href) => (href.startsWith("http") ? href : `${site}${href}`);
 export const greeting = (name) => `Hörmətli ${String(name || "").trim() || "istifadəçi"},`;
+// Titles are full sentences, so they end with a full stop like the rest of the text.
+const sentence = (text) => { const value = String(text ?? "").trim(); return /[.!?:…]$/.test(value) ? value : `${value}.`; };
+const brandText = (text) => esc(text).replace(/kirayeal\.az/g, BRAND_TEXT);
 
-function frame({ title, preheader, body, footerNote }) {
-  return `<!doctype html><html lang="az"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light"><title>${esc(title)}</title></head>
-<body style="margin:0;padding:0;background:#f4f5f7;-webkit-text-size-adjust:100%;">
+function frame({ label, title, preheader, body, footerNote }) {
+  const year = new Date().getFullYear();
+  return `<!doctype html><html lang="az"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light"><title>${esc(sentence(title))}</title></head>
+<body style="margin:0;padding:0;background:#f3f4f6;-webkit-text-size-adjust:100%;">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${esc(preheader)}&#8199;&#847;&#8199;&#847;&#8199;&#847;</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f5f7;"><tr><td align="center" style="padding:20px 8px 28px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
-    <tr><td style="background:#ffffff;border:1px solid ${LINE};border-bottom:0;border-radius:12px 12px 0 0;padding:20px 24px 0;font-family:${FONT};">
-      <a href="${site}" style="font-size:20px;line-height:24px;font-weight:700;letter-spacing:-0.3px;color:${BRAND};text-decoration:none;">kirayeal<span style="color:${ACCENT};">.az</span></a>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f3f4f6;"><tr><td align="center" style="padding:28px 12px 32px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+    <tr><td align="center" style="padding:0 0 18px;font-family:${FONT};">
+      <a href="${site}" style="font-size:22px;line-height:26px;font-weight:700;letter-spacing:-0.4px;color:${BRAND};text-decoration:none;">kirayeal<span style="color:${ACCENT};">.az</span></a>
     </td></tr>
-    <tr><td style="background:#ffffff;border:1px solid ${LINE};border-top:0;border-radius:0 0 12px 12px;padding:4px 24px 26px;font-family:${FONT};color:${TEXT};">
+    <tr><td style="background:#ffffff;border:1px solid ${LINE};border-radius:10px;padding:30px 28px 28px;font-family:${FONT};color:${TEXT};">
+      <p style="margin:0 0 8px;text-align:center;font-family:${FONT};font-size:12px;line-height:16px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:${MUTED};">${esc(label)}</p>
+      <h1 style="margin:0 0 22px;padding:0 0 22px;border-bottom:1px solid ${LINE};text-align:center;font-family:${FONT};font-size:19px;line-height:26px;font-weight:600;color:${INK};">${esc(sentence(title))}</h1>
       ${body}
-      <p style="margin:22px 0 0;font-size:14px;line-height:22px;color:${TEXT};">Hörmətlə,<br>${BRAND_TEXT} komandası</p>
+      <p style="margin:26px 0 0;font-family:${FONT};font-size:14px;line-height:22px;color:${TEXT};">Hörmətlə,<br>${BRAND_TEXT} komandası</p>
     </td></tr>
-    <tr><td style="padding:22px 16px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${MUTED};text-align:center;">
-      <a href="${site}" style="color:${INK};font-weight:700;text-decoration:none;">kirayeal.az</a> — Azərbaycanda kirayə elanları<br>
-      <a href="${site}/help" style="color:${MUTED};text-decoration:underline;">Kömək</a> &nbsp;·&nbsp; <a href="${site}/rules" style="color:${MUTED};text-decoration:underline;">Qaydalar</a> &nbsp;·&nbsp; <a href="https://www.instagram.com/kirayeal.az/" style="color:${MUTED};text-decoration:underline;">Instagram</a> &nbsp;·&nbsp; <a href="mailto:kirayeal.az@gmail.com" style="color:${MUTED};text-decoration:underline;">kirayeal.az@gmail.com</a><br>
-      <span style="color:#9ca3af;">${esc(footerNote)}</span>
+    <tr><td align="center" style="padding:20px 20px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${MUTED};">
+      ${esc(footerNote)}<br>
+      <a href="${site}/help" style="color:${MUTED};text-decoration:underline;">Kömək</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${site}/rules" style="color:${MUTED};text-decoration:underline;">Qaydalar</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${site}/privacy" style="color:${MUTED};text-decoration:underline;">Məxfilik</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="mailto:kirayeal.az@gmail.com" style="color:${MUTED};text-decoration:underline;">kirayeal.az@gmail.com</a><br>
+      <span style="color:${FAINT};">© ${year} ${BRAND_TEXT} — Azərbaycanda kirayə elanları</span>
     </td></tr>
   </table>
 </td></tr></table></body></html>`;
 }
-// Headings are full sentences, so they end with a full stop like the rest of the text.
-const sentence = (text) => { const value = String(text ?? "").trim(); return /[.!?:…]$/.test(value) ? value : `${value}.`; };
-const heading = (text) => `<h1 style="margin:14px 0 12px;padding-top:14px;border-top:1px solid #f0f1f3;font-family:${FONT};font-size:17px;line-height:24px;font-weight:600;color:${INK};">${esc(sentence(text))}</h1>`;
-const para = (text, color = TEXT) => `<p style="margin:0 0 14px;font-family:${FONT};font-size:14px;line-height:22px;color:${color};">${esc(text).replace(/kirayeal\.az/g, BRAND_TEXT)}</p>`;
+const para = (text, color = TEXT, margin = "0 0 16px") => `<p style="margin:${margin};font-family:${FONT};font-size:14px;line-height:22px;color:${color};">${brandText(text)}</p>`;
+const small = (text) => `<p style="margin:22px 0 0;padding:14px 16px;border-radius:8px;background:${PANEL};font-family:${FONT};font-size:12px;line-height:18px;color:${MUTED};">${brandText(text)}</p>`;
+const textLetter = (title, lines) => ["kirayeal.az", "", sentence(title), "", ...lines, "", "Hörmətlə,", "kirayeal.az komandası", "", site].join("\n");
 
-// Confirmation / recovery code.
-export function codeLetter({ heading: title, name, intro, code, note }) {
-  const body = `${heading(title)}${para(greeting(name), INK)}${para(intro)}
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 16px;"><tr><td align="center" style="background:#fff5f0;border:1px solid #ffd9c7;border-radius:10px;padding:12px;">
-        <span style="font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:24px;line-height:30px;font-weight:700;letter-spacing:6px;color:#d9440c;">${esc(code)}</span>
+// Confirmation / recovery / staff sign-in code.
+export function codeLetter({ heading: title, name, intro, code, note, label = "Təsdiq kodu" }) {
+  const body = `${para(greeting(name), INK)}${para(intro)}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 8px;"><tr><td align="center" style="background:${PANEL};border:1px solid ${LINE};border-radius:8px;padding:16px 12px;">
+        <span style="font-family:${FONT};font-size:28px;line-height:34px;font-weight:600;letter-spacing:8px;color:${INK};">${esc(code)}</span>
       </td></tr></table>
-      ${para(note)}
-      <p style="margin:18px 0 0;padding:12px 14px;border-radius:8px;background:#f9fafb;font-family:${FONT};font-size:12px;line-height:18px;color:${MUTED};">Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın — hesabınızda heç nə dəyişməyəcək. Kodu heç kimə deməyin: ${BRAND_TEXT} əməkdaşları kodunuzu heç vaxt soruşmur.</p>`;
-  const html = frame({ title, preheader: `${title}: ${code}`, body, footerNote: "Bu məktub avtomatik göndərilib, cavab yazmağa ehtiyac yoxdur." });
-  const text = ["kirayeal.az", "", sentence(title), "", greeting(name), "", intro, "", code, "", note, "", "Hörmətlə,", "kirayeal.az komandası", "", "Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın. Kodu heç kimə deməyin.", "", site].join("\n");
+      <p style="margin:0 0 4px;text-align:center;font-family:${FONT};font-size:13px;line-height:20px;color:${MUTED};">${esc(note)}</p>
+      ${small("Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın — hesabınızda heç nə dəyişməyəcək. Kodu heç kimə deməyin: kirayeal.az əməkdaşları kodunuzu heç vaxt soruşmur.")}`;
+  const html = frame({ label, title, preheader: `${sentence(title)} Kod: ${code}`, body, footerNote: "Bu məktub avtomatik göndərilib, cavab yazmağa ehtiyac yoxdur." });
+  const text = textLetter(title, [greeting(name), "", intro, "", `Kod: ${code}`, note, "", "Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın. Kodu heç kimə deməyin."]);
   return { html, text };
 }
 
-// Notice (new message, rejected or expiring listing, saved search, weekly report): heading, short text,
-// optional rows and one button.
-export function noticeLetter({ heading: title, name, intro, rows = [], button, note, footerNote = "Bu məktub avtomatik göndərilib. Bildirişləri kabinetdə, «Profil» bölməsində söndürə bilərsiniz." }) {
-  const cell = (i) => `padding:9px 12px;${i ? `border-top:1px solid #f0f1f3;` : ""}font-family:${FONT};font-size:14px;line-height:20px;`;
-  const list = rows.length ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 18px;border:1px solid ${LINE};border-radius:10px;border-collapse:separate;">${rows.map((row, i) => `<tr><td style="${cell(i)}${row.value !== undefined ? `color:${MUTED};white-space:nowrap;` : `color:${INK};`}">${row.href ? `<a href="${esc(link(row.href))}" style="color:${INK};text-decoration:none;font-weight:600;">${esc(row.label)}</a>` : esc(row.label)}</td>${row.value !== undefined ? `<td align="right" style="${cell(i)}color:${INK};">${esc(row.value)}</td>` : ""}</tr>`).join("")}</table>` : "";
-  const cta = button ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 0;"><tr><td align="center" style="background:${ACCENT};border-radius:8px;"><a href="${esc(link(button.href))}" style="display:inline-block;padding:9px 18px;font-family:${FONT};font-size:14px;line-height:20px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">${esc(button.text)}</a></td></tr></table>` : "";
-  const extra = note ? `<p style="margin:20px 0 0;padding-top:14px;border-top:1px solid #f0f1f3;font-family:${FONT};font-size:12px;line-height:18px;color:${MUTED};">${esc(note)}</p>` : "";
-  const body = `${heading(title)}${para(greeting(name), INK)}${para(intro)}${list}${cta}${extra}`;
-  const html = frame({ title, preheader: intro, body, footerNote });
-  const text = ["kirayeal.az", "", sentence(title), "", greeting(name), "", intro, ...rows.map((row) => `• ${row.label}${row.value ? ` — ${row.value}` : ""}${row.href ? ` ${link(row.href)}` : ""}`), ...(button ? ["", `${button.text}: ${link(button.href)}`] : []), "", "Hörmətlə,", "kirayeal.az komandası", ...(note ? ["", note] : [])].join("\n");
+// Notice (security alert, new message, rejected or expiring listing, saved search, reports): text,
+// optional details panel, one button and an optional note.
+export function noticeLetter({ heading: title, name, intro, rows = [], button, note, label = "Bildiriş", footerNote = "Bu məktub avtomatik göndərilib. Bildirişləri kabinetdə, «Profil» bölməsində söndürə bilərsiniz." }) {
+  const cell = (i) => `padding:11px 16px;${i ? `border-top:1px solid ${LINE};` : ""}font-family:${FONT};font-size:14px;line-height:20px;vertical-align:top;`;
+  const list = rows.length ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 22px;background:${PANEL};border:1px solid ${LINE};border-radius:8px;border-collapse:separate;">${rows.map((row, i) => row.value !== undefined
+    ? `<tr><td style="${cell(i)}color:${MUTED};white-space:nowrap;">${esc(row.label)}</td><td align="right" style="${cell(i)}color:${INK};font-weight:500;">${row.href ? `<a href="${esc(link(row.href))}" style="color:${INK};text-decoration:none;">${esc(row.value)}</a>` : esc(row.value)}</td></tr>`
+    : `<tr><td colspan="2" style="${cell(i)}color:${INK};">${row.href ? `<a href="${esc(link(row.href))}" style="color:${INK};text-decoration:none;font-weight:500;">${esc(row.label)}</a>` : esc(row.label)}</td></tr>`).join("")}</table>` : "";
+  const cta = button ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 0;"><tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="background:${BRAND};border-radius:6px;"><a href="${esc(link(button.href))}" style="display:inline-block;padding:11px 26px;font-family:${FONT};font-size:14px;line-height:20px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;">${esc(button.text)}</a></td></tr></table></td></tr></table>` : "";
+  const body = `${para(greeting(name), INK)}${para(intro)}${list}${cta}${note ? small(note) : ""}`;
+  const html = frame({ label, title, preheader: intro, body, footerNote });
+  const text = textLetter(title, [greeting(name), "", intro, ...rows.map((row) => `• ${row.label}${row.value ? ` — ${row.value}` : ""}${row.href ? ` ${link(row.href)}` : ""}`), ...(button ? ["", `${button.text}: ${link(button.href)}`] : []), ...(note ? ["", note] : [])]);
   return { html, text };
 }

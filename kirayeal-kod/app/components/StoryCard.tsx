@@ -10,7 +10,8 @@ export default function StoryCard({ item }: { item: Listing }) {
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
   const [card, setCard] = useState<{ blob: Blob; url: string; file: File; share: boolean } | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
-  useEffect(() => { if (card) dialog.current?.showModal(); }, [card]);
+  // Focus the window itself, not the X: phones draw a coloured focus ring around a focused button.
+  useEffect(() => { if (card) { dialog.current?.showModal(); dialog.current?.focus(); } }, [card]);
   useEffect(() => () => { if (card) URL.revokeObjectURL(card.url); }, [card]);
   async function prepare() {
     if (busy) return;
@@ -37,7 +38,7 @@ export default function StoryCard({ item }: { item: Listing }) {
   return <>
     <button type="button" className="kzButtonGhost" disabled={busy} onClick={() => void prepare()}><ImageDown aria-hidden="true" size={16} strokeWidth={1.75} />{busy ? "Hazırlanır…" : "Story üçün şəkil"}</button>
     {error && !card && <p className="kzFormError" role="alert">{error}</p>}
-    {card && createPortal(<dialog ref={dialog} className="kzStoryDlg" aria-label="Story üçün şəkil" onCancel={event => { event.preventDefault(); close(); }} onClick={event => { if (event.target === event.currentTarget) close(); }}>
+    {card && createPortal(<dialog ref={dialog} tabIndex={-1} className="kzStoryDlg" aria-label="Story üçün şəkil" onCancel={event => { event.preventDefault(); close(); }} onClick={event => { if (event.target === event.currentTarget) close(); }}>
       <div className="kzStoryBody">
         <header><strong>Story üçün şəkil</strong><button type="button" className="kzStoryClose" aria-label="Bağla" onClick={close}><X aria-hidden="true" size={20} strokeWidth={2} /></button></header>
         <img src={card.url} alt="Elanın story şəkli" />

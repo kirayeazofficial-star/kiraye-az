@@ -35,6 +35,7 @@ async function expiring(db, send, claim) {
   for (const row of rows) {
     if (!(await claim(row.owner_id, "expiry", `${row.id}:${row.until}`))) continue;
     await send(row.email, `Elanınızın yayım müddəti başa çatır — «${row.title}»`.slice(0, 120), letter({
+      label: "Elanın müddəti",
       heading: "Elanınızın yayım müddəti başa çatır",
       name: row.name,
       intro: `«${row.title}» elanınızın yayım müddəti ${row.until} tarixində başa çatır. Elan hələ aktualdırsa, onu kabinetinizdən yeniləyə və ya irəli çəkə bilərsiniz.`,
@@ -52,6 +53,7 @@ async function storeExpiring(db, send, claim) {
   for (const row of rows) {
     if (!(await claim(row.owner_id, row.ended ? "store_ended" : "store_expiry", `${row.id}:${row.until}`))) continue;
     await send(row.email, (row.ended ? `Mağazanızın müddəti başa çatdı — «${row.name}»` : `Mağazanızın müddəti başa çatır — «${row.name}»`).slice(0, 120), letter({
+      label: "Mağaza",
       heading: row.ended ? "Mağazanızın müddəti başa çatdı" : "Mağazanızın müddəti 3 gün sonra başa çatır",
       name: row.person,
       intro: row.ended
@@ -80,6 +82,7 @@ async function savedSearches(db, send, claim) {
     await db.query(`update public.saved_search_alerts set last_checked=now() where id=$1`, [alert.id]);
     if (!found.length || !(await claim(alert.user_id, "search", `${alert.id}:${found[0].id}`))) continue;
     await send(alert.email, `Yeni elan: ${alert.label}`.slice(0, 120), letter({
+      label: "Axtarış bildirişi",
       heading: "Axtarışınıza uyğun yeni elanlar dərc olunub",
       name: alert.name,
       intro: `Yadda saxladığınız «${alert.label}» axtarışına uyğun ${found.length > 5 ? "bir neçə" : found.length} yeni elan dərc olunub. Ən sonuncular aşağıdadır.`,
@@ -109,6 +112,7 @@ async function weekly(db, send, claim) {
   const top = (await db.query(`select l.category,count(*) as n from public.listing_views v join public.listings l on l.id=v.listing_id where v.view_day>current_date-7 group by 1 order by 2 desc limit 3`).catch(() => ({ rows: [] }))).rows;
   const names = { property: "Ev və mənzil", car: "Avtomobil", motorcycle: "Motosiklet", villa: "Villa və bağ", commercial: "Kommersiya", equipment: "Alətlər və texnika", clothing: "Geyim", electric: "Elektrik nəqliyyat", photo: "Foto və video", camping: "Turizm", bicycle: "Velosiped", event: "Tədbir üçün" };
   await send(ownerEmail, `Həftəlik hesabat — kirayeal.az`, letter({
+    label: "Həftəlik hesabat",
     heading: "Son 7 gündə saytın göstəriciləri",
     name: "Rəhbər",
     intro: "Saytın son 7 gün üzrə əsas göstəriciləri aşağıda təqdim olunur.",

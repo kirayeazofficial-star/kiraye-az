@@ -354,7 +354,7 @@ export default function Login({
           )}
           <h1 id="auth-title">
             {method === "phone"
-              ? "Hesaba giriş"
+              ? "Hesabınıza daxil olun"
               : verification
                 ? verification === "staff"
                   ? "Yeni cihazı təsdiqləyin"
@@ -362,10 +362,10 @@ export default function Login({
                   ? "Kodu daxil edin"
                   : "E-poçtunuzu yoxlayın"
                 : mode === "signup"
-                  ? "Hesab yarat"
+                  ? "Yeni hesab yaradın"
                   : mode === "reset"
                     ? "Şifrənizi yeniləyin"
-                    : "Hesaba giriş"}
+                    : "Hesabınıza daxil olun"}
           </h1>
           {!verification && mode !== "reset" && method === "email" && (
             <GoogleLogin />
@@ -396,10 +396,10 @@ export default function Login({
               {!verification && (
                 <p className="authLead">
                   {mode === "signup"
-                    ? "Elan yerləşdirmək üçün qeydiyyatdan keçin."
+                    ? "Qeydiyyat pulsuzdur. Hesab yaratdıqdan sonra elan yerləşdirə, elan sahiblərinə yaza və bəyəndiyiniz elanları yadda saxlaya bilərsiniz."
                     : mode === "reset"
-                      ? "Hesabınıza bağlı e-poçt ünvanını yazın."
-                      : "Qeydiyyat zamanı göstərdiyiniz e-poçt və şifrə ilə daxil olun."}
+                      ? "Hesabınıza bağlı e-poçt ünvanını yazın. Həmin ünvana 6 rəqəmli bərpa kodu göndəriləcək."
+                      : "Elanlarınızı idarə etmək, mesajlara cavab vermək və seçilmiş elanlarınızı görmək üçün hesabınıza daxil olun."}
                 </p>
               )}
               {!verification ? (
@@ -442,6 +442,7 @@ export default function Login({
                         placeholder="E-poçt ünvanınız"
                       />
                     </label>
+                    {mode === "signup" && <small className="authHint">Təsdiq kodu bu ünvana göndəriləcək.</small>}
                     {emailAddress.includes("@") && !emailAddress.split("@")[1]?.includes(".") && (
                       <div className="emailSuggestions" aria-label="E-poçt ünvanını tamamlayın">
                         {["gmail.com", "mail.ru", "outlook.com", "icloud.com"].filter(domain => domain.startsWith(emailAddress.split("@")[1] || "")).map(domain => (
@@ -537,6 +538,7 @@ export default function Login({
                             ? "6 rəqəmli kod göndər"
                             : "Daxil ol"}
                     </button>
+                    {mode === "login" && <p className="kzAuthTerms">Daxil olmaqla <Link href="/terms">İstifadəçi razılaşması</Link> və <Link href="/privacy">Məxfilik siyasəti</Link> ilə razılaşırsınız.</p>}
                     {mode === "signup" && <p className="kzAuthTerms">«Hesab yarat» düyməsini basmaqla <Link href="/terms">İstifadəçi razılaşmasını</Link> və <Link href="/rules">Elan qaydalarını</Link> qəbul edirsiniz.</p>}
                   </fieldset>
                 </form>
@@ -544,16 +546,16 @@ export default function Login({
                 <div className="confirmationPanel">
                   <p className="authLead">
                     {verification === "staff"
-                      ? "Təhlükəsizlik üçün panelə yeni cihazdan girişi kodla təsdiqləyirik. Bu cihaz 3 gün yadda qalacaq."
+                      ? "Təhlükəsizlik məqsədilə idarəetmə panelinə yeni cihazdan giriş e-poçt kodu ilə təsdiqlənir. Təsdiqdən sonra bu cihaz 3 gün ərzində yadda saxlanılacaq. Kod bu ünvana göndərildi:"
                       : verification === "recovery"
-                      ? "Bərpa kodu üçün göndəriş sorğusu qəbul edildi."
-                      : "Təsdiq məktubu üçün sorğu qəbul edildi."}
+                      ? "Şifrə bərpası üçün 6 rəqəmli kod bu ünvana göndərildi:"
+                      : "Qeydiyyatı tamamlamaq üçün 6 rəqəmli təsdiq kodu bu ünvana göndərildi:"}
                   </p>
                   <div className="confirmationEmail">{emailAddress}</div>
                   <p className="confirmationInstruction">
                     {verification === "recovery" || verification === "staff"
-                      ? "E-poçtunuza gələn 6 rəqəmli kodu daxil edin."
-                      : "Məktubdakı 6 rəqəmli təsdiq kodunu daxil edin."}
+                      ? "Məktubdakı kodu aşağıdakı xanaya yazın. Kod 10 dəqiqə ərzində etibarlıdır."
+                      : "Məktubdakı kodu aşağıdakı xanaya yazın. Kod 10 dəqiqə ərzində etibarlıdır."}
                   </p>
                   {codeForm()}
                   {!busy && <div className="confirmationActions kzCodeHelp">
@@ -586,14 +588,14 @@ export default function Login({
                   disabled={busy || cooldown > 0 || mailBlocked}
                   onClick={resend}
                 >
-                  E-poçtu təsdiqlə / Yeni məktub göndər
+                  Təsdiq kodunu yenidən göndər
                 </button>
               )}
               {(submitBlocked ||
                 (verification && (mailBlocked || verifyBlocked)) ||
                 (unconfirmed && mailBlocked)) && (
                 <p className="notice" role="status">
-                  Təkrar cəhd üçün {requestCooldown} saniyə gözlə. Bu müddətdə
+                  Təkrar cəhd üçün {requestCooldown} saniyə gözləyin. Bu müddətdə
                   yeni sorğu göndərilmir.
                 </p>
               )}

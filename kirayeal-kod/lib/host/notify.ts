@@ -19,6 +19,7 @@ export async function notifyNewMessage(threadId:string,authorId:string){
     const slot=Math.floor(Date.now()/1800000);
     if(!await claim(row.peer,"message",`${threadId}:${row.peer}:${slot}`))return;
     await sendLetter(row.email,`Yeni mesaj: ${row.title}`.slice(0,120),noticeLetter({
+      label:"Yeni mesaj",
       heading:"Sizə yeni mesaj daxil olub",
       name:row.name,
       intro:`${row.author||"Saytın istifadəçisi"} «${row.title}» elanı ilə bağlı sizə mesaj göndərib. Mesajı oxumaq və cavablandırmaq üçün aşağıdakı düyməyə keçin.`,
@@ -36,6 +37,7 @@ export async function notifyRejected(listingId:string,reason:string){
     const row=rows[0];if(!row?.email)return;
     if(!await claim(row.owner,"rejected",`${listingId}:${Math.floor(Date.now()/60000)}`))return;
     await sendLetter(row.email,`Elanınız rədd edildi — «${row.title}»`.slice(0,120),noticeLetter({
+      label:"Elan yoxlaması",
       heading:"Elanınız rədd edildi",
       name:row.name,
       intro:`«${row.title}»${row.no?` (№ ${row.no})`:""} elanınız yoxlamadan keçmədi və saytda dərc olunmadı. Səbəbi aşağıda göstərilib. Elanı düzəldib yenidən yoxlamaya göndərə bilərsiniz.`,

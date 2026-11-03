@@ -499,7 +499,7 @@
 /* Keep the action outside the input's native Safari password/autofill controls. */
 .loginPage .passwordField { display:flex; align-items:stretch; gap:6px; margin-top:7px; }
 .loginPage .passwordField input { flex:1; min-width:0; width:0; padding-right:12px; margin:0; }
-.loginPage .passwordField .passwordToggle { position:static; flex:0 0 64px; width:64px; height:auto; border:1px solid #d7dde6; border-radius:5px; background:#f7f8fa; }
+.loginPage .passwordField .passwordToggle { position:static; flex:0 0 48px; width:48px; height:auto; border:1px solid #d7dde6; border-radius:5px; background:#f7f8fa; }
 .passwordHint { display:block; margin-top:7px; font-size:12px; font-weight:400; color:#68748a; }
 @media (min-width:721px) and (max-height:800px) {
   .authShell { padding-top:20px; padding-bottom:20px; }

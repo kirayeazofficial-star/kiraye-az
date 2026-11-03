@@ -34,6 +34,21 @@ const pass=name=>{passed++;console.log('PASS',name)};
    await page.evaluate(()=>localStorage.setItem('kirayeal:language','az'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='az'&&document.querySelector('main h1')?.textContent==='Sualın var? Buradan başla.');
    assert.equal(errors.length,0,errors.join('\n'));pass(`${width}px layout, card budget, favorites where available, FAQ and language switching`);await context.close();
   }
+  for (const width of [320,375,768,1440]) {
+   const page=await browser.newPage({viewport:{width,height:900}}),issues=[];
+   page.on('console',message=>{if(message.type()==='error'&&/hydrat/i.test(message.text()))issues.push(message.text());});
+   for(const mode of ['login','signup','reset']){
+    await page.goto(`${base}/login?mode=${mode}`);await page.locator('#auth-title').waitFor();
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
+    const eye=page.locator('.passwordToggle');
+    if(await eye.count()){
+     const box=await eye.evaluate(n=>{const b=n.getBoundingClientRect(),i=n.querySelector('svg').getBoundingClientRect();return {width:b.width,height:b.height,contained:i.left>=b.left&&i.right<=b.right&&i.top>=b.top&&i.bottom<=b.bottom};});
+     assert.ok(box.width>=44&&box.width<=50&&box.height>=44&&box.contained,'Eye icon must fit its consistent touch target');
+     await page.locator('#auth-password').fill('PreviewPassword123');await eye.click();assert.equal(await page.locator('#auth-password').getAttribute('type'),'text');assert.equal(await page.locator('#auth-password').inputValue(),'PreviewPassword123');await eye.click();assert.equal(await page.locator('#auth-password').getAttribute('type'),'password');
+    }
+   }
+   assert.equal(issues.length,0,issues.join('\n'));pass(`${width}px login, registration and recovery controls without clipped icons or hydration mismatch`);await page.close();
+  }
   const {codeLetter,noticeLetter}=await import(pathToFileURL(path.resolve('scripts/email-frame.mjs')).href);
   const page=await browser.newPage({viewport:{width:320,height:812}});
   for(const letter of [codeLetter({heading:'Hesabınızı təsdiqləyin',name:'Aysel',intro:'Təsdiq kodunu daxil edin.',code:'123456',note:'10 dəqiqə'}),noticeLetter({heading:'Yeni mesajınız var',name:'Aysel',intro:'Yeni mesaj daxil olmuşdur.',rows:[{label:'Elan',value:'Günlük kirayə mənzil'}],button:{text:'Mesajı oxuyun',href:'/messages'}})]){await page.setContent(letter.html);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth),320)}

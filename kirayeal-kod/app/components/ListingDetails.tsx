@@ -90,16 +90,33 @@ export default function ListingDetails({
   const specsList = useRef<HTMLDListElement>(null);
   const [specsOpen, setSpecsOpen] = useState(false), [specCount, setSpecCount] = useState(0);
   useEffect(() => { setSpecCount(specsList.current?.children.length ?? 0); }, [item]);
+  const photoRail = useRef<HTMLDivElement>(null);
+  const imageRef = useRef(0);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
   const [viewerOpen, setViewerOpen] = useState(false);
   const imageCount = item.images?.length ?? 0;
   const selectedImage = Math.min(image, Math.max(0, imageCount - 1));
-  useEffect(() => { setImage(0); setViewerOpen(false); }, [item.id]);
+  imageRef.current = selectedImage;
+  useEffect(() => {
+    setImage(0); setViewerOpen(false);
+    if (photoRail.current) photoRail.current.scrollLeft = 0;
+    const resize = () => { const rail = photoRail.current; if (rail) rail.scrollTo({ left: imageRef.current * rail.clientWidth, behavior: "auto" }); };
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, [item.id]);
   useEffect(() => setFavorite(readFavorites().includes(item.id)), [item.id]);
-  // Swipes stop at the first/last photo; the arrow buttons go round (last → first), so both arrows are always there.
+  // The browser scrolls the actual photos under the finger; state follows its position.
+  function selectImage(next: number) {
+    const index = Math.max(0, Math.min(imageCount - 1, next));
+    setImage(index);
+    const rail = photoRail.current;
+    if (rail) rail.scrollTo({ left: index * rail.clientWidth, behavior: viewerOpen || Math.abs(index - selectedImage) > 1 || window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }
   function moveImage(direction: number, wrap = false) {
-    if (imageCount > 1) setImage((current) => { const next = Math.min(current, imageCount - 1) + direction; return wrap ? (next + imageCount) % imageCount : Math.max(0, Math.min(imageCount - 1, next)); });
+    if (imageCount <= 1) return;
+    const next = selectedImage + direction;
+    selectImage(wrap ? (next + imageCount) % imageCount : next);
   }
   function toggleFavorite() {
     const saved = readFavorites();
@@ -177,33 +194,28 @@ export default function ListingDetails({
             touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null;
           }}
           onTouchMove={(event) => { if(event.touches.length !== 1) {touchStart.current = null; swiped.current = true;} }}
-          onTouchCancel={() => { touchStart.current = null; }}
+          onTouchCancel={() => { touchStart.current = null; swiped.current = true; }}
           onTouchEnd={(event) => {
             const start = touchStart.current;
             touchStart.current = null;
             const touch = event.changedTouches[0];
             if (!start || !touch) return;
             const dx = touch.clientX - start.x, dy = touch.clientY - start.y;
-            if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.25) {
-              swiped.current = true;
-              moveImage(dx < 0 ? 1 : -1);
-            }
+            if (Math.abs(dx) > 8 || Math.abs(dy) > 8) swiped.current = true;
           }}>
-        <button type="button" className="galleryOpen" aria-label="Şəkli böyüt" onClick={() => {
-          if (!swiped.current) setViewerOpen(true);
-          swiped.current = false;
+        <div className="kzPhotoRail" ref={photoRail} onScroll={event => {
+          const rail = event.currentTarget;
+          if (!viewerOpen && rail.clientWidth) setImage(Math.max(0, Math.min(imageCount - 1, Math.round(rail.scrollLeft / rail.clientWidth))));
         }}>
-        <img
-          className="listingMainImage"
-          src={sized(item.images?.[selectedImage], "view") || "/placeholder.svg"}
-          alt={item.title}
-          onLoad={(e) => { const img = e.currentTarget; if (selectedImage === 0 && img.naturalWidth && img.naturalHeight) setPhotoRatio(Math.min(16 / 9, Math.max(1, img.naturalWidth / img.naturalHeight))); }}
-          onError={(e) => {
-            e.currentTarget.onerror = null;
-            e.currentTarget.src = "/placeholder.svg";
-          }}
-        />
-        </button>
+          {(imageCount ? item.images : ["/placeholder.svg"]).map((src, i) => <button key={`${item.id}-${i}`} type="button" className="galleryOpen" aria-label={`${i + 1}-ci şəkli böyüt`} aria-current={i === selectedImage} onPointerDown={() => { swiped.current = false; }} onClick={() => {
+            if (!swiped.current) { setImage(i); setViewerOpen(true); }
+            swiped.current = false;
+          }}>
+            {Math.abs(i - selectedImage) <= 1 && <img className="listingMainImage" src={sized(src, i === selectedImage ? "view" : "thumb")} alt={`${item.title} — ${i + 1}-ci şəkil`} loading={i === 0 ? "eager" : "lazy"} decoding="async" draggable={false}
+              onLoad={event => { const img = event.currentTarget; if (i === 0 && img.naturalWidth && img.naturalHeight) setPhotoRatio(Math.min(16 / 9, Math.max(1, img.naturalWidth / img.naturalHeight))); }}
+              onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/placeholder.svg"; }} />}
+          </button>)}
+        </div>
         <PhotoMark src={item.images?.[selectedImage]} />
         <PromotionBadges item={item}/>
         {imageCount > 1 && <>
@@ -220,7 +232,7 @@ export default function ListingDetails({
                 aria-label={`${i + 1}-ci şəkil`}
                 aria-pressed={selectedImage === i}
                 key={src}
-                onClick={() => setImage(i)}
+                onClick={() => selectImage(i)}
               >
                 <img src={sized(src)} alt="" loading="lazy" decoding="async" />
               </button>
@@ -229,7 +241,7 @@ export default function ListingDetails({
         )}
       </div>
       {viewerOpen && <ImageViewer images={imageCount ? item.images : ["/placeholder.svg"]} title={item.title}
-        index={selectedImage} onChange={setImage} onClose={() => setViewerOpen(false)}
+        index={selectedImage} onChange={selectImage} onClose={() => setViewerOpen(false)}
         actions={<>
           {!effectiveOwner&&<button type="button" className={favorite ? "on" : ""} aria-label={favorite ? "Seçilmişlərdən çıxar" : "Seçilmişlərə əlavə et"} aria-pressed={favorite} onClick={toggleFavorite}><NavigationIcon name="heart" filled={favorite}/></button>}
           <button type="button" aria-label="Elanı paylaş" onClick={share}><Share2 aria-hidden="true" size={20} strokeWidth={2} /></button>

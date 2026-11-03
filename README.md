@@ -42,3 +42,5 @@ Build zamanı yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`) lazı
 `npm run test:messages` yazışma məlumatlarını təcrid olunmuş cavablarla əvəz edir: uzun ad/mətn, 320–1440 px düzülüş, mətn sahəsinin avtomatik böyüməsi və gecikən cavabların düzgün yazışmada qalması yoxlanılır. Real mesaj göndərilmir.
 
 `npm run test:auth` Google düyməsi açıq halda giriş formasını, səhv şifrə/kodu, serverin `retry_at` gözləmə müddətini və şifrə bərpasının xəta/uğur fərqini yoxlayır. Cavablar təcrid olunur; real hesab dəyişdirilmir və məktub göndərilmir.
+
+`npm run test:release` quraşdırıcını müvəqqəti qovluqlarda yoxlayır: yalnız bir əvvəlki yığımın saxlanması, uğursuz quraşdırmada geri dönüş, ayarların, orijinal şəkillərin və baza ehtiyat nüsxələrinin qorunması. Canlı hostinqə və Google Drive-a qoşulmur.

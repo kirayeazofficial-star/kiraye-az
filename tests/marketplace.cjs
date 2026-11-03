@@ -27,8 +27,10 @@ const pass=name=>{passed++;console.log('PASS',name)};
     assert.ok(Math.max(...metrics.links.map(n=>n.top))-Math.min(...metrics.links.map(n=>n.top))<1,'Navigation labels must share a baseline');
    };
    await checkNavigation();
-   const favorite=page.locator('.kzFavorite').first();
-   if(await favorite.count()){await favorite.click();assert.equal(await favorite.getAttribute('aria-pressed'),'true');await favorite.click();assert.equal(await favorite.getAttribute('aria-pressed'),'false');}
+   assert.equal(await page.locator('.kzCard button').count(),0,'Listing card photos must have no favorite overlay');
+   if(await page.locator('.kzCardLink').count()){
+    await page.locator('.kzCardLink').first().click();const favorite=page.locator('.kzTitleActions button[aria-pressed]');await favorite.waitFor();await favorite.click();assert.equal(await favorite.getAttribute('aria-pressed'),'true');await favorite.click();assert.equal(await favorite.getAttribute('aria-pressed'),'false');
+   }
    await page.goto(base+'/help');await page.locator('.helpCard summary').first().click();assert.equal(await page.locator('.helpCard').first().getAttribute('open'),'');
    await page.evaluate(()=>localStorage.setItem('kirayeal:language','ru'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='ru'&&document.querySelector('main h1')?.textContent==='Есть вопрос? Начни здесь.');await checkNavigation();
    await page.evaluate(()=>localStorage.setItem('kirayeal:language','en'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='en'&&document.querySelector('main h1')?.textContent==='Have a question? Start here.');await checkNavigation();assert.ok(!(await page.locator('.kzTabbar').innerText()).includes('İ'),'English labels must use English casing');

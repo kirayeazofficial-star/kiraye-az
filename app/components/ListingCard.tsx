@@ -3,7 +3,6 @@ import { loweredFrom, shownAt } from "../../lib/marketplace";
 import { sized } from "../../lib/image-size";
 import { useLanguage } from "./LanguageProvider";
 import PromotionBadges from "./PromotionBadges";
-import NavigationIcon from './NavigationIcon';
 import { publicDate } from "../../lib/public-date";
 import Link from "next/link";
 import {
@@ -11,20 +10,12 @@ import {
   money,
   periodName,
 } from "../../lib/marketplace";
-export default function ListingCard({
-  item,
-  favorite,
-  onFavorite,
-}: {
-  item: Listing;
-  favorite?: boolean;
-  onFavorite?: () => void;
-}) {
+export default function ListingCard({ item }: { item: Listing }) {
   const {t} = useLanguage();
   return (
     <article className="kzCard">
       <Link prefetch={false} className="kzCardLink" href={`/listings/${item.id}`}>
-        <span className="kzCardPhoto" style={{["--bg" as string]:`url("${item.images?.[0] || "/placeholder.svg"}")`} as React.CSSProperties}>
+        <span className="kzCardPhoto">
           <img src={sized(item.images?.[0]) || "/placeholder.svg"} alt="" loading="lazy" decoding="async" onError={event=>{if(!event.currentTarget.src.endsWith('/placeholder.svg'))event.currentTarget.src='/placeholder.svg';}} />
           
           {item.store && <em className="kzCardStore" title={item.store.name}>Mağaza</em>}
@@ -38,15 +29,7 @@ export default function ListingCard({
           </span>
         </span>
       </Link>
-      {onFavorite && <button
-        type="button"
-        className={`kzFavorite${favorite ? " selected" : ""}`}
-        aria-label={favorite ? t("Seçilmişlərdən çıxar") : t("Seçilmişlərə əlavə et")}
-        aria-pressed={favorite}
-        onClick={onFavorite}
-      >
-        <NavigationIcon name="heart" filled={favorite}/>
-      </button>}
+
     </article>
   );
 }

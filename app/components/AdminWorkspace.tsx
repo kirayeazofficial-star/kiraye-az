@@ -1,9 +1,10 @@
 "use client";
 import { ADMIN_LIST_PAGE_SIZE } from "../../lib/admin-list-page";
 import TabIcon from "./TabIcon";
+import ExpandableText from "./ExpandableText";
 import { sized } from "../../lib/image-size";
 import Notice from "./Notice";
-import { FormEvent, ReactNode, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { FormEvent, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CircleAlert, CircleX, ChevronDown, EyeOff, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
@@ -108,7 +109,7 @@ function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, posi
           <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Qiymət</dt><dd>{money(item.price)} ₼ / {periodName(item.rental_period)}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
           {(item as AdminListing).duplicate_note && <p className="kzRiskNote"><Images aria-hidden="true" size={16} strokeWidth={2.2} />{(item as AdminListing).duplicate_note}. Şəkillərin kimə aid olduğunu yoxlayın.</p>}
           {riskWords(item.title, item.description).length > 0 && <p className="kzRiskNote"><TriangleAlert aria-hidden="true" size={16} strokeWidth={2.2} />Mətndə şübhəli ifadə var: <b>{riskWords(item.title, item.description).join(", ")}</b>. Kontekstə baxın — «almıram» kimi inkar da ola bilər.</p>}
-          <LongText text={item.description} />
+          <ExpandableText text={item.description} />
           <a className="kzAdLink" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">Elanı saytda aç</a>
         </>}
         {tab !== "listing" && !data && !error && <p className="kzAdMuted" role="status">Yüklənir…</p>}
@@ -520,25 +521,6 @@ function PhotoOrder({ listingId, images, onSaved }: { listingId: string; images:
       {changed && <><button type="button" className="kzAdBtn primary" disabled={saving} onClick={() => void save()}>{saving ? "Saxlanılır…" : "Sırayı saxla"}</button><button type="button" className="kzAdBtn" disabled={saving} onClick={() => setPhotos(images.map(src => ({ id: src, src })))}>Geri qaytar</button></>}
       {message && <span className="kzAdMuted" role="status">{message}</span>}
     </div>}
-  </div>;
-}
-
-// Long descriptions start folded to four lines.
-function LongText({ text }: { text: string }) {
-  const [open, setOpen] = useState(false), [long, setLong] = useState(false);
-  const paragraph = useRef<HTMLParagraphElement>(null);
-  const id = useId();
-  useEffect(() => { setOpen(false); }, [text]);
-  useEffect(() => {
-    if (open) return;
-    const measure = () => { const node = paragraph.current; if (node) setLong(node.scrollHeight > node.clientHeight + 1); };
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [text, open]);
-  return <div className="kzAdDescriptionWrap">
-    <p id={id} ref={paragraph} translate="no" className={`kzAdDescription${!open ? " folded" : ""}`}>{text}</p>
-    {long && <button type="button" className="kzAdLink" aria-expanded={open} aria-controls={id} onClick={() => setOpen(value => !value)}>{open ? "Yığcam göstər" : "Tam mətn"}</button>}
   </div>;
 }
 

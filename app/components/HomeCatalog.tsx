@@ -92,7 +92,9 @@ export default function Home() {
     );
     const syncFavorites = () => setFavorites(readFavorites());
     window.addEventListener("kiraye:favorites", syncFavorites);
-    return () => window.removeEventListener("kiraye:favorites", syncFavorites);
+    window.addEventListener("storage", syncFavorites);
+    window.addEventListener("pageshow", syncFavorites);
+    return () => { window.removeEventListener("kiraye:favorites", syncFavorites); window.removeEventListener("storage", syncFavorites); window.removeEventListener("pageshow", syncFavorites); };
   }, []);
   const [ownerFilter,setOwnerFilter]=useState("");
   useEffect(() => {
@@ -275,18 +277,6 @@ export default function Home() {
     from,
     until,
   ]);
-  function favorite(id: string) {
-    const next = favorites.includes(id)
-      ? favorites.filter((x) => x !== id)
-      : [...favorites, id];
-    setFavorites(next);
-    try {
-      localStorage.setItem("kiraye-favorites", JSON.stringify(next));
-      window.dispatchEvent(new Event("kiraye:favorites"));
-    } catch {
-      setNotice("Seçilmişləri bu brauzerdə saxlamaq mümkün olmadı.");
-    }
-  }
   const brandOptions = Object.keys(
     category === "car"
       ? carModels
@@ -665,8 +655,6 @@ export default function Home() {
                 <ListingCard
                   key={x.id}
                   item={x}
-                  favorite={favorites.includes(x.id)}
-                  onFavorite={() => favorite(x.id)}
                 />
               ))}
             </div>

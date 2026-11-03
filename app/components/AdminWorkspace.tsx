@@ -6,7 +6,7 @@ import Notice from "./Notice";
 import { FormEvent, ReactNode, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { CircleAlert, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
+import { CircleAlert, CircleX, ChevronDown, EyeOff, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -296,12 +296,12 @@ const ListingRow = memo(function ListingRow({ item, risk, busy, rejecting, reaso
               <h3 translate="no">{item.title}</h3>
               <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
               <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>
-              {item.rejection_reason && <details className="kzAdReasonDisclosure"><summary>Rədd səbəbi</summary><p className="kzAdReason" translate="no">{item.rejection_reason}</p></details>}
+              {item.rejection_reason && <details className="kzAdReasonDisclosure"><summary><ChevronDown aria-hidden="true" size={16} strokeWidth={2} />Rədd səbəbi</summary><p className="kzAdReason" translate="no">{item.rejection_reason}</p></details>}
             </div>
-            <div className="kzAdRowActions">
+            {["pending", "published", "rejected"].includes(item.status) && <div className="kzAdRowActions">
               {["pending", "rejected"].includes(item.status) && <button type="button" className="kzAdBtn success" disabled={!!busy} onClick={() => actions.moderate(item, "published")}><Check aria-hidden="true" size={16} strokeWidth={2.4} />{busy === item.id ? "Saxlanılır…" : "Təsdiqlə"}</button>}
-              <button type="button" className="kzAdBtn danger" disabled={!!busy || !["pending", "published"].includes(item.status)} onClick={() => actions.toggleReject(item.id)}><X aria-hidden="true" size={16} strokeWidth={2.4} />{item.status === "published" ? "Yayımdan çıxar" : "Rədd et"}</button>
-            </div>
+              {["pending", "published"].includes(item.status) && <button type="button" className="kzAdBtn danger" disabled={!!busy} onClick={() => actions.toggleReject(item.id)}>{item.status === "published" ? <EyeOff aria-hidden="true" size={16} strokeWidth={2} /> : <CircleX aria-hidden="true" size={16} strokeWidth={2} />}{item.status === "published" ? "Yayımdan çıxar" : "Rədd et"}</button>}
+            </div>}
             {rejecting && <div className="kzAdReject">
               <label>Səbəb<select value={rejectionReasons.includes(reason || "") ? reason : ""} onChange={event => actions.setReason(item.id, event.target.value)}><option value="">Hazır səbəb seç və ya aşağıda yaz</option>{rejectionReasons.map(reason => <option key={reason} value={reason}>{reason}</option>)}</select></label>
               <textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reason ?? ""} onChange={event => actions.setReason(item.id, event.target.value)} placeholder="Elan sahibinə görünəcək səbəb (ən azı 10 simvol)" />

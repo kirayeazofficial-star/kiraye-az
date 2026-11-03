@@ -128,7 +128,7 @@ export default function Header() {
           </Link>
           <LanguageSelect />
           <Link className="kzMobilePublish" href="/new" aria-label={t("Yeni elan")}>
-            <span className="kzHeadPublish" aria-hidden="true"><Plus size={16} strokeWidth={2.5} /><span>{t("Yeni elan")}</span></span>
+            <span className="kzRoundPlus" aria-hidden="true"><Plus size={20} strokeWidth={2.25} /></span>
           </Link>
         </div>
       </header>
@@ -139,8 +139,8 @@ export default function Header() {
         <a href="/?favorites=1" onClick={sameSection("favorites")} aria-current={favoritesPage ? "page" : undefined}>
           <TabIcon name="heart" active={favoritesPage}/><span>{t("Seçilmişlər")}</span>
         </a>
-        <Link href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
-          <TabIcon name="plus" active={pathname === "/new" || !!pathname?.startsWith("/edit/")}/><span>{t("Yeni elan")}</span>
+        <Link className="kzTabbarPublish" href="/new" aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
+          <span className="kzTabPlus" aria-hidden="true"><Plus size={24} strokeWidth={2.25} /></span><span>{t("Yeni elan")}</span>
         </Link>
         <Link href="/messages" onClick={sameSection("messages")} aria-current={pathname === "/messages" ? "page" : undefined}>
           <TabIcon name="chat" active={pathname === "/messages"}/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}

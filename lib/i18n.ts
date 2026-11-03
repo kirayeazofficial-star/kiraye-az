@@ -1,5 +1,15 @@
 // Russian and English for texts written directly in components. Key: exact Azerbaijani text.
 export const extraDictionary: Record<string, [string, string]> = {
+  "Daxil olun": ["Войдите в аккаунт", "Sign in"],
+  "Pulsuz göndər": ["Отправить бесплатно", "Submit for free"],
+  "Pulsuz bərpa et": ["Восстановить бесплатно", "Restore for free"],
+  "Ehtiyacınız olanı kirayələyin.": ["Арендуйте то, что вам нужно.", "Rent what you need."],
+  "Şifrə ən azı 8 simvoldan ibarət olmalıdır.": ["Пароль должен содержать не менее 8 символов.", "Your password must contain at least 8 characters."],
+  "Elan artıq aktivdir. Ödəniş tələb olunmur.": ["Объявление уже активно. Оплата не требуется.", "The listing is already active. No payment is required."],
+  "Elan artıq yoxlamaya göndərilib.": ["Объявление уже отправлено на проверку.", "The listing has already been submitted for review."],
+  "Elanın vəziyyəti dəyişib. Siyahı yeniləndi.": ["Статус объявления изменился. Список обновлён.", "The listing status has changed. The list has been refreshed."],
+  "Elan rəhbər səlahiyyəti ilə pulsuz yoxlamaya göndərildi.": ["Объявление бесплатно отправлено на проверку с правами руководителя.", "The listing was submitted for review free of charge using leader privileges."],
+  "Rəhbər səlahiyyəti ilə bu elanı pulsuz göndərə bilərsiniz.": ["Вы можете отправить это объявление бесплатно с правами руководителя.", "You can submit this listing for free using leader privileges."],
   "Profil məlumatlarınız yadda saxlanıldı.": ["Данные профиля сохранены.", "Your profile details have been saved."],
   "E-poçt ünvanınız yeniləndi.": ["Ваш адрес электронной почты изменён.", "Your email address has been updated."],
   "Təsdiq kodu hazırkı e-poçt ünvanınıza göndərildi.": ["Код подтверждения отправлен на ваш текущий адрес электронной почты.", "A verification code has been sent to your current email address."],

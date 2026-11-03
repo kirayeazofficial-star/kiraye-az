@@ -14,9 +14,10 @@ function load(file,imports={},globals={}){const e={};vm.runInNewContext(ts.trans
  const purposes={signup:'qeydiyyat səhifəsində',recovery:'şifrə bərpası səhifəsində',email_change:'«Profil» bölməsində',staff_login:'giriş səhifəsində'};
  for(const [purpose,destination] of Object.entries(purposes)){
   const mail=verificationLetter(purpose,'<Aysel>','123456');
-  for(const format of [mail.html,mail.text]){assert.ok(format.includes(destination));assert.ok(format.includes('10 dəqiqə'));assert.ok(format.includes('123456'));assert.ok(format.includes('heç kimlə paylaşmayın'));assert.ok(format.includes('avtomatik göndərilib'));}
+  for(const format of [mail.html,mail.text]){assert.ok(format.includes(destination));assert.ok(format.includes('10 dəqiqə'));assert.ok(format.includes('123456'));assert.ok(format.includes('heç kimlə paylaşmayın'));assert.ok(format.includes('avtomatik göndərilib'));assert.ok(format.includes('komandası.'));}
   assert.ok(mail.subject.endsWith('— kirayeal.az'));assert.ok(!mail.html.includes('<Aysel>'));assert.ok(!/display:none[^>]*>[^<]*123456/.test(mail.html),'Inbox preview must describe the operation without exposing the code');
  }
  const notice=noticeLetter({heading:'Yeni mesaj',name:'Aysel',intro:'Yeni mesajınız var.',rows:[{label:'Elan',value:'<b>Mənzil</b>'}],button:{text:'Mesajı oxuyun',href:'/messages'}});assert.ok(notice.html.includes('&lt;b&gt;'));assert.ok(notice.text.includes('/messages'));
+ const prose=noticeLetter({heading:'Məlumat yeniləndi',intro:'Məlumatlarınız yadda saxlanıldı',note:'Əlavə məlumat üçün şəxsi kabinetə keçin.',rows:[{label:'Elan',value:'Mənzil — № 123'}]});for(const output of [prose.html,prose.text]){assert.ok(output.includes('Məlumatlarınız yadda saxlanıldı.'));assert.ok(output.includes('Əlavə məlumat üçün şəxsi kabinetə keçin.'));assert.ok(!output.includes('keçin..'));assert.ok(output.includes('Mənzil — № 123'));}
  console.log('PASS fail-closed settings, reconnect recovery, leader permissions, bounded sample pages, email escaping and fallback links');
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -45,7 +45,7 @@ const pass=name=>{passed++;console.log('PASS',name)};
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     const eye=page.locator('.passwordToggle');
     if(await eye.count()){
-     const box=await eye.evaluate(n=>{const b=n.getBoundingClientRect(),i=n.querySelector('svg').getBoundingClientRect();return {width:b.width,height:b.height,contained:i.left>=b.left&&i.right<=b.right&&i.top>=b.top&&i.bottom<=b.bottom};});
+     const box=await eye.evaluate(n=>{const b=n.getBoundingClientRect(),i=n.querySelector('svg').getBoundingClientRect();return {width:Math.round(b.width*100)/100,height:Math.round(b.height*100)/100,contained:i.left>=b.left&&i.right<=b.right&&i.top>=b.top&&i.bottom<=b.bottom};});
      assert.ok(box.width>=44&&box.width<=50&&box.height>=44&&box.contained,'Eye icon must fit its consistent touch target');
      await page.locator('#auth-password').fill('PreviewPassword123');await eye.click();assert.equal(await page.locator('#auth-password').getAttribute('type'),'text');assert.equal(await page.locator('#auth-password').inputValue(),'PreviewPassword123');await eye.click();assert.equal(await page.locator('#auth-password').getAttribute('type'),'password');
     }

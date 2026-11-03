@@ -205,8 +205,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 <Link className="kzButtonGhost" href="/profile?section=store">Paketlərə bax</Link>
               </div>}
               <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
-                {/* Empty tabs are hidden (Aktiv and Gözləmədə always stay), so the row stays short. */}
-                {listingTabs.filter(([status]) => status === "published" || status === "pending" || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => (
+                {/* Core states stay in place. Payment stays available to the leader, when enabled, or for existing waiting listings. */}
+                {listingTabs.filter(([status]) => status !== "payment" || leader || paidVisible(flags) || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => (
                   <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setNotice(""); setError(""); }}>
                     {label}<b>{listings.filter((x) => matchesTab(x, status)).length}</b>
                   </button>

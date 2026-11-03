@@ -10,7 +10,13 @@ function load(file,imports={},globals={}){const e={};vm.runInNewContext(ts.trans
  const {safeLoginDestination}=load('lib/auth-messages.ts');assert.equal(safeLoginDestination('/messages'),'/messages');assert.equal(safeLoginDestination('/balance'),'/balance');
  for(const unsafe of ['https://example.com','//example.com','/messages?next=https://example.com','/unknown',null])assert.equal(safeLoginDestination(unsafe),'/profile');
  assert.equal(catalogPreview(real,samples,18).length,18);assert.equal(catalogPreview(real.slice(0,2),samples,18).length,18);assert.equal(catalogPreview(real.slice(0,2),samples,18)[0],'real-0');assert.equal(catalogPreview(real.slice(0,2),samples,18)[2],'sample-0');assert.equal(catalogPreview([],samples,18).length,18);
- const {codeLetter,noticeLetter}=await import('../scripts/email-frame.mjs');const letter=codeLetter({heading:'Hesabınızı təsdiqləyin',name:'<script>',intro:'Təsdiq kodunu daxil edin.',code:'123456',note:'10 dəqiqə'});assert.ok(letter.html.includes('&lt;script&gt;'));assert.ok(!letter.html.includes('<script>'));assert.ok(!letter.html.includes('&nbsp;&nbsp;'));assert.ok(letter.text.includes('123456'));
+ const {codeLetter,noticeLetter,verificationLetter}=await import('../scripts/email-frame.mjs');const letter=codeLetter({heading:'Hesabınızı təsdiqləyin',name:'<script>',intro:'Təsdiq kodunu daxil edin.',code:'123456',note:'10 dəqiqə'});assert.ok(letter.html.includes('&lt;script&gt;'));assert.ok(!letter.html.includes('<script>'));assert.ok(!letter.html.includes('&nbsp;&nbsp;'));assert.ok(letter.text.includes('123456'));
+ const purposes={signup:'qeydiyyat səhifəsində',recovery:'şifrə bərpası səhifəsində',email_change:'«Profil» bölməsində',staff_login:'giriş səhifəsində'};
+ for(const [purpose,destination] of Object.entries(purposes)){
+  const mail=verificationLetter(purpose,'<Aysel>','123456');
+  for(const format of [mail.html,mail.text]){assert.ok(format.includes(destination));assert.ok(format.includes('10 dəqiqə'));assert.ok(format.includes('123456'));assert.ok(format.includes('heç kimlə paylaşmayın'));assert.ok(format.includes('avtomatik göndərilib'));}
+  assert.ok(mail.subject.endsWith('— kirayeal.az'));assert.ok(!mail.html.includes('<Aysel>'));assert.ok(!/display:none[^>]*>[^<]*123456/.test(mail.html),'Inbox preview must describe the operation without exposing the code');
+ }
  const notice=noticeLetter({heading:'Yeni mesaj',name:'Aysel',intro:'Yeni mesajınız var.',rows:[{label:'Elan',value:'<b>Mənzil</b>'}],button:{text:'Mesajı oxuyun',href:'/messages'}});assert.ok(notice.html.includes('&lt;b&gt;'));assert.ok(notice.text.includes('/messages'));
  console.log('PASS fail-closed settings, reconnect recovery, leader permissions, bounded sample pages, email escaping and fallback links');
 })().catch(e=>{console.error(e);process.exitCode=1});

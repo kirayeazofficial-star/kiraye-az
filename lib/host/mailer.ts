@@ -14,6 +14,7 @@ export async function sendVerificationCode(email:string,code:string,purpose:"sig
   const subject=purpose==="staff_login"?"Panelə giriş kodu — kirayeal.az":purpose==="recovery"?"Şifrə yeniləmə kodu — kirayeal.az":purpose==="email_change"?"E-poçt dəyişmə kodu — kirayeal.az":"Hesab təsdiq kodu — kirayeal.az";
   const letter=codeLetter({
     name,
+    label:purpose==="staff_login"?"Panelə giriş":purpose==="recovery"?"Şifrə bərpası":purpose==="email_change"?"E-poçt dəyişikliyi":"Qeydiyyat",
     heading:purpose==="staff_login"?"Panelə girişi təsdiqləyin":purpose==="recovery"?"Şifrənizi yeniləyin":purpose==="email_change"?"E-poçt ünvanınızı təsdiqləyin":"Hesabınızı təsdiqləyin",
     intro:purpose==="staff_login"?"İdarəetmə panelinə yeni cihazdan giriş üçün sorğu daxil olmuşdur. Girişi təsdiqləmək üçün aşağıdakı kodu saytda müvafiq xanaya daxil edin. Təsdiqdən sonra bu cihaz 3 gün ərzində yadda saxlanılacaq.":purpose==="recovery"?"Şifrəni yeniləmək üçün aşağıdakı kodu saytda müvafiq xanaya yazın.":purpose==="email_change"?"E-poçt ünvanınızı dəyişmək üçün aşağıdakı kodu saytda müvafiq xanaya yazın.":"kirayeal.az-da qeydiyyatı tamamlamaq üçün aşağıdakı kodu saytda müvafiq xanaya yazın.",
     code,

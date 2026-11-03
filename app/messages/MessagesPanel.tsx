@@ -25,7 +25,7 @@ export default function MessagesPanel(){
  const day=(value:string)=>publicDate(value).split(',')[0];
  // Month names written out: browsers often lack Azerbaijani month names and print "M11 1".
  const months=['yan','fev','mar','apr','may','iyn','iyl','avq','sen','okt','noy','dek'];
- const shortTime=(value:string)=>{if(day(value)===day(new Date().toISOString()))return time(value);const parts=Object.fromEntries(dateFormat('en-GB',{timeZone:'Asia/Baku',day:'numeric',month:'numeric'}).formatToParts(new Date(value)).map(part=>[part.type,part.value]));return `${parts.day} ${months[Number(parts.month)-1]}`;};
+ const shortTime=(value:string)=>{if(day(value)===day(new Date().toISOString()))return time(value);const parts=Object.fromEntries(dateFormat('en-GB',{timeZone:'Asia/Baku',day:'numeric',month:'numeric'}).formatToParts(new Date(value)).map(part=>[part.type,part.value]));return `${Number(parts.day)} ${months[Number(parts.month)-1]}`;};
  const conversationOpen=!!(thread||listing);
  return <><Header/><main className={`kzMessages${conversationOpen?' hasConversation':''}`}>
   {!ready?<p className="kzMessagesState" role="status">Hesab yoxlanılır…</p>:!user?<div className="kzMessagesState"><span className="kzChatWelcomeIcon"><MessageSquareText aria-hidden="true" size={30} strokeWidth={1.7}/></span><h1>Mesajlar</h1><p>Yazışmalar yalnız hesab sahibi üçün görünür.</p>{error&&<Feedback>{error}</Feedback>}<Link className="kzButton" href="/login?next=%2Fmessages">Daxil ol</Link></div>:<>

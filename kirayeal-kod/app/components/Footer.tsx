@@ -1,9 +1,7 @@
 "use client";
 import { useLanguage } from "./LanguageProvider";
-import { siteContact } from "../../lib/site-contact";
 import Link from "next/link";
-import { Mail } from "lucide-react";
-import { InstagramIcon, TikTokIcon } from "./BrandIcons";
+import ContactLinks from "./ContactLinks";
 export default function Footer() {
   const {t} = useLanguage();
   // On phones the place lists start folded (open on computers); the links stay in the page either way.
@@ -30,13 +28,9 @@ export default function Footer() {
           <Link href="/terms">{t("İstifadəçi razılaşması")}</Link>
           <Link href="/new">{t("Elan yerləşdir")}</Link>
         </nav>
-        <div>
+        <div className="kzFooterContact">
           <strong>{t("Bizimlə əlaqə")}</strong>
-          <a className="kzContactLine" href={`mailto:${siteContact.email}`}><Mail aria-hidden="true" size={15} strokeWidth={2} />{siteContact.email}</a>
-          <span className="kzSocial">
-            <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={15} />Instagram</a>
-            <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={15} />TikTok</a>
-          </span>
+          <ContactLinks />
         </div>
       </div>
       {/* Places: short link lists for people and search engines (same pages as the city filter). */}

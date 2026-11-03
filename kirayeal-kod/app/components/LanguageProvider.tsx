@@ -3,6 +3,16 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { extraDictionary } from "../../lib/i18n";
 export type Language = "az" | "ru" | "en";
 const dictionary: Record<string, [string, string]> = {
+ "Elanlar üzrə yazışmalarınız":["Ваша переписка по объявлениям","Your listing conversations"],
+ "Yazışmaların sayı":["Количество переписок","Conversation count"],
+ "Hələ yazışmanız yoxdur":["У вас пока нет переписок","No conversations yet"],
+ "Bu bölmədə yazışma yoxdur":["В этом разделе нет переписок","No conversations in this section"],
+ "Digər yazışmaları görmək üçün “Hamısı” bölməsini seçin.":["Чтобы увидеть другие переписки, выберите «Все».","Select “All” to see your other conversations."],
+ "Elan səhifəsində “Mesaj yaz” düyməsi ilə elan sahibi ilə əlaqə saxlayın.":["Свяжитесь с владельцем с помощью кнопки «Написать» на странице объявления.","Contact the owner using the message button on the listing page."],
+ "Yazışma yüklənir…":["Загрузка переписки…","Loading conversation…"],
+ "Yazışma seçimləri":["Параметры переписки","Conversation options"],
+ "Yazışmanı açmaq mümkün olmadı. Yenidən cəhd edin.":["Не удалось открыть переписку. Повторите попытку.","Could not open the conversation. Please try again."],
+ "Mesajları yükləmək mümkün olmadı. Bağlantını yoxlayıb yenidən cəhd edin.":["Не удалось загрузить сообщения. Проверьте соединение и повторите попытку.","Could not load messages. Check your connection and try again."],
  "Axtarış":["Поиск","Search"],
  "Müddət":["Срок","Period"],
  "Çatdırılma":["Доставка","Delivery"],"Razılaşma ilə":["По договорённости","By agreement"],

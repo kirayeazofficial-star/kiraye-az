@@ -38,3 +38,5 @@ Build zamanı yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`) lazı
 `npm run test:ui` üçün yerli tətbiq işləməlidir (standart: `http://127.0.0.1:3000`). Başqa port üçün `KIRAYE_TEST_BASE_URL` təyin edin. Testlər 320–1440 px ekranları, seçilmişləri, dil dəyişməsini, kömək səhifəsini və e-mail şablonlarını yoxlayır; real məktub və mesaj göndərmir. Sistem Chromium-u yoxdursa əvvəl `npx playwright install chromium` işlədin. Alternativ Chromium yolu `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` ilə verilə bilər.
 
 `npm run test:gallery` üçün yerli bazada üç şəkilli sınaq elanının yolunu `KIRAYE_TEST_LISTING_PATH=/listings/<id>` ilə verin. Bu sınaq həqiqi toxunuşla sürüşməni, barmaq qalxmamış hərəkəti, tam ekran keçidini, ləğv edilmiş jesti, şəkil sərhədini, klaviaturanı və böyütməni yoxlayır. Statistik baxış sorğusu sınaqda əvəz olunur; elan və mesaj yaradılmır.
+
+`npm run test:messages` yazışma məlumatlarını təcrid olunmuş cavablarla əvəz edir: uzun ad/mətn, 320–1440 px düzülüş, mətn sahəsinin avtomatik böyüməsi və gecikən cavabların düzgün yazışmada qalması yoxlanılır. Real mesaj göndərilmir.

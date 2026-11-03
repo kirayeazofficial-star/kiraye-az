@@ -16,6 +16,9 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const slideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingSlide = useRef(false);
+  const [stageWidth, setStageWidth] = useState(0);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<{ distance: number; scale: number; startX: number; startY: number; view: View; moved: boolean } | null>(null);
   const lastTap = useRef<{ time: number; x: number; y: number } | null>(null);
@@ -27,7 +30,20 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
   const [animate, setAnimate] = useState(true);
   const current = Math.min(index, Math.max(0, images.length - 1));
   const many = images.length > 1;
-  const move = (delta: number) => { const next = current + delta; if (next < 0 || next >= images.length) return; setView(still); onChange(next); };
+  function move(delta: number) {
+    const next = current + delta;
+    if (pendingSlide.current || next < 0 || next >= images.length) return;
+    const width = stage.current?.clientWidth || 0;
+    if (!width || view.scale > 1 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setView(still); setDrag(0); onChange(next); return;
+    }
+    pendingSlide.current = true;
+    setAnimate(true); setDrag(-delta * width);
+    slideTimer.current = setTimeout(() => {
+      pendingSlide.current = false;
+      setAnimate(false); setDrag(0); setView(still); onChange(next);
+    }, 220);
+  }
 
   useEffect(() => {
     const node = dialog.current;
@@ -41,7 +57,18 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
       if (keyboardUsed.current && previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus({ preventScroll: true });
     };
   }, []);
-  useEffect(() => { setView(still); setDrag(0); setPull(0); }, [current]);
+  useEffect(() => {
+    if (slideTimer.current) clearTimeout(slideTimer.current);
+    pendingSlide.current = false;
+    lastTap.current = null;
+    setAnimate(false); setView(still); setDrag(0); setPull(0);
+    return () => { if (slideTimer.current) clearTimeout(slideTimer.current); };
+  }, [current]);
+  useEffect(() => {
+    const measure = () => setStageWidth(stage.current?.clientWidth || 0);
+    measure(); window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
   // Keep the active thumbnail in sight.
   useEffect(() => { dialog.current?.querySelector(".kzViewerThumbs [aria-current=true]")?.scrollIntoView({ block: "nearest", inline: "center" }); }, [current]);
 
@@ -63,6 +90,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
   }
 
   function down(event: React.PointerEvent) {
+    if (pendingSlide.current || (event.target instanceof Element && event.target.closest("button"))) return;
     try { event.currentTarget.setPointerCapture(event.pointerId); } catch { /* pointer already released */ }
     pointers.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
     const points = [...pointers.current.values()];
@@ -95,6 +123,7 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     }
   }
   function up(event: React.PointerEvent) {
+    if (!pointers.current.has(event.pointerId)) return;
     pointers.current.delete(event.pointerId);
     const g = gesture.current;
     if (pointers.current.size) { // one finger left after a pinch: continue as a drag from here
@@ -112,8 +141,10 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     }
     if (drag) {
       const width = stage.current?.clientWidth || 1;
-      setDrag(0);
-      if (Math.abs(drag) > Math.min(80, width * 0.18)) move(drag < 0 ? 1 : -1);
+      const direction = drag < 0 ? 1 : -1;
+      const canMove = current + direction >= 0 && current + direction < images.length;
+      if (canMove && Math.abs(drag) > Math.min(80, width * 0.18)) move(direction);
+      else setDrag(0);
       return;
     }
     if (g?.moved) return;
@@ -123,6 +154,13 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
       lastTap.current = null;
       if (view.scale > 1) setView(still); else zoomTo(2.5, event.clientX, event.clientY);
     } else lastTap.current = { time: now, x: event.clientX, y: event.clientY };
+  }
+
+  function cancel() {
+    if (slideTimer.current) clearTimeout(slideTimer.current);
+    pendingSlide.current = false;
+    pointers.current.clear(); gesture.current = null; axis.current = null;
+    setAnimate(true); setDrag(0); setPull(0);
   }
 
   return <dialog ref={dialog} className="imageViewer kzViewer" aria-label={`${title} — şəkillər`} style={{ ["--kz-pull" as string]: String(pull ? Math.max(0.3, 1 - pull / 450) : 1) } as React.CSSProperties}
@@ -141,9 +179,16 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
       </div>
     </div>
     <div ref={stage} className={`kzViewerStage${view.scale > 1 ? " zoomed" : ""}`}
-      onPointerDown={down} onPointerMove={moveTouch} onPointerUp={up} onPointerCancel={up}
+      onPointerDown={down} onPointerMove={moveTouch} onPointerUp={up} onPointerCancel={cancel}
       onWheel={event => { if (event.ctrlKey || Math.abs(event.deltaY) > 0) { zoomTo(Math.max(1, Math.min(MAX, view.scale * (event.deltaY < 0 ? 1.25 : 0.8))), event.clientX, event.clientY); } }}>
-      <img src={images[current] || "/placeholder.svg"} alt={`${title} — ${current + 1}-ci şəkil`} draggable={false}
+      {many && stageWidth > 0 && view.scale === 1 && !pull && [-1, 1].map(offset => {
+        const target = current + offset;
+        if (target < 0 || target >= images.length) return null;
+        return <img key={target} className="kzViewerNeighbor" src={sized(images[target])} alt="" aria-hidden="true" draggable={false}
+          style={{ transform: `translate3d(${offset * stageWidth + drag}px, 0, 0)`, transition: animate ? "transform .22s ease" : "none" }}
+          onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/placeholder.svg"; }} />;
+      })}
+      <img className="kzViewerCurrent" src={images[current] || "/placeholder.svg"} alt={`${title} — ${current + 1}-ci şəkil`} draggable={false}
         style={{ transform: `translate3d(${view.x + drag}px, ${view.y + pull}px, 0) scale(${view.scale * (pull ? Math.max(0.85, 1 - pull / 1500) : 1)})`, transition: animate ? "transform .22s ease" : "none" }}
         onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/placeholder.svg"; }}/>
       {many && view.scale === 1 && <>

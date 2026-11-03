@@ -8,13 +8,13 @@ export function authErrorMessage(error: unknown) {
   const message = e?.message ?? "";
   const hostMessages: Record<string, string> = {
     ACCOUNT_EXISTS: "Bu e-poçtla hesab artıq var. «Daxil ol» bölməsindən daxil olun. Şifrənizi unutmusunuzsa, «Şifrəni unutmusunuz?» keçidindən istifadə edin.",
-    INVALID_CREDENTIALS: "E-poçt və ya şifrə düzgün deyil.",
+    INVALID_CREDENTIALS: "E-poçt və ya şifrə yanlışdır. Məlumatları yoxlayın və ya şifrənizi bərpa edin.",
     ACCOUNT_BLOCKED: "Hesabınız sayt qaydalarının pozulmasına görə bloklanıb. Sual üçün kirayeal.az@gmail.com ünvanına yazın.",
     EMAIL_NOT_CONFIRMED: "E-poçtunuz hələ təsdiqlənməyib. Aşağıdan yeni təsdiq kodu istəyin.",
     INVALID_CODE: "Kod düzgün deyil və ya vaxtı bitib. Yeni kod istəyin.",
     INVALID_INPUT: "Məlumatları yoxlayın: ad və soyad, düzgün e-poçt, telefon və ən azı 8 simvolluq şifrə yazın.",
-    RATE_LIMIT: "Çox sayda kod istənilib. Bir saat gözləyib yenidən yoxlayın.",
-    TOO_MANY_ATTEMPTS: "Şifrə bir neçə dəfə səhv yazılıb. Təhlükəsizlik üçün giriş 15 dəqiqə bağlandı. Şifrənizi unutmusunuzsa, «Şifrəni unutmusunuz?» keçidindən istifadə edin.",
+    RATE_LIMIT: "Çox sayda cəhd edilib. Bir qədər gözləyib yenidən cəhd edin.",
+    TOO_MANY_ATTEMPTS: "Çox sayda uğursuz cəhdə görə giriş müvəqqəti məhdudlaşdırılıb. Bir qədər sonra yenidən cəhd edin və ya şifrənizi bərpa edin.",
     SERVICE_UNAVAILABLE: "Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən yoxlayın.",
   };
   if (code && hostMessages[code]) return hostMessages[code];

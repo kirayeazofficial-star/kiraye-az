@@ -1,6 +1,8 @@
 "use client";
 import { ChevronLeft, Eye, EyeOff, House, Mail, ShieldX } from "lucide-react";
 import StatusCard from "./StatusCard";
+import Feedback from "./Feedback";
+import AuthLayout from "./AuthLayout";
 import { normalizePhone } from "../../lib/rental-details";
 import { createStrongPassword } from "../../lib/strong-password";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -19,7 +21,7 @@ const pendingKey = "kiraye:pending-confirmation";
 async function hostAuth(action:string,payload:Record<string,unknown>={}){
   const response=await fetch('/api/auth/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});
   const data=await response.json();
-  if(!response.ok){const error=new Error(data.error||'SERVICE_UNAVAILABLE') as Error&{code?:string;status?:number};error.code=data.error;error.status=response.status;(error as Error&{reason?:string}).reason=data.reason;throw error;}
+  if(!response.ok){const error=new Error(data.error||'SERVICE_UNAVAILABLE') as Error&{code?:string;status?:number};error.code=data.error;error.status=response.status;(error as Error&{reason?:string}).reason=data.reason;(error as Error&{retryAt?:string}).retryAt=data.retry_at;throw error;}
   return data;
 }
 export default function Login({
@@ -66,7 +68,7 @@ export default function Login({
     if (value?.code === "ACCOUNT_BLOCKED") setBlocked(value.reason || "");
     setLoginFailed(
       scope === "login" &&
-        (value?.code === "invalid_credentials" ||
+        (value?.code === "INVALID_CREDENTIALS" || value?.code === "invalid_credentials" ||
           /invalid login credentials/i.test(value?.message || "")),
     );
     const seconds = rateLimitSeconds(error);
@@ -80,6 +82,9 @@ export default function Login({
         );
       } catch {}
     }
+  }
+  function clearLoginError() {
+    if (loginFailed) { setLoginFailed(false); setNotice(""); }
   }
   function clearPending() {
     try {
@@ -205,6 +210,7 @@ export default function Login({
     setBusy(true);
     setNotice("");
     setUnconfirmed(false);
+    setLoginFailed(false);
     try {
       if (mode === "reset") {
         await hostAuth('request_recovery',{email});
@@ -213,7 +219,7 @@ export default function Login({
         const fullName=String(form.get('full_name')||'').trim().replace(/\s+/g,' ');
         const contactPhone=normalizePhone(String(form.get('contact_phone')||''));
         if(fullName.length>100 || fullName.split(' ').length<2 || !fullName.split(' ').every(part=>/\p{L}/u.test(part))){setNotice('Ad və soyadınızı yazın.');return;}
-        if(!contactPhone){setNotice('Düzgün Azərbaycan telefon nömrəsi yaz.');return;}
+        if(!contactPhone){setNotice('Düzgün Azərbaycan telefon nömrəsi yazın.');return;}
         await hostAuth('signup',{email,password,name:fullName,phone:contactPhone});
         pending("signup", email);
       } else {
@@ -307,6 +313,7 @@ export default function Login({
             placeholder="000000"
           />
         </label>
+        {notice && <Feedback id="auth-error">{notice}</Feedback>}
         <button className="authSubmit" disabled={busy || verifyBlocked}>
           {busy ? "Yoxlanılır…" : "Kodu təsdiqlə"}
         </button>
@@ -333,7 +340,7 @@ export default function Login({
         <Link href="/help">Kömək</Link>
       </div>
       <div className="authShell">
-        <section aria-labelledby="auth-title">
+        <AuthLayout><section aria-labelledby="auth-title">
           <noscript>
             <p className="notice">
               Qeydiyyat və giriş üçün brauzerdə JavaScript-i aktiv edin.
@@ -396,10 +403,10 @@ export default function Login({
               {!verification && (
                 <p className="authLead">
                   {mode === "signup"
-                    ? "Qeydiyyat pulsuzdur. Hesab yaratdıqdan sonra elan yerləşdirə, elan sahiblərinə yaza və bəyəndiyiniz elanları yadda saxlaya bilərsiniz."
+                    ? "Elan yerləşdirmək və yazışmaq üçün hesab yaradın."
                     : mode === "reset"
                       ? "Hesabınıza bağlı e-poçt ünvanını yazın. Həmin ünvana 6 rəqəmli bərpa kodu göndəriləcək."
-                      : "Elanlarınızı idarə etmək, mesajlara cavab vermək və seçilmiş elanlarınızı görmək üçün hesabınıza daxil olun."}
+                      : "Elanlarınızı və yazışmalarınızı idarə etmək üçün daxil olun."}
                 </p>
               )}
               {!verification ? (
@@ -436,7 +443,9 @@ export default function Login({
                         autoComplete="email"
                         value={emailAddress}
                         onInput={(e) => setEmailAddress(e.currentTarget.value)}
-                        onChange={(e) => setEmailAddress(e.target.value)}
+                        onChange={(e) => { setEmailAddress(e.target.value); clearLoginError(); }}
+                        aria-invalid={loginFailed || undefined}
+                        aria-describedby={loginFailed ? "auth-error" : undefined}
                         required
                         maxLength={254}
                         placeholder="E-poçt ünvanınız"
@@ -460,7 +469,9 @@ export default function Login({
                           <input
                             ref={passwordInput}
                             id="auth-password"
-                            aria-describedby={mode === "signup" ? "password-hint" : undefined}
+                            aria-describedby={loginFailed ? "auth-error" : mode === "signup" ? "password-hint" : undefined}
+                            aria-invalid={loginFailed || undefined}
+                            onChange={clearLoginError}
                             aria-label="Şifrə"
                             name="password"
                             type={showPassword ? "text" : "password"}
@@ -504,6 +515,8 @@ export default function Login({
                         )}
                       </div>
                     )}
+                    {mode !== "reset" && <div className="authOptions">
+                      <label className="rememberLogin"><input type="checkbox" checked={remember} onChange={event=>setRemember(event.target.checked)}/>Məni yadda saxla</label>
                     {mode === "login" && (
                       <a
                         href={`/login?mode=reset&next=${encodeURIComponent(next)}`}
@@ -525,7 +538,8 @@ export default function Login({
                         Şifrəni unutmusunuz?
                       </a>
                     )}
-                    {mode!=="reset"&&<label className="rememberLogin"><input type="checkbox" checked={remember} onChange={event=>setRemember(event.target.checked)}/>Məni yadda saxla</label>}
+                    </div>}
+                    {notice && <Feedback id="auth-error">{notice}</Feedback>}
                     <button
                       className="authSubmit"
                       disabled={!ready || busy || submitBlocked}
@@ -595,23 +609,8 @@ export default function Login({
                 (verification && (mailBlocked || verifyBlocked)) ||
                 (unconfirmed && mailBlocked)) && (
                 <p className="notice" role="status">
-                  Təkrar cəhd üçün {requestCooldown} saniyə gözləyin. Bu müddətdə
-                  yeni sorğu göndərilmir.
+                  Yenidən cəhd üçün {requestCooldown >= 60 ? `${Math.ceil(requestCooldown / 60)} dəqiqə` : `${requestCooldown} saniyə`} gözləyin.
                 </p>
-              )}
-              {notice && (
-                <div className="notice" role="status">
-                  {notice}
-                  {loginFailed && (
-                    <button
-                      type="button"
-                      className="recoveryAction"
-                      onClick={() => changeMode("reset")}
-                    >
-                      Şifrəni yenilə
-                    </button>
-                  )}
-                </div>
               )}
               {!verification && <div className="authFooter">
                 <a
@@ -647,6 +646,7 @@ export default function Login({
         {!verification && <Link className="authBack" href="/">
           <ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Elanlara qayıt
         </Link>}
+        </AuthLayout>
       </div>
     </main>
   );

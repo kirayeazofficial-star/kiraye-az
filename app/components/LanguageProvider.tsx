@@ -3,6 +3,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { extraDictionary } from "../../lib/i18n";
 export type Language = "az" | "ru" | "en";
 const dictionary: Record<string, [string, string]> = {
+ "Elanlarınızı idarə edin":["Управляйте объявлениями","Manage your listings"],"Elan sahibi ilə yazışın":["Пишите владельцу","Message the owner"],"Bəyəndiklərinizi yadda saxlayın":["Сохраняйте избранное","Save your favorites"],"Kirayə üçün":["Для аренды","For rentals"],"bir ünvan.":["один адрес.","one place."],
+ "E-poçt və ya şifrə yanlışdır. Məlumatları yoxlayın və ya şifrənizi bərpa edin.":["Неверный адрес почты или пароль. Проверьте данные или восстановите пароль.","Incorrect email or password. Check your details or reset your password."],
+ "Elan yerləşdirmək və yazışmaq üçün hesab yaradın.":["Создайте аккаунт для размещения объявлений и переписки.","Create an account to post listings and send messages."],
+ "Elanlarınızı və yazışmalarınızı idarə etmək üçün daxil olun.":["Войдите, чтобы управлять объявлениями и перепиской.","Sign in to manage your listings and conversations."],
  "Qərarın səbəbi":["Причина решения","Decision reason"],"Şəkil yüklənir…":["Загрузка фотографии…","Loading photo…"],"Elan yeniləndi":["Объявление обновлено","Listing updated"],
  "Elanlar üzrə yazışmalarınız":["Ваша переписка по объявлениям","Your listing conversations"],
  "Yazışmaların sayı":["Количество переписок","Conversation count"],

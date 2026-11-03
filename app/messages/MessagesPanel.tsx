@@ -6,6 +6,7 @@ import {FormEvent,useCallback,useEffect,useRef,useState} from "react";
 import Link from "next/link";import Header from "../components/Header";import Footer from "../components/Footer";import {publicDate} from "../../lib/public-date";
 import UserAvatar from "../components/UserAvatar";
 import EmptyArt from "../components/EmptyArt";
+import Feedback from "../components/Feedback";
 type Thread={id:string;listing_id:string;listing_title:string;listing_image?:string|null;peer_name:string;peer_avatar?:string|null;is_buyer?:boolean;peer_no:number;listing_active:boolean;blocked:boolean;blocked_by_me:boolean;last_message_at?:string;preview?:string;unread?:number};type Message={id:number;author_id:string;body:string;created_at:string};
 async function api(action:string,data:Record<string,unknown>={}){const response=await fetch('/api/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...data})}),body=await response.json();if(!response.ok)throw new Error(body.error||'MESSAGE_FAILED');return body;}
 function explain(code:string){return code==='OWN_LISTING'?'Öz elanınıza mesaj göndərmək mümkün deyil. Elanı kabinetinizdən idarə edə bilərsiniz.':code==='BLOCKED'?'Bu yazışmada mesaj göndərilməsi bloklanıb.':code==='RATE_LIMIT'?'Mesajlar çox qısa fasilə ilə göndərilir. Bir qədər gözləyib yenidən cəhd edin.':'Əməliyyat baş tutmadı. Yenidən yoxlayın.';}
@@ -25,8 +26,8 @@ export default function MessagesPanel(){
  const shortTime=(value:string)=>day(value)===day(new Date().toISOString())?time(value):dateFormat('az-AZ',{timeZone:'Asia/Baku',day:'numeric',month:'short'}).format(new Date(value));
  const conversationOpen=!!(thread||listing);
  return <><Header/><main className={`kzMessages${conversationOpen?' hasConversation':''}`}>
-  {!ready?<p className="kzMessagesState" role="status">Hesab yoxlanılır…</p>:!user?<div className="kzMessagesState"><span className="kzChatWelcomeIcon"><MessageSquareText aria-hidden="true" size={30} strokeWidth={1.7}/></span><h1>Mesajlar</h1><p>Yazışmalar yalnız hesab sahibi üçün görünür.</p><Link className="kzButton" href="/login?next=%2Fmessages">Daxil ol</Link></div>:<>
-   {error&&<div className="kzNotice" role="alert"><span>{error}</span><button type="button" className="kzLinkButton" onClick={()=>void inbox()}>Yenidən yoxla</button></div>}
+  {!ready?<p className="kzMessagesState" role="status">Hesab yoxlanılır…</p>:!user?<div className="kzMessagesState"><span className="kzChatWelcomeIcon"><MessageSquareText aria-hidden="true" size={30} strokeWidth={1.7}/></span><h1>Mesajlar</h1><p>Yazışmalar yalnız hesab sahibi üçün görünür.</p>{error&&<Feedback>{error}</Feedback>}<Link className="kzButton" href="/login?next=%2Fmessages">Daxil ol</Link></div>:<>
+   {error&&<Feedback>{error}<button type="button" className="kzFeedbackRetry" onClick={()=>void inbox()}>Yazışma siyahısını yenilə</button></Feedback>}
    <div className="kzChat">
     <aside className="kzChatList" aria-label="Söhbətlər">
      <div className="kzChatListHead"><div><h1>Mesajlar</h1><p>Elanlar üzrə yazışmalarınız</p></div>{!!threads.length&&<span aria-label="Yazışmaların sayı">{threads.length}</span>}</div>

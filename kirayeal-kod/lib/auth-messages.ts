@@ -70,7 +70,7 @@ export function authErrorMessage(error: unknown) {
 export function safeLoginDestination(next: string | null) {
   if (
     next &&
-    (["/new", "/profile", "/account", "/admin"].includes(next) ||
+    (["/new", "/profile", "/account", "/admin", "/messages", "/balance"].includes(next) ||
       /^\/edit\/[0-9a-f-]{36}$/i.test(next))
   )
     return next;

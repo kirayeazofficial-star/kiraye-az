@@ -20,7 +20,7 @@ export default function Toaster() {
   }, []);
   if (!items.length) return null;
   return <div className="kzToasts" aria-live="polite">
-    {items.map(item => <div key={item.id} className={`kzToast ${item.kind}`} role="status">
+    {items.map(item => <div key={item.id} className={`kzToast ${item.kind}`} role={item.kind === "error" ? "alert" : "status"}>
       {item.kind === "error" ? <TriangleAlert aria-hidden="true" size={20} strokeWidth={2.2} /> : <CircleCheck aria-hidden="true" size={20} strokeWidth={2.2} />}
       <span>{item.text}</span>
       <button type="button" aria-label="Bağla" onClick={() => setItems(list => list.filter(other => other.id !== item.id))}><X aria-hidden="true" size={18} strokeWidth={2.2} /></button>

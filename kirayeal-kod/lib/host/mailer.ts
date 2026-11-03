@@ -16,7 +16,7 @@ export async function sendVerificationCode(email:string,code:string,purpose:"sig
     name,
     label:purpose==="staff_login"?"Panelə giriş":purpose==="recovery"?"Şifrə bərpası":purpose==="email_change"?"E-poçt dəyişikliyi":"Qeydiyyat",
     heading:purpose==="staff_login"?"Panelə girişi təsdiqləyin":purpose==="recovery"?"Şifrənizi yeniləyin":purpose==="email_change"?"E-poçt ünvanınızı təsdiqləyin":"Hesabınızı təsdiqləyin",
-    intro:purpose==="staff_login"?"İdarəetmə panelinə yeni cihazdan giriş üçün sorğu daxil olmuşdur. Girişi təsdiqləmək üçün aşağıdakı kodu saytda müvafiq xanaya daxil edin. Təsdiqdən sonra bu cihaz 3 gün ərzində yadda saxlanılacaq.":purpose==="recovery"?"Şifrəni yeniləmək üçün aşağıdakı kodu saytda müvafiq xanaya yazın.":purpose==="email_change"?"E-poçt ünvanınızı dəyişmək üçün aşağıdakı kodu saytda müvafiq xanaya yazın.":"kirayeal.az-da qeydiyyatı tamamlamaq üçün aşağıdakı kodu saytda müvafiq xanaya yazın.",
+    intro:purpose==="staff_login"?"İdarəetmə panelinə yeni cihazdan giriş üçün sorğu daxil olmuşdur. Girişi təsdiqləmək üçün aşağıdakı kodu saytda müvafiq xanaya daxil edin. Təsdiqdən sonra bu cihaz 3 gün ərzində yadda saxlanılacaq.":purpose==="recovery"?"Şifrəni yeniləmək üçün aşağıdakı kodu saytda müvafiq xanaya daxil edin.":purpose==="email_change"?"E-poçt ünvanınızı dəyişmək üçün aşağıdakı kodu saytda müvafiq xanaya daxil edin.":"kirayeal.az-da qeydiyyatı tamamlamaq üçün aşağıdakı kodu saytda müvafiq xanaya daxil edin.",
     code,
     note:"Kod 10 dəqiqə ərzində etibarlıdır.",
   });

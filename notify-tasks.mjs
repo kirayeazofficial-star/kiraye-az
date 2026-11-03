@@ -39,7 +39,7 @@ async function expiring(db, send, claim) {
       heading: "Elanınızın yayım müddəti başa çatır",
       name: row.name,
       intro: `«${row.title}» elanınızın yayım müddəti ${row.until} tarixində başa çatır. Elan hələ aktualdırsa, onu kabinetinizdən yeniləyə və ya irəli çəkə bilərsiniz.`,
-      button: { text: "Elanlarımı idarə et", href: "/profile?section=listings" },
+      button: { text: "Elanlarımı idarə edin", href: "/profile?section=listings" },
       note: "Əmlak və ya əşya artıq kirayəyə verilibsə, heç bir əməliyyat tələb olunmur: müddət başa çatdıqda elan avtomatik olaraq saytdan çıxarılacaq.",
     }));
   }
@@ -87,7 +87,7 @@ async function savedSearches(db, send, claim) {
       name: alert.name,
       intro: `Yadda saxladığınız «${alert.label}» axtarışına uyğun ${found.length > 5 ? "bir neçə" : found.length} yeni elan dərc olunub. Ən sonuncular aşağıdadır.`,
       rows: found.slice(0, 5).map((item) => ({ label: `${item.title} · ${item.city}`, value: `${money(item.price)} ₼/${period(item.rental_period)}`, href: `/listings/${item.id}` })),
-      button: { text: "Bütün elanlara bax", href: "/#elanlar" },
+      button: { text: "Bütün elanlara baxın", href: "/#elanlar" },
       note: "Bu bildiriş saytda yadda saxladığınız axtarış əsasında göndərilib. Axtarışı ana səhifədəki «Yadda saxlanılan axtarışlar» bölməsindən silə bilərsiniz.",
     }));
   }

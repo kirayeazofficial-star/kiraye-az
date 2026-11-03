@@ -15,6 +15,7 @@ import { rentalCategorySpecs } from "../../lib/rental-category-specs";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { searchCatalog, PAGE_SIZE } from "../../lib/catalog";
+import { catalogPreview } from "../../lib/catalog-preview";
 import { matchesRentalFilters, isProperty } from "../../lib/rental-details";
 import {
   carModels,
@@ -248,7 +249,7 @@ export default function Home() {
             ? b.price - a.price
             : Date.parse(b.created_at) - Date.parse(a.created_at),
       );
-    return demo ? samples : [...listings, ...samples];
+    return catalogPreview(demo ? [] : listings, samples, PAGE_SIZE);
   }, [
     demo,
     page,
@@ -426,7 +427,7 @@ export default function Home() {
               <p className="kzMuted" role="status" aria-live="polite">
                 {loading
                   ? t("Elanlar yüklənir…")
-                  : `${demo ? filtered.length : total + filtered.length - listings.length} ${t("elan tapıldı")}`}
+                  : `${demo ? 0 : total} ${t("elan tapıldı")}${filtered.some(item => item.demo) ? ` · ${filtered.filter(item => item.demo).length} ${t("nümunə")}` : ""}`}
               </p>
             </div>
             {/* Nothing saved yet: no map or sort buttons to show. */}

@@ -62,6 +62,10 @@ const dictionary: Record<string, [string, string]> = {
  "Minimum qiymət":["Минимальная цена", "Minimum price"],
  "Maksimum qiymət":["Максимальная цена", "Maximum price"],
  "elan tapıldı":["объявлений найдено", "listings found"],
+ "Nümunə elan":["Пример объявления", "Sample listing"],
+ "Tam mətn":["Полный текст", "Full text"],
+ "Yığcam göstər":["Свернуть", "Show less"],
+ "Rədd səbəbi":["Причина отклонения", "Rejection reason"],
  "nümunə":["пример", "sample"],
  "Seçilmişlərdən çıxar":["Убрать из избранного", "Remove from favorites"],
  "Seçilmişlərə əlavə et":["Добавить в избранное", "Add to favorites"],
@@ -117,8 +121,10 @@ function rendered(original: string | undefined, current: string) {
   return original !== undefined && (current === original || current === lookup(original, "ru") || current === lookup(original, "en"));
 }
 function skip(node: Node) {
-  const parent = node.parentElement;
-  return !parent || !!parent.closest("script,style,textarea,[translate=no],[contenteditable=true]");
+  const element = node.nodeType === Node.ELEMENT_NODE ? node as Element : node.parentElement;
+  // The HTML attribute protects React from browser translation. Local opt-outs
+  // still protect user-authored content from our own dictionary translation.
+  return !element || !!element.closest("script,style,textarea,[translate=no]:not(html),[data-user-content],[contenteditable=true]");
 }
 function translateText(node: Text, language: Language) {
   if (skip(node)) return;
@@ -131,6 +137,7 @@ function translateText(node: Text, language: Language) {
   if (next !== current) node.nodeValue = next;
 }
 function translateAttributes(element: Element, language: Language) {
+  if (skip(element)) return;
   for (const name of translatedAttributes) {
     if (!element.hasAttribute(name)) continue;
     const saved = attributeOriginals.get(element) || {};
@@ -145,7 +152,8 @@ function translateAttributes(element: Element, language: Language) {
 function translateTree(root: Node, language: Language) {
   if (root.nodeType === Node.TEXT_NODE) { translateText(root as Text, language); return; }
   if (!(root instanceof Element) && root !== document.body) return;
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+  if (skip(root)) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, { acceptNode: node => skip(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
   if (root instanceof Element) translateAttributes(root, language);
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     if (node.nodeType === Node.TEXT_NODE) translateText(node as Text, language);

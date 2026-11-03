@@ -1,5 +1,19 @@
 // Russian and English for texts written directly in components. Key: exact Azerbaijani text.
 export const extraDictionary: Record<string, [string, string]> = {
+  // Formal system notices shared by account and moderation screens.
+  "Tarixçə yüklənmədi. Yenidən cəhd edin.": ["Не удалось загрузить историю. Повторите попытку.", "Could not load the history. Please try again."],
+  "Dəyişiklik saxlanılmadı. Siyahını yeniləyin və təkrar cəhd edin.": ["Изменение не сохранено. Обновите список и повторите попытку.", "The change was not saved. Refresh the list and try again."],
+  "İdarəçi səlahiyyəti olan hesabla daxil olun.": ["Войдите в учётную запись с правами администратора.", "Sign in with an administrator account."],
+  "Başqa vəziyyət seçin və ya axtarış şərtlərini dəyişin.": ["Выберите другой статус или измените условия поиска.", "Choose another status or change your search."],
+  "Mesajlar çox qısa fasilə ilə göndərilir. Bir qədər gözləyib yenidən cəhd edin.": ["Сообщения отправляются слишком часто. Подождите и повторите попытку.", "Messages are being sent too quickly. Wait a moment and try again."],
+  "Əməliyyat baş tutmadı. Yenidən yoxlayın.": ["Не удалось выполнить действие. Повторите попытку.", "The action could not be completed. Please try again."],
+  "Hesab məlumatları yoxlanılmadı. Səhifəni yeniləyin.": ["Не удалось проверить данные учётной записи. Обновите страницу.", "Could not verify your account details. Refresh the page."],
+  "Elan səhifəsində “Mesaj yaz” düyməsini seçərək yazışmaya başlayın.": ["Нажмите «Написать» на странице объявления, чтобы начать переписку.", "Choose “Send a message” on the listing page to start a conversation."],
+  "Yazışma seçin": ["Выберите переписку", "Select a conversation"],
+  "Siyahıdan yazışmanı seçərək mesajlara baxın.": ["Выберите переписку в списке, чтобы просмотреть сообщения.", "Choose a conversation from the list to view messages."],
+  "Mesajınızı aşağıdakı xanaya daxil edin.": ["Введите сообщение в поле ниже.", "Enter your message in the field below."],
+  "Yazışmanı açmaq mümkün olmadı. Yenidən yoxlayın.": ["Не удалось открыть переписку. Повторите попытку.", "Could not open the conversation. Please try again."],
+
   // Cabinet
   "Yüklənir…": ["Загрузка…", "Loading…"],
   "Hesabına daxil ol": ["Войди в аккаунт", "Sign in to your account"],

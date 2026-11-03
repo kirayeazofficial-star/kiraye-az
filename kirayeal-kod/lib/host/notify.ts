@@ -23,8 +23,8 @@ export async function notifyNewMessage(threadId:string,authorId:string){
       heading:"Sizə yeni mesaj daxil olub",
       name:row.name,
       intro:`${row.author||"Saytın istifadəçisi"} «${row.title}» elanı ilə bağlı sizə mesaj göndərib. Mesajı oxumaq və cavablandırmaq üçün aşağıdakı düyməyə keçin.`,
-      button:{text:"Mesajı oxu",href:`/messages`},
-      note:"Sorğulara vaxtında cavab vermək kirayə ehtimalını artırır və profilinizdə cavab sürəti göstəricisini yaxşılaşdırır.",
+      button:{text:"Mesajı oxuyun",href:`/messages`},
+      note:"Kirayə tarixlərini və digər şərtləri yazışmada dəqiqləşdirməyiniz tövsiyə olunur.",
     }));
   }catch(error){console.error("message notice failed:",(error as Error).message);}
 }
@@ -42,7 +42,7 @@ export async function notifyRejected(listingId:string,reason:string){
       name:row.name,
       intro:`«${row.title}»${row.no?` (№ ${row.no})`:""} elanınız yoxlamadan keçmədi və saytda dərc olunmadı. Səbəbi aşağıda göstərilib. Elanı düzəldib yenidən yoxlamaya göndərə bilərsiniz.`,
       rows:[{label:`Səbəb: ${reason}`}],
-      button:{text:"Elanı düzəlt",href:`/edit/${listingId}`},
+      button:{text:"Elanı redaktə edin",href:`/edit/${listingId}`},
       note:"Elan yerləşdirmə qaydaları ilə saytın «Qaydalar» bölməsində tanış ola bilərsiniz. Sualınız olarsa, kirayeal.az@gmail.com ünvanına elan nömrəsini qeyd etməklə yazın.",
       footerNote:"Bu məktub elanınızla bağlı avtomatik göndərilib.",
     }));

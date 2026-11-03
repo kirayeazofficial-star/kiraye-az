@@ -8,6 +8,7 @@
     "start": "node scripts/start-server.mjs",
     "lint": "tsc --noEmit --incremental false",
     "test:ui": "node tests/marketplace.cjs",
+    "test:quality": "node tests/site-quality.cjs && node tests/media-thumbnails.cjs",
     "postbuild": "node scripts/prepare-standalone.mjs",
     "package:hosting": "node scripts/package-hosting.mjs",
     "prebuild": "node scripts/prepare-browser-compat.mjs",
@@ -39,5 +40,8 @@
     "Firefox >= 78",
     "Safari >= 15",
     "iOS >= 15"
-  ]
+  ],
+  "devDependencies": {
+    "playwright": "1.64.1"
+  }
 }

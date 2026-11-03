@@ -26,7 +26,7 @@ function frame({ label, title, preheader, body, footerNote }) {
     <tr><td align="center" style="padding:0 0 18px;font-family:${FONT};">
       <a href="${site}" style="font-size:22px;line-height:26px;font-weight:700;letter-spacing:-0.4px;color:${BRAND};text-decoration:none;">kirayeal<span style="color:${ACCENT};">.az</span></a>
     </td></tr>
-    <tr><td style="background:#ffffff;border:1px solid ${LINE};border-radius:10px;padding:30px 28px 28px;font-family:${FONT};color:${TEXT};">
+    <tr><td style="background:#ffffff;border:1px solid ${LINE};border-radius:10px;padding:30px 28px 28px;font-family:${FONT};color:${TEXT};overflow-wrap:anywhere;word-break:break-word;">
       <p style="margin:0 0 8px;text-align:center;font-family:${FONT};font-size:12px;line-height:16px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:${MUTED};">${esc(label)}</p>
       <h1 style="margin:0 0 22px;padding:0 0 22px;border-bottom:1px solid ${LINE};text-align:center;font-family:${FONT};font-size:19px;line-height:26px;font-weight:600;color:${INK};">${esc(sentence(title))}</h1>
       ${body}
@@ -34,7 +34,7 @@ function frame({ label, title, preheader, body, footerNote }) {
     </td></tr>
     <tr><td align="center" style="padding:20px 20px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${MUTED};">
       ${esc(footerNote)}<br>
-      <a href="${site}/help" style="color:${MUTED};text-decoration:underline;">Kömək</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${site}/rules" style="color:${MUTED};text-decoration:underline;">Qaydalar</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="${site}/privacy" style="color:${MUTED};text-decoration:underline;">Məxfilik</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="mailto:kirayeal.az@gmail.com" style="color:${MUTED};text-decoration:underline;">kirayeal.az@gmail.com</a><br>
+      <a href="${site}/help" style="color:${MUTED};text-decoration:underline;">Kömək</a> &middot; <a href="${site}/rules" style="color:${MUTED};text-decoration:underline;">Qaydalar</a> &middot; <a href="${site}/privacy" style="color:${MUTED};text-decoration:underline;">Məxfilik</a> &middot; <a href="mailto:kirayeal.az@gmail.com" style="color:${MUTED};text-decoration:underline;">kirayeal.az@gmail.com</a><br>
       <span style="color:${FAINT};">© ${year} ${BRAND_TEXT} — Azərbaycanda kirayə elanları</span>
     </td></tr>
   </table>
@@ -51,18 +51,18 @@ export function codeLetter({ heading: title, name, intro, code, note, label = "T
         <span style="font-family:${FONT};font-size:28px;line-height:34px;font-weight:600;letter-spacing:8px;color:${INK};">${esc(code)}</span>
       </td></tr></table>
       <p style="margin:0 0 4px;text-align:center;font-family:${FONT};font-size:13px;line-height:20px;color:${MUTED};">${esc(note)}</p>
-      ${small("Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın — hesabınızda heç nə dəyişməyəcək. Kodu heç kimə deməyin: kirayeal.az əməkdaşları kodunuzu heç vaxt soruşmur.")}`;
-  const html = frame({ label, title, preheader: `${sentence(title)} Kod: ${code}`, body, footerNote: "Bu məktub avtomatik göndərilib, cavab yazmağa ehtiyac yoxdur." });
-  const text = textLetter(title, [greeting(name), "", intro, "", `Kod: ${code}`, note, "", "Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın. Kodu heç kimə deməyin."]);
+      ${small("Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın — hesabınızda heç nə dəyişməyəcək. Təsdiq kodunu heç kimlə paylaşmayın: kirayeal.az əməkdaşları kodunuzu heç vaxt soruşmur.")}`;
+  const html = frame({ label, title, preheader: `${sentence(title)} Kod: ${code}`, body, footerNote: "Bu məktub avtomatik göndərilmişdir. Bu ünvana cavab göndərməyiniz tələb olunmur." });
+  const text = textLetter(title, [greeting(name), "", intro, "", `Kod: ${code}`, note, "", "Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın. Təsdiq kodunu heç kimlə paylaşmayın."]);
   return { html, text };
 }
 
 // Notice (security alert, new message, rejected or expiring listing, saved search, reports): text,
 // optional details panel, one button and an optional note.
-export function noticeLetter({ heading: title, name, intro, rows = [], button, note, label = "Bildiriş", footerNote = "Bu məktub avtomatik göndərilib. Bildirişləri kabinetdə, «Profil» bölməsində söndürə bilərsiniz." }) {
-  const cell = (i) => `padding:11px 16px;${i ? `border-top:1px solid ${LINE};` : ""}font-family:${FONT};font-size:14px;line-height:20px;vertical-align:top;`;
+export function noticeLetter({ heading: title, name, intro, rows = [], button, note, label = "Bildiriş", footerNote = "Bu məktub avtomatik göndərilmişdir. E-poçt bildirişlərini şəxsi kabinetinizin «Profil» bölməsində idarə edə bilərsiniz." }) {
+  const cell = (i) => `padding:11px 16px;${i ? `border-top:1px solid ${LINE};` : ""}font-family:${FONT};font-size:14px;line-height:20px;vertical-align:top;overflow-wrap:anywhere;word-break:break-word;`;
   const list = rows.length ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 22px;background:${PANEL};border:1px solid ${LINE};border-radius:8px;border-collapse:separate;">${rows.map((row, i) => row.value !== undefined
-    ? `<tr><td style="${cell(i)}color:${MUTED};white-space:nowrap;">${esc(row.label)}</td><td align="right" style="${cell(i)}color:${INK};font-weight:500;">${row.href ? `<a href="${esc(link(row.href))}" style="color:${INK};text-decoration:none;">${esc(row.value)}</a>` : esc(row.value)}</td></tr>`
+    ? `<tr><td style="${cell(i)}color:${MUTED};overflow-wrap:anywhere;word-break:break-word;">${esc(row.label)}</td><td align="right" style="${cell(i)}color:${INK};font-weight:500;">${row.href ? `<a href="${esc(link(row.href))}" style="color:${INK};text-decoration:none;">${esc(row.value)}</a>` : esc(row.value)}</td></tr>`
     : `<tr><td colspan="2" style="${cell(i)}color:${INK};">${row.href ? `<a href="${esc(link(row.href))}" style="color:${INK};text-decoration:none;font-weight:500;">${esc(row.label)}</a>` : esc(row.label)}</td></tr>`).join("")}</table>` : "";
   const cta = button ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 0;"><tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="background:${BRAND};border-radius:6px;"><a href="${esc(link(button.href))}" style="display:inline-block;padding:11px 26px;font-family:${FONT};font-size:14px;line-height:20px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;">${esc(button.text)}</a></td></tr></table></td></tr></table>` : "";
   const body = `${para(greeting(name), INK)}${para(intro)}${list}${cta}${note ? small(note) : ""}`;

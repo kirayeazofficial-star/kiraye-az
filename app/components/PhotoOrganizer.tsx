@@ -1,4 +1,5 @@
 "use client";
+import { sized } from "../../lib/image-size";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -56,7 +57,7 @@ export default function PhotoOrganizer({ photos, onChange, removable = true }: {
       onPointerDown={event => down(event, photo.id)} onPointerMove={over} onPointerUp={finish} onPointerCancel={finish}
       onContextMenu={event => event.preventDefault()}
       onKeyDown={event => { if (event.key === "ArrowLeft" || event.key === "ArrowUp") { event.preventDefault(); move(index, index - 1); } if (event.key === "ArrowRight" || event.key === "ArrowDown") { event.preventDefault(); move(index, index + 1); } }}>
-      <img src={photo.src} alt="" draggable={false} />
+      <img src={sized(photo.src)} alt="" draggable={false} decoding="async" />
       {removable && <button type="button" className="kzPhotoRemove" aria-label={`${index + 1}-ci şəkli sil`} onClick={() => onChange(photos.filter(item => item.id !== photo.id))}>
         <X aria-hidden="true" size={13} strokeWidth={2.75} />
       </button>}

@@ -1,3 +1,4 @@
+import { ADMIN_LIST_PAGE_SIZE } from "../../../lib/admin-list-page";
 import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
@@ -6,7 +7,7 @@ import {announcement,cleanAnnouncement,cleanMaintenance,maintenance,paymentsEnab
 
 export const dynamic="force-dynamic";
 const ownerEmail="kirayeal.az@gmail.com";
-const PAGE=24,REPORT_PAGE=50;
+const PAGE=ADMIN_LIST_PAGE_SIZE,REPORT_PAGE=50;
 const listingStatuses=new Set(["pending","published","rejected","archived","expired","draft"]);
 const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
 const day=/^\d{4}-\d{2}-\d{2}$/;

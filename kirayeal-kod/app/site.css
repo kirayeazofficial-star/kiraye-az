@@ -602,13 +602,17 @@ body.kz-admin{--kz-bg:var(--kz-soft)}
 .kzAdFilters input,.kzAdFilters select,.kzAdReject select,.kzAdReject textarea{min-height:40px;margin:0;padding:0 12px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;color:var(--kz-ink);font:inherit;font-size:var(--fs-14);box-shadow:none}
 .kzAdFilters input[type=search],.kzAdFilters input:not([type]){flex:1;min-width:200px}
 .kzAdCount{margin:0 0 10px}
-.kzAdList{display:grid;gap:10px}
+.kzAdList{display:block}
+.kzAdList>.kzAdRow+.kzAdRow{margin-top:10px}
 .kzAdRow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px 16px;padding:14px;border:1px solid var(--kz-line);border-radius:12px;background:#fff}
 .kzAdRow.kzAdListing{grid-template-columns:112px minmax(0,1fr) auto}
-.kzAdThumb{position:relative;display:block;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--kz-soft)}
-.kzAdThumb img{width:100%;height:100%;object-fit:cover;display:block}
+.kzAdThumb{position:relative;display:block;border-radius:10px;overflow:hidden;background:var(--kz-soft)}
+/* Keep image intrinsic dimensions out of grid sizing on older mobile engines. */
+.kzAdThumb::before{content:"";display:block;padding-top:75%}
+.kzAdThumb img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;display:block}
 .kzAdThumb small{position:absolute;right:6px;bottom:6px;padding:1px 6px;border-radius:6px;background:rgba(0,0,0,.6);color:#fff;font-size:var(--fs-11)}
-.kzAdRowMain{min-width:0;display:grid;gap:3px}
+.kzAdRowMain{min-width:0;display:block}
+.kzAdRowMain>*+*{margin-top:3px}
 .kzAdRowMain h3{margin:2px 0 0!important;font-size:var(--fs-16)!important}
 .kzAdRowMain p{margin:0;font-size:var(--fs-14);color:var(--kz-text)}
 .kzAdRowTop{display:flex;flex-wrap:wrap;align-items:center;gap:6px}

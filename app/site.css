@@ -1288,9 +1288,9 @@ html.kz-soft-page,html.kz-soft-page>body{background:var(--kz-soft)!important}
 .kzAdTodo button:not(.attention):not(.warn){background:var(--kz-soft);border-color:transparent;color:var(--kz-muted)}
 .kzAdTodo button:not(.attention):not(.warn) b{color:var(--kz-ink)}
 @media (max-width:767px){
-  .kzAdmin:has(.kzAdMenu) .kzAdminHead{display:block!important;margin:0 0 10px!important}
-  .kzAdmin:has(.kzAdMenu) .kzAdminHead h1{font-size:var(--fs-20)!important}
-  .kzAdmin:has(.kzAdMenu) .kzAdminHead p{display:none}
+  body.kz-admin-menu .kzAdmin .kzAdminHead{display:block!important;margin:0 0 10px!important}
+  body.kz-admin-menu .kzAdmin .kzAdminHead h1{font-size:var(--fs-20)!important}
+  body.kz-admin-menu .kzAdmin .kzAdminHead p{display:none}
   .kzAdMenu{display:flex!important;flex-direction:column;gap:0!important;padding:4px 0!important;border-radius:14px;background:#fff;overflow:hidden}
   .kzAdMenu button{flex-direction:row!important;justify-content:flex-start!important;gap:12px!important;min-height:60px!important;padding:8px 12px 8px 14px!important;border-radius:0!important;text-align:left!important}
   .kzAdMenu button+button{border-top:1px solid var(--kz-line)!important}
@@ -2203,7 +2203,6 @@ html{-webkit-tap-highlight-color:transparent}
 .accountMenuPanel button[class*="logout"],.accountMenuPanel .accountLogout,.accountMenuPanel button.logout{color:var(--kz-danger,#d92d20)!important}.accountMenuPanel button[class*="logout"] svg,.accountMenuPanel .accountLogout svg,.accountMenuPanel button.logout svg{color:var(--kz-danger,#d92d20)!important}
 /* Moderasiya kartı: düymələr ikonla, "Ətraflı bax" tam enli və bir sətirdə */
 .kzAdRowActions .kzAdBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
-.kzAdRowActions:has(>.kzAdBtn:only-child) .kzAdBtn{grid-column:1/-1}
 .kzAdDetailsBtn{grid-column:1/-1;display:flex!important;align-items:center;justify-content:center;gap:8px;width:100%;height:40px;margin-top:10px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;color:var(--kz-ink)!important;font-size:14px!important;font-weight:600!important;white-space:nowrap}
 .kzAdDetailsBtn:hover{background:var(--kz-soft)!important}
 .kzAdDetailsBtn svg{color:var(--kz-accent)}

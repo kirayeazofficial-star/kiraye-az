@@ -1132,7 +1132,6 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .rentalPeriodChoice { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .rentalPeriodChoice label { min-width:0;padding:10px;gap:6px; }
-.rentalPeriodChoice label:has(input:disabled) { opacity:.55; }
 .savedSearches { font-size:12px;margin-top:8px; }
 .savedSearches summary { cursor:pointer;color:#3d4450; }
 .savedSearches>div>div { display:flex;justify-content:space-between;gap:10px; }

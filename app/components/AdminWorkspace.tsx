@@ -710,7 +710,7 @@ function SiteSettingsAdmin() {
       <form className="kzSetForm" onSubmit={event => { event.preventDefault(); void save("announcement", { ...draft, enabled: bar.enabled }, "Elan zolağı yadda saxlanıldı"); }}>
         <label className="kzSetField"><span>Mətn <small>{draft.text.length} / 200</small></span><textarea maxLength={200} rows={2} value={draft.text} onChange={event => setDraft({ ...draft, text: event.target.value })} placeholder="Məsələn: Bayram günlərində elanlar bir az gec yoxlanılır." /></label>
         <fieldset className="kzSetTone"><legend>Növ</legend>
-          {toneNames.map(([tone, label]) => <label key={tone}><input type="radio" name="tone" checked={draft.tone === tone} onChange={() => setDraft({ ...draft, tone })} /><i className={tone} aria-hidden="true" />{label}</label>)}
+          {toneNames.map(([tone, label]) => <label key={tone} className={draft.tone === tone ? "on" : undefined}><input type="radio" name="tone" checked={draft.tone === tone} onChange={() => setDraft({ ...draft, tone })} /><i className={tone} aria-hidden="true" />{label}</label>)}
         </fieldset>
         <label className="kzSetField"><span>Keçid (istəyə görə)</span><input type="text" inputMode="url" maxLength={300} value={draft.link} onChange={event => setDraft({ ...draft, link: event.target.value })} placeholder="/rules və ya https://…" /></label>
         <div className="kzSetPreview"><span>Önizləmə</span>{draft.text.trim() ? <AnnouncementView text={draft.text.trim()} tone={draft.tone} link={draft.link.trim() || undefined} onClose={() => {}} /> : <p className="kzAdMuted">Mətn yazanda zolaq burada görünəcək.</p>}</div>

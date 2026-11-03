@@ -545,12 +545,13 @@ function PropertyFields({
           // A yard house or a room has no lift.
           .filter((value) => !(category === "property" && value === "Lift" && kind !== "Mənzil"))
           .map((value) => (
-            <label className="checkLabel" key={value}>
+            <label className={`checkLabel${attributes?.amenities?.includes(value) ? " on" : ""}`} key={value}>
               <input
                 type="checkbox"
                 name="amenities"
                 value={value}
                 defaultChecked={attributes?.amenities?.includes(value)}
+                onChange={event => event.currentTarget.parentElement?.classList.toggle("on", event.currentTarget.checked)}
               />
               <span>{value}</span>
             </label>

@@ -24,7 +24,7 @@ export default function ListingCard({
   return (
     <article className="kzCard">
       <Link prefetch={false} className="kzCardLink" href={`/listings/${item.id}`}>
-        <span className="kzCardPhoto" style={{["--bg" as string]:`url("${item.images?.[0] || "/placeholder.svg"}")`} as React.CSSProperties}>
+        <span className={`kzCardPhoto${!item.images?.[0] || item.images[0].includes("/placeholders/") ? " isPlaceholder" : ""}`} style={{["--bg" as string]:`url("${sized(item.images?.[0]) || "/placeholder.svg"}")`} as React.CSSProperties}>
           <img src={sized(item.images?.[0]) || "/placeholder.svg"} alt="" loading="lazy" decoding="async" onError={event=>{if(!event.currentTarget.src.endsWith('/placeholder.svg'))event.currentTarget.src='/placeholder.svg';}} />
           
           {item.store && <em className="kzCardStore" title={item.store.name}>Mağaza</em>}

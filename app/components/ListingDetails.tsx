@@ -170,7 +170,7 @@ export default function ListingDetails({
             moveImage(event.key === "ArrowLeft" ? -1 : 1);
           }
         }}>
-        <div className="galleryStage" style={{["--ratio" as string]:String(photoRatio),["--bg" as string]:`url("${item.images?.[selectedImage]||"/placeholder.svg"}")`} as CSSProperties}
+        <div className={`galleryStage${!item.images?.[selectedImage] || item.images[selectedImage].includes("/placeholders/") ? " isPlaceholder" : ""}`} style={{["--ratio" as string]:String(photoRatio),["--bg" as string]:`url("${sized(item.images?.[selectedImage])||"/placeholder.svg"}")`} as CSSProperties}
           onTouchStart={(event) => {
             swiped.current = false;
             const touch = event.touches.length === 1 ? event.touches[0] : null;
@@ -280,7 +280,7 @@ export default function ListingDetails({
         </strong>
         {loweredFrom(item) && <p className="kzPriceDrop"><TrendingDown aria-hidden="true" size={16} strokeWidth={2.2} />Qiymət endirildi: <s>{money(loweredFrom(item)!)} ₼</s> → <b>{money(item.price)} ₼</b></p>}
         {(() => { const other = ([["daily", "price_daily"], ["weekly", "price_weekly"], ["monthly", "price_monthly"]] as const).filter(([period, key]) => period !== item.rental_period && Number(item.attributes?.[key]) > 0); return other.length ? <p className="kzOtherPriceLine">{other.map(([period, key]) => <span key={key}>{money(Number(item.attributes?.[key]))} ₼ <small>/ {periodName(period)}</small></span>)}</p> : null; })()}
-        {facts.length > 0 && <dl className="kzKeyFacts">{facts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
+        {facts.length > 0 && <dl className={`kzKeyFacts${facts.length === 2 ? " two" : ""}`}>{facts.map(fact => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl>}
         {isLeader && !effectiveOwner && item.status === "published" && !item.demo && <div className="kzLeaderPromo">
           <span>Rəhbər: bu elanı pulsuz reklam edə bilərsiniz</span>
           <PromotionOptions label="Reklam et" listingId={item.id} />

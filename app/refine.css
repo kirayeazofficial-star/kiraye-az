@@ -21,10 +21,10 @@ body.kz-sticky-contact{padding-bottom:70px}
 }
 
 /* Placeholder photos: show the whole picture on a matching background */
-.galleryStage:has(img[src*="/placeholders/"]){background:#ffeadf!important}
-.galleryStage:has(img[src*="/placeholders/"])::before{display:none!important}
+.galleryStage.isPlaceholder{background:#ffeadf!important}
+.galleryStage.isPlaceholder::before{display:none!important}
 .galleryStage img[src*="/placeholders/"]{object-fit:contain!important}
-.galleryStage:has(img[src*="/placeholders/"]){aspect-ratio:16/10!important;height:auto!important;max-height:none!important}
+.galleryStage.isPlaceholder{aspect-ratio:16/10!important;height:auto!important;max-height:none!important}
 .stickyContact .add{background:#3db460!important;border-color:#3db460!important;color:#fff!important}
 
 /* Phone: compact hero so listings start higher */

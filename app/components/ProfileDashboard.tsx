@@ -244,7 +244,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                         {expired && !x.deleted_at && <p className="kzOwnHint">{leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} Bərpa olunmasa, 180 gün sonra arxivə keçir.</p>}
                         {x.deleted_at && <p className="kzOwnHint">Silinib: {shortDate(x.deleted_at)}. {leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} 180 gün sonra arxivə keçir.</p>}
                       </div>
-                      <div className="accountItemActions">
+                      <div className={`accountItemActions n${(x.payment_required && !x.deleted_at ? 2 : expired || current === "rejected" ? 1 : current === "published" ? 2 : 1) + (x.deleted_at ? 0 : 1)}`}>
                         {x.payment_required && !x.deleted_at ? <>
                             <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Göndər" : "Ödəniş et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>

@@ -11,7 +11,7 @@ if (signalApi && typeof signalApi.timeout !== "function") {
 //    classes instead of body:has(…) / html:has(…): in Safari a page-level :has() makes every change on the page
 //    re-check the whole page's styles, which old iPhones feel as freezing. One check per frame at most.
 if (typeof document !== "undefined") {
-  const bodyStates: [string, string][] = [["kz-chat-open", ".kzMessages.hasConversation"], ["kz-messages", ".kzMessages"], ["kz-tabbar-hidden", ".kzTabbarHidden"], ["kz-compact", ".kzHeaderCompact"], ["kz-account", ".accountDashboard"], ["kz-account-page", ".kzAccountPage"], ["kz-admin", ".kzAdmin"], ["kz-admin-menu", ".kzAdMenu"], ["kz-rental-home", ".rentalHome"], ["kz-sticky-contact", ".stickyContact"]];
+  const bodyStates: [string, string][] = [["kz-chat-open", ".kzMessages.hasConversation"], ["kz-messages", ".kzMessages"], ["kz-tabbar-hidden", ".kzTabbarHidden"], ["kz-compact", ".kzHeaderCompact"], ["kz-account", ".accountDashboard"], ["kz-account-page", ".kzAccountPage"], ["kz-admin", ".kzAdmin"], ["kz-admin-menu", ".kzAdMenu"], ["kz-screen-section", ".accountDashboard .screen-section"], ["kz-safety-page", "main>.kzSafety"], ["kz-rental-home", ".rentalHome"], ["kz-sticky-contact", ".stickyContact"]];
   const htmlStates: [string, string][] = [["kz-soft-page", ".accountDashboard,.kzAccountPage,.kzAdmin"], ["kz-login", ".loginPage"]];
   let queued = false;
   const sync = () => {

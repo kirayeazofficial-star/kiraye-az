@@ -811,7 +811,7 @@ main h1,main h2,main h3{color:var(--kz-ink)!important}
 .kzSheetBody .advancedFilters input[type=checkbox]{width:20px;height:20px;accent-color:var(--kz-accent)}
 .kzSheetBody .advancedFilters>button{grid-column:1/-1;justify-self:start;min-height:40px!important;padding:0 14px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff!important;color:var(--kz-ink)!important;font-size:var(--fs-14)!important;box-shadow:none!important}
 .kzSheetBody .advancedFilters .homeHelp{grid-column:1/-1;margin:0;font-size:var(--fs-13);color:var(--kz-muted)}
-.kzSheetBody .advancedFilters>*:has(.azDateControl),.kzSheetBody .advancedFilters>.azDateField{min-width:0}
+.kzSheetBody .advancedFilters>.azDate,.kzSheetBody .advancedFilters>.azDateField{min-width:0}
 .kzSheetFoot{padding:12px 20px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--kz-line)}
 .kzSheetFoot .kzButton{width:100%;height:48px}
 @media (max-width:767px){
@@ -1267,7 +1267,7 @@ body.kz-messages .kzFooter{display:none!important}
 .accountDashboard .accountListings article .accountItemActions>.kzDangerLink{width:auto!important;padding:0 10px!important}
 .accountDashboard .accountListings article .accountItemActions .promotionTrigger{padding:0 8px!important;gap:5px!important;white-space:nowrap;overflow:hidden;color:var(--kz-accent-dark)!important;border-color:#f6cdbb!important;background:var(--kz-accent-soft)!important}
 .accountDashboard .accountListings article .accountItemActions .promotionTrigger svg{width:15px;height:15px}
-.accountDashboard .accountListings article .accountItemActions:has(>:only-child){grid-template-columns:1fr!important}
+.accountDashboard .accountListings article .accountItemActions.n1{grid-template-columns:1fr!important}
 @media (min-width:768px){.accountDashboard .accountListings article .accountItemActions{grid-template-columns:1fr!important;min-width:140px}}
 .accountDashboard .accountListings article .accountItemActions>.promotionOptions{grid-column:auto!important;display:block!important;width:100%!important;margin:0!important;padding:0!important}
 .accountDashboard .accountListings article .accountItemActions>.promotionOptions>.promotionTrigger{width:100%!important;margin:0!important;box-sizing:border-box}
@@ -1351,7 +1351,7 @@ html.kz-login,html.kz-login>body{background:var(--kz-soft)!important}
 .listingDetails .thumbnails button:focus-visible{outline:2px solid var(--kz-accent)!important;outline-offset:2px}
 p.safetyNote{font-size:var(--fs-13)!important;color:#7a4a2a!important}
 @media (min-width:768px){.kzSafety{max-width:820px;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}}
-@media (min-width:768px){main:has(>.kzSafety)>:not(.kzSafety){max-width:820px;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}main:has(>.kzSafety)>nav,main:has(>.kzSafety)>h1,main:has(>.kzSafety)>p{width:100%}}
+@media (min-width:768px){body.kz-safety-page main>:not(.kzSafety){max-width:820px;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}body.kz-safety-page main>nav,body.kz-safety-page main>h1,body.kz-safety-page main>p{width:100%}}
 .promotionIcon.bump{background:#ebf1ff!important;color:#2f6fe4!important}
 .promotionIcon.vip{background:#fff1ec!important;color:#e2541f!important}
 .promotionIcon.premium{background:#fff6e0!important;color:#c98a00!important}
@@ -1579,7 +1579,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzCardPhoto::before{content:"";position:absolute;inset:-16px;z-index:-1;background:var(--bg) center/cover no-repeat;filter:blur(16px) brightness(.8)}
 .kzCardPhoto img{object-fit:contain!important}
 .kzCardPhoto img[src*="/placeholders/"],.kzCardPhoto img[src$="placeholder.svg"]{object-fit:cover!important}
-.kzCardPhoto:has(img[src*="/placeholders/"])::before,.kzCardPhoto:has(img[src$="placeholder.svg"])::before{display:none}
+.kzCardPhoto.isPlaceholder::before{display:none}
 
 /* Viewer: favourite + share next to close */
 .kzViewerTools button.on{color:#ff5a5f!important}
@@ -1680,7 +1680,7 @@ html{-webkit-tap-highlight-color:transparent}
 .loginPage .authFields .kzPhoneInput input,.loginPage .kzPhoneInput input[type=tel]{border:0!important;box-shadow:none!important;background:transparent!important;height:42px!important;margin:0!important}
 
 /* ===== Photos like classified sites: no blurred side bars; the photo sits on one calm neutral background ===== */
-.listingDetails .galleryStage,.listingDetails .galleryStage:has(img){background:#f1f2f4!important;isolation:auto!important}
+.listingDetails .galleryStage{background:#f1f2f4!important;isolation:auto!important}
 .listingDetails .galleryStage::before,.galleryStage::before{content:none!important;display:none!important}
 .listingDetails .galleryStage{border:1px solid var(--kz-line)!important;overflow:hidden!important}
 .galleryStage .galleryOpen>img.listingMainImage{object-fit:contain!important}
@@ -1776,10 +1776,10 @@ html{-webkit-tap-highlight-color:transparent}
 .kzHome.favoritesView .kzToolbar,.kzHome.favoritesView .kzActiveFilters,.kzHome.favoritesView .kzHint{display:none!important}
 /* Cabinet card actions: Redaktə et | Reklam et | Sil — three buttons of one style; Sil in red outline */
 .accountDashboard .accountListings article .accountItemActions{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-.accountDashboard .accountListings article .accountItemActions:has(>:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.accountDashboard .accountListings article .accountItemActions.n2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 .accountDashboard .accountListings article .accountItemActions>.kzDangerLink{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;width:100%!important;min-height:38px;padding:0 8px!important;border:1px solid #f5c2c3!important;border-radius:10px!important;background:#fff!important;color:var(--kz-danger)!important;font-weight:600!important;white-space:nowrap}
 .accountDashboard .accountListings article .accountItemActions>.kzDangerLink:hover{background:#fdecec!important}
-@media (min-width:768px){.accountDashboard .accountListings article .accountItemActions,.accountDashboard .accountListings article .accountItemActions:has(>:nth-child(2):last-child){grid-template-columns:1fr!important}}
+@media (min-width:768px){.accountDashboard .accountListings article .accountItemActions,.accountDashboard .accountListings article .accountItemActions.n2{grid-template-columns:1fr!important}}
 /* Admin moderation card: owner on its own line, never cut off */
 .kzAdOwnerLine{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;margin-top:2px!important}
 /* Chat header: block action lives in a quiet "⋯" menu */
@@ -1819,7 +1819,7 @@ html{-webkit-tap-highlight-color:transparent}
 .listingForm .rentalPeriodChoice label{position:relative;display:flex!important;align-items:center;justify-content:center;min-width:0;min-height:42px!important;margin:0!important;padding:0 6px!important;border:0!important;border-radius:9px!important;background:transparent!important;box-shadow:none!important;color:var(--kz-muted)!important;font-size:var(--fs-15)!important;font-weight:600!important;cursor:pointer;text-align:center}
 .listingForm .rentalPeriodChoice label.selected{background:#fff!important;color:var(--kz-ink)!important;box-shadow:0 1px 3px rgba(16,24,40,.14)!important}
 .listingForm .rentalPeriodChoice input{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;margin:0!important;pointer-events:none}
-.listingForm .rentalPeriodChoice label:has(input:focus-visible){outline:2px solid var(--kz-accent);outline-offset:1px}
+.listingForm .rentalPeriodChoice label:focus-within{outline:2px solid var(--kz-accent);outline-offset:1px}
 .listingForm .rentalPeriodChoice span{display:block}
 /* Description: a thin progress line only while the text is still short */
 .kzDescProgress{display:flex;align-items:center;gap:10px;margin-top:8px}
@@ -1921,7 +1921,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzSegmented label{position:relative;display:flex!important;align-items:center;justify-content:center;min-height:40px;margin:0!important;border-radius:9px;color:var(--kz-muted);font-size:var(--fs-15);font-weight:600;cursor:pointer}
 .kzSegmented label.selected{background:#fff;color:var(--kz-ink);box-shadow:0 1px 3px rgba(16,24,40,.14)}
 .kzSegmented input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
-.kzSegmented label:has(input:focus-visible){outline:2px solid var(--kz-accent);outline-offset:1px}
+.kzSegmented label:focus-within{outline:2px solid var(--kz-accent);outline-offset:1px}
 
 /* ===== Promotion dialog (bina.az style) ===== */
 .kzPromoDlg{width:min(480px,calc(100vw - 24px));max-height:min(88dvh,760px);margin:auto;padding:0;border:0;border-radius:18px;background:#fff;color:var(--kz-ink);box-shadow:0 24px 60px rgba(16,24,40,.28);overflow:hidden}
@@ -1948,7 +1948,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzPromoRadio{flex:none;width:20px;height:20px;border:2px solid #c9ccd3;border-radius:50%;background:#fff;transition:border-color .15s}
 .kzPromoList label.on .kzPromoRadio{border:6px solid var(--kz-accent)}
 .kzPromoList label.on .kzPromoPlan{color:var(--kz-ink);font-weight:600}
-.kzPromoList label:has(input:focus-visible) .kzPromoRadio{outline:2px solid var(--kz-accent);outline-offset:2px}
+.kzPromoList label:focus-within .kzPromoRadio{outline:2px solid var(--kz-accent);outline-offset:2px}
 .kzPromoPlan{flex:1;min-width:0;color:#374151}
 .kzPromoExtra{flex:none;padding:3px 9px;border-radius:999px;background:#fdecec;color:#c62828;font-size:var(--fs-12);font-weight:500}
 .kzPromoFoot{position:sticky;bottom:0;display:grid;gap:10px;padding:14px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--kz-line);background:#fff}
@@ -2021,7 +2021,7 @@ html{-webkit-tap-highlight-color:transparent}
 }
 /* Photo button: no ring after mouse/touch, a calm inset ring only for keyboard focus */
 .listingDetails .galleryStage .galleryOpen:focus,.listingDetails .galleryStage .galleryOpen:focus-visible{outline:none!important;box-shadow:none!important}
-.listingDetails .galleryStage:has(.galleryOpen:focus-visible){box-shadow:inset 0 0 0 3px rgba(255,90,31,.6)}
+.listingDetails .galleryStage .galleryOpen:focus-visible{box-shadow:inset 0 0 0 3px rgba(255,90,31,.6)}
 .listingGallery:focus{outline:none}
 
 /* Contact buttons: calmer size — lower, smaller text and icons (price box and bottom bar) */
@@ -2032,7 +2032,7 @@ html{-webkit-tap-highlight-color:transparent}
 /* Bottom bar uses the same colours as the price-box buttons */
 .stickyContact .add,.stickyContact .kzPhoneShown{background:var(--kz-green,#22a45d)!important;border-color:var(--kz-green,#22a45d)!important;color:#fff!important}
 .stickyContact .messageAction{background:#4b7bf5!important;border-color:#4b7bf5!important;color:#fff!important}
-.kzKeyFacts:has(>div:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))}
+.kzKeyFacts.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .kzStaffFree,.kzPromoStaff{margin:0;padding:10px 12px;border-radius:10px;background:#e8f7ee;border:1px solid #b7e4c7;color:#17803d;font-size:var(--fs-13);font-weight:600}
 .kzPromoDone{margin:0;padding:10px 12px;border-radius:10px;background:#e8f7ee;color:#17803d;font-size:var(--fs-14);font-weight:700;text-align:center}
 .kzPromoPay:disabled{opacity:.6;cursor:default}
@@ -2219,7 +2219,7 @@ html{-webkit-tap-highlight-color:transparent}
 .listingForm .amenitiesField>p{grid-column:1/-1;margin:0 0 2px!important;font-size:14px!important;font-weight:600!important;color:var(--kz-ink)}
 .listingForm .amenitiesField label.checkLabel{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;min-height:42px;margin:0!important;padding:0 12px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;font-size:14px!important;font-weight:500;color:var(--kz-ink);cursor:pointer}
 .listingForm .amenitiesField label.checkLabel input{flex:none;width:18px!important;height:18px!important;min-height:0!important;margin:0!important;accent-color:var(--kz-accent)}
-.listingForm .amenitiesField label.checkLabel:has(input:checked){border-color:var(--kz-accent);background:#fff5ef}
+.listingForm .amenitiesField label.checkLabel.on{border-color:var(--kz-accent);background:#fff5ef}
 @media (max-width:420px){.listingForm .amenitiesField{grid-template-columns:1fr 1fr}}
 /* Profil: e-poçt bildirişləri açarı */
 .kzNotifyRow{display:flex!important;align-items:center;gap:12px;padding:14px 16px!important}
@@ -2602,8 +2602,8 @@ html{-webkit-tap-highlight-color:transparent}
 @media (min-width:768px) and (max-width:1023px){
   .accountDashboard .accountListings article{grid-template-columns:104px minmax(0,1fr)!important}
   .accountDashboard .accountListings article .accountItemActions{grid-column:1/-1!important;min-width:0!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
-  .accountDashboard .accountListings article .accountItemActions:has(>:nth-child(2):last-child){grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  .accountDashboard .accountListings article .accountItemActions:has(>:only-child){grid-template-columns:1fr!important}
+  .accountDashboard .accountListings article .accountItemActions.n2{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .accountDashboard .accountListings article .accountItemActions.n1{grid-template-columns:1fr!important}
   .kzPlans{grid-template-columns:minmax(0,1fr)!important}
   .kzStoreForm .formGrid{grid-template-columns:minmax(0,1fr)!important}
   .kzStoreStatus{flex-wrap:wrap;align-items:flex-start}.kzStoreStatus>div{flex:1 1 calc(100% - 54px)}.kzStoreStatus>a{width:100%;justify-content:center}
@@ -2749,7 +2749,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzSetTone{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;border:0}
 .kzSetTone legend{margin:0 0 6px;padding:0}
 .kzSetTone label{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--kz-line);border-radius:10px;background:#fff;font-size:var(--fs-14,14px);cursor:pointer}
-.kzSetTone label:has(input:checked){border-color:var(--kz-ink);box-shadow:inset 0 0 0 1px var(--kz-ink)}
+.kzSetTone label.on{border-color:var(--kz-ink);box-shadow:inset 0 0 0 1px var(--kz-ink)}
 .kzSetTone input{position:absolute;opacity:0;pointer-events:none}
 .kzSetTone i{width:14px;height:14px;border-radius:50%}
 .kzSetTone i.info{background:#0f766e}.kzSetTone i.warn{background:#e8890c}

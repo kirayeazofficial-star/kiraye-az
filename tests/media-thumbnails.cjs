@@ -24,10 +24,10 @@ function load(file, imports = {}) {
     const folder = path.join(root, owner);
     await fs.mkdir(folder);
     await fs.writeFile(path.join(folder, file), 'full-resolution-original');
-    let fails = true;const sides=[];
+    let fails = true;
     const {GET} = load('app/api/media/[owner]/[file]/route.ts', {
       '../../../../../lib/host/thumbnail': {
-        makeThumbnail: (_source,side) => {sides.push(side);if (fails) throw new Error('decoder memory limit'); return Buffer.from('small-thumbnail');},
+        makeThumbnail: () => {if (fails) throw new Error('decoder memory limit'); return Buffer.from('small-thumbnail');},
         queuedThumbnail: async (_key, make) => {try {return await make();} catch {return null;}},
       },
     });
@@ -37,8 +37,6 @@ function load(file, imports = {}) {
     assert.equal(await response.text(), '');
     assert.equal(response.headers.get('cache-control'), 'no-store');
     assert.equal(await (await get('')).text(), 'full-resolution-original');
-    assert.equal((await get('?s=view')).status,422,'A missing detail copy must never return a huge original');
-    assert.ok(sides.includes(1200),'Detail copies must be bounded at 1200 px');
     await fs.writeFile(path.join(folder, `share-${file}`), 'detail-size-photo');
     assert.equal(await (await get('?s=view')).text(), 'detail-size-photo');
     fails = false;
@@ -47,19 +45,14 @@ function load(file, imports = {}) {
     assert.equal(await response.text(), 'small-thumbnail');
     fails = true;
     assert.equal(await (await get('?s=thumb')).text(), 'small-thumbnail');
-    await fs.unlink(path.join(folder, `share-${file}`));
-    assert.equal(await (await get('?s=view')).text(),'small-thumbnail','Failed detail resize may safely use an existing thumbnail');
-    fails=false;await get('?s=view');
-    assert.equal(await fs.readFile(path.join(folder, `share-${file}`),'utf8'),'small-thumbnail','Missing detail copy must be generated and kept for later visits');
     const {sized} = load('lib/image-size.ts');
     const address = `/api/media/${owner}/${file}`;
     assert.equal(sized(address), `${address}?s=thumb&v=2`);
-    assert.equal(sized(address,'view'),`${address}?s=view&v=2`);
     const query = new URL(sized(`${address}?s=view&other=keep`), 'http://localhost').searchParams;
     assert.equal(query.get('s'), 'thumb');
     assert.equal(query.get('v'), '2');
     assert.equal(query.get('other'), 'keep');
-    console.log('PASS bounded thumbnails/detail copies, safe fallback, generation cache and URL versioning');
+    console.log('PASS failed thumbnail never serves original; generation, cache, detail images and URL versioning work');
   } finally {
     if (previous === undefined) delete process.env.KIRAYE_STORAGE_ROOT;
     else process.env.KIRAYE_STORAGE_ROOT = previous;

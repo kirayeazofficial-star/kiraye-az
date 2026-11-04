@@ -1,6 +1,5 @@
 "use client";
 import TopBanner from "./TopBanner";
-import MobileCatalog from "./MobileCatalog";
 import { CirclePlus, LayoutGrid, Plus, X } from "lucide-react";
 import AccountMenu from "./AccountMenu";
 import TabIcon from "./TabIcon";
@@ -16,14 +15,13 @@ import CategoryVisual from "./CategoryVisual";
 import { categories } from "../../lib/marketplace";
 export default function Header() {
   const {t, language} = useLanguage();
+  const letterLocale = language === "az" ? "az-AZ" : language;
   const [accountId,setAccountId]=useState(""),[accountName,setAccountName]=useState(""),[accountPhone,setAccountPhone]=useState("");
   const [signedIn, setSignedIn] = useState(false);
   const pathname = usePathname();
   const [favoritesPage, setFavoritesPage] = useState(false);
   const [query, setQuery] = useState("");
   const [catalogOpen, setCatalogOpen] = useState(false);
-  const [mobile,setMobile]=useState(false);
-  useEffect(()=>{const media=window.matchMedia('(max-width:1023px)'),sync=()=>setMobile(media.matches);sync();media.addEventListener('change',sync);return()=>media.removeEventListener('change',sync);},[]);
   useEffect(() => {
     const open = () => setCatalogOpen(true);
     window.addEventListener("kiraye:catalog", open);
@@ -33,7 +31,7 @@ export default function Header() {
     if (!catalogOpen) return;
     const close = (event: Event) => {
       if (event instanceof KeyboardEvent && event.key !== "Escape") return;
-      if (event instanceof PointerEvent && (event.target as Element)?.closest?.(".kzCatalog,.kzCatalogDialog")) return;
+      if (event instanceof PointerEvent && (event.target as Element)?.closest?.(".kzCatalog")) return;
       setCatalogOpen(false);
     };
     window.addEventListener("pointerdown", close);
@@ -63,8 +61,6 @@ export default function Header() {
   const accountPage = ["/profile", "/account", "/balance", "/admin"].some(path => pathname === path || pathname?.startsWith(path + "/"));
   useEffect(() => {
     let active = true;
-    const expired=()=>{active=false;setSignedIn(false);setAccountId('');setAccountName('');setAccountPhone('');};
-    window.addEventListener('kiraye:session-expired',expired);
     fetch('/api/auth/host',{cache:'no-store'})
       .then(response=>response.json())
       .then((data) => {
@@ -72,7 +68,7 @@ export default function Header() {
       })
       .catch(() => {});
     return () => {
-      active = false;window.removeEventListener('kiraye:session-expired',expired);
+      active = false;
     };
   }, []);
   // Adverts only on public pages, never in the cabinet, messages, forms or the leader panel.
@@ -85,11 +81,11 @@ export default function Header() {
           <SiteMenu />
           <a className="kzLogo" href="/" aria-label="kirayeal.az — ana səhifə">kirayeal<span>.az</span></a>
           <div className="kzCatalog">
-            <button type="button" className="kzCatalogButton" aria-label={t("Kataloq")} title={t("Kataloq")} aria-expanded={catalogOpen} aria-controls="kz-catalog" onClick={() => setCatalogOpen(!catalogOpen)}>
+            <button type="button" className="kzCatalogButton" aria-expanded={catalogOpen} aria-controls="kz-catalog" onClick={() => setCatalogOpen(!catalogOpen)}>
               <LayoutGrid aria-hidden="true" size={18} strokeWidth={2} />
               <span>{t("Kataloq")}</span>
             </button>
-            {catalogOpen && !mobile && <nav id="kz-catalog" className="kzCatalogPanel" aria-label={t("Kateqoriyalar")}>
+            {catalogOpen && <nav id="kz-catalog" className="kzCatalogPanel" aria-label={t("Kateqoriyalar")}>
               <div className="kzCatalogHead"><strong>{t("Kataloq")}</strong><button type="button" aria-label={t("Bağla")} onClick={() => setCatalogOpen(false)}><X aria-hidden="true" size={20} strokeWidth={2} /></button></div>
               {categories.map(item => <a key={item.id} href={`/?category=${item.id}#elanlar`}><CategoryVisual id={item.id}/><span>{t(item.name)}</span></a>)}
             </nav>}
@@ -129,30 +125,29 @@ export default function Header() {
               : <Link className="kzGuest" href="/login"><span className="kzAvatar"><TabIcon name="user" active={pathname === "/login"}/></span><span>{t("Daxil ol")}</span></Link>}
           </nav>
           <Link className="kzPublish" href="/new">
-            <CirclePlus aria-hidden="true" size={20} strokeWidth={2} /><span>{t("Yeni elan")}</span>
+            <CirclePlus aria-hidden="true" size={20} strokeWidth={2} /><span>{t("Yeni elan").toLocaleUpperCase(letterLocale)}</span>
           </Link>
-          <LanguageSelect toggle />
+          <LanguageSelect />
           <Link className="kzMobilePublish" href="/new" aria-label={t("Yeni elan")}>
             <span className="kzRoundPlus" aria-hidden="true"><Plus size={20} strokeWidth={2.25} /></span>
           </Link>
         </div>
       </header>
-      {catalogOpen&&mobile&&<MobileCatalog onClose={()=>setCatalogOpen(false)}/>}
       <nav className={`kzTabbar${pathname?.startsWith("/listings/") ? " kzTabbarHidden" : ""}`} aria-label="Mobil menyu">
         <a href="/" onClick={sameSection("home")} aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
-          <TabIcon name="home" active={pathname === "/" && !favoritesPage}/><span>{t("Əsas")}</span>
+          <TabIcon name="home" active={pathname === "/" && !favoritesPage}/><span>{t("Əsas").toLocaleUpperCase(letterLocale)}</span>
         </a>
         <a href="/?favorites=1" onClick={sameSection("favorites")} aria-current={favoritesPage ? "page" : undefined}>
-          <TabIcon name="heart" active={favoritesPage}/><span>{t("Seçilmişlər")}</span>
+          <TabIcon name="heart" active={favoritesPage}/><span>{t("Seçilmişlər").toLocaleUpperCase(letterLocale)}</span>
         </a>
         <Link className="kzTabbarPublish" href="/new" aria-label={t("Yeni elan")} aria-current={pathname === "/new" || pathname?.startsWith("/edit/") ? "page" : undefined}>
-          <span className="kzTabPublishIcon" aria-hidden="true"><i className="kzTabPlus"><Plus size={26} strokeWidth={2.1} /></i></span><span>{(language === "ru" ? "Подать" : language === "en" ? "Post" : t("Yeni elan"))}</span>
+          <span className="kzTabPlus" aria-hidden="true"><Plus size={24} strokeWidth={2.25} /></span><span>{(language === "ru" ? "Подать" : language === "en" ? "Post" : t("Yeni elan")).toLocaleUpperCase(letterLocale)}</span>
         </Link>
         <Link href="/messages" onClick={sameSection("messages")} aria-current={pathname === "/messages" ? "page" : undefined}>
-          <TabIcon name="chat" active={pathname === "/messages"}/><span>{t("Mesajlar")}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
+          <TabIcon name="chat" active={pathname === "/messages"}/><span>{t("Mesajlar").toLocaleUpperCase(letterLocale)}</span>{accountId&&<UnreadMessages key={accountId} userId={accountId}/>}
         </Link>
         <Link href={signedIn ? "/profile" : "/login"} onClick={signedIn ? sameSection("account") : undefined} aria-current={accountPage || pathname === "/login" ? "page" : undefined}>
-          <TabIcon name="user" active={!!(accountPage || pathname === "/login")}/><span>{t("Kabinet")}</span>
+          <TabIcon name="user" active={!!(accountPage || pathname === "/login")}/><span>{t("Kabinet").toLocaleUpperCase(letterLocale)}</span>
         </Link>
       </nav>
     </>

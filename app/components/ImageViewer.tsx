@@ -2,8 +2,7 @@
 
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { sized } from "../../lib/image-size";
-import GalleryPhoto from "./GalleryPhoto";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type View = { scale: number; x: number; y: number };
 const still: View = { scale: 1, x: 0, y: 0 };
@@ -51,18 +50,14 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     const previousFocus = document.activeElement;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    if (node) {
-      if (typeof node.showModal === "function") node.showModal();
-      else { node.setAttribute("open", ""); node.querySelector<HTMLElement>(".kzViewerTop")?.focus(); }
-    }
+    node?.showModal();
     return () => {
-      if (node) { if (typeof node.close === "function") node.close(); else node.removeAttribute("open"); }
-      document.body.style.overflow = previousOverflow;
+      node?.close(); document.body.style.overflow = previousOverflow;
       // Give focus back only to keyboard users; after a tap/swipe a focus ring around the photo looked like a stray orange line.
       if (keyboardUsed.current && previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus({ preventScroll: true });
     };
   }, []);
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (slideTimer.current) clearTimeout(slideTimer.current);
     pendingSlide.current = false;
     lastTap.current = null;
@@ -172,16 +167,6 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     onCancel={event => { event.preventDefault(); onClose(); }}
     onKeyDown={event => {
       keyboardUsed.current = true;
-      // Safari versions without native modal dialogs still get a usable, contained viewer.
-      if (typeof dialog.current?.showModal !== "function") {
-        if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
-        if (event.key === "Tab") {
-          const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled),a[href]"));
-          const first = buttons[0], last = buttons[buttons.length - 1];
-          if (event.shiftKey && (document.activeElement === first || document.activeElement === event.currentTarget.querySelector(".kzViewerTop"))) { event.preventDefault(); last?.focus(); }
-          else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
-        }
-      }
       if (many && ["ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); move(event.key === "ArrowLeft" ? -1 : 1); }
       if (event.key === "+" || event.key === "=") zoomTo(Math.min(MAX, view.scale + 1));
       if (event.key === "-") zoomTo(view.scale - 1);
@@ -196,15 +181,16 @@ export default function ImageViewer({ images, title, index, onChange, onClose, a
     <div ref={stage} className={`kzViewerStage${view.scale > 1 ? " zoomed" : ""}`}
       onPointerDown={down} onPointerMove={moveTouch} onPointerUp={up} onPointerCancel={cancel}
       onWheel={event => { if (event.ctrlKey || Math.abs(event.deltaY) > 0) { zoomTo(Math.max(1, Math.min(MAX, view.scale * (event.deltaY < 0 ? 1.25 : 0.8))), event.clientX, event.clientY); } }}>
-      {images.map((src, target) => {
-        const offset = target - current;
-        if (Math.abs(offset) > 1 || (offset !== 0 && !stageWidth)) return null;
-        const active = offset === 0;
-        return <div key={`${target}-${src}`} className={active ? "kzViewerCurrent" : "kzViewerNeighbor"} aria-hidden={!active}
-          style={{ visibility: !active && (view.scale > 1 || pull > 0) ? "hidden" : "visible", transform: `translate3d(${offset * stageWidth + (active ? view.x : 0) + drag}px, ${active ? view.y + pull : 0}px, 0) scale(${active ? view.scale * (pull ? Math.max(0.85, 1 - pull / 1500) : 1) : 1})`, transition: animate ? "transform .22s ease" : "none" }}>
-          <GalleryPhoto src={src} alt={`${title} — ${target + 1}-ci şəkil`} />
-        </div>;
+      {many && stageWidth > 0 && view.scale === 1 && !pull && [-1, 1].map(offset => {
+        const target = current + offset;
+        if (target < 0 || target >= images.length) return null;
+        return <img key={target} className="kzViewerNeighbor" src={sized(images[target])} alt="" aria-hidden="true" draggable={false}
+          style={{ transform: `translate3d(${offset * stageWidth + drag}px, 0, 0)`, transition: animate ? "transform .22s ease" : "none" }}
+          onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/placeholder.svg"; }} />;
       })}
+      <img className="kzViewerCurrent" src={images[current] || "/placeholder.svg"} alt={`${title} — ${current + 1}-ci şəkil`} draggable={false}
+        style={{ transform: `translate3d(${view.x + drag}px, ${view.y + pull}px, 0) scale(${view.scale * (pull ? Math.max(0.85, 1 - pull / 1500) : 1)})`, transition: animate ? "transform .22s ease" : "none" }}
+        onError={event => { event.currentTarget.onerror = null; event.currentTarget.src = "/placeholder.svg"; }}/>
       {many && view.scale === 1 && <>
         {current > 0 && <button type="button" className="kzViewerArrow previous" onPointerDown={event => event.stopPropagation()} onClick={() => move(-1)} aria-label="Əvvəlki şəkil"><ChevronLeft aria-hidden="true" size={26} strokeWidth={2} /></button>}
         {current < images.length - 1 && <button type="button" className="kzViewerArrow next" onPointerDown={event => event.stopPropagation()} onClick={() => move(1)} aria-label="Növbəti şəkil"><ChevronRight aria-hidden="true" size={26} strokeWidth={2} /></button>}

@@ -75,7 +75,7 @@ export const rentalCategorySpecs: Record<string,Category> = {
     "Təmizlik avadanlığı":{models:{Kärcher:["K 2","K 4","K 5","K 7","Puzzi 10/1","SE 4001","WD 3","WD 5"],Nilfisk:["C 120","Core 140"],Bosch:["AdvancedAquatak"],Thomas:[],Numatic:[]},fields:[power,number("tank_l","Çən tutumu (litr)",0.1,1000,"0.1")]},
     "Bağ avadanlığı":{models:{Stihl:["FS 55","FS 131","MS 180","MS 250","RE 98"],Husqvarna:["120 Mark II","135 Mark II","LC 140"],Makita:["DUC254","DUR181"],Bosch:[],Champion:[],Patriot:[]},fields:toolFields},
   }},
-  event: {label:"Tədbir üçün nə təklif edirsiniz?",kinds:{
+  event: {label:"Tədbir üçün nə təklif edirsən?",kinds:{
     "Səs və işıq":{models:{JBL:["EON 712","EON 715","PartyBox 310","PartyBox 710","PRX 815"],Yamaha:["DBR12","DXR12","MG10XU","Stagepas 1K"],Bose:["L1 Pro","S1 Pro"],RCF:["ART 712","ART 745"],"Electro-Voice":["EKX","ZLX"],Pioneer:["DDJ-FLX4","XDJ-RX3","CDJ-3000"],Behringer:["X32","XR18"],Shure:["SM58","BLX","SLX-D"],Godox:[]},fields:[number("capacity","Neçə nəfər üçün uyğundur",1,100000),number("power_w","Güc (W)",1,100000),choice("with_operator","Operator / DJ ilə",["Bəli","Xeyr"])]},
     "Masa və stul":{models:{},fields:[number("quantity","Dəstdə neçə ədəd var",1,100000),number("capacity","Neçə nəfər üçün uyğundur",1,100000)]},
     "Çadır":{models:{},fields:[number("capacity","Neçə nəfər üçün uyğundur",1,100000),number("width_m","En (metr)",0.1,1000,"0.1"),number("length_m","Uzunluq (metr)",0.1,1000,"0.1")]},

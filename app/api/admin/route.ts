@@ -1,4 +1,4 @@
-import { ADMIN_LIST_PAGE_SIZE, ADMIN_ACTIVITY_PREVIEW_SIZE, ADMIN_HISTORY_PAGE_SIZE } from "../../../lib/admin-list-page";
+import { ADMIN_LIST_PAGE_SIZE } from "../../../lib/admin-list-page";
 import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
@@ -58,7 +58,7 @@ export async function GET(request:NextRequest){
       const [userPeriods,listingPeriods,activity,incomeRows]=await Promise.all([
         hostQuery<{today:string;week:string;month:string}>(`select coalesce(sum(d1),0)::text as today,coalesce(sum(d7),0)::text as week,coalesce(sum(d30),0)::text as month from (select ${periods} from auth.users where created_at>=now()-interval '30 days') x`),
         hostQuery<{today:string;week:string;month:string}>(`select coalesce(sum(d1),0)::text as today,coalesce(sum(d7),0)::text as week,coalesce(sum(d30),0)::text as month from (select ${periods} from public.listings where created_at>=now()-interval '30 days') x`),
-        hostQuery(`select e.id,e.listing_id,e.action,e.actor_kind,e.new_status,e.reason,e.created_at,p.display_name actor_name,l.title from public.moderation_events e left join public.profiles p on p.id=e.actor_id left join public.listings l on l.id=e.listing_id where e.actor_kind='admin' order by e.id desc limit $1`,[ADMIN_ACTIVITY_PREVIEW_SIZE]),
+        hostQuery(`select e.id,e.listing_id,e.action,e.actor_kind,e.new_status,e.reason,e.created_at,p.display_name actor_name,l.title from public.moderation_events e left join public.profiles p on p.id=e.actor_id left join public.listings l on l.id=e.listing_id where e.actor_kind='admin' order by e.id desc limit 8`),
         income,
       ]);
       const money=(value?:string)=>Number(value||0);
@@ -113,10 +113,9 @@ export async function GET(request:NextRequest){
     }
 
     if(action==="history"){
-      const raw=param(request,"before");
-      if(raw&&(!/^[1-9]\d{0,18}$/.test(raw)||BigInt(raw)>BigInt("9223372036854775807")))return reply({error:"INVALID_CURSOR"},400);
-      const rows=await hostQuery<{id:string}>(`select e.*,p.display_name actor_name from public.moderation_events e left join public.profiles p on p.id=e.actor_id where ($1::bigint is null or e.id<$1) order by e.id desc limit $2`,[raw||null,ADMIN_HISTORY_PAGE_SIZE+1]);
-      return reply({events:rows.slice(0,ADMIN_HISTORY_PAGE_SIZE),next:rows.length>ADMIN_HISTORY_PAGE_SIZE?rows[ADMIN_HISTORY_PAGE_SIZE-1].id:null});
+      const before=Number(param(request,"before"))||null;
+      const rows=await hostQuery<{id:string}>(`select e.*,p.display_name actor_name from public.moderation_events e left join public.profiles p on p.id=e.actor_id where ($1::bigint is null or e.id<$1) order by e.id desc limit 51`,[before]);
+      return reply({events:rows.slice(0,50),next:rows.length>50?rows[49].id:null});
     }
 
     if(action==="reports"){
@@ -204,7 +203,7 @@ export async function POST(request:NextRequest){
       if(!uuid.test(id)||!["published","rejected"].includes(status)||!["pending","published","rejected"].includes(from)||from===status||(status==="rejected"&&reason.length<10))return reply({error:"INVALID_ACTION"},400);
       const done=await hostTransaction(async db=>{
         const before=await db.query(`select first_published_at,category,owner_id from public.listings where id=$1 for update`,[id]);
-        const rows=await db.query(`update public.listings set status=$2,rejection_reason=$4,payment_required=case when $2='published' and $5::boolean then false else payment_required end,paid_reason=case when $2='published' and $5::boolean then null else paid_reason end,first_published_at=case when $2='published' then coalesce(first_published_at,now()) else first_published_at end,expires_at=case when $2='published' and (expires_at is null or expires_at<=now()) then now()+interval '30 days' else expires_at end,updated_at=now() where id=$1 and status=$3 and ($2<>'published' or not coalesce(payment_required,false) or $5::boolean) returning id,owner_id`,[id,status,from,status==="rejected"?reason:null,auth.role==="leader"]);
+        const rows=await db.query(`update public.listings set status=$2,rejection_reason=$4,first_published_at=case when $2='published' then coalesce(first_published_at,now()) else first_published_at end,expires_at=case when $2='published' and (expires_at is null or expires_at<=now()) then now()+interval '30 days' else expires_at end,updated_at=now() where id=$1 and status=$3 returning id,owner_id`,[id,status,from,status==="rejected"?reason:null]);
         if(!rows.rows[0])return false;
         await db.query(`insert into public.moderation_events(listing_id,owner_id,actor_id,actor_kind,action,old_status,new_status,reason) values($1,$2,$3,'admin',$4,$5,$6,$7)`,[id,rows.rows[0].owner_id,auth.user.id,status==="published"?"approved":"rejected",from,status,status==="rejected"?reason:null]);
         // The first approval uses one free placement; later approvals after edits do not.

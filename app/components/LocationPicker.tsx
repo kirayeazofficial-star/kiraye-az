@@ -26,13 +26,13 @@ export default function LocationPicker({ city, district, metro, point, exact, on
       <label>Rayon
         <select name="district" value={district} onChange={event => onDistrict(event.target.value)}>
           <option value="">Seç</option>
-          {bakuDistricts.map(name => <option key={name} value={name}>{name}</option>)}
+          {bakuDistricts.map(name => <option key={name}>{name}</option>)}
         </select>
       </label>
       <label>Metro
         <select name="metro" value={metro} onChange={event => onMetro(event.target.value)}>
           <option value="">Seç</option>
-          {bakuMetro.map(name => <option key={name} value={name}>{name}</option>)}
+          {bakuMetro.map(name => <option key={name}>{name}</option>)}
         </select>
       </label>
     </div>}

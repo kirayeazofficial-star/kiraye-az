@@ -1,24 +1,8 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
-import { formDictionary } from "../../lib/form-translations";
 import { extraDictionary } from "../../lib/i18n";
 export type Language = "az" | "ru" | "en";
 const dictionary: Record<string, [string, string]> = {
- "Elanlarınızı idarə edin":["Управляйте объявлениями","Manage your listings"],"Elan sahibi ilə yazışın":["Пишите владельцу","Message the owner"],"Bəyəndiklərinizi yadda saxlayın":["Сохраняйте избранное","Save your favorites"],"Kirayə üçün":["Для аренды","For rentals"],"bir ünvan.":["один адрес.","one place."],
- "E-poçt və ya şifrə yanlışdır. Məlumatları yoxlayın və ya şifrənizi bərpa edin.":["Неверный адрес почты или пароль. Проверьте данные или восстановите пароль.","Incorrect email or password. Check your details or reset your password."],
- "Elan yerləşdirmək və yazışmaq üçün hesab yaradın.":["Создайте аккаунт для размещения объявлений и переписки.","Create an account to post listings and send messages."],
- "Elanlarınızı və yazışmalarınızı idarə etmək üçün daxil olun.":["Войдите, чтобы управлять объявлениями и перепиской.","Sign in to manage your listings and conversations."],
- "Qərarın səbəbi":["Причина решения","Decision reason"],"Şəkil yüklənir…":["Загрузка фотографии…","Loading photo…"],"Elan yeniləndi":["Объявление обновлено","Listing updated"],
- "Elanlar üzrə yazışmalarınız":["Ваша переписка по объявлениям","Your listing conversations"],
- "Yazışmaların sayı":["Количество переписок","Conversation count"],
- "Hələ yazışmanız yoxdur":["У вас пока нет переписок","No conversations yet"],
- "Bu bölmədə yazışma yoxdur":["В этом разделе нет переписок","No conversations in this section"],
- "Digər yazışmaları görmək üçün “Hamısı” bölməsini seçin.":["Чтобы увидеть другие переписки, выберите «Все».","Select “All” to see your other conversations."],
- "Elan səhifəsində “Mesaj yaz” düyməsi ilə elan sahibi ilə əlaqə saxlayın.":["Свяжитесь с владельцем с помощью кнопки «Написать» на странице объявления.","Contact the owner using the message button on the listing page."],
- "Yazışma yüklənir…":["Загрузка переписки…","Loading conversation…"],
- "Yazışma seçimləri":["Параметры переписки","Conversation options"],
- "Yazışmanı açmaq mümkün olmadı. Yenidən cəhd edin.":["Не удалось открыть переписку. Повторите попытку.","Could not open the conversation. Please try again."],
- "Mesajları yükləmək mümkün olmadı. Bağlantını yoxlayıb yenidən cəhd edin.":["Не удалось загрузить сообщения. Проверьте соединение и повторите попытку.","Could not load messages. Check your connection and try again."],
  "Axtarış":["Поиск","Search"],
  "Müddət":["Срок","Period"],
  "Çatdırılma":["Доставка","Delivery"],"Razılaşma ilə":["По договорённости","By agreement"],
@@ -37,14 +21,14 @@ const dictionary: Record<string, [string, string]> = {
  "Günlük və aylıq kirayə":["Аренда на день и на месяц","Daily and monthly rentals"],"Almağa tələsmə.":["Не спеши покупать.","Don’t rush to buy."],"Kirayələ.":["Арендуй.","Rent."],
  "Ev, nəqliyyat, avadanlıq — ehtiyacına uyğun olanı tap, sahibi ilə birbaşa danış.":["Жильё, транспорт, оборудование — найди нужное и свяжись с владельцем.","Homes, vehicles, equipment — find what you need and contact the owner."],
  "Bir ünvan. Çox seçim.":["Один сайт. Большой выбор.","One place. More choice."],"Şəhəri seç, qiymətləri müqayisə et,":["Выбери город, сравни цены,","Choose a city, compare prices,"],"kirayəni birbaşa razılaşdır.":["договорись об аренде напрямую.","arrange your rental directly."],
- "HƏR EHTİYACA BİR SEÇİM":["ДЛЯ ЛЮБОЙ ЗАДАЧИ","SOMETHING FOR EVERY NEED"],"Nə kirayələmək istəyirsiniz?":["Что хочешь арендовать?","What would you like to rent?"],"Kateqoriyalar":["Категории","Categories"],"Bütün kateqoriyalar":["Все категории","All categories"],"Kateqoriyaları bağla":["Скрыть категории","Hide categories"],
+ "HƏR EHTİYACA BİR SEÇİM":["ДЛЯ ЛЮБОЙ ЗАДАЧИ","SOMETHING FOR EVERY NEED"],"Nə kirayələmək istəyirsən?":["Что хочешь арендовать?","What would you like to rent?"],"Kateqoriyalar":["Категории","Categories"],"Bütün kateqoriyalar":["Все категории","All categories"],"Kateqoriyaları bağla":["Скрыть категории","Hide categories"],
  "Nə axtarırsan?":["Что ищешь?","What are you looking for?"],"Elan axtar":["Поиск объявлений","Search listings"],"Ev, avtomobil, avadanlıq…":["Жильё, автомобиль, оборудование…","Home, car, equipment…"],"Harada?":["Где?","Where?"],"Şəhər":["Город","City"],"Bütün şəhərlər":["Все города","All cities"],"Kirayə müddəti":["Срок аренды","Rental period"],"İstənilən müddət":["Любой срок","Any period"],"Günlük":["На день","Daily"],"Aylıq":["На месяц","Monthly"],"Elanları axtar →":["Найти объявления →","Search listings →"],
  "SƏNİN ÜÇÜN SEÇİMLƏR":["ПОДБОРКА ДЛЯ ТЕБЯ","OPTIONS FOR YOU"],"Kirayə elanları":["Объявления об аренде","Rental listings"],"Seçilmiş elanlar":["Избранные объявления","Favorite listings"],"Elanlar yüklənir…":["Загрузка объявлений…","Loading listings…"],"Sıralama":["Сортировка","Sort"],"Əvvəlcə yenilər":["Сначала новые","Newest first"],"Əvvəlcə ucuz":["Сначала дешевле","Price: low to high"],"Əvvəlcə bahalı":["Сначала дороже","Price: high to low"],"Depozitsiz kirayə":["Без депозита","No deposit"],"Ətraflı filtrlər":["Больше фильтров","More filters"],"Filtrləri sıfırla":["Сбросить фильтры","Reset filters"],"Son axtarışların":["Последние поиски","Recent searches"],"Tarixçəni təmizlə":["Очистить историю","Clear history"],"Sürətli baxış":["Быстрый просмотр","Quick view"],"Nümunə":["Пример","Sample"],"gün":["день","day"],"ay":["месяц","month"],
  "Ev və mənzil":["Дома и квартиры","Homes and apartments"],"Avtomobil":["Автомобили","Cars"],"Motosiklet":["Мотоциклы","Motorcycles"],"Villa və bağ":["Виллы и дачи","Villas and country houses"],"Kommersiya":["Коммерческие помещения","Commercial property"],"Alətlər və texnika":["Инструменты и техника","Tools and machinery"],"Geyim və aksesuar":["Одежда и аксессуары","Clothing and accessories"],"Elektrik skuter və velosiped":["Электросамокаты и электровелосипеды","Electric scooters and bikes"],"Foto və video":["Фото и видео","Photo and video"],"Turizm və düşərgə":["Туризм и кемпинг","Travel and camping"],"Velosiped":["Велосипеды","Bicycles"],"Tədbir üçün":["Для мероприятий","For events"],
  "Elan":["Подать","Post"],
  "Populyar kateqoriyalar":["Популярные категории","Popular categories"],"Məlumat və kömək":["Информация и помощь","Information and help"],
  "Ehtiyacın olanı almalı deyilsən.":["Нужное не обязательно покупать.","You don’t have to buy what you need."],"Şəxsi kabinet":["Личный кабинет","My account"],"Qaydalar və təhlükəsizlik":["Правила и безопасность","Rules and safety"],"Məxfilik":["Конфиденциальность","Privacy"],
- "Necə işləyir?":["Как это работает?","How does it work?"],"Tap → müqayisə et → sahibi ilə razılaş":["Найди → сравни → договорись с владельцем","Find → compare → contact the owner"],"Elanlara baxmaq üçün qeydiyyat lazım deyil.":["Просмотр объявлений без регистрации.","No account is needed to browse listings."],"Elan vermək istəyirsiniz? Əvvəlcə hesabınıza daxil olun.":["Хочешь разместить объявление? Войди в аккаунт.","Want to post a listing? Sign in first."],
+ "Necə işləyir?":["Как это работает?","How does it work?"],"Tap → müqayisə et → sahibi ilə razılaş":["Найди → сравни → договорись с владельцем","Find → compare → contact the owner"],"Elanlara baxmaq üçün qeydiyyat lazım deyil.":["Просмотр объявлений без регистрации.","No account is needed to browse listings."],"Elan vermək istəyirsən? Əvvəl hesabına daxil ol.":["Хочешь разместить объявление? Войди в аккаунт.","Want to post a listing? Sign in first."],
  "Bütün elanlara bax":["Все объявления", "Browse all listings"],
  "Elanlara bax →":["Смотреть объявления →", "View listings →"],
  "Filtrləri təmizlə":["Сбросить фильтры", "Clear filters"],
@@ -60,21 +44,21 @@ const dictionary: Record<string, [string, string]> = {
  "Avtomat":["Автомат", "Automatic"],
  "Mexaniki":["Механика", "Manual"],
  "Depozitsiz":["Без депозита", "No deposit"],
- "Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdirin.":["Фильтр дат учитывает период, указанный владельцем. Уточни доступность напрямую.", "Date filters use the owner’s stated availability. Confirm availability directly."],
+ "Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdir.":["Фильтр дат учитывает период, указанный владельцем. Уточни доступность напрямую.", "Date filters use the owner’s stated availability. Confirm availability directly."],
  "Yenidən yoxla":["Повторить", "Try again"],
  "Uyğun elan tapılmadı":["Подходящих объявлений нет", "No matching listings"],
- "Başqa sözlə axtarın və ya öz kirayə elanınızı yerləşdirin.":["Попробуй другой запрос или размести своё объявление.", "Try another search or post your own rental listing."],
+ "Başqa sözlə axtar və ya öz kirayə elanını yerləşdir.":["Попробуй другой запрос или размести своё объявление.", "Try another search or post your own rental listing."],
  "← Əvvəlki":["← Назад", "← Previous"],
  "Növbəti →":["Далее →", "Next →"],
  "İSTİFADƏ ETMƏDİYİN ƏŞYA GƏLİRİN OLSUN":["ВЕЩИ МОГУТ ПРИНОСИТЬ ДОХОД", "LET UNUSED ITEMS EARN FOR YOU"],
  "Səndə var, başqasına lazımdır.":["У тебя есть — кому-то нужно.", "You have it. Someone needs it."],
  "Elanını yerləşdir, kirayə götürmək istəyənlərlə əlaqə qur.":["Размести объявление и найди арендаторов.", "Post a listing and connect with renters."],
- "İlk elanınızı yerləşdirin →":["Разместить первое объявление →", "Post your first listing →"],
+ "İlk elanını yerləşdir →":["Разместить первое объявление →", "Post your first listing →"],
  "Kateqoriyaları bağla ×":["Скрыть категории ×", "Hide categories ×"],
  "Bütün kateqoriyalar →":["Все категории →", "All categories →"],
  "Başlanğıc tarixi":["Дата начала", "Start date"],
  "Son tarix":["Дата окончания", "End date"],
- "Günlük və aylıq qiymətləri ayrıca müqayisə etmək üçün kirayə müddətini seçin.":["Выбери срок аренды, чтобы сравнить цены за день или месяц.", "Choose a rental period to compare daily or monthly prices."],
+ "Günlük və aylıq qiymətləri ayrıca müqayisə etmək üçün kirayə müddətini seç.":["Выбери срок аренды, чтобы сравнить цены за день или месяц.", "Choose a rental period to compare daily or monthly prices."],
  "Minimum qiymət":["Минимальная цена", "Minimum price"],
  "Maksimum qiymət":["Максимальная цена", "Maximum price"],
  "elan tapıldı":["объявлений найдено", "listings found"],
@@ -89,7 +73,6 @@ const dictionary: Record<string, [string, string]> = {
  "Depoziti dəqiqləşdir":["Уточни депозит", "Confirm deposit"],
 };
 for (const [key, value] of Object.entries(extraDictionary)) dictionary[key] ??= value;
-Object.assign(dictionary, formDictionary);
 
 // Texts written directly in components (not through t()) are translated on the page itself:
 // each Azerbaijani text node or placeholder found in the dictionary is swapped, and restored
@@ -108,14 +91,6 @@ function lookup(text: string, language: Language) {
 }
 // Texts with numbers or times inside them.
 const patterns: [RegExp, (match: RegExpMatchArray, language: Exclude<Language, "az">) => string][] = [
-  [/^Məsələn[:,]? (.+)$/, (m,l) => `${l==='ru'?'Например':'For example'}: ${m[1]}`],
-  [/^(.+): bu sahəni doldurun\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?'заполните это поле.':'fill in this field.'}`],
-  [/^(.+): ən (azı|çox) (\d+) simvol daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?`введите ${m[2]==='azı'?'не менее':'не более'} ${m[3]} символов.`:`enter ${m[2]==='azı'?'at least':'at most'} ${m[3]} characters.`}`],
-  [/^(.+): dəyər ən (azı|çox) ([\d.]+) olmalıdır\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?`значение должно быть ${m[2]==='azı'?'не меньше':'не больше'} ${m[3]}.`:`the value must be ${m[2]==='azı'?'at least':'at most'} ${m[3]}.`}`],
-  [/^(.+): ([\d.]+) addımına uyğun rəqəm daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?`введите число с шагом ${m[2]}.`:`enter a number in increments of ${m[2]}.`}`],
-  [/^(.+): düzgün rəqəm daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?'введите корректное число.':'enter a valid number.'}`],
-  [/^(.+): düzgün formatda məlumat daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?'введите данные в правильном формате.':'enter information in the correct format.'}`],
-  [/^(.+): məlumatı yoxlayıb yenidən daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?'проверьте и повторно введите данные.':'check and re-enter the information.'}`],
   [/^Bu gün, (\d{2}:\d{2})$/, (m, l) => `${l === "ru" ? "Сегодня" : "Today"}, ${m[1]}`],
   [/^Dünən, (\d{2}:\d{2})$/, (m, l) => `${l === "ru" ? "Вчера" : "Yesterday"}, ${m[1]}`],
   [/^(\d+) gün$/, (m, l) => l === "ru" ? `${m[1]} дн.` : `${m[1]} ${m[1] === "1" ? "day" : "days"}`],
@@ -189,7 +164,7 @@ function translateTree(root: Node, language: Language) {
 const Context = createContext<{ language: Language; setLanguage: (value: Language) => void; t: (value: string) => string }>({ language: "az", setLanguage: () => {}, t: value => value });
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
  const [language, setLanguage] = useState<Language>("az");
- useEffect(() => { try { const saved = localStorage.getItem("kirayeal:language"); if (saved === "ru") setLanguage(saved); else if(saved === "en") localStorage.setItem("kirayeal:language","az"); } catch {} }, []);
+ useEffect(() => { try { const saved = localStorage.getItem("kirayeal:language"); if (saved === "ru" || saved === "en") setLanguage(saved); } catch {} }, []);
  useEffect(() => { document.documentElement.lang = language; }, [language]);
  useEffect(() => {
   translateTree(document.body, language);
@@ -204,7 +179,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: translatedAttributes });
   return () => observer.disconnect();
  }, [language]);
- function choose(value: Language) { value=value==="ru"?"ru":"az"; setLanguage(value); try { localStorage.setItem("kirayeal:language", value); } catch {} }
+ function choose(value: Language) { setLanguage(value); try { localStorage.setItem("kirayeal:language", value); } catch {} }
  function t(value: string) { return language === "az" ? value : dictionary[value]?.[language === "ru" ? 0 : 1] || value; }
  return <Context.Provider value={{ language, setLanguage: choose, t }}>{children}</Context.Provider>;
 }

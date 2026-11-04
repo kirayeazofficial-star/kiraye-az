@@ -46,7 +46,6 @@ import {
 
 export default function Home() {
   const {t} = useLanguage();
-  const [featuredAvailable,setFeaturedAvailable]=useState<boolean|null>(null);
   const [listings, setListings] = useState<Listing[]>([]),
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
@@ -93,9 +92,7 @@ export default function Home() {
     );
     const syncFavorites = () => setFavorites(readFavorites());
     window.addEventListener("kiraye:favorites", syncFavorites);
-    window.addEventListener("storage", syncFavorites);
-    window.addEventListener("pageshow", syncFavorites);
-    return () => { window.removeEventListener("kiraye:favorites", syncFavorites); window.removeEventListener("storage", syncFavorites); window.removeEventListener("pageshow", syncFavorites); };
+    return () => window.removeEventListener("kiraye:favorites", syncFavorites);
   }, []);
   const [ownerFilter,setOwnerFilter]=useState("");
   useEffect(() => {
@@ -119,8 +116,8 @@ export default function Home() {
     setLoading(true);
     const timer = setTimeout(() => {
       searchCatalog({
-        // The featured block already shows active VIP/Premium listings; avoid duplicates.
-        notFeatured: !ownerFilter && !onlyFavorites && !category && !query,
+        // The Premium block above already shows premium listings: keep them out of the plain list.
+        notPremium: !ownerFilter && !onlyFavorites && !category && !query,
         kind: kindFilter || undefined,
         metro: isProperty(category) ? metro || undefined : undefined,
         complex: category === "property" ? complex.trim() || undefined : undefined,
@@ -278,6 +275,18 @@ export default function Home() {
     from,
     until,
   ]);
+  function favorite(id: string) {
+    const next = favorites.includes(id)
+      ? favorites.filter((x) => x !== id)
+      : [...favorites, id];
+    setFavorites(next);
+    try {
+      localStorage.setItem("kiraye-favorites", JSON.stringify(next));
+      window.dispatchEvent(new Event("kiraye:favorites"));
+    } catch {
+      setNotice("Seçilmişləri bu brauzerdə saxlamaq mümkün olmadı.");
+    }
+  }
   const brandOptions = Object.keys(
     category === "car"
       ? carModels
@@ -380,7 +389,7 @@ export default function Home() {
       <main className={`kzMain kzHome${onlyFavorites ? " favoritesView" : ""}`}>
         <h1 className="srOnly">Kirayə elanları — ev, maşın, avadanlıq kirayəsi Azərbaycanda</h1>
         <section className="kzCategories" aria-label={t("Kateqoriyalar")}>
-          <button type="button" className="kzCategoryCatalog" aria-haspopup="dialog" aria-controls="kz-catalog" onClick={() => window.dispatchEvent(new Event("kiraye:catalog"))}>
+          <button type="button" className="kzCategoryCatalog" onClick={() => window.dispatchEvent(new Event("kiraye:catalog"))}>
             <span className="kzCatalogTile" aria-hidden="true"><LayoutGrid size={40} strokeWidth={1.75} /></span>
             <span>{t("Kataloq")}</span>
           </button>
@@ -388,8 +397,6 @@ export default function Home() {
             <button
               key={c.id}
               type="button"
-              aria-label={t(c.name)}
-              title={t(c.name)}
               className={category === c.id ? "active" : ""}
               aria-pressed={category === c.id}
               onClick={() => {
@@ -403,11 +410,10 @@ export default function Home() {
           ))}
         </section>
         {!onlyFavorites && !category && !query && <StoresStrip />}
+        {browsing && <BannerStrip placement="home" />}
         <SideBanners />
-        {browsing && <ListingSuggestions featured homeLayout onAvailabilityChange={setFeaturedAvailable}/>}
-        {browsing&&featuredAvailable===false&&<BannerStrip placement="home"/>}
+        {browsing && <ListingSuggestions premiumOnly/>}
         <section className="kzSection" id="elanlar">
-          <div className="kzCatalogControls">
           <div className="kzSectionHead">
             <div>
               <h2>
@@ -488,7 +494,6 @@ export default function Home() {
               ? "Qiymətlər bir günlük kirayə üçündür."
               : period === "weekly" ? "Qiymətlər bir həftəlik kirayə üçündür." : "Qiymətlər bir aylıq kirayə üçündür."}
           </p>}
-          </div>
           {advanced && (
             <CatalogFilters onClose={closeFilters} title={t("Ətraflı filtrlər")} done={t("Elanları göstər")}><div className="advancedFilters">
               <label>
@@ -631,7 +636,7 @@ export default function Home() {
                 {t("Depozitsiz")}</label>
               <button type="button" className="secondary" onClick={rememberFilters}>{t("Axtarışı saxla")}</button>
               <p className="homeHelp">
-                {t("Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdirin.")}</p>
+                {t("Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdir.")}</p>
             </div></CatalogFilters>
           )}
           {notice && (
@@ -656,14 +661,21 @@ export default function Home() {
             <ListingsMap items={filtered} />
           ) : (
             <div className="kzGrid">
-              {filtered.map(x=><ListingCard key={x.id} item={x}/>)}
+              {filtered.map((x) => (
+                <ListingCard
+                  key={x.id}
+                  item={x}
+                  favorite={favorites.includes(x.id)}
+                  onFavorite={() => favorite(x.id)}
+                />
+              ))}
             </div>
           )}
           {!loading && !filtered.length && (
             onlyFavorites && !query ? <div className="kzEmpty">
               <EmptyArt kind="heart" />
               <h3>{t("Seçilmiş elan yoxdur")}</h3>
-              <p>{t("Bəyəndiyiniz elanın şəklindəki ürək işarəsinə toxunun — elan burada saxlanacaq.")}</p>
+              <p>{t("Bəyəndiyin elanın şəklindəki ürək işarəsinə toxun — elan burada saxlanacaq.")}</p>
               <a className="kzButton" href="/">{t("Elanlara bax")}</a>
             </div> :
             <StatusCard as="h2" tone="info" icon={SearchX} badge={t("Nəticə yoxdur")} title={t("Uyğun elan tapılmadı")} className="kzScInline"

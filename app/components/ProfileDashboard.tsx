@@ -1,14 +1,13 @@
 "use client";
 import { dateFormat } from "../../lib/date-format";
 import Notice from "./Notice";
-import type { NoticeKind } from "../../lib/toast";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { CalendarClock, ChevronLeft, ChevronRight, CircleCheck, CircleX, Clock3, Pencil, Plus, ShieldCheck, Store, Trash2, Wallet } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Pencil, Plus, ShieldCheck, Store, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import ExpandableText from "./ExpandableText";
+import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
 import PaymentDialog from "./PaymentDialog";
@@ -32,9 +31,7 @@ import {
   money,
   periodName,
 } from "../../lib/marketplace";
-const OWN_LIST_PAGE_SIZE=4;
 const listingTabs = [["published", "Aktiv"], ["pending", "Gözləmədə"], ["payment", "Ödəniş gözləyir"], ["rejected", "Rədd edilib"], ["expired", "Müddəti bitib"], ["deleted", "Silinmiş"]];
-const tabIcons: Record<string, typeof CircleCheck> = {published: CircleCheck, pending: Clock3, payment: Wallet, rejected: CircleX, expired: CalendarClock, deleted: Trash2};
 const emptyText: Record<string, string> = { published: "Aktiv elanınız yoxdur. İstifadə etmədiyiniz əşyanı kirayəyə verin.", pending: "Gözləmədə olan elan yoxdur.", payment: "Ödəniş gözləyən elan yoxdur.", rejected: "Rədd edilmiş elan yoxdur.", expired: "Müddəti bitmiş elan yoxdur.", deleted: "Silinmiş elan yoxdur." };
 const shortDate = (value?: string | null) => { if (!value) return "—"; const parts = dateFormat("en-GB", { timeZone: "Asia/Baku", day: "2-digit", month: "2-digit", year: "numeric" }).formatToParts(new Date(value)); const part = (type: string) => parts.find(item => item.type === type)?.value || ""; return `${part("day")}.${part("month")}.${part("year")}`; };
 export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?: boolean }) {
@@ -43,10 +40,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər",store:"Mağaza"};
   const openSection=(_name:string)=>{};
   const [avatar, setAvatar] = useState<string|null>(null);
-  const accountRef=useRef("");
-  const [ownPage,setOwnPage]=useState(0);
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
+    [accountPhone, setAccountPhone] = useState(""),
+    [accountEmail, setAccountEmail] = useState(""),
     [loading, setLoading] = useState(true),
     [listings, setListings] = useState<Listing[]>([]),
     [error, setError] = useState(""),
@@ -56,7 +53,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [hasStore, setHasStore] = useState<boolean | null>(null),
     [busy, setBusy] = useState(""),
     [notice, setNotice] = useState(""),
-    [noticeKind, setNoticeKind] = useState<NoticeKind>("success"),
     [statusFilter, setStatusFilter] = useState(() => { const tab = params.get("tab"); return tab && listingTabs.some(([key]) => key === tab) ? tab : "published"; }),
     [reloadKey, setReloadKey] = useState(0),
     [fullCategories, setFullCategories] = useState<string[]>([]),
@@ -70,40 +66,32 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     return () => window.removeEventListener("kiraye:refresh", refresh);
   }, []);
   useEffect(() => {
-    let active=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
-    if(reloadKey){setRefreshing(true);setError("");}
-    const load=async()=>{
-      try{
-        const response=await fetch('/api/auth/host',{cache:'no-store',signal:controller.signal});
-        if(!response.ok)throw new Error('SESSION_UNAVAILABLE');
-        const data=await response.json();if(!active)return;
-        if(!data.user){
-          if(accountRef.current)window.dispatchEvent(new Event("kiraye:session-expired"));
-          accountRef.current="";setUserId("");setIdentity("");setProfileNumber("");setAvatar(null);setListings([]);setAdmin(false);setLeader(false);setStaffRole("");setHasStore(null);setOwnPage(0);return;
-        }
-        if(accountRef.current!==data.user.id){setListings([]);setOwnPage(0);setHasStore(null);setProfileNumber("");setAvatar(null);setAdmin(false);setStaffRole("");accountRef.current=data.user.id;}
-        setUserId(data.user.id);setLeader(!!data.leader);setIdentity(data.user.display_name||'Hesab');
+    if (reloadKey) { setRefreshing(true); setError(""); }
+    fetch('/api/auth/host',{cache:'no-store'})
+      .then(async response => {
+        const data=await response.json();if(!data.user)return;
+        setUserId(data.user.id);setLeader(!!data.leader);setIdentity(data.user.display_name||data.user.email||'Hesab');setAccountPhone(data.user.phone||'');setAccountEmail(data.user.email||'');
         const [profileResult,listingsResult]=await Promise.allSettled([
-          fetch('/api/account/profile',{cache:'no-store',signal:controller.signal}).then(result=>result.ok?result.json():Promise.reject()),
-          balanceOnly?Promise.resolve(null):loadListings("mine",controller.signal),
+          fetch('/api/account/profile',{cache:'no-store'}).then(result=>result.ok?result.json():Promise.reject()),
+          balanceOnly?Promise.resolve(null):loadListings("mine"),
         ]);
-        if(!active)return;
         if(profileResult.status==='fulfilled'){
           const profile=profileResult.value?.profile;
-          setProfileNumber(profile?.profile_no?String(profile.profile_no):"");setAvatar(profile?.avatar_url||null);
-          setAdmin(profile?.role==='admin'||!!profile?.staff_role);setStaffRole(profile?.staff_role||"");
-          if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);
+          if(profile?.profile_no)setProfileNumber(String(profile.profile_no));setAvatar(profile?.avatar_url||null);
+          setAdmin(profile?.role==='admin'||!!profile?.staff_role);if(profile?.staff_role)setStaffRole(profile.staff_role);
+          if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);if(profile?.phone)setAccountPhone(profile.phone);
         }
         if(!balanceOnly){
           if(listingsResult.status==='fulfilled'&&Array.isArray(listingsResult.value))setListings(listingsResult.value);
           else setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.");
         }
-      }catch{if(active)setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.");}
-      finally{clearTimeout(timer);if(active){setLoading(false);setRefreshing(false);}}
-    };
-    void load();return()=>{active=false;clearTimeout(timer);controller.abort();};
-  },[balanceOnly,reloadKey]);
-
+      })
+      .catch(() =>
+        setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin."),
+      )
+      .finally(() => { setLoading(false); setRefreshing(false); });
+  }, [balanceOnly, reloadKey]);
+  // Categories whose free place is used: restoring there will need payment, so say it up front.
   useEffect(() => {
     if (balanceOnly || !userId) return;
     fetch("/api/listings/limits", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(data => {
@@ -113,7 +101,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const [deleteConfirm,setDeleteConfirm]=useState("");
   async function archive(item: Listing) {
     if (busy) return;
-    setNoticeKind("success"); setBusy(item.id);
+    setBusy(item.id);
     setError("");
     setNotice("");
     try {
@@ -123,7 +111,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       setDeleteConfirm("");
       setNotice("Elan silindi.");
     } catch {
-      setError("Elanı silmək mümkün olmadı. Yenidən cəhd edin.");
+      setError("Elanı silmək mümkün olmadı. Yenidən cəhd et.");
     } finally {
       setBusy("");
     }
@@ -136,7 +124,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   async function restore(item: Listing) {
     if (busy) return;
     if (!leader) { paidRestore(item); return; }
-    setNoticeKind("success"); setBusy(item.id); setError(""); setNotice("");
+    setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/restore", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
       if (!response.ok) throw new Error();
@@ -147,15 +135,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   }
   async function submitWaiting(item: Listing) {
     if (busy) return;
-    setNoticeKind("success"); setBusy(item.id); setError(""); setNotice("");
+    setBusy(item.id); setError(""); setNotice("");
     try {
       const response = await fetch("/api/listings/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
       if (response.status === 429) { paidSubmit(item); return; }
-      if (response.status === 409) { setNoticeKind("info"); setNotice("Elanın vəziyyəti dəyişib. Siyahı yeniləndi."); setReloadKey(key => key + 1); return; }
+      if (response.status === 409) { setError("Bu elan artıq ödəniş gözləmir. Siyahı yeniləndi."); setReloadKey(key => key + 1); return; }
       if (!response.ok) throw new Error();
-      const result = await response.json();
-      if (result.already_submitted) setNoticeKind("info");
-      setNotice(result.status === "published" ? "Elan artıq aktivdir. Ödəniş tələb olunmur." : result.already_submitted ? "Elan artıq yoxlamaya göndərilib." : leader ? "Elan rəhbər səlahiyyəti ilə pulsuz yoxlamaya göndərildi." : "Elan yoxlamaya göndərildi.");
+      setNotice("Elan yoxlamaya göndərildi.");
       setReloadKey(key => key + 1);
     } catch { setError("Elanı göndərmək mümkün olmadı. Yenidən cəhd edin."); }
     finally { setBusy(""); }
@@ -164,8 +150,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   // Store status for the "open a store" advice (people with many listings, without a store).
   useEffect(() => { if (!userId) return; fetch("/api/stores?mine=1", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => setHasStore(!!d?.terms)).catch(() => setHasStore(null)); }, [userId]);
   const matchesTab=(item:Listing,status:string)=>{if(status==="deleted")return !!item.deleted_at;if(item.deleted_at)return false;if(status==="payment")return !!item.payment_required;if(item.payment_required)return false;const current=effectiveListingStatus(item);if(status==="expired")return ["expired","archived"].includes(current);return current===status;};
-  const matchingListings=listings.filter(item=>matchesTab(item,statusFilter));
-  const ownPages=Math.max(1,Math.ceil(matchingListings.length/OWN_LIST_PAGE_SIZE)),currentOwnPage=Math.min(ownPage,ownPages-1);
   return (
     <>
       <Header />
@@ -175,9 +159,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ) : !userId ? (
           <div className="empty">
             <h2>
-              Hesabınıza daxil olun
+              Hesabına daxil ol
             </h2>
-            <p>Elanlarınızı və onların vəziyyətini burada görə bilərsiniz.</p>
+            <p>Elanlarını və onların vəziyyətini burada görə bilərsən.</p>
             <Link className="add" href={balanceOnly ? "/login?next=/balance" : "/login?next=/profile"}>
               Daxil ol / Qeydiyyatdan keç
             </Link>
@@ -187,23 +171,22 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             <aside className="cabinetSidebar">
               <section className="kzProfileCard">
                 <Link href="/account" className="kzProfileAvatarLink" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
-                <div className="kzProfileInfo">
-                  <h1>{identity||"Profil"}</h1>
-                  {profileNumber&&<p className="kzProfileId">ID {profileNumber}</p>}
-                </div>
-
+                <h1>{identity||"Profil"}</h1>
+                {profileNumber&&<p>Profil № {profileNumber}</p>}
+                {accountPhone ? <p>Tel: {formatContact(accountPhone)}</p> : <Link href="/account">Telefon nömrəni əlavə et</Link>}
+                {accountEmail&&<p className="kzProfileEmail">{accountEmail}</p>}
               </section>
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
-              <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined} data-tone="green">
+              <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 <span className="kzNavIcon"><NavigationIcon name="home"/></span><span>Mənim elanlarım
               </span></Link>
               
-              <Link href="/account" data-tone="blue"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>Profil</span></Link>
-                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined} data-tone="amber"><span className="kzNavIcon"><NavigationIcon name="history"/></span><span>Əməliyyat tarixçəsi</span></Link>
-              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined} data-tone="violet"><span className="kzNavIcon"><NavigationIcon name="card"/></span><span>Mənim kartlarım</span></Link>
-              <Link href="/profile?section=store" aria-current={section === "store" ? "page" : undefined} data-tone="rose"><span className="kzNavIcon"><Store aria-hidden="true" size={19} strokeWidth={2} /></span><span>Mağaza</span></Link>
-              <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined} data-tone="teal"><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
+              <Link href="/account"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>Profil</span></Link>
+                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="history"/></span><span>Əməliyyat tarixçəsi</span></Link>
+              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="card"/></span><span>Mənim kartlarım</span></Link>
+              <Link href="/profile?section=store" aria-current={section === "store" ? "page" : undefined}><span className="kzNavIcon"><Store aria-hidden="true" size={19} strokeWidth={2} /></span><span>Mağaza</span></Link>
+              <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">
                 {admin && <Link className="kzMenuRow" href="/admin"><span className="kzMenuIcon admin"><ShieldCheck size={18} strokeWidth={2} /></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={18} strokeWidth={1.75} /></Link>}
               </div>
@@ -222,17 +205,16 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 <Link className="kzButtonGhost" href="/profile?section=store">Paketlərə bax</Link>
               </div>}
               <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
-                {/* Core states stay in place. Payment stays available to the leader, when enabled, or for existing waiting listings. */}
-                {listingTabs.filter(([status]) => status !== "payment" || leader || paidVisible(flags) || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => {
-                  const Icon = tabIcons[status];
-                  return <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setOwnPage(0); setNotice(""); setError(""); }}>
-                    <span className="kzOwnTabLabel"><Icon aria-hidden="true" size={16} strokeWidth={1.8} /><span>{label}</span></span><b>{listings.filter((x) => matchesTab(x, status)).length}</b>
-                  </button>;
-                })}
+                {/* Empty tabs are hidden (Aktiv and Gözləmədə always stay), so the row stays short. */}
+                {listingTabs.filter(([status]) => status === "published" || status === "pending" || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => (
+                  <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setNotice(""); setError(""); }}>
+                    {label}<b>{listings.filter((x) => matchesTab(x, status)).length}</b>
+                  </button>
+                ))}
               </div>
-              <Notice text={notice} kind={noticeKind} />
+              <Notice text={notice} />
               {payment && <PaymentDialog title={payment.title} text={payment.text} price={payment.price} onClose={() => setPayment(null)} />}
-              {!matchingListings.length ? (
+              {!listings.some((x) => matchesTab(x, statusFilter)) ? (
                 <div className="kzOwnEmpty">
                   <EmptyArt kind="listings" />
                   <p>{emptyText[statusFilter]}</p>
@@ -240,34 +222,34 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 </div>
               ) : (
                 <div className="accountListings">
-                  {matchingListings.slice(currentOwnPage*OWN_LIST_PAGE_SIZE,(currentOwnPage+1)*OWN_LIST_PAGE_SIZE).map((x) => {
+                  {listings.filter((x) => matchesTab(x, statusFilter)).map((x) => {
                     const current = effectiveListingStatus(x), expired = ["expired", "archived"].includes(current);
                     const href = current === "published" ? `/listings/${x.id}` : `/profile/listings/${x.id}`;
                     const promo = activePromotion(x);
                     return <article key={x.id} className={x.deleted_at ? "kzOwnDeleted" : undefined}>
                       <Link href={href} aria-label={`${x.title} — elana bax`} className="ownedPhoto"><img src={sized(x.images?.[0]) || "/placeholder.svg"} alt="" loading="lazy" decoding="async" /></Link>
                       <div className="kzOwnBody">
-                        <div className="kzOwnTop"><span className={`status ${x.deleted_at ? "archived" : x.payment_required ? "payment" : expired ? "expired" : current}`}>{x.deleted_at ? "Silinmiş" : x.payment_required ? "Ödəniş gözləyir" : statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
+                        <div className="kzOwnTop"><span className={`status ${x.deleted_at ? "archived" : x.payment_required ? "payment" : expired ? "expired" : current}`}>{x.deleted_at ? "Silinib" : x.payment_required ? "Ödəniş gözləyir" : statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
                         <h3><Link href={href}>{x.title}</Link></h3>
                         <p className="kzOwnPrice">{money(x.price)} ₼ / {periodName(x.rental_period)} · {x.city}</p>
                         <p className="kzOwnMeta">{x.listing_no ? `№ ${x.listing_no} · ` : ""}Baxış: {x.views ?? 0}</p>
                         <p className="kzOwnDates">
                           {current === "published" && x.expires_at && <span>Aktivdir: {shortDate(x.expires_at)} tarixinədək</span>}
                           {expired && !x.deleted_at && <span>Müddəti bitib: {shortDate(x.expires_at || x.created_at)}</span>}
-                          {current === "pending" && !x.payment_required && <span>Təsdiqdən sonra yayımlanacaq.</span>}
+                          {current === "pending" && <span>Təsdiqdən sonra yayımlanacaq.</span>}
                           {promo && x.promotion_until && <span>{promo === "premium" ? "Premium" : "VIP"}: {shortDate(x.promotion_until)} tarixinədək</span>}
                         </p>
-                        {x.payment_required && !x.deleted_at && <p className="kzOwnHint">{leader ? "Rəhbər səlahiyyəti ilə bu elanı pulsuz göndərə bilərsiniz." : "Bu kateqoriyada pulsuz limit dolub. Ödənişdən sonra elan yoxlamaya göndəriləcək."}</p>}
-                        {current === "rejected" && x.rejection_reason && <div className="kzOwnReason"><strong>Rədd səbəbi:</strong><ExpandableText text={x.rejection_reason} lines={3}/></div>}
+                        {x.payment_required && !x.deleted_at && <p className="kzOwnHint">{leader ? "Rəhbər üçün limit yoxdur — elanı pulsuz yoxlamaya göndərin." : "Bu kateqoriyada pulsuz limit dolub. Ödənişdən sonra elan yoxlamaya göndəriləcək."}</p>}
+                        {current === "rejected" && x.rejection_reason && <p className="kzOwnReason"><strong>Rədd səbəbi:</strong> {x.rejection_reason}</p>}
                         {expired && !x.deleted_at && <p className="kzOwnHint">{leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} Bərpa olunmasa, 180 gün sonra arxivə keçir.</p>}
                         {x.deleted_at && <p className="kzOwnHint">Silinib: {shortDate(x.deleted_at)}. {leader ? "Bərpa sizin üçün pulsuzdur." : "Bərpa ödənişlidir."} 180 gün sonra arxivə keçir.</p>}
                       </div>
                       <div className="accountItemActions">
                         {x.payment_required && !x.deleted_at ? <>
-                            <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Pulsuz göndər" : "Davam et"}</button>
+                            <button type="button" className="kzButton" disabled={!!busy} onClick={() => void submitWaiting(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Göndər" : "Ödəniş et"}</button>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>
                           </>
-                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Pulsuz bərpa et" : "Ödənişlə bərpa et"}</button>
+                          : expired ? <button type="button" className="kzButton" disabled={!!busy} onClick={() => void restore(x)}>{busy === x.id ? "Gözləyin…" : leader ? "Bərpa et" : "Ödənişlə bərpa et"}</button>
                           : current === "rejected" ? <Link className="kzButton" href={`/edit/${x.id}`}>Düzəlt və göndər</Link>
                           : <>
                             <Link className="kzButtonGhost" href={`/edit/${x.id}`}><Pencil aria-hidden="true" size={15} strokeWidth={2} />Redaktə et</Link>
@@ -280,11 +262,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   })}
                 </div>
               )}
-              {ownPages>1&&<nav className="kzPagination kzOwnPagination" aria-label="Elan səhifələri">
-                <button type="button" aria-label="Əvvəlki səhifə" disabled={currentOwnPage===0} onClick={()=>setOwnPage(currentOwnPage-1)}><ChevronLeft aria-hidden="true" size={18}/></button>
-                <span aria-live="polite">{currentOwnPage+1} / {ownPages}</span>
-                <button type="button" aria-label="Növbəti səhifə" disabled={currentOwnPage+1>=ownPages} onClick={()=>setOwnPage(currentOwnPage+1)}><ChevronRight aria-hidden="true" size={18}/></button>
-              </nav>}
               </>}
             </div>
           </div>

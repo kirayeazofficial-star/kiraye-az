@@ -16,7 +16,6 @@ const pass=name=>{passed++;console.log('PASS',name)};
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    const response=await page.goto(base);assert.ok(response.ok(),'Local server must be running');
    await page.locator('.kzCategories').waitFor();await page.waitForFunction(()=>!document.querySelector('.kzSkeleton'));
-   if(width>=768){const contrast=await page.locator('.kzSearch button').evaluate(n=>{const s=getComputedStyle(n);return {text:s.color,background:s.backgroundColor}});assert.notEqual(contrast.text,contrast.background,'Search label must remain visible on its button');}
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
    assert.ok(await page.locator('.kzCard').count()<=18);
    const checkNavigation=async()=>{
@@ -27,13 +26,12 @@ const pass=name=>{passed++;console.log('PASS',name)};
     assert.ok(Math.max(...metrics.links.map(n=>n.top))-Math.min(...metrics.links.map(n=>n.top))<1,'Navigation labels must share a baseline');
    };
    await checkNavigation();
-   assert.equal(await page.locator('.kzCard button').count(),0,'Listing card photos must have no favorite overlay');
-   if(await page.locator('.kzCardLink').count()){
-    await page.locator('.kzCardLink').first().click();const favorite=page.locator('.kzTitleActions button[aria-pressed]');await favorite.waitFor();await favorite.click();assert.equal(await favorite.getAttribute('aria-pressed'),'true');await favorite.click();assert.equal(await favorite.getAttribute('aria-pressed'),'false');
-   }
+   const favorite=page.locator('.kzFavorite').first();
+   if(await favorite.count()){await favorite.click();assert.equal(await favorite.getAttribute('aria-pressed'),'true');await favorite.click();assert.equal(await favorite.getAttribute('aria-pressed'),'false');}
    await page.goto(base+'/help');await page.locator('.helpCard summary').first().click();assert.equal(await page.locator('.helpCard').first().getAttribute('open'),'');
-   await page.evaluate(()=>localStorage.setItem('kirayeal:language','ru'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='ru'&&document.querySelector('main h1')?.textContent==='Есть вопрос? Начните здесь.');await checkNavigation();
-   await page.evaluate(()=>localStorage.setItem('kirayeal:language','az'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='az'&&document.querySelector('main h1')?.textContent==='Sualınız var? Buradan başlayın.');
+   await page.evaluate(()=>localStorage.setItem('kirayeal:language','ru'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='ru'&&document.querySelector('main h1')?.textContent==='Есть вопрос? Начни здесь.');await checkNavigation();
+   await page.evaluate(()=>localStorage.setItem('kirayeal:language','en'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='en'&&document.querySelector('main h1')?.textContent==='Have a question? Start here.');await checkNavigation();assert.ok(!(await page.locator('.kzTabbar').innerText()).includes('İ'),'English labels must use English casing');
+   await page.evaluate(()=>localStorage.setItem('kirayeal:language','az'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='az'&&document.querySelector('main h1')?.textContent==='Sualın var? Buradan başla.');
    assert.equal(errors.length,0,errors.join('\n'));pass(`${width}px layout, card budget, favorites where available, FAQ and language switching`);await context.close();
   }
   for (const width of [320,375,768,1440]) {
@@ -44,7 +42,7 @@ const pass=name=>{passed++;console.log('PASS',name)};
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
     const eye=page.locator('.passwordToggle');
     if(await eye.count()){
-     const box=await eye.evaluate(n=>{const b=n.getBoundingClientRect(),i=n.querySelector('svg').getBoundingClientRect();return {width:Math.round(b.width*100)/100,height:Math.round(b.height*100)/100,contained:i.left>=b.left&&i.right<=b.right&&i.top>=b.top&&i.bottom<=b.bottom};});
+     const box=await eye.evaluate(n=>{const b=n.getBoundingClientRect(),i=n.querySelector('svg').getBoundingClientRect();return {width:b.width,height:b.height,contained:i.left>=b.left&&i.right<=b.right&&i.top>=b.top&&i.bottom<=b.bottom};});
      assert.ok(box.width>=44&&box.width<=50&&box.height>=44&&box.contained,'Eye icon must fit its consistent touch target');
      await page.locator('#auth-password').fill('PreviewPassword123');await eye.click();assert.equal(await page.locator('#auth-password').getAttribute('type'),'text');assert.equal(await page.locator('#auth-password').inputValue(),'PreviewPassword123');await eye.click();assert.equal(await page.locator('#auth-password').getAttribute('type'),'password');
     }

@@ -1,6 +1,6 @@
 import "server-only";
 import {hostQuery} from "./db";
-import {noticeLetter,noticeSubject,sendLetter} from "./mailer";
+import {noticeLetter,sendLetter} from "./mailer";
 
 // One notice per (kind, ref): returns false when it was already sent.
 async function claim(userId:string|null,kind:string,ref:string){
@@ -18,11 +18,11 @@ export async function notifyNewMessage(threadId:string,authorId:string){
     const row=rows[0];if(!row?.email||!row.enabled)return;
     const slot=Math.floor(Date.now()/1800000);
     if(!await claim(row.peer,"message",`${threadId}:${row.peer}:${slot}`))return;
-    await sendLetter(row.email,noticeSubject("Yeni mesaj",row.title),noticeLetter({
+    await sendLetter(row.email,`Yeni mesaj: ${row.title}`.slice(0,120),noticeLetter({
       label:"Yeni mesaj",
-      heading:"Yeni mesajınız var",
+      heading:"Sizə yeni mesaj daxil olub",
       name:row.name,
-      intro:`${row.author||"Sayt istifadəçisi"} tərəfindən «${row.title}» elanı ilə bağlı yeni mesaj göndərilib. Mesajı oxumaq və cavablandırmaq üçün «Mesajı oxuyun» düyməsini seçin.`,
+      intro:`${row.author||"Saytın istifadəçisi"} «${row.title}» elanı ilə bağlı sizə mesaj göndərib. Mesajı oxumaq və cavablandırmaq üçün aşağıdakı düyməyə keçin.`,
       button:{text:"Mesajı oxuyun",href:`/messages`},
       note:"Kirayə tarixlərini və digər şərtləri yazışmada dəqiqləşdirməyiniz tövsiyə olunur.",
     }));
@@ -36,11 +36,11 @@ export async function notifyRejected(listingId:string,reason:string){
       from public.listings l join auth.users u on u.id=l.owner_id left join public.profiles p on p.id=l.owner_id where l.id=$1`,[listingId]);
     const row=rows[0];if(!row?.email)return;
     if(!await claim(row.owner,"rejected",`${listingId}:${Math.floor(Date.now()/60000)}`))return;
-    await sendLetter(row.email,noticeSubject("Elanınız rədd edildi",row.title),noticeLetter({
-      label:"Elanın yoxlanılması",
+    await sendLetter(row.email,`Elanınız rədd edildi — «${row.title}»`.slice(0,120),noticeLetter({
+      label:"Elan yoxlaması",
       heading:"Elanınız rədd edildi",
       name:row.name,
-      intro:`«${row.title}»${row.no?` (№ ${row.no})`:""} elanınız yoxlamadan keçmədi və saytda dərc olunmadı. Rədd edilmə səbəbi aşağıda göstərilib. Müvafiq düzəlişləri etdikdən sonra elanı yenidən yoxlamaya göndərə bilərsiniz.`,
+      intro:`«${row.title}»${row.no?` (№ ${row.no})`:""} elanınız yoxlamadan keçmədi və saytda dərc olunmadı. Səbəbi aşağıda göstərilib. Elanı düzəldib yenidən yoxlamaya göndərə bilərsiniz.`,
       rows:[{label:`Səbəb: ${reason}`}],
       button:{text:"Elanı redaktə edin",href:`/edit/${listingId}`},
       note:"Elan yerləşdirmə qaydaları ilə saytın «Qaydalar» bölməsində tanış ola bilərsiniz. Sualınız olarsa, kirayeal.az@gmail.com ünvanına elan nömrəsini qeyd etməklə yazın.",

@@ -3127,3 +3127,30 @@ input[type=password]::placeholder{letter-spacing:normal!important}
 .kzProfileStats small{font-size:12px;color:var(--kz-muted)}
 .kzProfileHint{display:flex;align-items:center;gap:8px;margin:12px 0 0;padding:10px 12px;border-radius:10px;background:#fff4dc;color:#94610b!important;font-size:14px;font-weight:600;text-decoration:none!important}
 .kzProfileHint svg:last-child{margin-left:auto}
+
+/* Kabinet kartı (variant B): yaşıl başlıq, içində balans, altda statistika. */
+.accountDashboard .kzProfileBlock.kzProfileB{padding:0!important;overflow:hidden;border:0!important;border-radius:18px!important;background:#fff!important;box-shadow:0 1px 3px rgba(16,40,32,.06)}
+.kzProfileHero{position:relative;padding:18px 16px 16px;background:linear-gradient(135deg,#104c43 0%,#13856b 100%);color:#fff}
+.kzProfileB .kzProfileHead{position:relative}
+.kzProfileB .kzProfileHead .kzUserAvatar.large{width:60px!important;height:60px!important;border:2px solid rgba(255,255,255,.9)!important;background:#fff}
+.kzProfileB .kzProfileHeadText{gap:6px}
+.kzProfileNameRow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-width:0}
+.kzProfileB .kzProfileHeadText h1{color:#fff!important;font-size:19px!important}
+.kzLeaderChip{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 9px;border-radius:999px;background:rgba(255,255,255,.16);color:#ffd27a;font-size:12px;font-weight:700;white-space:nowrap}
+.kzLeaderChip svg{fill:#ffd27a;stroke:#ffd27a}
+.accountDashboard .kzProfileB .kzProfileId{height:auto!important;min-height:0!important;padding:0!important;background:none!important;color:rgba(255,255,255,.78)!important;font-weight:500!important}
+.accountDashboard .kzProfileB .kzProfileId svg{color:rgba(255,255,255,.7)}
+.kzProfileB .kzProfileHeadGo{color:rgba(255,255,255,.75)!important;margin-right:-8px}
+.kzHeroBalance{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.12)}
+.kzHeroBalance small{display:block;font-size:12px;color:rgba(255,255,255,.75)}
+.kzHeroBalance b{display:block;margin-top:2px;font-size:21px;font-weight:800;line-height:1.15;color:#fff}
+.kzHeroBalanceBtn{flex:none;display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:10px;background:rgba(255,255,255,.18);color:rgba(255,255,255,.82);font-size:13px;font-weight:700;white-space:nowrap}
+.kzProfileB .kzProfileStats{margin:0!important;padding:0!important;border-top:0!important}
+.kzProfileB .kzProfileStats>*{padding:14px 6px!important;gap:3px!important}
+.kzProfileB .kzProfileStats b{font-size:20px;font-weight:800}
+.kzProfileB .kzProfileStats small{display:inline-flex;align-items:center;gap:5px}
+.kzDot{display:inline-block;width:7px;height:7px;border-radius:50%}
+.kzDot.green{background:#22a45d}.kzDot.amber{background:#f5a623}
+.kzProfileB+.kzProfileHint{margin:-4px 0 14px}
+.kzLabelShort{display:none}
+@media(max-width:767px){.kzLabelLong{display:none}.kzLabelShort{display:inline}}

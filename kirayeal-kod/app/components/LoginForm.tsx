@@ -44,8 +44,10 @@ export default function Login({
     };
   }, []);
   const [method, setMethod] = useState<"phone" | "email">("email");
+  const firstInvalid = useRef(false);
   const [mode, setMode] = useState<"login" | "signup" | "reset">(initialMode),
     [notice, setNotice] = useState(""),
+    [fieldErrors, setFieldErrors] = useState<Record<string, string>>({}),
     [blocked, setBlocked] = useState<false | string>(false),
     [busy, setBusy] = useState(false),
     [emailAddress, setEmailAddress] = useState(""),
@@ -341,7 +343,7 @@ export default function Login({
           </noscript>
           {mode !== "reset" && !verification && <nav className="authModeLinks" aria-label="Hesab seçimi">
             <a href={`/login?next=${encodeURIComponent(next)}`} aria-current={mode === "login" ? "page" : undefined}>Daxil ol</a>
-            <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyatdan keç</a>
+            <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyat</a>
           </nav>}
           {!ready && (
             // Shown only if the form is still not ready after a few seconds (see .authSlowNote), so a normal load never flashes it.
@@ -367,6 +369,15 @@ export default function Login({
                     ? "Şifrənizi yeniləyin"
                     : "Hesabınıza daxil olun"}
           </h1>
+          {!verification && method === "email" && (
+                <p className="authLead">
+                  {mode === "signup"
+                    ? "Qeydiyyat pulsuzdur və bir dəqiqə çəkir."
+                    : mode === "reset"
+                      ? "Hesabınıza bağlı e-poçt ünvanını yazın. Həmin ünvana 6 rəqəmli bərpa kodu göndəriləcək."
+                      : "Elanlarınızı və mesajlarınızı idarə etmək üçün daxil olun."}
+                </p>
+              )}
           {!verification && mode !== "reset" && method === "email" && (
             <GoogleLogin />
           )}
@@ -393,15 +404,6 @@ export default function Login({
           )}
           {method === "email" && (
             <>
-              {!verification && (
-                <p className="authLead">
-                  {mode === "signup"
-                    ? "Qeydiyyat pulsuzdur. Hesab yaratdıqdan sonra elan yerləşdirə, elan sahiblərinə yaza və bəyəndiyiniz elanları yadda saxlaya bilərsiniz."
-                    : mode === "reset"
-                      ? "Hesabınıza bağlı e-poçt ünvanını yazın. Həmin ünvana 6 rəqəmli bərpa kodu göndəriləcək."
-                      : "Elanlarınızı idarə etmək, mesajlara cavab vermək və seçilmiş elanlarınızı görmək üçün hesabınıza daxil olun."}
-                </p>
-              )}
               {!verification ? (
                 <form
                   onSubmit={submit}
@@ -409,21 +411,32 @@ export default function Login({
                   action="/login"
                   onInvalid={(event) => {
                     const field = event.target as HTMLInputElement;
+                    event.preventDefault();
                     // Login with the password still empty: no warning, the cursor simply moves to the password field.
-                    if (mode === "login" && field.type === "password" && !field.value) { event.preventDefault(); setNotice(""); field.focus(); return; }
-                    setNotice(
-                      field.name === "full_name" ? "Ad və soyadınızı yazın." : field.type === "tel" ? "+994-dən sonra 0 olmadan 9 rəqəm yazın (məsələn: 50 123 45 67)." : field.name === "email"
+                    if (mode === "login" && field.type === "password" && !field.value) { setNotice(""); if (!firstInvalid.current) { firstInvalid.current = true; field.focus(); } return; }
+                    const key = field.name === "full_name" ? "full_name" : field.type === "tel" ? "contact_phone" : field.name === "email" ? "email" : "password";
+                    const text = key === "full_name" ? "Ad və soyadınızı yazın." : key === "contact_phone" ? "+994-dən sonra 0 olmadan 9 rəqəm yazın (məsələn: 50 123 45 67)." : key === "email"
                         ? "Düzgün e-poçt ünvanı yazın."
                         : mode === "signup"
                           ? "Ən azı 8 simvoldan ibarət şifrə yazın."
-                          : "Şifrənizi yazın.",
-                    );
+                          : "Şifrənizi yazın.";
+                    setNotice("");
+                    setFieldErrors(current => ({ ...current, [key]: text }));
+                    if (!firstInvalid.current) { firstInvalid.current = true; field.focus(); }
+                    window.setTimeout(() => { firstInvalid.current = false; }, 0);
+                  }}
+                  onInput={(event) => {
+                    const field = event.target as HTMLInputElement;
+                    const key = field.name === "full_name" ? "full_name" : field.type === "tel" ? "contact_phone" : field.name === "email" ? "email" : field.name === "password" ? "password" : "";
+                    if (key && fieldErrors[key]) setFieldErrors(current => { const next = { ...current }; delete next[key]; return next; });
                   }}
                 >
                   <fieldset className="authFields" disabled={busy}>
                     {mode === "signup" && <>
-                      <label>Ad və soyad<input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Adınız və soyadınız" /></label>
-                      <label>Telefon nömrəsi<PhoneInput name="contact_phone" label="Telefon nömrəsi" required /></label>
+                      <label>Ad və soyad<input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Adınız və soyadınız" aria-invalid={!!fieldErrors.full_name} /></label>
+                      {fieldErrors.full_name && <small className="authFieldError" role="alert">{fieldErrors.full_name}</small>}
+                      <label className={fieldErrors.contact_phone ? "authInvalid" : undefined}>Telefon nömrəsi<PhoneInput name="contact_phone" label="Telefon nömrəsi" required /></label>
+                      {fieldErrors.contact_phone && <small className="authFieldError" role="alert">{fieldErrors.contact_phone}</small>}
                     </>}
                     <label>
                       E-poçt
@@ -440,9 +453,11 @@ export default function Login({
                         required
                         maxLength={254}
                         placeholder="E-poçt ünvanınız"
+                        aria-invalid={!!fieldErrors.email}
                       />
                     </label>
-                    {mode === "signup" && <small className="authHint">Təsdiq kodu bu ünvana göndəriləcək.</small>}
+                    {fieldErrors.email && <small className="authFieldError" role="alert">{fieldErrors.email}</small>}
+                    {mode === "signup" && !fieldErrors.email && <small className="authHint"><Mail aria-hidden="true" size={15} strokeWidth={2}/>Bu ünvana 6 rəqəmli təsdiq kodu göndəriləcək.</small>}
                     {emailAddress.includes("@") && !emailAddress.split("@")[1]?.includes(".") && (
                       <div className="emailSuggestions" aria-label="E-poçt ünvanını tamamlayın">
                         {["gmail.com", "mail.ru", "outlook.com", "icloud.com"].filter(domain => domain.startsWith(emailAddress.split("@")[1] || "")).map(domain => (
@@ -462,6 +477,7 @@ export default function Login({
                             id="auth-password"
                             aria-describedby={mode === "signup" ? "password-hint" : undefined}
                             aria-label="Şifrə"
+                            aria-invalid={!!fieldErrors.password}
                             name="password"
                             type={showPassword ? "text" : "password"}
                             autoComplete={
@@ -488,6 +504,7 @@ export default function Login({
                             {showPassword ? <EyeOff aria-hidden="true" size={20} strokeWidth={1.9} /> : <Eye aria-hidden="true" size={20} strokeWidth={1.9} />}
                           </button>
                         </div>
+                        {fieldErrors.password && <small className="authFieldError" role="alert">{fieldErrors.password}</small>}
                         {mode === "signup" && (
                           <>
                             <button type="button" className="textButton" onClick={() => {

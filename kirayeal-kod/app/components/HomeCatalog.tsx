@@ -380,7 +380,7 @@ export default function Home() {
       <main className={`kzMain kzHome${onlyFavorites ? " favoritesView" : ""}`}>
         <h1 className="srOnly">Kirayə elanları — ev, maşın, avadanlıq kirayəsi Azərbaycanda</h1>
         <section className="kzCategories" aria-label={t("Kateqoriyalar")}>
-          <button type="button" className="kzCategoryCatalog" onClick={() => window.dispatchEvent(new Event("kiraye:catalog"))}>
+          <button type="button" className="kzCategoryCatalog" aria-haspopup="dialog" aria-controls="kz-catalog" onClick={() => window.dispatchEvent(new Event("kiraye:catalog"))}>
             <span className="kzCatalogTile" aria-hidden="true"><LayoutGrid size={40} strokeWidth={1.75} /></span>
             <span>{t("Kataloq")}</span>
           </button>
@@ -407,6 +407,7 @@ export default function Home() {
         {browsing && <ListingSuggestions featured homeLayout onAvailabilityChange={setFeaturedAvailable}/>}
         {browsing&&featuredAvailable===false&&<BannerStrip placement="home"/>}
         <section className="kzSection" id="elanlar">
+          <div className="kzCatalogControls">
           <div className="kzSectionHead">
             <div>
               <h2>
@@ -487,6 +488,7 @@ export default function Home() {
               ? "Qiymətlər bir günlük kirayə üçündür."
               : period === "weekly" ? "Qiymətlər bir həftəlik kirayə üçündür." : "Qiymətlər bir aylıq kirayə üçündür."}
           </p>}
+          </div>
           {advanced && (
             <CatalogFilters onClose={closeFilters} title={t("Ətraflı filtrlər")} done={t("Elanları göstər")}><div className="advancedFilters">
               <label>

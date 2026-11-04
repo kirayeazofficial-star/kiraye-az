@@ -1,5 +1,7 @@
 // Canonical form values stay Azerbaijani; only displayed copy is translated.
 export const formDictionary: Record<string, [string, string]> = {
+  "Elanın səhifəsində “Seçilmişlərə əlavə et” düyməsinə toxunun. Elan burada saxlanacaq.": ["На странице объявления нажмите «Добавить в избранное». Объявление сохранится здесь.","On the listing page, select Add to favorites. The listing will be saved here."],
+  "Çıxış alınmadı. Bağlantını yoxlayıb yenidən cəhd edin.": ["Не удалось выйти. Проверьте соединение и повторите попытку.","Could not sign out. Check your connection and try again."],
   "VIP elanlar": ["VIP-объявления", "VIP listings"],
   "Elanı kim verir?": ["Кто размещает объявление?", "Who is posting the listing?"],
   "Mülkiyyətçi": ["Собственник", "Owner"],

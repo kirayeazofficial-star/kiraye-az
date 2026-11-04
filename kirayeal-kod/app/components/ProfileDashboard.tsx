@@ -4,8 +4,8 @@ import Notice from "./Notice";
 import type { NoticeKind } from "../../lib/toast";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { CalendarClock, CalendarDays, Check, ChevronLeft, ChevronRight, CircleCheck, CircleX, Clock3, Copy, Eye, Mail, Pencil, Phone, Plus, ShieldCheck, Store, Trash2, Wallet } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CalendarClock, ChevronLeft, ChevronRight, CircleCheck, CircleX, Clock3, Pencil, Plus, ShieldCheck, Store, Trash2, Wallet } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import ExpandableText from "./ExpandableText";
@@ -43,8 +43,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər",store:"Mağaza"};
   const openSection=(_name:string)=>{};
   const [avatar, setAvatar] = useState<string|null>(null);
-  const [contact, setContact] = useState<{ phone: string; email: string; since: string }>({ phone: "", email: "", since: "" });
-  const [copied, setCopied] = useState(false);
+  const accountRef=useRef("");
   const [ownPage,setOwnPage]=useState(0);
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
@@ -71,32 +70,40 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     return () => window.removeEventListener("kiraye:refresh", refresh);
   }, []);
   useEffect(() => {
-    if (reloadKey) { setRefreshing(true); setError(""); }
-    fetch('/api/auth/host',{cache:'no-store'})
-      .then(async response => {
-        const data=await response.json();if(!data.user)return;
+    let active=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
+    if(reloadKey){setRefreshing(true);setError("");}
+    const load=async()=>{
+      try{
+        const response=await fetch('/api/auth/host',{cache:'no-store',signal:controller.signal});
+        if(!response.ok)throw new Error('SESSION_UNAVAILABLE');
+        const data=await response.json();if(!active)return;
+        if(!data.user){
+          if(accountRef.current)window.dispatchEvent(new Event("kiraye:session-expired"));
+          accountRef.current="";setUserId("");setIdentity("");setProfileNumber("");setAvatar(null);setListings([]);setAdmin(false);setLeader(false);setStaffRole("");setHasStore(null);setOwnPage(0);return;
+        }
+        if(accountRef.current!==data.user.id){setListings([]);setOwnPage(0);setHasStore(null);setProfileNumber("");setAvatar(null);setAdmin(false);setStaffRole("");accountRef.current=data.user.id;}
         setUserId(data.user.id);setLeader(!!data.leader);setIdentity(data.user.display_name||'Hesab');
         const [profileResult,listingsResult]=await Promise.allSettled([
-          fetch('/api/account/profile',{cache:'no-store'}).then(result=>result.ok?result.json():Promise.reject()),
-          balanceOnly?Promise.resolve(null):loadListings("mine"),
+          fetch('/api/account/profile',{cache:'no-store',signal:controller.signal}).then(result=>result.ok?result.json():Promise.reject()),
+          balanceOnly?Promise.resolve(null):loadListings("mine",controller.signal),
         ]);
+        if(!active)return;
         if(profileResult.status==='fulfilled'){
           const profile=profileResult.value?.profile;
-          if(profile?.profile_no)setProfileNumber(String(profile.profile_no));setAvatar(profile?.avatar_url||null);setContact({phone:profile?.phone||'',email:profile?.email||'',since:profile?.created_at||''});
-          setAdmin(profile?.role==='admin'||!!profile?.staff_role);if(profile?.staff_role)setStaffRole(profile.staff_role);
+          setProfileNumber(profile?.profile_no?String(profile.profile_no):"");setAvatar(profile?.avatar_url||null);
+          setAdmin(profile?.role==='admin'||!!profile?.staff_role);setStaffRole(profile?.staff_role||"");
           if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);
         }
         if(!balanceOnly){
           if(listingsResult.status==='fulfilled'&&Array.isArray(listingsResult.value))setListings(listingsResult.value);
           else setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.");
         }
-      })
-      .catch(() =>
-        setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin."),
-      )
-      .finally(() => { setLoading(false); setRefreshing(false); });
-  }, [balanceOnly, reloadKey]);
-  // Categories whose free place is used: restoring there will need payment, so say it up front.
+      }catch{if(active)setError("Məlumatları yükləmək mümkün olmadı. Yenidən cəhd edin.");}
+      finally{clearTimeout(timer);if(active){setLoading(false);setRefreshing(false);}}
+    };
+    void load();return()=>{active=false;clearTimeout(timer);controller.abort();};
+  },[balanceOnly,reloadKey]);
+
   useEffect(() => {
     if (balanceOnly || !userId) return;
     fetch("/api/listings/limits", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(data => {
@@ -182,19 +189,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 <Link href="/account" className="kzProfileAvatarLink" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
                 <div className="kzProfileInfo">
                   <h1>{identity||"Profil"}</h1>
-                  {profileNumber&&<button type="button" className="kzProfileId" onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setCopied(true);window.setTimeout(()=>setCopied(false),1600);}).catch(()=>{});}} aria-label={`ID ${profileNumber} — kopyala`}><span>ID {profileNumber}</span>{copied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
+                  {profileNumber&&<p className="kzProfileId">ID {profileNumber}</p>}
                 </div>
-                <ul className="kzProfileFacts">
-                  <li><Phone aria-hidden="true" size={16} strokeWidth={2}/>{contact.phone?<span>{contact.phone}</span>:<Link href="/account">Nömrə əlavə edin</Link>}</li>
-                  {contact.email&&<li><Mail aria-hidden="true" size={16} strokeWidth={2}/><span>{contact.email}</span></li>}
-                  {contact.since&&<li><CalendarDays aria-hidden="true" size={16} strokeWidth={2}/><span>{shortDate(contact.since)} tarixindən saytdadır</span></li>}
-                </ul>
-                {!balanceOnly&&<div className="kzProfileStats">
-                  <span><b>{listings.filter(x=>matchesTab(x,"published")).length}</b><small>Aktiv elan</small></span>
-                  <span><b>{listings.filter(x=>matchesTab(x,"pending")).length}</b><small>Yoxlamada</small></span>
-                  <span><b><Eye aria-hidden="true" size={15} strokeWidth={2}/>{listings.filter(x=>!x.deleted_at).reduce((sum,x)=>sum+(x.views??0),0)}</b><small>Baxış</small></span>
-                </div>}
-                <Link className="kzProfileEdit" href="/account"><Pencil aria-hidden="true" size={15} strokeWidth={2}/>Profili redaktə et</Link>
+
               </section>
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">

@@ -15,13 +15,13 @@ export default function ListingCard({ item }: { item: Listing }) {
   return (
     <article className="kzCard">
       <Link prefetch={false} className="kzCardLink" href={`/listings/${item.id}`}>
-        <span className="kzCardPhoto">
+        <span className={`kzCardPhoto${["clothing","equipment","photo","event"].includes(item.category)?" kzContainPhoto":""}`}>
           <img src={sized(item.images?.[0]) || "/placeholder.svg"} alt="" loading="lazy" decoding="async" onError={event=>{if(!event.currentTarget.src.endsWith('/placeholder.svg'))event.currentTarget.src='/placeholder.svg';}} />
           
           {item.store && <em className="kzCardStore" title={item.store.name}>Mağaza</em>}
         </span>
         <span className="kzCardBody">
-          <strong className="kzPrice">{money(item.price)} ₼ <small>/ {t(periodName(item.rental_period))}</small>{loweredFrom(item) && <s className="kzOldPrice">{money(loweredFrom(item)!)} ₼</s>}</strong>
+          <strong className="kzPrice"><span className="kzPriceAmount">{money(item.price)} ₼</span><small>/ {t(periodName(item.rental_period))}</small>{loweredFrom(item) && <s className="kzOldPrice">{money(loweredFrom(item)!)} ₼</s>}</strong>
           <span className="kzCardTitle" translate="no">{item.title}</span>
           <span className="kzCardMeta">
             <span>{item.city}{!item.demo && <>, {publicDate(shownAt(item))}</>}</span>

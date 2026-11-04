@@ -16,6 +16,7 @@ import "./polish.css";
 import "./design-system.css";
 import "./refine.css";
 import "./site.css";
+import "./theme.css";
 
 export const viewport: Viewport = {
   width: "device-width",

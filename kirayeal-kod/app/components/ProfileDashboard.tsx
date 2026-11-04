@@ -4,7 +4,7 @@ import Notice from "./Notice";
 import type { NoticeKind } from "../../lib/toast";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { CalendarClock, ChevronLeft, ChevronRight, CircleCheck, CircleX, Clock3, Pencil, Plus, ShieldCheck, Store, Trash2, Wallet } from "lucide-react";
+import { CalendarClock, CalendarDays, Check, ChevronLeft, ChevronRight, CircleCheck, CircleX, Clock3, Copy, Eye, Mail, Pencil, Phone, Plus, ShieldCheck, Store, Trash2, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -43,6 +43,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const sectionTitles:Record<string,string>={listings:"Mənim elanlarım",transactions:"Əməliyyat tarixçəsi",cards:"Mənim kartlarım",limits:"Limitlər",store:"Mağaza"};
   const openSection=(_name:string)=>{};
   const [avatar, setAvatar] = useState<string|null>(null);
+  const [contact, setContact] = useState<{ phone: string; email: string; since: string }>({ phone: "", email: "", since: "" });
+  const [copied, setCopied] = useState(false);
   const [ownPage,setOwnPage]=useState(0);
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
@@ -80,7 +82,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ]);
         if(profileResult.status==='fulfilled'){
           const profile=profileResult.value?.profile;
-          if(profile?.profile_no)setProfileNumber(String(profile.profile_no));setAvatar(profile?.avatar_url||null);
+          if(profile?.profile_no)setProfileNumber(String(profile.profile_no));setAvatar(profile?.avatar_url||null);setContact({phone:profile?.phone||'',email:profile?.email||'',since:profile?.created_at||''});
           setAdmin(profile?.role==='admin'||!!profile?.staff_role);if(profile?.staff_role)setStaffRole(profile.staff_role);
           if(profile?.name||profile?.display_name)setIdentity(profile.name||profile.display_name);
         }
@@ -178,8 +180,21 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
             <aside className="cabinetSidebar">
               <section className="kzProfileCard">
                 <Link href="/account" className="kzProfileAvatarLink" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
-                <h1>{identity||"Profil"}</h1>
-                {profileNumber&&<p>Profil № {profileNumber}</p>}
+                <div className="kzProfileInfo">
+                  <h1>{identity||"Profil"}</h1>
+                  {profileNumber&&<button type="button" className="kzProfileId" onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setCopied(true);window.setTimeout(()=>setCopied(false),1600);}).catch(()=>{});}} aria-label={`ID ${profileNumber} — kopyala`}><span>ID {profileNumber}</span>{copied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
+                </div>
+                <ul className="kzProfileFacts">
+                  <li><Phone aria-hidden="true" size={16} strokeWidth={2}/>{contact.phone?<span>{contact.phone}</span>:<Link href="/account">Nömrə əlavə edin</Link>}</li>
+                  {contact.email&&<li><Mail aria-hidden="true" size={16} strokeWidth={2}/><span>{contact.email}</span></li>}
+                  {contact.since&&<li><CalendarDays aria-hidden="true" size={16} strokeWidth={2}/><span>{shortDate(contact.since)} tarixindən saytdadır</span></li>}
+                </ul>
+                {!balanceOnly&&<div className="kzProfileStats">
+                  <span><b>{listings.filter(x=>matchesTab(x,"published")).length}</b><small>Aktiv elan</small></span>
+                  <span><b>{listings.filter(x=>matchesTab(x,"pending")).length}</b><small>Yoxlamada</small></span>
+                  <span><b><Eye aria-hidden="true" size={15} strokeWidth={2}/>{listings.filter(x=>!x.deleted_at).reduce((sum,x)=>sum+(x.views??0),0)}</b><small>Baxış</small></span>
+                </div>}
+                <Link className="kzProfileEdit" href="/account"><Pencil aria-hidden="true" size={15} strokeWidth={2}/>Profili redaktə et</Link>
               </section>
               {!balanceOnly && <BalancePreview compact/>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">

@@ -70,7 +70,6 @@ export const formDictionary: Record<string, [string, string]> = {
   "Kim üçün": ["Для кого", "Intended user"],
   "Böyük": ["Взрослый", "Adult"],
   "Kask və kilid verilir": ["Шлем и замок включены", "Helmet and lock included"],
-  "Tədbir üçün nə təklif edirsən?": ["Что предлагается для мероприятия?", "What are you offering for the event?"],
   "Tədbir üçün nə təklif edirsiniz?": ["Что предлагается для мероприятия?", "What are you offering for the event?"],
   "Bir şarjla neçə km gedir": ["Запас хода на одном заряде (км)", "Range per charge (km)"],
   "Maksimum sürət (km/saat)": ["Максимальная скорость (км/ч)", "Maximum speed (km/h)"],

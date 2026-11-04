@@ -24,7 +24,7 @@ export async function finishWithin<T>(
           () =>
             reject(
               new Error(
-                "Bağlantı gecikir. Səhifəni yenidən yoxla və ya yeni bərpa linki istə.",
+                "Bağlantı gecikir. Səhifəni yeniləyin və ya yeni bərpa kodu istəyin.",
               ),
             ),
           milliseconds,

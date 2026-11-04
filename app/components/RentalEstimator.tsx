@@ -80,7 +80,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
       : item.rental_period === "monthly" && durationUnit !== "month"
         ? {
             error:
-              "Bu elanda yalnız aylıq qiymət göstərilib. Günlük kirayə qiymətini elan sahibi ilə dəqiqləşdir və ya ay seç.",
+              "Bu elanda yalnız aylıq qiymət göstərilib. Günlük kirayə qiymətini elan sahibi ilə dəqiqləşdirin və ya ay seçin.",
           }
         : calculateRental(
             item,
@@ -108,7 +108,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
     <section className="rentalEstimator" aria-label="Kirayə xərcini hesabla">
       <h3>Kirayə xərcini hesabla</h3>
       <p className="estimateIntro">
-        Nə qədər müddətə lazımdır? Rəqəmi yaz, gün, həftə və ya ay seç.
+        Nə qədər müddətə lazımdır? Rəqəmi yazın, gün, həftə və ya ay seçin.
       </p>
       <p className="minimumDurationNote">
         Elan sahibinin minimum müddəti:{" "}
@@ -153,7 +153,7 @@ export default function RentalEstimator({ item }: { item: Listing }) {
             <p className="notice">
               {quote.error}{" "}
               {end && end < minimumRentalEnd(item, start)
-                ? "Seçdiyin müddət bu elanın minimumundan qısadır."
+                ? "Seçdiyiniz müddət bu elanın minimumundan qısadır."
                 : ""}
             </p>
             {phone && !item.demo && end && (

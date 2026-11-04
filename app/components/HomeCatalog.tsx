@@ -629,7 +629,7 @@ export default function Home() {
                 {t("Depozitsiz")}</label>
               <button type="button" className="secondary" onClick={rememberFilters}>{t("Axtarışı saxla")}</button>
               <p className="homeHelp">
-                {t("Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdir.")}</p>
+                {t("Tarix filtri elan sahibinin göstərdiyi aralığa əsaslanır. Mövcudluğu əlaqə saxlayaraq dəqiqləşdirin.")}</p>
             </div></CatalogFilters>
           )}
           {notice && (
@@ -661,7 +661,7 @@ export default function Home() {
             onlyFavorites && !query ? <div className="kzEmpty">
               <EmptyArt kind="heart" />
               <h3>{t("Seçilmiş elan yoxdur")}</h3>
-              <p>{t("Bəyəndiyin elanın şəklindəki ürək işarəsinə toxun — elan burada saxlanacaq.")}</p>
+              <p>{t("Bəyəndiyiniz elanın şəklindəki ürək işarəsinə toxunun — elan burada saxlanacaq.")}</p>
               <a className="kzButton" href="/">{t("Elanlara bax")}</a>
             </div> :
             <StatusCard as="h2" tone="info" icon={SearchX} badge={t("Nəticə yoxdur")} title={t("Uyğun elan tapılmadı")} className="kzScInline"

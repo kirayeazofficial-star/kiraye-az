@@ -166,44 +166,44 @@ export const listingExamples: Record<
   property: {
     title: "Nizami metrosu yaxınlığında 2 otaqlı mənzil",
     description:
-      "Mənzilin vəziyyəti, əşyaları və kirayə şərtləri haqqında yaz.",
+      "Mənzilin vəziyyəti, əşyaları və kirayə şərtləri haqqında yazın.",
   },
   villa: {
     title: "Mərdəkanda hovuzlu bağ evi",
     description:
-      "Bağın şəraiti, hovuzu, tutumu və kirayə şərtləri haqqında yaz.",
+      "Bağın şəraiti, hovuzu, tutumu və kirayə şərtləri haqqında yazın.",
   },
   commercial: {
     title: "Şəhər mərkəzində 85 m² ofis",
-    description: "Obyektin təyinatını, sahəsini və şəraitini yaz.",
+    description: "Obyektin təyinatını, sahəsini və şəraitini yazın.",
   },
   car: {
     title: "Hyundai Elantra günlük kirayə",
     description:
-      "Avtomobilin vəziyyətini, yürüş limitini və sürücü üçün tələbləri yaz.",
+      "Avtomobilin vəziyyətini, yürüş limitini və sürücü üçün tələbləri yazın.",
   },
   motorcycle: {
     title: "Yamaha NMAX motosiklet kirayəsi",
     description:
-      "Motosikletin vəziyyətini, təchizatını və kirayə şərtlərini yaz.",
+      "Motosikletin vəziyyətini, təchizatını və kirayə şərtlərini yazın.",
   },
-  clothing: { title: "Toy üçün kişi kostyumu kirayəsi", description: "Geyimin ölçüsünü, rəngini, təmizləmə və təhvil şərtlərini yaz." },
-  electric: { title: "Xiaomi elektrik skuter kirayəsi", description: "Bir şarjla məsafəni, şarj müddətini və dəstə daxil olanları yaz. Bilmədiyin göstəricini boş saxlaya bilərsən." },
-  photo: { title: "Çəkiliş üçün Sony kamera kirayəsi", description: "Marka/modeli, uyğun obyektivi və komplektə daxil olanları yaz." },
-  camping: { title: "3 nəfərlik düşərgə çadırı kirayəsi", description: "Tutumu, mövsümü, vəziyyəti və komplektə daxil olanları yaz." },
+  clothing: { title: "Toy üçün kişi kostyumu kirayəsi", description: "Geyimin ölçüsünü, rəngini, təmizləmə və təhvil şərtlərini yazın." },
+  electric: { title: "Xiaomi elektrik skuter kirayəsi", description: "Bir şarjla məsafəni, şarj müddətini və dəstə daxil olanları yazın. Bilmədiyiniz göstəricini boş saxlaya bilərsiniz." },
+  photo: { title: "Çəkiliş üçün Sony kamera kirayəsi", description: "Marka/modeli, uyğun obyektivi və komplektə daxil olanları yazın." },
+  camping: { title: "3 nəfərlik düşərgə çadırı kirayəsi", description: "Tutumu, mövsümü, vəziyyəti və komplektə daxil olanları yazın." },
   equipment: {
     title: "Təmir üçün Bosch drel kirayəsi",
     description:
-      "Avadanlığın növünü, marka/modelini, komplektini və vəziyyətini yaz.",
+      "Avadanlığın növünü, marka/modelini, komplektini və vəziyyətini yazın.",
   },
   bicycle: {
     title: "Şəhər gəzintisi üçün velosiped kirayəsi",
-    description: "Velosipedin növünü, ölçüsünü və vəziyyətini yaz.",
+    description: "Velosipedin növünü, ölçüsünü və vəziyyətini yazın.",
   },
   event: {
     title: "Tədbirlər üçün səs sistemi kirayəsi",
     description:
-      "Nə təklif etdiyini, neçə nəfər üçün uyğun olduğunu və çatdırılma şərtlərini yaz.",
+      "Nə təklif etdiyinizi, neçə nəfər üçün uyğun olduğunu və çatdırılma şərtlərini yazın.",
   },
 };
 

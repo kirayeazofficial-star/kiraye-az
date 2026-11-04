@@ -265,7 +265,7 @@ function StaffManagement() {
   async function find(event: FormEvent) {
     event.preventDefault(); if (busy) return; setBusy(true); setError(""); setNotice(""); setFound(null); setMatches([]);
     try { const data = await api({ action: "find", query: query.trim() }); if (data.account) setFound(data.account); else setMatches(data.accounts || []); }
-    catch (failure) { const { code, detail } = failure as { code?: string; detail?: string }; setError(code === "NOT_FOUND" ? "Bu məlumatla hesab tapılmadı. Hesab əvvəl saytda qeydiyyatdan keçməlidir." : code === "INVALID_REQUEST" ? "Ən azı 3 simvol yaz." : `Axtarış alınmadı.${detail ? ` Texniki kod: ${detail}` : ""}`); }
+    catch (failure) { const { code, detail } = failure as { code?: string; detail?: string }; setError(code === "NOT_FOUND" ? "Bu məlumatla hesab tapılmadı. Hesab əvvəl saytda qeydiyyatdan keçməlidir." : code === "INVALID_REQUEST" ? "Ən azı 3 simvol yazın." : `Axtarış alınmadı.${detail ? ` Texniki kod: ${detail}` : ""}`); }
     finally { setBusy(false); }
   }
   async function change(account: Member, enabled: boolean) {
@@ -519,7 +519,7 @@ function PhotoOrder({ listingId, images, onSaved }: { listingId: string; images:
   async function save() {
     setSaving(true); setMessage("");
     try { await post({ action: "reorder_images", id: listingId, images: photos.map(photo => photo.src) }); setMessage("Sıra saxlanıldı."); onSaved(); }
-    catch { setMessage("Sıra saxlanmadı. Siyahını yenilə və yenidən yoxla."); }
+    catch { setMessage("Sıra saxlanmadı. Siyahını yeniləyib yenidən yoxlayın."); }
     finally { setSaving(false); }
   }
   return <div className="kzAdPhotos">

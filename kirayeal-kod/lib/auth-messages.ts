@@ -7,19 +7,19 @@ export function authErrorMessage(error: unknown) {
   const code = typeof e?.code === "string" ? e.code : "";
   const message = e?.message ?? "";
   const hostMessages: Record<string, string> = {
-    ACCOUNT_EXISTS: "Bu e-poçt ünvanı ilə artıq hesab mövcuddur. «Daxil ol» bölməsindən daxil olun. Şifrənizi unutmusunuzsa, «Şifrəni unutmusunuz?» keçidindən istifadə edin.",
-    INVALID_CREDENTIALS: "E-poçt və ya şifrə yanlışdır. Məlumatları yoxlayın və ya şifrənizi bərpa edin.",
+    ACCOUNT_EXISTS: "Bu e-poçtla hesab artıq var. «Daxil ol» bölməsindən daxil olun. Şifrənizi unutmusunuzsa, «Şifrəni unutmusunuz?» keçidindən istifadə edin.",
+    INVALID_CREDENTIALS: "E-poçt və ya şifrə düzgün deyil.",
     ACCOUNT_BLOCKED: "Hesabınız sayt qaydalarının pozulmasına görə bloklanıb. Sual üçün kirayeal.az@gmail.com ünvanına yazın.",
-    EMAIL_NOT_CONFIRMED: "E-poçt ünvanınız təsdiqlənməyib. «Təsdiq kodunu yenidən göndər» düyməsindən istifadə edin.",
-    INVALID_CODE: "Təsdiq kodu yanlışdır və ya etibarlılıq müddəti bitib. Yeni kod göndərin.",
+    EMAIL_NOT_CONFIRMED: "E-poçtunuz hələ təsdiqlənməyib. Aşağıdan yeni təsdiq kodu istəyin.",
+    INVALID_CODE: "Kod düzgün deyil və ya vaxtı bitib. Yeni kod istəyin.",
     INVALID_INPUT: "Məlumatları yoxlayın: ad və soyad, düzgün e-poçt, telefon və ən azı 8 simvolluq şifrə yazın.",
-    RATE_LIMIT: "Çox sayda cəhd edilib. Bir qədər gözləyib yenidən cəhd edin.",
-    TOO_MANY_ATTEMPTS: "Çox sayda uğursuz cəhdə görə giriş müvəqqəti məhdudlaşdırılıb. Bir qədər sonra yenidən cəhd edin və ya şifrənizi bərpa edin.",
+    RATE_LIMIT: "Çox sayda kod istənilib. Bir saat gözləyib yenidən yoxlayın.",
+    TOO_MANY_ATTEMPTS: "Şifrə bir neçə dəfə səhv yazılıb. Təhlükəsizlik üçün giriş 15 dəqiqə bağlandı. Şifrənizi unutmusunuzsa, «Şifrəni unutmusunuz?» keçidindən istifadə edin.",
     SERVICE_UNAVAILABLE: "Xidmət müvəqqəti əlçatan deyil. Bir az sonra yenidən yoxlayın.",
   };
   if (code && hostMessages[code]) return hostMessages[code];
   if (code === "email_not_confirmed" || /email not confirmed/i.test(message))
-    return "E-poçt ünvanınız təsdiqlənməyib. «Təsdiq kodunu yenidən göndər» düyməsindən istifadə edin.";
+    return "E-poçtunuz hələ təsdiqlənməyib. Aşağıdan yeni təsdiq məktubu istəyə bilərsiniz.";
   if (
     code === "invalid_credentials" ||
     /invalid login credentials/i.test(message)
@@ -56,7 +56,7 @@ export function authErrorMessage(error: unknown) {
     code === "otp_expired" ||
     /token.*expired|token.*invalid|otp.*expired/i.test(message)
   )
-    return "Təsdiq kodu və ya keçid yanlışdır, yaxud etibarlılıq müddəti bitib. Yeni bərpa sorğusu göndərin.";
+    return "Kod və ya keçid düzgün deyil, yaxud vaxtı bitib. Yenisini istəyin.";
   if (code === "same_password")
     return "Yeni şifrə əvvəlki şifrədən fərqli olmalıdır.";
   if (code === "reauthentication_needed")

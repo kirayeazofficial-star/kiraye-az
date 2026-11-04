@@ -1,11 +1,4 @@
-import { validPoint } from "./location";
-export type DraftLocation={district:string;metro:string;point:[number,number]|null;exact:boolean};
-export type ListingDraft={version:1;updatedAt:number;category:string;step:number;fields:Record<string,string[]>;files:File[];photosMissing?:boolean;photoSignature?:string;location?:DraftLocation};
-// Older drafts already contain district/metro as form fields; keep them readable.
-export function draftLocation(draft:ListingDraft):DraftLocation {
- const saved=draft.location,point=Array.isArray(saved?.point)?validPoint(saved.point[0],saved.point[1]):null;
- return {district:String(saved?.district??draft.fields.district?.[0]??'').slice(0,100),metro:String(saved?.metro??draft.fields.metro?.[0]??'').slice(0,100),point,exact:!!point&&saved?.exact===true};
-}
+export type ListingDraft={version:1;updatedAt:number;category:string;step:number;fields:Record<string,string[]>;files:File[];photosMissing?:boolean;photoSignature?:string};
 const prefix='kirayeal:draft:';
 const photoSignature=(files:File[])=>JSON.stringify(files.map(file=>[file.name,file.size,file.type,file.lastModified]));
 let queue:Promise<unknown>=Promise.resolve();

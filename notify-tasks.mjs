@@ -1,4 +1,4 @@
-import { noticeLetter, noticeSubject } from "./email-frame.mjs";
+import { noticeLetter } from "./email-frame.mjs";
 // E-mail notices sent by the 5-minute cron job (backup-to-drive.mjs calls runNotices first):
 // 1. "Elanınızın müddəti bitir" — 3 days before a listing expires (once per listing and expiry date).
 // 2. Saved search alerts — new listings matching a saved search, checked at most once an hour.
@@ -34,12 +34,12 @@ async function expiring(db, send, claim) {
     order by l.expires_at limit 50`)).rows;
   for (const row of rows) {
     if (!(await claim(row.owner_id, "expiry", `${row.id}:${row.until}`))) continue;
-    await send(row.email, noticeSubject("Elanınızın yayım müddəti başa çatır",row.title), letter({
+    await send(row.email, `Elanınızın yayım müddəti başa çatır — «${row.title}»`.slice(0, 120), letter({
       label: "Elanın müddəti",
       heading: "Elanınızın yayım müddəti başa çatır",
       name: row.name,
-      intro: `«${row.title}» elanınızın yayım müddəti ${row.until} tarixində başa çatır. Elan hələ aktualdırsa, şəxsi kabinetinizdə elanın vəziyyətini yoxlayın.`,
-      button: { text: "Elanlara baxın", href: "/profile?section=listings" },
+      intro: `«${row.title}» elanınızın yayım müddəti ${row.until} tarixində başa çatır. Elan hələ aktualdırsa, onu kabinetinizdən yeniləyə və ya irəli çəkə bilərsiniz.`,
+      button: { text: "Elanlarımı idarə edin", href: "/profile?section=listings" },
       note: "Əmlak və ya əşya artıq kirayəyə verilibsə, heç bir əməliyyat tələb olunmur: müddət başa çatdıqda elan avtomatik olaraq saytdan çıxarılacaq.",
     }));
   }
@@ -52,15 +52,15 @@ async function storeExpiring(db, send, claim) {
     where s.status='active' and s.active_until>now()-interval '1 day' and s.active_until<=now()+interval '3 days' order by s.active_until limit 50`).catch(() => ({ rows: [] }))).rows;
   for (const row of rows) {
     if (!(await claim(row.owner_id, row.ended ? "store_ended" : "store_expiry", `${row.id}:${row.until}`))) continue;
-    await send(row.email, noticeSubject(row.ended ? "Mağazanızın müddəti başa çatdı" : "Mağazanızın müddəti başa çatır",row.name), letter({
+    await send(row.email, (row.ended ? `Mağazanızın müddəti başa çatdı — «${row.name}»` : `Mağazanızın müddəti başa çatır — «${row.name}»`).slice(0, 120), letter({
       label: "Mağaza",
-      heading: row.ended ? "Mağazanızın müddəti başa çatdı" : "Mağazanızın müddəti başa çatır",
+      heading: row.ended ? "Mağazanızın müddəti başa çatdı" : "Mağazanızın müddəti 3 gün sonra başa çatır",
       name: row.person,
       intro: row.ended
         ? `«${row.name}» mağazasının «${row.plan}» paketi üzrə müddəti ${row.until} tarixində başa çatıb. Mağaza səhifəsi müvəqqəti bağlanıb, elanlarınızdakı «Mağaza» nişanı götürülüb və elan limiti standart həddə qaytarılıb. Elanlarınız saytda qalır.`
         : `«${row.name}» mağazasının «${row.plan}» paketi üzrə müddəti ${row.until} tarixində başa çatır. Müddət uzadılmazsa, mağaza səhifəsi bağlanacaq, elanlarınızdakı «Mağaza» nişanı götürüləcək və elan limiti standart həddə qayıdacaq.`,
       rows: [{ label: "Mağaza", value: row.name }, { label: "Paket", value: row.plan }, { label: row.ended ? "Bitmə tarixi" : "Bitəcəyi tarix", value: row.until }],
-      button: { text: "Mağazanı idarə edin", href: "/profile?section=store" },
+      button: { text: "Mağazanı idarə et", href: "/profile?section=store" },
       note: "Müddəti uzatmaq üçün kabinetdə «Mağaza» bölməsindən müraciət edin və ya kirayeal.az@gmail.com ünvanına yazın. Uzadıldıqdan sonra mağaza əvvəlki ünvanında yenidən açılır.",
     }));
   }
@@ -81,11 +81,11 @@ async function savedSearches(db, send, claim) {
     const found = (await db.query(`select l.id,l.title,l.price,l.rental_period,l.city from public.listings l where ${where.join(" and ")} order by coalesce(l.first_published_at,l.created_at) desc limit 6`, values)).rows;
     await db.query(`update public.saved_search_alerts set last_checked=now() where id=$1`, [alert.id]);
     if (!found.length || !(await claim(alert.user_id, "search", `${alert.id}:${found[0].id}`))) continue;
-    await send(alert.email, noticeSubject("Yeni elan",alert.label), letter({
+    await send(alert.email, `Yeni elan: ${alert.label}`.slice(0, 120), letter({
       label: "Axtarış bildirişi",
       heading: "Axtarışınıza uyğun yeni elanlar dərc olunub",
       name: alert.name,
-      intro: `Yadda saxladığınız «${alert.label}» axtarışına uyğun ${found.length > 5 ? "bir neçə" : found.length} yeni elan dərc olunub. Son elanlar aşağıda təqdim olunur.`,
+      intro: `Yadda saxladığınız «${alert.label}» axtarışına uyğun ${found.length > 5 ? "bir neçə" : found.length} yeni elan dərc olunub. Ən sonuncular aşağıdadır.`,
       rows: found.slice(0, 5).map((item) => ({ label: `${item.title} · ${item.city}`, value: `${money(item.price)} ₼/${period(item.rental_period)}`, href: `/listings/${item.id}` })),
       button: { text: "Bütün elanlara baxın", href: "/#elanlar" },
       note: "Bu bildiriş saytda yadda saxladığınız axtarış əsasında göndərilib. Axtarışı ana səhifədəki «Yadda saxlanılan axtarışlar» bölməsindən silə bilərsiniz.",
@@ -126,6 +126,6 @@ async function weekly(db, send, claim) {
       { label: "Açıq şikayət", value: String(reports) },
       ...top.map((row, i) => ({ label: `${i + 1}. Ən çox baxılan: ${names[row.category] || row.category}`, value: `${row.n} baxış` })),
     ],
-    button: { text: "Rəhbər panelini açın", href: "/admin" },
+    button: { text: "Rəhbər panelini aç", href: "/admin" },
   }));
 }

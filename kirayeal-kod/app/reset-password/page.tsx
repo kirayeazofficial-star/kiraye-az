@@ -3,8 +3,6 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { authErrorMessage } from "../../lib/auth-messages";
 import "../login/style.css";
-import Feedback from "../components/Feedback";
-import AuthLayout from "../components/AuthLayout";
 export default function ResetPassword() {
   const [ready, setReady] = useState(false),
     [checking, setChecking] = useState(true),
@@ -14,7 +12,7 @@ export default function ResetPassword() {
     [failed, setFailed] = useState(false);
   const recovery = useRef<{email:string;code:string}|null>(null);
   useEffect(() => {
-    try{const saved=JSON.parse(sessionStorage.getItem('kiraye:recovery')||'null');if(saved?.email&&/^\d{6}$/.test(saved.code)&&saved.expiresAt>Date.now()){recovery.current=saved;setReady(true);}else setNotice('Bərpa kodunun vaxtı bitib. Yeni kod istəyin.');}catch{setNotice('Bərpa kodu tapılmadı. Yeni kod istəyin.');}finally{setChecking(false);}
+    try{const saved=JSON.parse(sessionStorage.getItem('kiraye:recovery')||'null');if(saved?.email&&/^\d{6}$/.test(saved.code)&&saved.expiresAt>Date.now()){recovery.current=saved;setReady(true);}else setNotice('Bərpa kodunun vaxtı bitib. Yeni kod istə.');}catch{setNotice('Bərpa kodu tapılmadı. Yeni kod istə.');}finally{setChecking(false);}
   }, []);
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,7 +26,7 @@ export default function ResetPassword() {
     setNotice("");
     try {
       const response=await fetch('/api/auth/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reset_password',email:recovery.current.email,code:recovery.current.code,password:String(form.get('password'))})});
-      const data=await response.json();if(!response.ok)throw Object.assign(new Error(data.error||'Şifrə yenilənmədi.'),{code:data.error,status:response.status});
+      const data=await response.json();if(!response.ok)throw new Error(data.error||'Şifrə yenilənmədi.');
       try {
         sessionStorage.removeItem("kiraye:pending-confirmation");
         sessionStorage.removeItem("kiraye:auth-retry-at");
@@ -52,16 +50,16 @@ export default function ResetPassword() {
         <Link href="/help">Kömək</Link>
       </div>
       <div className="authShell">
-        <AuthLayout><section>
+        <section>
           <h1>{done ? "Şifrəniz yeniləndi" : "Yeni şifrə"}</h1>
           {checking ? (
             <p className="notice" role="status">
-              Bərpa məlumatları yoxlanılır…
+              Bərpa linki yoxlanılır...
             </p>
           ) : !done && ready ? (
             <>
               <p className="authLead">
-                Ən azı 8 simvoldan ibarət yeni şifrə seçin.
+                Bu sayt üçün yeni şifrə seç. Ən azı 8 simvol istifadə et.
               </p>
               <form onSubmit={submit}>
                 <fieldset className="authFields" disabled={busy}>
@@ -87,7 +85,6 @@ export default function ResetPassword() {
                       required
                     />
                   </label>
-                  {notice && <Feedback>{notice}</Feedback>}
                   <button className="authSubmit" disabled={busy}>
                     {busy ? "Yenilənir…" : "Şifrəni saxla"}
                   </button>
@@ -95,11 +92,15 @@ export default function ResetPassword() {
               </form>
             </>
           ) : null}
-          {notice && (!ready || done) && <Feedback tone={done ? "success" : "error"}>{notice}</Feedback>}
+          {notice && (
+            <p className="notice" role="status">
+              {notice}
+            </p>
+          )}
           {done
             ? <Link className="kzButton kzAuthDone" href="/profile">Kabinetə keç</Link>
             : (!ready && !checking) || failed ? <div className="kzAuthLinks"><Link href="/login?mode=reset">Yeni bərpa kodu istəyin</Link><Link href="/login">Girişə qayıt</Link></div> : null}
-        </section></AuthLayout>
+        </section>
       </div>
     </main>
   );

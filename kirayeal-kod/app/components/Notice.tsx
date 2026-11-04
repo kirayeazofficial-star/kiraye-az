@@ -1,9 +1,11 @@
 "use client";
 import { useEffect } from "react";
-import { toast, type NoticeKind } from "../../lib/toast";
+import { toast } from "../../lib/toast";
 
-// The caller selects the result kind; wording never decides whether a failed action succeeded.
-export default function Notice({ text, kind }: { text: string | null | undefined; kind?: NoticeKind }) {
-  useEffect(() => { if (text) toast(text, { kind: kind ?? "success" }); }, [text, kind]);
+// Turns a page's short result message into the floating toast (green, or red for a failure),
+// so it never stays stuck on the page. Renders nothing itself.
+const failure = /mümkün olmadı|alınmadı|olmalıdır|göndərilmir|silinmədi|saxlanmadı|xəta/i;
+export default function Notice({ text, kind }: { text: string | null | undefined; kind?: "success" | "error" }) {
+  useEffect(() => { if (text) toast(text, { kind: kind ?? (failure.test(text) ? "error" : "success") }); }, [text, kind]);
   return null;
 }

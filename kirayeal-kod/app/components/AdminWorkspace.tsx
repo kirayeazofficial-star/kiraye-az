@@ -1,13 +1,12 @@
 "use client";
-import { ADMIN_LIST_PAGE_SIZE, ADMIN_ACTIVITY_PREVIEW_SIZE, ADMIN_HISTORY_PAGE_SIZE } from "../../lib/admin-list-page";
+import { ADMIN_LIST_PAGE_SIZE } from "../../lib/admin-list-page";
 import TabIcon from "./TabIcon";
-import ExpandableText from "./ExpandableText";
 import { sized } from "../../lib/image-size";
 import Notice from "./Notice";
-import { FormEvent, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, ReactNode, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { CircleAlert, CircleX, ChevronDown, EyeOff, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
+import { CircleAlert, ArrowRight, Ban, Store, Check, Eye, Unlink, CircleCheck, Clock, CloudUpload, Database, ExternalLink, HardDrive, Images, LoaderCircle, TriangleAlert, ChevronLeft, RefreshCw, ChevronRight, CreditCard, FileCode, Flag, ListChecks, History, Image, LayoutDashboard, List, ShieldCheck, Settings2, SlidersHorizontal, Megaphone, Wrench, Users, X, type LucideIcon } from "lucide-react";
 import BannerManager from "./BannerManager";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
@@ -109,7 +108,7 @@ function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, posi
           <dl className="kzAdFacts"><div><dt>Kateqoriya</dt><dd>{categoryName(item.category)}</dd></div><div><dt>Qiymət</dt><dd>{money(item.price)} ₼ / {periodName(item.rental_period)}</dd></div><div><dt>Depozit</dt><dd>{money(item.deposit ?? 0)} ₼</dd></div><div><dt>Minimum müddət</dt><dd>{item.min_days ?? 1} gün</dd></div>{item.rooms && <div><dt>Otaq</dt><dd>{item.rooms}</dd></div>}{item.area_m2 && <div><dt>Sahə</dt><dd>{item.area_m2} m²</dd></div>}<div><dt>Əlaqə</dt><dd>{item.contact ? formatContact(item.contact) : "—"}</dd></div><div><dt>Baxış</dt><dd>{item.views || 0}</dd></div></dl>
           {(item as AdminListing).duplicate_note && <p className="kzRiskNote"><Images aria-hidden="true" size={16} strokeWidth={2.2} />{(item as AdminListing).duplicate_note}. Şəkillərin kimə aid olduğunu yoxlayın.</p>}
           {riskWords(item.title, item.description).length > 0 && <p className="kzRiskNote"><TriangleAlert aria-hidden="true" size={16} strokeWidth={2.2} />Mətndə şübhəli ifadə var: <b>{riskWords(item.title, item.description).join(", ")}</b>. Kontekstə baxın — «almıram» kimi inkar da ola bilər.</p>}
-          <ExpandableText text={item.description} />
+          <LongText text={item.description} />
           <a className="kzAdLink" href={`/listings/${item.id}`} target="_blank" rel="noopener noreferrer">Elanı saytda aç</a>
         </>}
         {tab !== "listing" && !data && !error && <p className="kzAdMuted" role="status">Yüklənir…</p>}
@@ -146,30 +145,21 @@ function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, posi
   </div>, document.body);
 }
 
-function ModerationHistory({ onInspect }: { onInspect: (id: string) => void }) {
-  const [events,setEvents]=useState<ModerationEvent[]>([]),[trail,setTrail]=useState<(string|null)[]>([null]),[cursor,setCursor]=useState<string|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[refresh,setRefresh]=useState(0);
-  const before=trail[trail.length-1],moving=useRef(true);
-  const prepare=()=>{if(moving.current)return false;moving.current=true;setLoading(true);setEvents([]);setCursor(null);return true;};
-  useEffect(()=>{
-    let active=true;const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),20000);
-    moving.current=true;setLoading(true);setError("");setCursor(null);setEvents([]);
-    api(before?{action:"history",before}:{action:"history"},controller.signal).then(data=>{
-      if(!active)return;
-      if(!Array.isArray(data.events))throw new Error("INVALID_HISTORY_RESPONSE");
-      setEvents(data.events.slice(0,ADMIN_HISTORY_PAGE_SIZE));
-      setCursor(data.next?String(data.next):null);
-    }).catch(()=>{if(active)setError("Tarixçə yüklənmədi. Yenidən cəhd edin.");}).finally(()=>{clearTimeout(timer);if(active){moving.current=false;setLoading(false);}});
-    return()=>{active=false;clearTimeout(timer);controller.abort();};
-  },[before,refresh]);
-  const reload=()=>{if(prepare()){setTrail([null]);setRefresh(value=>value+1);}};
-  return <Panel title="Əməliyyat tarixçəsi" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" disabled={loading} onClick={reload}><RefreshCw aria-hidden="true" size={16} strokeWidth={2}/></button>}>
-    {loading?<p role="status" className="kzAdMuted">Yüklənir…</p>:error?<div className="kzAdError" role="alert"><p>{error}</p><button type="button" className="kzAdBtn" onClick={()=>{if(prepare())setRefresh(value=>value+1);}}>Yenidən cəhd et</button></div>:!events.length?<Empty title="Hələ qeyd yoxdur"/>:<EventList events={events} onInspect={onInspect}/>}
-    <nav className="kzAdPager kzHistoryPages" aria-label="Tarixçə səhifələri">
-      <button type="button" className="kzAdBtn" disabled={loading||trail.length===1} onClick={()=>{if(trail.length>1&&prepare())setTrail(old=>old.slice(0,-1));}}><ChevronLeft aria-hidden="true" size={16}/>Əvvəlki</button>
-      <span aria-live="polite">{trail.length}</span>
-      <button type="button" className="kzAdBtn" disabled={loading||!cursor} onClick={()=>{if(cursor&&prepare())setTrail(old=>[...old,cursor]);}}>Növbəti<ChevronRight aria-hidden="true" size={16}/></button>
-    </nav>
+function ModerationHistory({ revision, onInspect }: { revision: number; onInspect: (id: string) => void }) {
+  const [events, setEvents] = useState<ModerationEvent[]>([]), [cursor, setCursor] = useState<number | null>(null), [loading, setLoading] = useState(false), [error, setError] = useState("");
+  const load = useCallback(async (before?: number | null) => {
+    setLoading(true); setError("");
+    try {
+      const data = await api(before ? { action: "history", before } : { action: "history" });
+      setEvents(old => before ? [...old, ...data.events] : data.events); setCursor(data.next);
+    } catch { setError("Tarixçə yüklənmədi. Yenidən cəhd edin."); }
+    finally { setLoading(false); }
+  }, []);
+  useEffect(() => { void load(); }, [load, revision]);
+  return <Panel title="Əməliyyat tarixçəsi" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" disabled={loading} onClick={() => void load()}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>
+    {error && <p className="kzAdError" role="alert">{error}</p>}
+    {!events.length && !loading && !error ? <Empty title="Hələ qeyd yoxdur" /> : <EventList events={events} onInspect={onInspect} />}
+    {cursor && <button type="button" className="kzAdBtn kzAdMoreBtn" disabled={loading} onClick={() => void load(cursor)}>Daha köhnə qeydlər</button>}
   </Panel>;
 }
 
@@ -266,7 +256,7 @@ function StaffManagement() {
   async function find(event: FormEvent) {
     event.preventDefault(); if (busy) return; setBusy(true); setError(""); setNotice(""); setFound(null); setMatches([]);
     try { const data = await api({ action: "find", query: query.trim() }); if (data.account) setFound(data.account); else setMatches(data.accounts || []); }
-    catch (failure) { const { code, detail } = failure as { code?: string; detail?: string }; setError(code === "NOT_FOUND" ? "Bu məlumatla hesab tapılmadı. Hesab əvvəl saytda qeydiyyatdan keçməlidir." : code === "INVALID_REQUEST" ? "Ən azı 3 simvol yazın." : `Axtarış alınmadı.${detail ? ` Texniki kod: ${detail}` : ""}`); }
+    catch (failure) { const { code, detail } = failure as { code?: string; detail?: string }; setError(code === "NOT_FOUND" ? "Bu məlumatla hesab tapılmadı. Hesab əvvəl saytda qeydiyyatdan keçməlidir." : code === "INVALID_REQUEST" ? "Ən azı 3 simvol yaz." : `Axtarış alınmadı.${detail ? ` Texniki kod: ${detail}` : ""}`); }
     finally { setBusy(false); }
   }
   async function change(account: Member, enabled: boolean) {
@@ -306,12 +296,12 @@ const ListingRow = memo(function ListingRow({ item, risk, busy, rejecting, reaso
               <h3 translate="no">{item.title}</h3>
               <p><strong>{money(item.price)} ₼</strong> / {periodName(item.rental_period)} · {item.city}{item.district && `, ${item.district}`}</p>
               <p className="kzAdMuted">№ {item.listing_no ?? "—"} · {adminDate(item.created_at)}</p><p className="kzAdMuted kzAdOwnerLine">{item.owner_name || "İstifadəçi"}{item.contact ? ` · ${formatContact(item.contact)}` : ""}</p>
-              {item.rejection_reason && <details className="kzAdReasonDisclosure"><summary><ChevronDown aria-hidden="true" size={16} strokeWidth={2} />Rədd səbəbi</summary><p className="kzAdReason" translate="no">{item.rejection_reason}</p></details>}
+              {item.rejection_reason && <details className="kzAdReasonDisclosure"><summary>Rədd səbəbi</summary><p className="kzAdReason" translate="no">{item.rejection_reason}</p></details>}
             </div>
-            {["pending", "published", "rejected"].includes(item.status) && <div className="kzAdRowActions">
+            <div className="kzAdRowActions">
               {["pending", "rejected"].includes(item.status) && <button type="button" className="kzAdBtn success" disabled={!!busy} onClick={() => actions.moderate(item, "published")}><Check aria-hidden="true" size={16} strokeWidth={2.4} />{busy === item.id ? "Saxlanılır…" : "Təsdiqlə"}</button>}
-              {["pending", "published"].includes(item.status) && <button type="button" className="kzAdBtn danger" disabled={!!busy} onClick={() => actions.toggleReject(item.id)}>{item.status === "published" ? <EyeOff aria-hidden="true" size={16} strokeWidth={2} /> : <CircleX aria-hidden="true" size={16} strokeWidth={2} />}{item.status === "published" ? "Yayımdan çıxar" : "Rədd et"}</button>}
-            </div>}
+              <button type="button" className="kzAdBtn danger" disabled={!!busy || !["pending", "published"].includes(item.status)} onClick={() => actions.toggleReject(item.id)}><X aria-hidden="true" size={16} strokeWidth={2.4} />{item.status === "published" ? "Yayımdan çıxar" : "Rədd et"}</button>
+            </div>
             {rejecting && <div className="kzAdReject">
               <label>Səbəb<select value={rejectionReasons.includes(reason || "") ? reason : ""} onChange={event => actions.setReason(item.id, event.target.value)}><option value="">Hazır səbəb seç və ya aşağıda yaz</option>{rejectionReasons.map(reason => <option key={reason} value={reason}>{reason}</option>)}</select></label>
               <textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reason ?? ""} onChange={event => actions.setReason(item.id, event.target.value)} placeholder="Elan sahibinə görünəcək səbəb (ən azı 10 simvol)" />
@@ -356,7 +346,7 @@ export default function AdminWorkspace() {
   }, [allowed, section, filter, query, page, revision, dateFrom, reviewKind, owner]);
   useEffect(() => {
     if (!allowed) return;
-    api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(Array.isArray(data.activity)?data.activity.slice(0,ADMIN_ACTIVITY_PREVIEW_SIZE):[]); setIncome(data.income || null); }).catch(() => {});
+    api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); setIncome(data.income || null); }).catch(() => {});
   }, [allowed, revision]);
 
   // Words worth a look in each listing's text, worked out once per list (not on every render).
@@ -457,11 +447,12 @@ export default function AdminWorkspace() {
           {income && !income.total && <p className="kzAdMuted">Ödəniş sistemi qoşulduqdan sonra daxil olan ödənişlər burada avtomatik hesablanacaq.</p>}
         </Panel>
         <Panel title="Son fəaliyyətlər" actions={<button type="button" className="kzAdBtn" onClick={() => open("history")}>Hamısı</button>}>
-          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.slice(0, ADMIN_ACTIVITY_PREVIEW_SIZE).map(item => <li key={item.id}>
-            <div className="kzActivityHeading"><span className={`kzActivityStatus ${item.new_status || ""}`}>{moderationActions[item.action] || "Elan yeniləndi"}</span><time dateTime={item.created_at}>{adminDate(item.created_at)}</time></div>
-            <button type="button" className="kzAdLink kzActivityTitle" translate="no" onClick={() => inspect(item.listing_id)}>{item.title || "Silinmiş elan"}</button>
-            <p className="kzActivityActor" translate="no">{item.actor_name || "İdarəçi"}</p>
-            {item.reason && <details className="kzAdReasonDisclosure"><summary><ChevronDown aria-hidden="true" size={16} strokeWidth={2} />Qərarın səbəbi</summary><p className="kzActivityReason" translate="no">{item.reason}</p></details>}
+          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.map(item => <li key={item.id}>
+            <span className={`kzAdDot ${item.new_status || ""}`} aria-hidden="true" />
+            <div><p><strong>{item.actor_name || "İdarəçi"}</strong> · {moderationActions[item.action] || item.action}{item.new_status ? ` — ${statusName(item.new_status)}` : ""}</p>
+              <button type="button" className="kzAdLink" onClick={() => inspect(item.listing_id)}>{item.title || "Silinmiş elan"}</button>
+              {item.reason && <p className="kzAdReason">Səbəb: {item.reason}</p>}</div>
+            <time>{adminDate(item.created_at)}</time>
           </li>)}</ul>}
         </Panel>
 
@@ -471,7 +462,7 @@ export default function AdminWorkspace() {
         <div className="kzAdTabs" role="group" aria-label="Elan vəziyyəti">{statuses.map(([status, label]) => <button key={status} type="button" aria-pressed={filter === status} disabled={!!busy} onClick={() => { setFilter(status); setPage(1); }}>{label}{counts && <small>{status === "all" ? counts.listings : counts.statuses[status] || 0}</small>}</button>)}</div>
         <form className="kzAdFilters" onSubmit={find}>
           <input type="text" inputMode="search" value={search} onChange={event => setSearch(event.target.value)} maxLength={100} placeholder="Başlıq, telefon, № elan" aria-label="Elan axtar" />
-          <button type="button" className="kzAdBtn kzAdFilterToggle" aria-label={moreFilters ? "Əlavə filtrləri bağla" : "Əlavə filtrləri aç"} aria-expanded={moreFilters} onClick={() => setMoreFilters(value => !value)}><SlidersHorizontal aria-hidden="true" size={16} strokeWidth={2} /></button>
+          <button type="button" className="kzAdBtn kzAdFilterToggle" aria-expanded={moreFilters} onClick={() => setMoreFilters(value => !value)}><SlidersHorizontal aria-hidden="true" size={16} strokeWidth={2} /></button>
           <span className={`kzAdExtra${moreFilters ? " open" : ""}`}>
           <AzerbaijaniDateInput label="Elanın tarixi" value={dateFrom} onChange={value => { setDateFrom(value); setPage(1); }} />
           <select aria-label="Digər vəziyyətlər" value={otherStatuses.some(([status]) => status === filter) ? filter : ""} onChange={event => { setFilter(event.target.value || "all"); setPage(1); }}><option value="">Digər vəziyyətlər</option>{otherStatuses.map(([status, label]) => <option key={status} value={status}>{label}{counts ? ` (${status === "archived" ? (counts.statuses.archived || 0) + (counts.statuses.expired || 0) : counts.statuses[status] || 0})` : ""}</option>)}</select>
@@ -499,7 +490,7 @@ export default function AdminWorkspace() {
         return <ReviewSheet item={details} onClose={() => setDetails(null)} onInspect={id => { setDetails(null); inspect(id); }} onSaved={() => setRevision(value => value + 1)}
           onDecide={(status, reason) => moderate(details, status, reason)} onNext={next ? () => setDetails(next) : undefined} position={index >= 0 ? `${index + 1}/${items.length}` : undefined} />; })()}
       {section === "reports" && <ReportQueue onInspect={inspect} onChange={() => setRevision(x => x + 1)} />}
-      {section === "history" && <ModerationHistory key={revision} onInspect={inspect} />}
+      {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
       {section === "banners" && <BannerManager />}
       {section === "stores" && <StoreAdmin leader={role === "leader"} />}
       {section === "limits" && role === "leader" && <LimitAdmin />}
@@ -520,7 +511,7 @@ function PhotoOrder({ listingId, images, onSaved }: { listingId: string; images:
   async function save() {
     setSaving(true); setMessage("");
     try { await post({ action: "reorder_images", id: listingId, images: photos.map(photo => photo.src) }); setMessage("Sıra saxlanıldı."); onSaved(); }
-    catch { setMessage("Sıra saxlanmadı. Siyahını yeniləyib yenidən yoxlayın."); }
+    catch { setMessage("Sıra saxlanmadı. Siyahını yenilə və yenidən yoxla."); }
     finally { setSaving(false); }
   }
   return <div className="kzAdPhotos">
@@ -530,6 +521,25 @@ function PhotoOrder({ listingId, images, onSaved }: { listingId: string; images:
       {changed && <><button type="button" className="kzAdBtn primary" disabled={saving} onClick={() => void save()}>{saving ? "Saxlanılır…" : "Sırayı saxla"}</button><button type="button" className="kzAdBtn" disabled={saving} onClick={() => setPhotos(images.map(src => ({ id: src, src })))}>Geri qaytar</button></>}
       {message && <span className="kzAdMuted" role="status">{message}</span>}
     </div>}
+  </div>;
+}
+
+// Long descriptions start folded to four lines.
+function LongText({ text }: { text: string }) {
+  const [open, setOpen] = useState(false), [long, setLong] = useState(false);
+  const paragraph = useRef<HTMLParagraphElement>(null);
+  const id = useId();
+  useEffect(() => { setOpen(false); }, [text]);
+  useEffect(() => {
+    if (open) return;
+    const measure = () => { const node = paragraph.current; if (node) setLong(node.scrollHeight > node.clientHeight + 1); };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [text, open]);
+  return <div className="kzAdDescriptionWrap">
+    <p id={id} ref={paragraph} translate="no" className={`kzAdDescription${!open ? " folded" : ""}`}>{text}</p>
+    {long && <button type="button" className="kzAdLink" aria-expanded={open} aria-controls={id} onClick={() => setOpen(value => !value)}>{open ? "Yığcam göstər" : "Tam mətn"}</button>}
   </div>;
 }
 

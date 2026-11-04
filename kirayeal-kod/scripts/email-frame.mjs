@@ -6,14 +6,14 @@
 // Sizes: title 19px, text 14px/22px, details 14px, small print 12px.
 const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://kirayeal.az").replace(/\/$/, "");
 const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif";
-const INK = "#111827", TEXT = "#374151", MUTED = "#6b7280", FAINT = "#9ca3af", LINE = "#e5e7eb", PANEL = "#f8fafc", ACCENT = "#f65320", BRAND = "#104c43";
+const INK = "#111827", TEXT = "#374151", MUTED = "#6b7280", FAINT = "#9ca3af", LINE = "#e5e7eb", PANEL = "#f8fafc", ACCENT = "#ff5a1f", BRAND = "#143f3b";
 // "kirayeal.az" in running text: a zero-width space after the dot stops Gmail / iPhone Mail from turning it into a blue link.
 const BRAND_TEXT = "kirayeal.&#8203;az";
 const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 const link = (href) => (href.startsWith("http") ? href : `${site}${href}`);
 export const greeting = (name) => `Hörmətli ${String(name || "").trim() || "istifadəçi"},`;
 // Titles are full sentences, so they end with a full stop like the rest of the text.
-const sentence = (text) => { const value = String(text ?? "").trim(); if (!value) return value; return /[.!?:…]$/.test(value) ? value : `${value}.`; };
+const sentence = (text) => { const value = String(text ?? "").trim(); return /[.!?:…]$/.test(value) ? value : `${value}.`; };
 const brandText = (text) => esc(text).replace(/kirayeal\.az/g, BRAND_TEXT);
 
 function frame({ label, title, preheader, body, footerNote }) {
@@ -30,11 +30,11 @@ function frame({ label, title, preheader, body, footerNote }) {
       <p style="margin:0 0 8px;text-align:center;font-family:${FONT};font-size:12px;line-height:16px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:${MUTED};">${esc(label)}</p>
       <h1 style="margin:0 0 22px;padding:0 0 22px;border-bottom:1px solid ${LINE};text-align:center;font-family:${FONT};font-size:19px;line-height:26px;font-weight:600;color:${INK};">${esc(sentence(title))}</h1>
       ${body}
-      <p style="margin:26px 0 0;font-family:${FONT};font-size:14px;line-height:22px;color:${TEXT};">Hörmətlə,<br><span style="font-weight:600;color:${BRAND};">kirayeal<span style="color:${ACCENT};">.&#8203;az</span></span> komandası.</p>
+      <p style="margin:26px 0 0;font-family:${FONT};font-size:14px;line-height:22px;color:${TEXT};">Hörmətlə,<br>${BRAND_TEXT} komandası</p>
     </td></tr>
     <tr><td align="center" style="padding:20px 20px 0;font-family:${FONT};font-size:12px;line-height:19px;color:${MUTED};">
-      ${esc(sentence(footerNote))}<br>
-      <a href="${site}/help" style="color:${MUTED};text-decoration:underline;">Kömək</a> &middot; <a href="${site}/privacy" style="color:${MUTED};text-decoration:underline;">Məxfilik siyasəti</a><br>
+      ${esc(footerNote)}<br>
+      <a href="${site}/help" style="color:${MUTED};text-decoration:underline;">Kömək</a> &middot; <a href="${site}/rules" style="color:${MUTED};text-decoration:underline;">Qaydalar</a> &middot; <a href="${site}/privacy" style="color:${MUTED};text-decoration:underline;">Məxfilik</a> &middot; <a href="mailto:kirayeal.az@gmail.com" style="color:${MUTED};text-decoration:underline;">kirayeal.az@gmail.com</a><br>
       <span style="color:${FAINT};">© ${year} ${BRAND_TEXT} — Azərbaycanda kirayə elanları</span>
     </td></tr>
   </table>
@@ -42,18 +42,18 @@ function frame({ label, title, preheader, body, footerNote }) {
 }
 const para = (text, color = TEXT, margin = "0 0 16px") => `<p style="margin:${margin};font-family:${FONT};font-size:14px;line-height:22px;color:${color};">${brandText(text)}</p>`;
 const small = (text) => `<p style="margin:22px 0 0;padding:14px 16px;border-radius:8px;background:${PANEL};font-family:${FONT};font-size:12px;line-height:18px;color:${MUTED};">${brandText(text)}</p>`;
-const textLetter = (title, lines) => ["kirayeal.az", "", sentence(title), "", ...lines, "", "Hörmətlə,", "kirayeal.az komandası.", "", site].join("\n");
+const textLetter = (title, lines) => ["kirayeal.az", "", sentence(title), "", ...lines, "", "Hörmətlə,", "kirayeal.az komandası", "", site].join("\n");
 
 // Confirmation / recovery / staff sign-in code.
 export function codeLetter({ heading: title, name, intro, code, note, label = "Təsdiq kodu" }) {
-  const body = `${para(greeting(name), INK)}${para(sentence(intro))}
+  const body = `${para(greeting(name), INK)}${para(intro)}
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:6px 0 8px;"><tr><td align="center" style="background:${PANEL};border:1px solid ${LINE};border-radius:8px;padding:16px 12px;">
         <span style="font-family:${FONT};font-size:28px;line-height:34px;font-weight:600;letter-spacing:8px;color:${INK};">${esc(code)}</span>
       </td></tr></table>
-      <p style="margin:0 0 4px;text-align:center;font-family:${FONT};font-size:13px;line-height:20px;color:${MUTED};">${esc(sentence(note))}</p>
-      ${small(codeSafety)}`;
-  const html = frame({ label, title, preheader: `${sentence(title)} ${note}`, body, footerNote: automaticNote });
-  const text = textLetter(title, [greeting(name), "", sentence(intro), "", `Təsdiq kodu: ${code}`, sentence(note), "", codeSafety, "", automaticNote]);
+      <p style="margin:0 0 4px;text-align:center;font-family:${FONT};font-size:13px;line-height:20px;color:${MUTED};">${esc(note)}</p>
+      ${small("Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın — hesabınızda heç nə dəyişməyəcək. Təsdiq kodunu heç kimlə paylaşmayın: kirayeal.az əməkdaşları kodunuzu heç vaxt soruşmur.")}`;
+  const html = frame({ label, title, preheader: `${sentence(title)} Kod: ${code}`, body, footerNote: "Bu məktub avtomatik göndərilmişdir. Bu ünvana cavab göndərməyiniz tələb olunmur." });
+  const text = textLetter(title, [greeting(name), "", intro, "", `Kod: ${code}`, note, "", "Bu sorğunu siz etməmisinizsə, məktubu nəzərə almayın. Təsdiq kodunu heç kimlə paylaşmayın."]);
   return { html, text };
 }
 
@@ -65,35 +65,8 @@ export function noticeLetter({ heading: title, name, intro, rows = [], button, n
     ? `<tr><td style="${cell(i)}color:${MUTED};overflow-wrap:anywhere;word-break:break-word;">${esc(row.label)}</td><td align="right" style="${cell(i)}color:${INK};font-weight:500;">${row.href ? `<a href="${esc(link(row.href))}" style="color:${INK};text-decoration:none;">${esc(row.value)}</a>` : esc(row.value)}</td></tr>`
     : `<tr><td colspan="2" style="${cell(i)}color:${INK};">${row.href ? `<a href="${esc(link(row.href))}" style="color:${INK};text-decoration:none;font-weight:500;">${esc(row.label)}</a>` : esc(row.label)}</td></tr>`).join("")}</table>` : "";
   const cta = button ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:4px 0 0;"><tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="background:${BRAND};border-radius:6px;"><a href="${esc(link(button.href))}" style="display:inline-block;padding:11px 26px;font-family:${FONT};font-size:14px;line-height:20px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:6px;">${esc(button.text)}</a></td></tr></table></td></tr></table>` : "";
-  const body = `${para(greeting(name), INK)}${para(sentence(intro))}${list}${cta}${note ? small(sentence(note)) : ""}`;
+  const body = `${para(greeting(name), INK)}${para(intro)}${list}${cta}${note ? small(note) : ""}`;
   const html = frame({ label, title, preheader: intro, body, footerNote });
-  const text = textLetter(title, [greeting(name), "", sentence(intro), ...rows.map((row) => `• ${row.label}${row.value ? ` — ${row.value}` : ""}${row.href ? ` ${link(row.href)}` : ""}`), ...(button ? ["", `${button.text}: ${link(button.href)}`] : []), ...(note ? ["", sentence(note)] : []), "", sentence(footerNote)]);
+  const text = textLetter(title, [greeting(name), "", intro, ...rows.map((row) => `• ${row.label}${row.value ? ` — ${row.value}` : ""}${row.href ? ` ${link(row.href)}` : ""}`), ...(button ? ["", `${button.text}: ${link(button.href)}`] : []), ...(note ? ["", note] : [])]);
   return { html, text };
-}
-
-const automaticNote = "Bu məktub avtomatik göndərilib. Yardım üçün kirayeal.az@gmail.com ünvanına müraciət edə bilərsiniz.";
-const codeSafety = "Təsdiq kodunu heç kimlə paylaşmayın. Bu sorğunu siz göndərməmisinizsə, məktubu nəzərə almayın.";
-const verificationCopy = {
-  signup: { label: "Qeydiyyat", heading: "Qeydiyyatınızı təsdiqləyin", intro: "E-poçt ünvanınızı təsdiqləmək üçün aşağıdakı kodu qeydiyyat səhifəsində daxil edin." },
-  recovery: { label: "Şifrə bərpası", heading: "Şifrənizi bərpa edin", intro: "Hesabınızın şifrəsini bərpa etmək üçün sorğu göndərilib. Aşağıdakı təsdiq kodunu şifrə bərpası səhifəsində daxil edin. Daha sonra yeni şifrə təyin edə bilərsiniz." },
-  email_change: { label: "E-poçt dəyişikliyi", heading: "E-poçt dəyişikliyini təsdiqləyin", intro: "Hesabınıza bağlı e-poçt ünvanının dəyişdirilməsi üçün sorğu göndərilib. Dəyişikliyi təsdiqləmək üçün aşağıdakı kodu şəxsi kabinetinizin «Profil» bölməsində daxil edin." },
-  staff_login: { label: "İdarəetmə paneli", heading: "İdarəetmə panelinə girişi təsdiqləyin", intro: "İdarəetmə panelinə yeni cihazdan giriş üçün sorğu göndərilib. Girişi təsdiqləmək üçün aşağıdakı kodu giriş səhifəsində daxil edin. Təsdiqdən sonra cihaz 3 gün ərzində yadda saxlanılacaq." },
-};
-
-// The subject and both message formats always describe the same operation.
-export function verificationLetter(purpose, name, code) {
-  const copy = verificationCopy[purpose];
-  if (!copy) throw new Error("Unknown verification purpose");
-  return { subject: `${copy.label} üçün təsdiq kodu — kirayeal.az`, ...codeLetter({ ...copy, name, code, note: "Kodun etibarlılıq müddəti: 10 dəqiqə." }) };
-}
-
-// Keep the subject readable without splitting Unicode characters or losing the closing quote.
-export function noticeSubject(topic, title) {
-  const prefix = `${String(topic).replace(/\s+/g, " ").trim()} — «`, suffix = "»";
-  const text = Array.from(String(title ?? "").replace(/\s+/g, " ").trim());
-  const available = Math.max(1, 120 - Array.from(prefix + suffix).length);
-  const fragment=text.slice(0,available-1).join("");
-  const boundary=fragment.lastIndexOf(" ");
-  const short = text.length > available ? (boundary>available*.6?fragment.slice(0,boundary):fragment).trimEnd() + "…" : text.join("");
-  return prefix + short + suffix;
 }

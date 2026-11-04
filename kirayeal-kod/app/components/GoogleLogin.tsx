@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Feedback from "./Feedback";
 // Shown only once Google sign-in is configured on the server (GOOGLE_CLIENT_ID/SECRET); until then nothing renders.
 export default function GoogleLogin() {
   const [enabled, setEnabled] = useState(false);
@@ -8,13 +7,13 @@ export default function GoogleLogin() {
   const [notice, setNotice] = useState("");
   async function check() {try{const r=await fetch('/api/auth/google/status',{cache:'no-store'});const d=await r.json();setEnabled(d.enabled===true);}catch{setEnabled(false);}}
   useEffect(() => {
-    if(new URLSearchParams(window.location.search).get('google')==='error')setNotice('Google hesabı ilə daxil olmaq mümkün olmadı. Yenidən cəhd edin və ya e-poçtla daxil olun.');
+    if(new URLSearchParams(window.location.search).get('google')==='error')setNotice('Google ilə giriş alınmadı. Yenidən cəhd edin və ya e-poçtla daxil olun.');
     void check();
   }, []);
   async function login() {
     if(enabled!==true||busy)return;setBusy(true);setNotice("");window.location.assign('/api/auth/google');
   }
-  if (enabled !== true) return notice ? <Feedback>{notice}</Feedback> : null;
+  if (enabled !== true) return notice ? <p className="notice" role="status">{notice}</p> : null;
   return (
     <div className="googleLogin">
       <button
@@ -41,10 +40,12 @@ export default function GoogleLogin() {
             d="M24 12c3 0 5.6 1 7.7 3l5.8-5.7A19.5 19.5 0 0 0 24 4 20.4 20.4 0 0 0 5.8 15.2l6.8 5.2C14.2 15.6 18.7 12 24 12Z"
           />
         </svg>
-        {busy ? "Google-a yönləndirilirsiniz…" : "Google ilə davam et"}
+        {busy ? "Google-a yönləndirilir…" : "Google ilə davam et"}
       </button>
       {notice && (
-        <Feedback>{notice}</Feedback>
+        <p className="notice" role="status">
+          {notice}
+        </p>
       )}
       <div className="authDivider">
         <span>və ya</span>

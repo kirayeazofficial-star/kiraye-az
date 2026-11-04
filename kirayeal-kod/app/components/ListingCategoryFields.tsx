@@ -39,7 +39,7 @@ export function SelectField({
         onChange={(event) => onChange?.(event.target.value)}
       >
         <option value="">Seç</option>
-        {value && !options.includes(value) && <option value={value}>{value}</option>}
+        {value && !options.includes(value) && <option>{value}</option>}
         {options.map((option) => (
           <option key={option} value={option}>{option === "Hər ikisi" ? "Çatdırılma mümkündür" : option}</option>
         ))}
@@ -109,7 +109,7 @@ function BrandModelPicker({
             {Object.keys(models)
               .sort((a, b) => a.localeCompare(b, "az"))
               .map((item) => (
-                <option key={item} value={item}>{item}</option>
+                <option key={item}>{item}</option>
               ))}
             <option value="__other__">Digər marka</option>
           </select>
@@ -139,7 +139,7 @@ function BrandModelPicker({
               {resolvedBrand ? "Modeli seç" : "Əvvəl markanı seç"}
             </option>
             {(Object.prototype.hasOwnProperty.call(models, resolvedBrand) ? models[resolvedBrand] : []).map((item) => (
-              <option key={item} value={item}>{item}</option>
+              <option key={item}>{item}</option>
             ))}
             <option value="__other__">Digər model</option>
           </select>

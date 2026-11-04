@@ -1,7 +1,7 @@
 import { categoryName } from "../../../lib/marketplace";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarX, ChevronRight, Clock, CloudOff, House, RotateCw, Trash2 } from "lucide-react";
+import { CalendarX, Clock, CloudOff, House, RotateCw, Trash2 } from "lucide-react";
 import StatusCard from "../../components/StatusCard";
 import QuickCategories from "../../components/QuickCategories";
 import { notFound } from "next/navigation";
@@ -61,9 +61,9 @@ export default async function ListingPage({ params }: Props) {
     <>
       <Header />
       <main className="wrap listingDetailPage">
-        <nav className="breadcrumb" aria-label="Səhifə yolu">
-          <Link href="/">Ana səhifə</Link>{item ? <><ChevronRight aria-hidden="true" size={13} /><Link href={`/?category=${encodeURIComponent(item.category)}#elanlar`}>{categoryName(item.category)}</Link></> : null}
-        </nav>
+        <p className="breadcrumb">
+          <Link href="/">Ana səhifə</Link>{item ? <> / {categoryName(item.category)}</> : null}
+        </p>
         {preview && <p className={`kzPreviewNote ${preview.status}`} role="status"><strong>{preview.deleted_at ? "Silinib" : statusName(preview.status)}</strong> · {preview.status === "pending" && !preview.deleted_at ? "Təsdiqdən sonra hamıya görünəcək. İndi yalnız elan sahibi və adminlər görür." : "Bu elan hamıya görünmür. Yalnız elan sahibi və adminlər görür."}</p>}
         {item ? (
           <ListingDetails item={item} />
@@ -75,7 +75,7 @@ export default async function ListingPage({ params }: Props) {
       </main>
       <Footer />
       {item && !preview && <StructuredData data={{"@context":"https://schema.org","@type":"Product",name:item.title,description:item.description.slice(0,500),url:`${publicSiteUrl()}/listings/${item.id}`,category:categoryName(item.category),...(item.images?.[0]?{image:[item.images[0].startsWith("/")?`${publicSiteUrl()}${item.images[0]}`:item.images[0]]}:{}),offers:{"@type":"Offer",price:Number(item.price),priceCurrency:"AZN",availability:"https://schema.org/InStock",businessFunction:"http://purl.org/goodrelations/v1#LeaseOut",areaServed:item.city,url:`${publicSiteUrl()}/listings/${item.id}`}}}/>}
-      {item && !preview && <StructuredData data={{"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"kirayeal.az",item:publicSiteUrl()},{"@type":"ListItem",position:2,name:categoryName(item.category),item:`${publicSiteUrl()}/?category=${encodeURIComponent(item.category)}`},{"@type":"ListItem",position:3,name:item.title,item:`${publicSiteUrl()}/listings/${item.id}`}]}}/>}
+      {item && !preview && <StructuredData data={{"@context":"https://schema.org","@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"kirayeal.az",item:publicSiteUrl()},{"@type":"ListItem",position:2,name:item.title,item:`${publicSiteUrl()}/listings/${item.id}`}]}}/>}
     </>
   );
 }

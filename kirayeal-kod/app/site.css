@@ -1,8 +1,9 @@
 /* kirayeal.az — main layout (header, catalog, cards, footer).
    Loaded last; components use kz* class names so older stylesheets don't reach them. */
-/* Readable type sizes stay stable while the layout adapts to the viewport. */
+/* Type scale: one set of sizes for the whole site. On phones the sizes follow the
+   screen width (full size from 400px, about 14% smaller on 320px screens such as iPhone SE/7 zoomed). */
 :root{--fs-11:11px;--fs-12:12px;--fs-13:13px;--fs-14:14px;--fs-15:15px;--fs-16:16px;--fs-18:18px;--fs-20:20px;--fs-24:24px;--fs-28:28px;--fs-32:32px}
-@media (max-width:767px){:root{--fs-11:11px;--fs-12:12px;--fs-13:13px;--fs-14:14px;--fs-15:15px;--fs-16:16px;--fs-18:18px;--fs-20:20px;--fs-24:22px;--fs-28:24px;--fs-32:28px}}
+@media (max-width:767px){:root{--fs-11:clamp(9.5px,2.75vw,11px);--fs-12:clamp(10.3px,3.0vw,12px);--fs-13:clamp(11.2px,3.25vw,13px);--fs-14:clamp(12.0px,3.5vw,14px);--fs-15:clamp(12.9px,3.75vw,15px);--fs-16:clamp(13.8px,4.0vw,16px);--fs-18:clamp(15.5px,4.5vw,18px);--fs-20:clamp(17.2px,5.0vw,20px);--fs-24:clamp(20.6px,6.0vw,24px);--fs-28:clamp(24.1px,7.0vw,28px);--fs-32:clamp(27.5px,8.0vw,32px)}}
 :root{
   --kz-bg:#fff;
   --kz-soft:#f5f6f8;
@@ -11,14 +12,13 @@
   --kz-text:#3d4450;
   --kz-muted:#6b7280;
   --kz-line:#e4e6ea;
-  --kz-brand:#104c43;
-  --kz-brand-soft:#edf5f2;
-  --kz-accent:#cb4618;
-  --kz-accent-dark:#ad3510;
-  --kz-green:#24834a;
-  --kz-green-dark:#1b683a;
+  --kz-brand:#143f3b;
+  --kz-accent:#ff5a1f;
+  --kz-accent-dark:#e84a10;
+  --kz-green:#3db460;
+  --kz-green-dark:#33a052;
   --kz-accent-soft:#fff1ec;
-  --kz-radius:10px;
+  --kz-radius:8px;
   --kz-width:1200px;
   --kz-gutter:16px;
   --kz-font:"Inter Variable",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
@@ -124,6 +124,10 @@ body{font-family:var(--kz-font)}
 .kzBadge{position:absolute;left:8px;top:8px;padding:3px 7px;border-radius:4px;background:rgba(0,0,0,.6);color:#fff;font-size:var(--fs-11);font-weight:700;letter-spacing:.3px;line-height:1.2}
 .kzBadge-vip{background:var(--kz-accent)}
 .kzBadge-premium{background:#e9a514}
+.kzFavorite{position:absolute;top:10px;right:10px;display:flex;align-items:center;justify-content:center;width:34px;height:34px;min-height:0;margin:0;padding:0;border:0;border-radius:50%;background:none;color:#fff;box-shadow:none;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}
+.kzFavorite svg{width:26px;height:26px;stroke-width:2}
+.kzFavorite.selected{color:var(--kz-accent);filter:none}
+.kzFavorite.selected svg{stroke:#fff}
 .kzSkeleton{aspect-ratio:3/3.55;border-radius:12px;background:linear-gradient(90deg,#e8eaee 25%,#f2f3f5 50%,#e8eaee 75%);background-size:200% 100%;animation:kzPulse 1.2s infinite linear}
 @keyframes kzPulse{to{background-position:-200% 0}}
 .kzEmpty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:48px 16px;background:var(--kz-soft);border-radius:var(--kz-radius);text-align:center}
@@ -164,7 +168,7 @@ body{font-family:var(--kz-font)}
 .listingInfo .description{white-space:pre-line;font-size:var(--fs-15);line-height:1.6;color:var(--kz-text)}
 .listingDetails>.kzSection{grid-area:related;margin:16px 0 0}
 @media (max-width:900px){
-  .listingDetails:not(.compactDetails){grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"head" "gallery" "side" "info" "related"!important}
+  .listingDetails:not(.compactDetails){grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"gallery" "head" "side" "info" "related"!important}
   .listingDetails:not(.compactDetails) .detailSide{position:static}
   .listingDetails:not(.compactDetails) .detailHead h1{font-size:var(--fs-20)}
 }
@@ -370,9 +374,8 @@ body.kz-messages{--kz-bg:var(--kz-soft)}
 .kzChat{display:grid;grid-template-columns:360px minmax(0,1fr);height:calc(100vh - 76px - 52px);height:calc(100dvh - 76px - 52px);min-height:520px;max-height:860px;background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--kz-line)}
 .kzChatList{display:flex;flex-direction:column;min-height:0;overflow-y:auto;border-right:1px solid var(--kz-line)}
 .kzChatListHead{position:sticky;top:0;z-index:1;display:flex;align-items:center;gap:10px;padding:18px 20px 14px;background:#fff}
-.kzChatListHead h1{margin:0;font-size:var(--fs-24);font-weight:650;letter-spacing:-.4px}
-.kzChatListHead p{margin:4px 0 0;font-size:var(--fs-13);line-height:1.5;color:var(--kz-muted)}
-.kzChatListHead>span{margin-left:auto;padding:2px 9px;border-radius:10px;background:var(--kz-soft);color:var(--kz-muted);font-size:var(--fs-13);font-weight:600}
+.kzChatListHead h1{margin:0;font-size:var(--fs-24);font-weight:600}
+.kzChatListHead span{padding:2px 9px;border-radius:10px;background:var(--kz-soft);color:var(--kz-muted);font-size:var(--fs-13);font-weight:600}
 .kzChatHint{padding:0 20px;color:var(--kz-muted);font-size:var(--fs-14)}
 .kzChatItem{display:flex;align-items:center;gap:12px;width:100%;min-height:0;margin:0;padding:12px 20px;border:0;border-radius:0;background:none;box-shadow:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
 .kzChatItem:hover{background:#fafafb}
@@ -386,23 +389,20 @@ body.kz-messages{--kz-bg:var(--kz-soft)}
 .kzChatThumb>.kzUserAvatar:first-child+.kzChatPeer{display:none}
 .kzChatText{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
 .kzChatTop,.kzChatBottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.kzChatTop strong{min-width:0;font-size:var(--fs-15);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kzChatTop time{flex:none;max-width:92px;white-space:nowrap;font-size:var(--fs-12);color:var(--kz-muted)}
+.kzChatTop strong{font-size:var(--fs-15);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kzChatTop time{flex:none;font-size:var(--fs-12);color:var(--kz-muted)}
 .kzChatListing{font-size:var(--fs-13);color:var(--kz-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kzChatBottom small{min-width:0;flex:1;font-size:var(--fs-13);color:var(--kz-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kzChatBottom small{font-size:var(--fs-13);color:var(--kz-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kzChatBottom b{flex:none;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--kz-accent);color:#fff;font-size:var(--fs-11);line-height:20px;text-align:center;box-sizing:border-box}
 .kzChatBody{display:flex;flex-direction:column;min-width:0;min-height:0;background:#f7f8fa}
 .kzChatBody>.kzChatEmpty{margin:auto}
-.kzChatEmpty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:40px 24px;text-align:center;color:#c3c8d0}
+.kzChatEmpty{display:flex;flex-direction:column;align-items:center;gap:6px;padding:40px 24px;text-align:center;color:#c3c8d0}
 .kzChatEmpty strong{color:var(--kz-ink);font-size:var(--fs-18)}
-.kzChatEmpty p{max-width:30ch;margin:0;font-size:var(--fs-14);line-height:1.65;color:var(--kz-muted)}
-.kzChatWelcomeIcon{display:grid;place-items:center;width:72px;height:72px;margin-bottom:8px;border-radius:22px;background:var(--kz-accent-soft);color:var(--kz-accent-dark)}
-.kzChatBrowse{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;margin-top:6px;border:1px solid var(--kz-line);border-radius:10px;color:var(--kz-brand)!important;font-size:var(--fs-14);font-weight:600;text-decoration:none!important;background:#fff}
-.kzChatBrowse:hover{background:var(--kz-soft)}
+.kzChatEmpty p{margin:0;font-size:var(--fs-14);color:var(--kz-muted)}
 .kzChatHead{display:flex;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid var(--kz-line)}
 .kzChatBack{display:none;align-items:center;justify-content:center;width:36px;height:36px;min-height:0;margin:0 0 0 -8px;padding:0;border:0;background:none;color:var(--kz-ink);box-shadow:none;cursor:pointer}
 .kzChatWho{display:flex;flex-direction:column;min-width:0;flex:1}
-.kzChatWho strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--fs-16)}
+.kzChatWho strong{font-size:var(--fs-16)}
 .kzChatWho a,.kzChatWho span{font-size:var(--fs-13);color:var(--kz-muted)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none!important}
 .kzChatWho a:hover{color:var(--kz-accent-dark)!important}
 .kzChatListingThumb img{display:block;width:44px;height:44px;border-radius:10px;object-fit:cover}
@@ -415,7 +415,7 @@ body.kz-messages{--kz-bg:var(--kz-soft)}
 .kzBubble p{margin:0;font-size:var(--fs-15);line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
 .kzBubble time{display:block;margin-top:2px;text-align:right;font-size:var(--fs-11);opacity:.65}
 .kzComposer{display:flex;align-items:flex-end;gap:10px;padding:12px 16px;background:#fff;border-top:1px solid var(--kz-line)}
-.kzComposer textarea{flex:1;min-width:0;box-sizing:border-box;min-height:44px;max-height:140px;margin:0;padding:11px 16px;border:1px solid var(--kz-line);border-radius:22px;background:var(--kz-soft);font:inherit;font-size:16px;line-height:1.4;resize:none;box-shadow:none;outline:0}
+.kzComposer textarea{flex:1;min-height:44px;max-height:140px;margin:0;padding:11px 16px;border:1px solid var(--kz-line);border-radius:22px;background:var(--kz-soft);font:inherit;font-size:var(--fs-16);line-height:1.35;resize:none;field-sizing:content;box-shadow:none;outline:0}
 .kzComposer textarea:focus{border-color:#c9cdd3;background:#fff}
 .kzComposer button{flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-height:0;margin:0;padding:0;border:0;border-radius:50%;background:var(--kz-accent);color:#fff;box-shadow:none;cursor:pointer}
 .kzComposer button:disabled{background:#d5d8de;cursor:default}
@@ -538,7 +538,7 @@ main .add,main .secondary,main .kzButton,main .kzButtonGhost{font-size:var(--fs-
 .ownerListingActions .contactActions>*{width:100%!important;grid-column:auto!important;order:0!important;box-sizing:border-box}
 .detailSide .ownerListingActions{box-sizing:border-box!important;width:auto!important;max-width:100%!important;margin:0!important}
 .kzChatTabs{display:grid;grid-template-columns:repeat(3,1fr);margin:0 20px 10px;padding:3px;border-radius:10px;background:var(--kz-soft)}
-.kzChatTabs button{min-height:40px;margin:0;padding:0 6px;border:0;border-radius:8px;background:none;color:var(--kz-text);font:inherit;font-size:var(--fs-13);font-weight:500;cursor:pointer;box-shadow:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kzChatTabs button{min-height:34px;margin:0;padding:0 6px;border:0;border-radius:8px;background:none;color:var(--kz-text);font:inherit;font-size:var(--fs-13);font-weight:500;cursor:pointer;box-shadow:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .kzChatTabs button[aria-pressed=true]{background:#fff;color:var(--kz-ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 @media (max-width:767px){.kzChatTabs{margin:0 16px 8px}}
 
@@ -577,8 +577,8 @@ body.kz-admin{--kz-bg:var(--kz-soft)}
 .kzAdReasonDisclosure{margin-top:6px;font-size:var(--fs-13)}
 .kzAdReasonDisclosure summary{display:inline-flex;align-items:center;gap:7px;min-height:32px;color:var(--kz-muted);cursor:pointer;list-style:none}
 .kzAdReasonDisclosure summary::-webkit-details-marker{display:none}
-.kzAdReasonDisclosure summary svg{flex:none;transition:transform .15s ease}
-.kzAdReasonDisclosure[open] summary svg{transform:rotate(180deg)}
+.kzAdReasonDisclosure summary::before{content:"+";font-size:16px;line-height:1}
+.kzAdReasonDisclosure[open] summary::before{content:"−"}
 .kzAdReasonDisclosure .kzAdReason{overflow-wrap:anywhere}
 .kzAdReason{margin:4px 0 0;font-size:var(--fs-13);color:#b42318}
 .kzAdEmpty{display:grid;justify-items:center;gap:4px;padding:40px 16px;border-radius:12px;background:var(--kz-soft);text-align:center}
@@ -716,6 +716,8 @@ body.kz-admin{--kz-bg:var(--kz-soft)}
   .kzHeader .mobileMenuButton svg{width:clamp(22px,6vw,24px);height:clamp(22px,6vw,24px)}
   .kzHeader .kzLogo{font-size:var(--fs-24)!important}
   .kzSearch>svg{width:clamp(16px,4.6vw,18px);height:clamp(16px,4.6vw,18px)}
+  .kzFavorite{width:clamp(30px,8.5vw,34px);height:clamp(30px,8.5vw,34px)}
+  .kzFavorite svg{width:clamp(22px,6.4vw,26px);height:clamp(22px,6.4vw,26px)}
   .kzCategories>button{flex-basis:clamp(76px,23vw,90px)}
   .kzCategories .categoryVisual,.kzCatalogTile{width:clamp(70px,22vw,88px)!important;height:clamp(70px,22vw,88px)!important}
   .kzCatalogTile svg{width:clamp(36px,11vw,44px);height:clamp(36px,11vw,44px)}
@@ -857,7 +859,7 @@ main h1,main h2,main h3{color:var(--kz-ink)!important}
 .kzOwnHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 14px}
 .kzOwnHead h2{display:flex;align-items:center;gap:10px;margin:0!important}
 .kzOwnHead .kzButton{height:40px;padding:0 16px;font-size:var(--fs-14)}
-.kzOwnTabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin:0 0 14px;padding:3px;border-radius:12px;background:var(--kz-soft);overflow:visible}
+.kzOwnTabs{display:flex;gap:6px;margin:0 0 14px;padding:3px;border-radius:12px;background:var(--kz-soft);overflow-x:auto;scrollbar-width:none}
 .kzOwnTabs::-webkit-scrollbar{display:none}
 .kzOwnTabs button{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px;margin:0;padding:0 14px;border:0;border-radius:10px;background:none;color:var(--kz-text);font:inherit;font-size:var(--fs-14);font-weight:500;white-space:nowrap;cursor:pointer;box-shadow:none}
 .kzOwnTabs button[aria-pressed=true]{background:#fff;color:var(--kz-ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
@@ -1009,6 +1011,16 @@ nav.breadcrumb a{display:inline!important;margin:0!important;padding:0!important
   :root{
     --u:calc(100vw / 375);
     --kz-gutter:clamp(12px,calc(14 * var(--u)),16px);
+    --fs-11:clamp(10px,calc(10.5 * var(--u)),12px);
+    --fs-12:clamp(10.5px,calc(11.5 * var(--u)),13px);
+    --fs-13:clamp(11.5px,calc(12.5 * var(--u)),14px);
+    --fs-14:clamp(12px,calc(13.5 * var(--u)),15px);
+    --fs-15:clamp(13px,calc(14 * var(--u)),16px);
+    --fs-16:clamp(13.5px,calc(15 * var(--u)),17px);
+    --fs-18:clamp(15px,calc(16.5 * var(--u)),19px);
+    --fs-20:clamp(16px,calc(18 * var(--u)),21px);
+    --fs-24:clamp(18px,calc(21 * var(--u)),24px);
+    --fs-28:clamp(20px,calc(24 * var(--u)),28px);
   }
   /* header */
   .kzHeaderInner{padding-top:6px;padding-bottom:8px;gap:6px 10px}
@@ -1043,6 +1055,8 @@ nav.breadcrumb a{display:inline!important;margin:0!important;padding:0!important
   .kzCardTitle{font-size:var(--fs-13)!important;margin:2px 0 4px!important}
   .kzCardMeta{font-size:var(--fs-11)!important}
   .kzPromo svg{width:13px;height:13px}
+  .kzFavorite{top:6px;right:6px;width:28px!important;height:28px!important}
+  .kzFavorite svg{width:clamp(18px,calc(20 * var(--u)),22px)!important;height:clamp(18px,calc(20 * var(--u)),22px)!important}
   /* bottom bar */
   body{padding-bottom:calc(clamp(52px,calc(56 * var(--u)),60px) + env(safe-area-inset-bottom))}
   .kzTabbar{height:calc(clamp(52px,calc(56 * var(--u)),60px) + env(safe-area-inset-bottom))!important}
@@ -1342,6 +1356,7 @@ details.helpCard>p{margin:0!important;padding:0 16px 14px!important;font-size:va
 .loginPage .passwordToggle svg{display:block;width:20px;height:20px;flex:none}
 .loginPage .passwordToggle[aria-pressed=true]{color:var(--kz-accent-dark)!important;background:var(--kz-accent-soft)!important}
 html.kz-login,html.kz-login>body{background:var(--kz-soft)!important}
+.kzFavorite:not(.selected){filter:drop-shadow(0 0 1px rgba(0,0,0,.5)) drop-shadow(0 1px 3px rgba(0,0,0,.35))!important}
 /* Gallery thumbnails: one clear selected state, no browser focus ring on tap */
 .listingDetails .thumbnails button{padding:0!important;border:2px solid transparent!important;outline:0!important;box-shadow:none!important;overflow:hidden;opacity:.75}
 .listingDetails .thumbnails button[aria-current="true"],.listingDetails .thumbnails button[aria-pressed="true"],.listingDetails .thumbnails button.active{border-color:var(--kz-accent)!important;opacity:1}
@@ -1374,31 +1389,31 @@ video.kzBannerThumb{display:block}
 .kzSortList [aria-selected=true] button{font-weight:600;color:var(--kz-accent-dark)}
 @media (max-width:767px){.kzSortButton{height:32px;padding:0 10px;font-size:var(--fs-12)}.kzSortList button{min-height:38px;font-size:var(--fs-13)}}
 /* ---- Side menu (hamburger): tidy rows with coloured icon tiles ---- */
-.siteMenuPanel.kzSide{display:flex!important;flex-direction:column;gap:0;width:min(340px,90vw)!important;padding:16px 14px calc(16px + env(safe-area-inset-bottom))!important;background:#fff!important}
+.siteMenuPanel.kzSide{display:flex!important;flex-direction:column;gap:0;width:min(320px,86vw)!important;padding:14px 14px calc(16px + env(safe-area-inset-bottom))!important;background:#fff!important}
 .siteMenuPanel.kzSide .siteMenuHeading{margin:0 0 6px!important;padding:2px 2px 12px!important;border-bottom:1px solid var(--kz-line)!important}
 .siteMenuPanel.kzSide .siteMenuHeading .logo{font-size:var(--fs-24)!important}
 .siteMenuPanel.kzSide .siteMenuHeading .logo small{margin-top:4px!important;font-size:8px!important;color:var(--kz-muted)!important}
-.siteMenuPanel.kzSide .siteMenuClose{flex:0 0 44px!important;width:44px!important;height:44px!important;min-height:0!important;border-radius:50%!important;background:var(--kz-soft)!important;color:var(--kz-ink)!important}
+.siteMenuPanel.kzSide .siteMenuClose{flex:0 0 36px!important;width:36px!important;height:36px!important;min-height:0!important;border-radius:50%!important;background:var(--kz-soft)!important;color:var(--kz-ink)!important}
 .siteMenuPanel.kzSide .siteMenuClose svg{width:18px;height:18px}
 .siteMenuPanel.kzSide .siteMenuLanguage{margin:0!important;padding:10px 4px!important;border:0!important}
 .siteMenuPanel.kzSide .siteMenuLanguage>span{font-size:var(--fs-14);color:var(--kz-text)}
 .siteMenuPanel.kzSide .languageSelect{gap:4px!important;padding:3px;border-radius:999px;background:var(--kz-soft)}
-.siteMenuPanel.kzSide .languageSelect button{min-height:0!important;height:40px;padding:0 12px!important;border:0!important;border-radius:999px!important;background:none!important;color:var(--kz-text)!important;font-size:var(--fs-12)!important;font-weight:600!important;box-shadow:none!important}
+.siteMenuPanel.kzSide .languageSelect button{min-height:0!important;height:28px;padding:0 12px!important;border:0!important;border-radius:999px!important;background:none!important;color:var(--kz-text)!important;font-size:var(--fs-12)!important;font-weight:600!important;box-shadow:none!important}
 .siteMenuPanel.kzSide .languageSelect button[aria-pressed="true"]{background:#fff!important;color:var(--kz-ink)!important;box-shadow:0 1px 3px rgba(16,24,40,.12)!important}
 .siteMenuPanel.kzSide nav{display:flex!important;flex-direction:column;gap:0!important;margin:0!important;padding:4px 0!important}
 .siteMenuPanel.kzSide nav+nav,.siteMenuPanel.kzSide .siteMenuHelp{margin-top:6px!important;padding-top:8px!important;border-top:1px solid var(--kz-line)!important}
-.siteMenuPanel.kzSide nav a{display:flex!important;align-items:center;gap:12px;line-height:1.4;min-height:48px!important;margin:0!important;padding:0 6px!important;border-radius:10px!important;background:none!important;color:var(--kz-ink)!important;font-size:15px!important;font-weight:500!important;text-decoration:none!important}
+.siteMenuPanel.kzSide nav a{display:flex!important;align-items:center;gap:12px;min-height:46px!important;margin:0!important;padding:0 6px!important;border-radius:10px!important;background:none!important;color:var(--kz-ink)!important;font-size:var(--fs-15)!important;font-weight:500!important;text-decoration:none!important}
 .siteMenuPanel.kzSide nav a>span:nth-child(2){flex:1;min-width:0}
 .siteMenuPanel.kzSide nav a:hover,.siteMenuPanel.kzSide nav a:active{background:var(--kz-soft)!important}
 .siteMenuPanel.kzSide .kzSideArrow{flex:none;color:#b3b8c2}
 .kzSideIcon{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:9px}
 .kzSideIcon.orange{background:#fff1ec;color:#ff5a1f}.kzSideIcon.red{background:#fdecea;color:#d92d20}.kzSideIcon.green{background:#e9f7ef;color:#1f8a4c}
 .kzSideIcon.blue{background:#ebf1ff;color:#2f6fe4}.kzSideIcon.purple{background:#f3edff;color:#7c4ddb}.kzSideIcon.grey{background:var(--kz-soft);color:var(--kz-text)}
-.siteMenuPanel.kzSide .siteContact{margin-top:20px!important;padding:14px 6px 0!important;border-top:1px solid var(--kz-line)!important;gap:6px!important;background:none!important;border-radius:0!important;border-left:0!important;border-right:0!important;border-bottom:0!important}
+.siteMenuPanel.kzSide .siteContact{margin-top:auto!important;padding:14px 6px 0!important;border-top:1px solid var(--kz-line)!important;gap:6px!important;background:none!important;border-radius:0!important;border-left:0!important;border-right:0!important;border-bottom:0!important}
 .siteMenuPanel.kzSide .siteContact strong{font-size:var(--fs-13)!important;color:var(--kz-muted)!important;font-weight:600}
 .siteMenuPanel.kzSide .siteContact a{font-size:var(--fs-14)!important;color:var(--kz-ink)!important}
 .siteMenuPanel.kzSide .siteContact .socialLinks{display:flex;gap:14px}
-.siteMenuPanel.kzSide .kzSideIcon svg{color:inherit!important;stroke:currentColor!important;width:20px!important;height:20px!important}
+.siteMenuPanel.kzSide .kzSideIcon svg{color:inherit!important;stroke:currentColor!important;width:18px!important;height:18px!important}
 .siteMenuPanel.kzSide .kzSideIcon.orange{color:#ff5a1f!important}.siteMenuPanel.kzSide .kzSideIcon.red{color:#d92d20!important}.siteMenuPanel.kzSide .kzSideIcon.green{color:#1f8a4c!important}
 .siteMenuPanel.kzSide .kzSideIcon.blue{color:#2f6fe4!important}.siteMenuPanel.kzSide .kzSideIcon.purple{color:#7c4ddb!important}.siteMenuPanel.kzSide .kzSideIcon.grey{color:#4b5260!important}
 .siteMenuPanel.kzSide .languageSelect button{display:inline-flex!important;align-items:center;justify-content:center;line-height:1!important}
@@ -1465,16 +1480,16 @@ video.kzBannerThumb{display:block}
 .stickyContact .add .kzI{margin:0!important}
 
 /* ---- Photo viewer (full screen) ---- */
-.imageViewer.kzViewer{position:fixed;inset:0;z-index:2200;display:flex!important;flex-direction:column;width:100vw!important;max-width:none!important;height:100vh!important;height:100dvh!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;background:#000!important;color:#fff;overflow:hidden;user-select:none;-webkit-user-select:none}
+.imageViewer.kzViewer{position:fixed;inset:0;display:flex!important;flex-direction:column;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;background:#000!important;color:#fff;overflow:hidden;user-select:none;-webkit-user-select:none}
 .imageViewer.kzViewer::backdrop{background:#000}
 .kzViewerTop{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;z-index:2}
 .kzViewerCount{padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.14);font-size:var(--fs-13);font-weight:600;font-variant-numeric:tabular-nums}
 .kzViewerTools{display:flex;gap:8px}
-.kzViewerTools button,.kzViewerArrow{display:grid;place-items:center;width:42px;height:42px;min-height:0;margin:0;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;box-shadow:none}
+.kzViewerTools button,.kzViewerArrow{display:grid;place-items:center;width:42px;height:42px;min-height:0;margin:0;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;cursor:pointer;box-shadow:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .kzViewerTools button:hover,.kzViewerArrow:hover{background:rgba(255,255,255,.26)}
 .kzViewerStage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;cursor:zoom-in}
 .kzViewerStage.zoomed{cursor:grab}
-.kzViewerStage .kzViewerNeighbor,.kzViewerStage .kzViewerCurrent{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.kzViewerStage .kzViewerNeighbor{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .kzViewerStage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;will-change:transform;-webkit-user-drag:none;pointer-events:none}
 .kzViewerArrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px}
 .kzViewerArrow.previous{left:14px}.kzViewerArrow.next{right:14px}
@@ -1737,11 +1752,10 @@ html{-webkit-tap-highlight-color:transparent}
 @media (max-width:767px){.accountDashboard .cabinetNav.cabinetCards .cabinetNavFoot>.kzMenuRow.kzLogoutNav,.accountDashboard .cabinetNav .cabinetNavFoot>.kzMenuRow.kzLogoutNav{display:flex!important}}
 /* Profile page order: info → photo → personal data → e-mail → sign out */
 .kzProfileInfo{display:grid!important;grid-template-columns:56px 1fr;gap:14px;align-items:center;padding:14px 16px!important}
-.kzProfileInfo .kzUserAvatar{width:56px!important;height:56px!important;color:#fff}
-.kzProfileInfo .kzUserAvatar b{font-size:20px;color:inherit}
+.kzProfileInfo .kzUserAvatar{width:56px!important;height:56px!important}
 .kzProfileInfo>div{display:grid;gap:2px;min-width:0}
 .kzProfileInfo strong{font-size:var(--fs-16);line-height:1.3}
-.kzProfileInfo>div>span{font-size:var(--fs-14);color:var(--kz-ink);overflow-wrap:anywhere}
+.kzProfileInfo span{font-size:var(--fs-14);color:var(--kz-ink);overflow-wrap:anywhere}
 .kzProfileInfo small{font-size:var(--fs-12);color:var(--kz-muted)}
 .kzPhotoRow{display:flex!important;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px!important}
 .kzPhotoRow>span{font-weight:600;font-size:var(--fs-15)}
@@ -1786,7 +1800,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzAdOwnerLine{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;margin-top:2px!important}
 /* Chat header: block action lives in a quiet "⋯" menu */
 .kzChatMore{position:relative;flex:none}
-.kzChatMore>summary{display:grid;place-items:center;width:44px;height:44px;border-radius:10px;color:var(--kz-ink);cursor:pointer;list-style:none}
+.kzChatMore>summary{display:grid;place-items:center;width:38px;height:38px;border-radius:10px;color:var(--kz-ink);cursor:pointer;list-style:none}
 .kzChatMore>summary::-webkit-details-marker{display:none}
 .kzChatMore>summary:hover,.kzChatMore[open]>summary{background:var(--kz-soft)}
 .kzChatMenu{position:absolute;right:0;top:calc(100% + 6px);z-index:30;min-width:200px;padding:6px;border:1px solid var(--kz-line);border-radius:12px;background:#fff;box-shadow:0 10px 30px rgba(16,24,40,.14)}
@@ -1867,7 +1881,7 @@ html{-webkit-tap-highlight-color:transparent}
    Soft blurred copy of the photo fills empty side space (clipped cleanly, also on iPhone);
    badges bottom-left, counter bottom-centre, "Bütün şəkillər" bottom-right; dark round arrows. */
 .listingDetails .listingGallery .galleryStage{background:#e9eaee!important}
-.listingDetails .listingGallery .galleryStage::before{content:none!important;display:none!important}
+.listingDetails .listingGallery .galleryStage::before{content:""!important;display:block!important;position:absolute;inset:0;z-index:0;background:var(--bg) center/cover no-repeat;filter:blur(22px) saturate(1.05);transform:scale(1.18);opacity:.9;pointer-events:none}
 .listingDetails .listingGallery .galleryStage .galleryOpen{z-index:1}
 .listingDetails .listingGallery .galleryStage>.kzPromo{top:12px!important;bottom:auto!important;left:12px!important;z-index:3}
 .listingDetails .listingGallery .galleryCounter{left:50%!important;right:auto!important;bottom:12px!important;transform:translateX(-50%);z-index:3}
@@ -2555,7 +2569,7 @@ html{-webkit-tap-highlight-color:transparent}
 .kzToasts{position:fixed;z-index:3000;right:24px;top:88px;display:grid;gap:10px;width:min(380px,calc(100vw - 32px));pointer-events:none}
 .kzToast{display:flex;align-items:center;gap:10px;padding:12px 10px 12px 14px;border:1px solid #bfe5cc;border-radius:14px;background:#f2fbf5;color:#14532d;font-size:14px;font-weight:600;line-height:1.4;box-shadow:0 10px 30px rgba(17,24,39,.14);pointer-events:auto;animation:kzToastIn .22s ease-out}
 .kzToast svg{flex:none;color:#1f8a4c}
-.kzToast span{flex:1;min-width:0;overflow-wrap:anywhere}
+.kzToast span{flex:1;min-width:0}
 .kzToast button{display:grid;place-items:center;flex:none;width:30px;height:30px;margin:0;padding:0;border:0;border-radius:8px;background:transparent;color:#4b5563;cursor:pointer;box-shadow:none}
 .kzToast button:hover{background:rgba(0,0,0,.06)}
 .kzToast.error{border-color:#f5c2c3;background:#fff5f5;color:#991b1b}.kzToast.error svg{color:#d92d20}
@@ -2584,6 +2598,7 @@ html{-webkit-tap-highlight-color:transparent}
   .kzLogo,.logo{display:inline-block;padding-top:10px!important;padding-bottom:10px!important;margin-top:-10px;margin-bottom:-10px}
   .kzFooter a{display:inline-block;padding-top:7px;padding-bottom:7px}
   .kzFooter .kzContactLine{padding-top:7px;padding-bottom:7px}
+  .kzFavorite::after{content:"";position:absolute;inset:-8px}
   .textButton{min-height:36px}
   .kzMore,.kzMoreLink{display:inline-flex;align-items:center;min-height:36px}
 }
@@ -2650,7 +2665,7 @@ html{-webkit-tap-highlight-color:transparent}
 @media (max-width:767px){
   body{padding-bottom:calc(70px + env(safe-area-inset-bottom))}
   .kzTabbar{box-sizing:border-box;gap:0!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;height:calc(66px + env(safe-area-inset-bottom))!important;padding:4px 0 calc(6px + env(safe-area-inset-bottom))!important;box-shadow:0 -2px 10px rgba(17,24,39,.04)}
-  .kzTabbar>a,.kzTabbar>a.kzTabbarPublish{justify-content:center!important;min-width:0;gap:5px!important;padding:0 1px!important;font-size:clamp(10.5px,2.95vw,12px)!important;font-weight:600!important;line-height:1.2;text-transform:uppercase!important;letter-spacing:0!important;color:#667085!important}
+  .kzTabbar>a,.kzTabbar>a.kzTabbarPublish{justify-content:center!important;min-width:0;gap:5px!important;padding:0 2px!important;font-size:clamp(9px,2.6vw,11px)!important;font-weight:600!important;line-height:1.2;text-transform:uppercase!important;letter-spacing:0!important;color:#667085!important}
   .kzTabbar>a>span:last-child{display:block;max-width:100%;white-space:nowrap}
   .kzTabbar>a .kzTabIcon{width:23px!important;height:30px!important;flex:none}
   .kzTabbar>a .kzTabIcon:not(.on){fill:none!important;stroke:currentColor!important;stroke-width:1.8!important}
@@ -3037,475 +3052,3 @@ input[type=password]::placeholder{letter-spacing:normal!important}
 /* Story pəncərəsi: pəncərənin özü fokus alır, X ətrafında rəngli çərçivə çəkilmir. */
 .kzStoryDlg:focus{outline:none}
 .kzStoryClose:focus:not(:focus-visible){outline:none!important;box-shadow:none!important}
-
-/* Shared contact controls: same alignment, brand marks and touch geometry in both locations. */
-.kzContactLinks{display:grid;gap:8px;min-width:0}
-.kzContactLinks a{display:flex!important;align-items:center;gap:9px;min-height:44px;padding:0!important;color:var(--kz-text)!important;text-decoration:none!important;font-size:var(--fs-14);line-height:1.4}
-.kzContactEmail>span:last-child{min-width:0;overflow-wrap:anywhere}
-.kzContactSocials{display:flex;flex-wrap:wrap;gap:8px 20px}
-.kzContactIcon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:10px;background:var(--kz-soft);color:var(--kz-brand)}
-.kzContactIcon.instagram{background:#fcecf4;color:#bf3473}
-.kzContactIcon.tiktok{background:#eaf7f7;color:#14646a}
-.kzContactIcon svg{display:block;flex:none;width:18px!important;height:18px!important}
-.kzContactLinks a:hover>span:last-child{text-decoration:underline;text-underline-offset:3px}
-.kzFooterInner>.kzFooterContact{min-width:0}
-.kzFooterInner .kzContactLinks{display:grid;gap:4px}
-.siteMenuPanel.kzSide .siteContact .kzContactLinks{width:100%}
-.siteMenuPanel.kzSide .siteContact .kzContactLinks a{min-height:44px!important;padding:0!important}
-/* Small controls keep their icons intact; text remains free to wrap. */
-.kzAdBtn>svg,.kzButton>svg,.kzButtonGhost>svg,.kzChatMenu svg{flex-shrink:0}
-.kzChatBack{flex:none;width:44px;height:44px}
-.kzComposer button:focus-visible,.kzChatMore>summary:focus-visible,.kzContactLinks a:focus-visible{outline:2px solid var(--kz-brand);outline-offset:3px}
-@media (min-width:768px){
-  .kzChat{grid-template-columns:clamp(280px,30vw,360px) minmax(0,1fr);min-height:360px;min-height:min(520px,calc(100vh - 128px))}
-}
-@media (max-width:767px){
-  .kzChatListHead{padding-top:20px;padding-bottom:14px}
-  .kzChatEmpty{padding:36px 24px}
-  .kzAdRowActions .kzAdBtn,.kzAdActions .kzAdBtn,.kzAdFilterToggle,.kzAdTabs button,.kzAdReasonDisclosure summary{min-height:44px!important}
-  .kzToast button{width:44px;height:44px}
-  .kzAdIconBtn{width:44px}
-  .kzAdBack{min-height:44px!important;margin-bottom:0!important}
-  .siteMenuPanel.kzSide .siteMenuClose{width:44px!important;height:44px!important}
-  .kzFooterBrand{flex-wrap:wrap}
-  .accountDashboard .kzOwnTabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;overflow:visible;margin:0 0 14px!important;padding:4px!important}
-  .accountDashboard .kzOwnTabs button{min-width:0;min-height:44px;justify-content:space-between;padding:8px 10px;white-space:normal;text-align:left;line-height:1.4}
-  .accountDashboard .kzOwnTabs b{flex:none;font-variant-numeric:tabular-nums}
-}
-@media (prefers-reduced-motion:reduce){.kzAdReasonDisclosure summary svg{transition:none}.kzToast{animation:none}}
-
-/* Gallery layers retain their decoded image while their position changes. */
-.kzGalleryPhoto{position:absolute;inset:0;overflow:hidden;background:#f1f2f4;pointer-events:none}
-.kzGalleryPhoto>img,.kzViewerStage .kzGalleryPhoto>img{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;pointer-events:none;-webkit-user-drag:none;will-change:auto}
-.kzGalleryFull{z-index:1}
-.kzGalleryLoading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#667085;font-size:13px}
-.kzViewerStage .kzGalleryPhoto{background:transparent}
-.kzViewerStage .kzGalleryLoading{color:#d0d5dd}
-/* Overview is a compact summary; complete decisions and reasons remain in history. */
-.kzAdActivity li{display:flex;flex-direction:column;gap:5px;min-width:0;padding:16px 0}
-.kzActivityHeading{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;width:100%}
-.kzActivityStatus{display:inline-flex;align-items:center;min-height:24px;padding:2px 8px;border-radius:6px;background:#eef2f6;color:#475467;font-size:12px;line-height:1.4;font-weight:600}
-.kzActivityStatus.published{background:#eaf7ee;color:#26733f}
-.kzActivityStatus.rejected{background:#fff0ed;color:#b42318}
-.kzActivityStatus.pending{background:#fff6e6;color:#8a5700}
-.kzAdActivity .kzActivityTitle{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:100%;margin:0;padding:4px 0;white-space:normal;overflow-wrap:anywhere;color:var(--kz-ink);font-size:var(--fs-15);font-weight:600;line-height:1.5}
-.kzAdActivity .kzActivityActor{color:var(--kz-muted);font-size:var(--fs-13)}
-.kzAdActivity .kzAdReasonDisclosure{margin-top:0;width:100%}
-.kzActivityReason{margin:4px 0 0!important;padding:10px 12px;border-radius:8px;background:var(--kz-soft);color:var(--kz-text);line-height:1.6;overflow-wrap:anywhere}
-.siteMenuPanel.kzSide{padding-top:calc(16px + env(safe-area-inset-top))!important;height:100vh!important;height:100dvh!important;max-height:100vh;max-height:100dvh;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.siteMenuPanel.kzSide>*{flex-shrink:0}
-.siteMenuPanel.kzSide .siteContact .kzContactLinks a{font-size:14px!important}
-@media(max-width:767px){.kzAdActivity time{font-size:11px}.kzAdActivity .kzAdReasonDisclosure summary{min-height:36px!important}}
-
-/* Authentication failures belong next to the submit action, distinct from informational notices. */
-.kzFeedback{display:flex;align-items:flex-start;gap:9px;min-width:0;margin:0 0 10px;padding:10px 12px;border:1px solid #f5c2bd;border-radius:10px;background:#fff4f2;color:#9f241b;font-size:13px;font-weight:400;line-height:1.5;text-align:left;overflow-wrap:anywhere}
-.kzFeedback>svg{flex:none;margin-top:1px;color:#b42318}
-.kzFeedback>span{min-width:0}
-.loginPage .authOptions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0 12px;margin:0 0 6px}
-.loginPage .authOptions .rememberLogin{min-height:44px!important;margin:0!important}
-.loginPage .authOptions .rememberLogin input{margin:0!important;flex:none}
-.loginPage .authOptions .forgotPassword{display:inline-flex;width:auto!important;min-height:44px!important;margin:0!important;line-height:1.4}
-.loginPage input[aria-invalid=true]{border-color:#d92d20!important}
-.loginPage input[aria-invalid=true]:focus{box-shadow:0 0 0 3px rgba(217,45,32,.1)!important}
-@media(min-width:768px) and (max-height:800px){.loginPage .authShell{padding-top:20px!important;padding-bottom:20px!important}}
-
-/* Shared visual identity: clear white navigation, framed listings and consistent panels. */
-.kzHeader{background:#fff!important;border-bottom-color:var(--kz-line)!important}
-.kzHeader .kzLogo{color:var(--kz-brand)!important}
-.kzHeader .kzLogo span{color:var(--kz-accent)}
-.kzHeader .kzSearch{border-color:var(--kz-line);background:#fff}
-.kzHeader .kzSearch button{background:var(--kz-accent)!important;color:#fff!important;font-weight:600}
-.kzHeader .kzSearch button:hover{background:var(--kz-accent-dark)!important}
-.kzHeader .kzCatalogButton{border:1px solid var(--kz-accent);background:var(--kz-accent);color:#fff}
-.kzHeader .kzCatalogButton:hover,.kzHeader .kzCatalogButton[aria-expanded=true]{background:var(--kz-accent-dark)}
-.kzHeaderNav>a,.kzHeaderNav .accountMenu>summary{color:var(--kz-ink)!important}
-.kzHeaderNav>a:hover,.kzHeaderNav>a[aria-current=page],.kzHeaderNav .accountMenu>summary:hover,.kzHeaderNav .accountMenu>summary,.kzHeaderNav .kzGuest{background:var(--kz-soft)!important;color:var(--kz-brand)!important}
-.kzHeaderNav .kzAvatar,.kzHeaderNav .accountMenu>summary>svg{background:var(--kz-brand);color:#fff}
-.kzHeaderNav .kzTabIcon.on{stroke:var(--kz-brand)!important}
-.kzCard{border:1px solid var(--kz-line);border-radius:14px;background:#fff;overflow:hidden}
-.kzCard:hover{border-color:#adc7bc}
-.kzCardPhoto{border-radius:13px 13px 0 0!important}
-.kzCardBody{padding:10px 12px 12px!important}
-.kzPrice{color:var(--kz-brand)}
-.kzCard:hover .kzCardTitle{color:var(--kz-brand)}
-.kzFooter{background:#f7f9f8}
-.kzFooterInner strong{color:var(--kz-brand)}
-.kzAdPanel,.accountDashboard .cabinetContent,.kzAccountPage .kzPanel{border:1px solid var(--kz-line)!important;border-radius:16px!important}
-.kzAdPanelHead h2,.kzPanel h2{letter-spacing:-.25px}
-.kzOwnTabs button[aria-pressed=true]{color:var(--kz-brand);box-shadow:0 1px 3px rgba(16,76,67,.08)}
-.kzFeedback[data-tone=success]{border-color:#bfe2cd;background:#f0f9f3;color:#1c6436}
-.kzFeedback[data-tone=success]>svg{color:#218146}
-.kzFeedback[data-tone=info]{border-color:#c9dcef;background:#f1f6fc;color:#28527d}
-.kzFeedback[data-tone=info]>svg{color:#3674ac}
-.kzToast.info{border-color:#c9dcef;background:#f1f6fc;color:#28527d}
-.kzToast.info svg{color:#3674ac}
-/* The form stays compact on phones; desktop uses the available space for clear brand context. */
-.authLayout{max-width:960px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);align-items:center}
-.authIntro{display:none}
-.authFormColumn{min-width:0}
-.loginPage .authLayout section{width:100%!important;max-width:420px!important;box-sizing:border-box;border:1px solid var(--kz-line)!important;border-radius:18px!important;padding:24px!important}
-.loginPage .authSubmit{background:var(--kz-brand)!important}
-.loginPage .authSubmit:hover:not(:disabled){background:#0b3a33!important}
-.loginPage .authModeLinks{border:1px solid var(--kz-line);border-radius:12px!important;background:#f4f7f5}
-.loginPage .authModeLinks a[aria-current=page]{color:var(--kz-brand)!important}
-.loginPage .authBack{display:flex;align-items:center;justify-content:center;min-height:44px;gap:5px;margin-top:12px}
-@media(min-width:1024px){
- .authLayout{grid-template-columns:minmax(0,1fr) 420px;gap:64px;min-height:calc(100vh - 128px)}
- .authIntro{display:block;max-width:420px;padding:24px 0}
- .authIntro h2{margin:0 0 32px!important;color:var(--kz-brand)!important;font-size:32px!important;line-height:1.18!important;letter-spacing:-1px!important;font-weight:700}
- .authIntro h2 span{color:var(--kz-accent-dark)}
- .authIntro ul{display:grid;gap:20px;margin:0;padding:0;list-style:none}
- .authIntro li{display:flex;align-items:center;gap:14px;font-size:15px;font-weight:500;color:var(--kz-text);line-height:1.5}
- .authFeatureIcon{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:13px}
- .authFeatureIcon.home{background:#e0eee7;color:#257052}.authFeatureIcon.chat{background:#e6eefa;color:#3769a5}.authFeatureIcon.favorite{background:#f9e7ed;color:#b2476a}
-}
-@media(max-width:767px){
- .kzHeader .mobileMenuButton{color:var(--kz-brand)!important}
- .kzHeader .kzRoundPlus{box-shadow:none}
- .kzCardBody{padding:9px 9px 11px!important}
- .kzTabbar>a[aria-current=page]:not(.kzTabbarPublish){color:var(--kz-brand)!important}
- .loginPage .authLayout section{padding:20px!important;border-radius:16px!important}
-}
-
-.kzFeedbackRetry{display:flex;align-items:center;min-height:36px;margin:4px 0 0;padding:0;border:0;background:none;color:inherit;font:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-@media(max-width:767px){.kzTabbar>a:not([aria-current=page]){color:#596779!important}.kzMessages>.kzFeedback{margin:12px}}
-
-
-/* ===== Təmiz marketplace görünüşü (2026-11): ağ başlıq, aydın düymələr, çərçivəsiz kartlar ===== */
-/* Başlıq: ağ fon, rəngli loqo, nazik alt xətt. */
-.kzHeader{background:#fff!important;border-bottom:1px solid #eceef2!important;box-shadow:0 1px 2px rgba(16,24,40,.03)}
-.kzHeader .kzLogo{color:var(--kz-brand)!important}
-.kzHeader .kzLogo span{color:#f15a22!important}
-.kzHeader .mobileMenuButton{color:#1f2937!important}
-/* Axtarış: çərçivəli sahə və ona bitişik rəngli düymə. */
-.kzHeader .kzSearch{border:1.5px solid #e2e5ea!important;background:#fff!important;box-shadow:none!important}
-.kzHeader .kzSearch:focus-within{border-color:var(--kz-brand)!important}
-.kzHeader .kzSearch button{background:var(--kz-brand)!important;color:#fff!important;font-weight:600!important}
-.kzHeader .kzSearch button:hover{background:#0b3b34!important}
-/* Kataloq — yumşaq yaşıl, Yeni elan — əsas narıncı düymə; böyük hərflər yoxdur. */
-.kzHeader .kzCatalogButton{border:0!important;background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;font-weight:600}
-.kzHeader .kzCatalogButton:hover,.kzHeader .kzCatalogButton[aria-expanded=true]{background:#e0eee9!important}
-.kzPublish{text-transform:none!important;letter-spacing:0!important;font-weight:600!important;background:#f15a22!important;box-shadow:0 2px 6px rgba(241,90,34,.22)}
-.kzPublish:hover{background:#dc4c17!important}
-/* Seçilmişlər, mesajlar, hesab: tünd boz ikonlar, üzərinə gələndə açıq fon. */
-.kzHeaderNav>a,.kzHeaderNav .accountMenu>summary{color:#344054!important;background:transparent!important}
-.kzHeaderNav>a:hover,.kzHeaderNav>a[aria-current=page],.kzHeaderNav .accountMenu>summary:hover{background:#f2f4f7!important;color:#101828!important}
-.kzHeaderNav .kzGuest{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;font-weight:600}
-.kzHeaderNav .kzAvatar,.kzHeaderNav .accountMenu>summary>svg{background:transparent!important}
-.kzHeaderNav .kzTabIcon.on{stroke:#f15a22!important}
-/* Alt menyu: yazılar adi hərflərlə. */
-.kzTabbar>a{text-transform:none!important;letter-spacing:0!important}
-/* Kateqoriyalar: daha böyük, yumşaq fonlu şəkillər. */
-@media (min-width:768px){
-  .kzCategories>button .categoryVisual,.kzCategories>button>span:first-child{width:88px!important;height:88px!important;border-radius:18px!important;background-color:#f4f5f7!important}
-  .kzCategories>button>span:last-child{font-size:13px!important;color:#344054!important}
-}
-/* Elan kartları: çərçivəsiz, yuvarlaq künclü şəkil, təmiz mətn. */
-.kzHome .kzCard,.kzCard{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
-.kzCard .kzCardPhoto{border-radius:12px!important;overflow:hidden}
-.kzCard .kzCardBody{padding:9px 2px 0!important}
-.kzCard .kzPrice{font-size:17px!important;font-weight:700!important;color:#101828!important}
-.kzCard .kzCardTitle{font-size:14px!important;font-weight:400!important;color:#1d2939!important;line-height:1.4!important}
-.kzCard .kzCardMeta{font-size:12.5px!important;color:#8a919c!important}
-.kzSectionHead h2{font-weight:600!important}
-.kzTabbar>a.kzTabbarPublish,.kzTabbar>a.kzTabbarPublish span{text-transform:none!important;letter-spacing:0!important}
-
-/* ===== Vahid ikon üslubu (2026-11): rəngarəng qutular əvəzinə bir brend rəngi ===== */
-/* Yan menyu: bütün bölmə ikonları eyni açıq yaşıl qutuda, tünd yaşıl xətli ikon. */
-.siteMenuPanel.kzSide .kzSideIcon,.kzSideIcon{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important}
-.siteMenuPanel.kzSide .kzSideIcon svg{color:var(--kz-brand)!important;stroke:var(--kz-brand)!important}
-.siteMenuPanel.kzSide nav a[aria-current=page],.siteMenuPanel.kzSide nav a:hover{background:#f4f7f6!important}
-/* Kabinet qısayolları: eyni tonda. */
-.cabinetNav.cabinetCards>a .kzNavIcon{--tone:var(--kz-brand)!important;--tint:var(--kz-brand-soft)!important}
-.cabinetNav.cabinetCards>a:nth-of-type(n) .kzNavIcon{--tone:var(--kz-brand);--tint:var(--kz-brand-soft)}
-/* "Bizimlə əlaqə": e-poçt, Instagram, TikTok eyni qutularda. */
-.kzContactIcon,.kzContactIcon.instagram,.kzContactIcon.tiktok{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important}
-/* Mesajlar: söhbət siyahısında aktiv söhbət və tab seçimi brend rəngində. */
-.kzChatTabs button[aria-pressed=true],.kzChatTabs button[aria-selected=true]{color:var(--kz-brand)!important;font-weight:600!important}
-.kzMenuIcon,.kzMenuIcon.admin{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important}
-
-/* The listing keeps its gallery and contact hierarchy across the reference layouts. */
-.listingDetailPage .breadcrumb{display:flex;align-items:center;gap:7px;flex-wrap:wrap;line-height:1.5}
-.listingDetails:not(.compactDetails) .detailSide{display:flex;flex-direction:column;gap:14px!important;padding:0!important;border:0!important;background:none!important;border-radius:0!important}
-.detailContactCard{display:flex;flex-direction:column;gap:14px;min-width:0;padding:22px;border-radius:16px;background:#f5f6f8}
-.detailContactCard .detailPrice{font-size:30px!important;line-height:1.25}
-.detailContactCard .kzOwnerStatus{order:-3}
-.listingDetails .detailSide .contactActions{display:flex!important;flex-direction:column;gap:10px!important;margin:0!important}
-.listingDetails .detailSide .contactActions>*{width:100%;box-sizing:border-box}
-.listingDetails .detailSide .contactActions .add{display:flex!important;align-items:center;justify-content:center;gap:12px;min-height:72px!important;height:auto!important;padding:12px!important;white-space:normal;background:var(--kz-green)!important;border-color:var(--kz-green)!important;color:#fff!important}
-.detailContactCard .contactActions .add>span{display:flex;flex-direction:column;gap:3px;min-width:0}
-.detailContactCard .contactActions .add small{font-size:13px;font-weight:500;color:inherit!important}
-.detailContactCard .contactActions .add strong{font-size:19px;font-weight:650;line-height:1.3;white-space:nowrap;color:inherit}
-.listingDetails .detailSide .contactActions .add>svg{width:22px!important;height:22px!important;flex:none}
-.listingDetails .detailSide .contactActions .kzMsgBtn{min-height:48px!important;height:48px!important;background:#376bd0!important;border-color:#376bd0!important;color:#fff!important}
-.listingDetails .detailSide .contactActions .kzWaBtn{min-height:44px!important;background:#fff!important;border-color:#dce3df!important;color:#267344!important}
-.listingDetails .detailSide>.sellerCard,.listingDetails .detailSide>.kzStoreCard{width:100%;box-sizing:border-box;margin:0!important;padding:20px!important;border:0!important;border-radius:16px!important;background:#f5f6f8!important}
-.listingDetails .detailSide>.sellerCard .sellerAvatar{order:2;margin-left:auto}
-.listingDetails .detailSide>.sellerCard>div{flex:1;min-width:0}
-.sellerCard strong{overflow-wrap:anywhere}
-.listingInfo .kzKeyFacts{margin:0 0 18px;padding:0 0 18px;border-bottom:1px solid var(--kz-line)}
-.kzExpandableParagraph{margin:0;overflow-wrap:anywhere;white-space:pre-line;line-height:1.6}
-.kzExpandableParagraph.folded{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:var(--kz-text-lines,4);overflow:hidden}
-.kzExpandButton{display:inline-flex;align-items:center;min-height:44px;margin:4px 0 0;padding:0;border:0;background:none;color:var(--kz-brand);font:inherit;font-size:14px;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
-.kzAdQuote .kzExpandableParagraph{font-size:var(--fs-14)}
-.kzHeader .kzPublish,.kzHeader .kzRoundPlus{background:var(--kz-green)!important}
-@media(min-width:901px){.listingDetails:not(.compactDetails){grid-template-columns:minmax(0,1fr) 330px!important;gap:20px 24px!important}.listingDetails .listingGallery .galleryStage{border-radius:16px!important}}
-@media(max-width:767px){
- .listingDetails:not(.compactDetails) .detailContactCard{padding:18px;border-radius:14px}
- .listingDetails:not(.compactDetails) .detailSide .contactActions{display:grid!important;grid-template-columns:1fr 1fr!important}
- .listingDetails:not(.compactDetails) .detailSide .contactActions .add{grid-column:1/-1;min-height:64px!important}
- .listingDetails .detailSide .detailPrice{font-size:26px!important}
- .listingDetails .listingGallery{margin-left:0!important;margin-right:0!important}
- .listingDetails .listingGallery .galleryStage{border-radius:14px!important}
- .listingDetails .listingGallery .thumbnails{padding:0!important}
- .kzCategories>button{flex-basis:76px!important;gap:7px!important;padding:0!important}
- .kzCategories .categoryVisual,.kzCategories .kzCatalogTile{width:60px!important;height:60px!important;border-radius:14px!important}
- .kzCategories>button>span:last-child{font-size:12px!important;line-height:1.35!important;min-height:2.7em!important}
- .kzTabbar{box-shadow:none!important;border-top:1px solid var(--kz-line);overflow:visible!important}
- .kzTabbar>a svg.kzTabIcon.kzTabSolid{width:26px!important;height:26px!important;fill:currentColor!important;fill-opacity:1!important;stroke:none!important}
- .kzTabPublishIcon{display:block;position:relative;width:26px;height:26px}
- .kzTabbar .kzTabbarPublish .kzTabPlus{position:absolute;left:50%;top:-16px;transform:translateX(-50%);width:48px!important;height:48px!important;border:3px solid #fff;box-sizing:border-box;background:var(--kz-green)!important}
- .kzTabbar .kzTabbarPublish .kzTabPlus svg{width:26px!important;height:26px!important}
-}
-
-.listingDetails>.kzSuggestions{padding:20px;border-radius:16px;background:#f5f6f8;box-sizing:border-box}
-.listingDetails>.kzSuggestions .kzGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
-@media(max-width:1023px){.listingDetails>.kzSuggestions .kzGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:767px){.listingDetails>.kzSuggestions{padding:16px 12px}.listingDetails>.kzSuggestions .kzGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.listingDetails>.kzSuggestions .kzSectionHead{align-items:center;gap:8px}.listingDetails>.kzSuggestions h2{font-size:16px!important}.listingDetails>.kzSuggestions .kzMore{font-size:12px}}
-
-.kzHeaderNav .kzAvatar,.kzHeaderNav .kzAvatar .kzTabIcon,.kzHeaderNav .accountMenu>summary>svg{color:var(--kz-brand)!important}
-
-/* Compact account form: one mode selector, one action and no repeated registration footer. */
-.loginPage .authLayout h1{font-size:22px!important;line-height:1.3!important;letter-spacing:-.3px!important;margin-bottom:14px!important}
-.loginPage .authLayout .googleButton{max-width:300px;min-height:44px!important;margin-left:auto!important;margin-right:auto!important;border-radius:10px!important;font-size:14px!important}
-.loginPage .authLayout .authDivider{margin:10px 0!important}
-.siteMenuPanel.kzSide .siteMenuHeading{position:sticky;top:calc(-16px - env(safe-area-inset-top));z-index:2;background:#fff;padding-top:8px!important}
-.siteMenuPanel.kzSide nav a[aria-current=page]{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;font-weight:600!important}
-.siteMenuPanel.kzSide .siteContact{margin-top:16px!important;padding:12px!important;border:1px solid var(--kz-line)!important;border-radius:14px!important;background:#f7f9f8!important}
-.siteMenuPanel.kzSide .siteContact .kzContactLinks{gap:6px}
-.siteMenuPanel.kzSide .siteContact .kzContactSocials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.siteMenuPanel.kzSide .siteContact .kzContactSocials a{justify-content:center;gap:6px;padding:0 7px!important;border:1px solid var(--kz-line);border-radius:9px;background:#fff;font-size:13px!important}
-.siteMenuPanel.kzSide .siteContact .kzContactSocials .kzContactIcon{width:22px;height:22px;border-radius:0;background:none!important}
-@media(min-width:1024px){.loginPage .authBack{min-height:32px;margin-top:8px}.authIntro h2{margin-bottom:26px!important}.authIntro ul{gap:16px}.authFeatureIcon{width:40px;height:40px}}
-
-.accountDashboard .kzOwnTabs button{min-width:0;white-space:normal;text-align:left;line-height:1.4;justify-content:space-between}
-.accountDashboard .kzOwnTabs button b{flex:none}
-@media(max-width:767px){.accountDashboard .kzOwnTabs button:last-child:nth-child(odd){grid-column:1/-1}}
-
-/* Shared wordmark and account controls. Keep brand typography identical across entry points. */
-.kzHeader .kzLogo,.loginPage .authHeader .logo,.siteMenuPanel.kzSide .siteMenuHeading .logo{font-family:var(--kz-font)!important;font-size:24px!important;font-weight:750!important;letter-spacing:-.8px!important;color:var(--kz-brand)!important}
-.kzHeader .kzLogo span,.loginPage .authHeader .logo span,.siteMenuPanel.kzSide .siteMenuHeading .logo span{color:#f65320!important}
-.kzHeader .kzRoundPlus,.kzHeader .kzPublish{background:#f65320!important;color:#fff!important}
-.kzHeader .kzPublish{background:var(--kz-accent)!important}
-.kzHeader .kzPublish:hover{background:var(--kz-accent-dark)!important}
-.kzUserAvatar.large{background:var(--kz-brand);color:#fff;border-color:var(--kz-brand)}
-.kzUserAvatar.large b{color:#fff}
-.kzUserAvatar{background:var(--kz-brand);color:#fff}
-.cabinetNav.cabinetCards>a[data-tone=green] .kzNavIcon{--tone:#257052!important;--tint:#e5f2e9!important}
-.cabinetNav.cabinetCards>a[data-tone=blue] .kzNavIcon{--tone:#3269ac!important;--tint:#e9f0fc!important}
-.cabinetNav.cabinetCards>a[data-tone=amber] .kzNavIcon{--tone:#966318!important;--tint:#fcf2df!important}
-.cabinetNav.cabinetCards>a[data-tone=violet] .kzNavIcon{--tone:#7755ae!important;--tint:#f0eafa!important}
-.cabinetNav.cabinetCards>a[data-tone=rose] .kzNavIcon{--tone:#b04373!important;--tint:#faeaf1!important}
-.cabinetNav.cabinetCards>a[data-tone=teal] .kzNavIcon{--tone:#248080!important;--tint:#e6f3f3!important}
-.accountDashboard .kzOwnTabs{gap:8px;background:none;border:0;border-radius:0;padding:0!important}
-.accountDashboard .kzOwnTabs button{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--kz-line);border-radius:12px;background:#fff;min-height:46px}
-.accountDashboard .kzOwnTabs button[aria-pressed=true]{border-color:#9cbfb3;background:var(--kz-brand-soft);color:var(--kz-brand);box-shadow:none}
-.kzOwnTabLabel{display:flex;align-items:center;gap:7px;min-width:0}
-.kzOwnTabLabel>svg{flex:none}
-.kzOwnTabLabel>span{min-width:0}
-.accountDashboard .kzOwnTabs button b{display:grid;place-items:center;min-width:22px;height:22px;padding:0 5px;border-radius:7px;background:#f1f3f5;font-size:11px;box-sizing:border-box}
-.accountDashboard .kzOwnTabs button[aria-pressed=true] b{background:#dbeae3;color:var(--kz-brand)}
-.siteMenuPanel.kzSide nav a{font-size:15px!important;line-height:1.45!important;min-height:46px!important}
-.siteMenuPanel.kzSide .siteMenuLanguage{font-size:14px!important}
-.siteMenuPanel.kzSide .siteContact>strong{font-size:13px!important;color:#475467!important}
-.siteMenuPanel.kzSide .siteContact .kzContactSocials a{min-height:44px;font-size:14px!important}
-.loginPage .authLayout section{max-width:400px!important;padding:22px!important}
-.loginPage .authLayout h1{font-size:20px!important;line-height:1.3!important;margin-bottom:12px!important}
-.loginPage .authLayout .authModeLinks{margin-bottom:18px!important;border-radius:10px!important}
-.loginPage .authLayout .authModeLinks a{min-height:44px!important;border-radius:8px!important;font-size:13px!important;white-space:nowrap}
-.loginPage .authLayout .googleButton{max-width:280px;font-size:13px!important}
-.loginPage .authBack{justify-content:flex-start;gap:4px;min-height:40px;margin:16px 0 0;padding:8px 0 0;border-top:1px solid var(--kz-line);font-size:13px!important;text-decoration:none}
-@media(min-width:1024px){.authLayout{grid-template-columns:minmax(0,1fr) 400px;gap:56px;max-width:920px}}
-@media(max-width:767px){
- .kzTabbar>a,.kzTabbar>a.kzTabbarPublish,.kzTabbar>a.kzTabbarPublish span{text-transform:uppercase!important;font-size:clamp(9px,2.55vw,11px)!important;letter-spacing:0!important}
- .loginPage .authLayout section{padding:18px!important}
- .accountDashboard .kzOwnTabs button{padding:9px 8px;font-size:12px!important;gap:5px}
- .kzOwnTabLabel{gap:5px}
- .accountDashboard .kzOwnTabs .kzOwnTabLabel>svg{width:15px;height:15px}
-}
-
-/* Footer uses the same contact card and restrained text hierarchy as the side menu. */
-.kzFooterInner>nav{gap:4px!important}
-.kzFooter .kzFooterInner>nav>a{font-family:var(--kz-font);font-weight:400!important;font-size:14px!important;line-height:1.5;min-height:36px;display:flex;align-items:center;padding:2px 0}
-.kzFooter .kzFooterInner strong{font-family:var(--kz-font);font-size:14px!important;font-weight:600!important;letter-spacing:0!important;color:#344054}
-.kzContactCard,.kzFooterInner>.kzContactCard{box-sizing:border-box;min-width:0;padding:12px!important;border:1px solid var(--kz-line);border-radius:14px;background:#f7f9f8;gap:6px!important}
-.kzContactCard .kzContactLinks{width:100%;gap:6px!important}
-.kzContactCard .kzContactSocials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.kzContactCard .kzContactSocials a{justify-content:center;gap:6px;padding:0 7px!important;border:1px solid var(--kz-line);border-radius:9px;background:#fff;font-size:13px!important;min-height:44px;font-weight:400!important}
-.kzContactCard .kzContactSocials .kzContactIcon{width:22px;height:22px;border-radius:0;background:none!important}
-.kzFooter .kzFooterBrand .kzLogo{font-family:var(--kz-font);font-weight:750;letter-spacing:-.8px}
-.kzFooter .kzFooterBrand .kzLogo span{color:#f65320}
-@media(min-width:1024px){.kzFooterInner{grid-template-columns:1.2fr 1fr 1fr minmax(250px,1.2fr);gap:28px}}
-@media(max-width:767px){.kzFooter .kzFooterInner>nav>a{font-size:13px!important;min-height:36px}.kzFooterInner>.kzContactCard{width:100%;max-width:400px}.kzFooterBrand p{font-weight:400!important}}
-
-/* The mode selector names the form; keep the repeated heading available to screen readers only. */
-.loginPage #auth-title.srOnly{margin:0!important;padding:0!important;border:0!important}
-.loginPage .authLayout .authModeLinks{padding:4px!important;background:#fff!important;border:1px solid var(--kz-line)!important}
-.loginPage .authLayout .authModeLinks a[aria-current=page]{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;box-shadow:inset 0 0 0 1px #c9ded5!important;font-weight:600!important}
-/* Authentication pages have no bottom navigation, including the tablet breakpoint. */
-html.kz-login>body{padding-bottom:0!important}
-
-/* Publish actions share the orange wordmark accent in every navigation layout. */
-:root{--kz-publish:#f65320;--kz-publish-hover:#df4516}
-.kzHeader .kzRoundPlus,.kzTabbar .kzTabbarPublish .kzTabPlus{background:var(--kz-publish)!important;color:#fff!important;box-shadow:none!important}
-.kzHeader .kzRoundPlus svg,.kzTabbar .kzTabbarPublish .kzTabPlus svg{color:#fff!important;stroke:currentColor!important}
-.kzTabbar>a.kzTabbarPublish{color:var(--kz-accent-dark)!important}
-.kzCard .kzCardMeta{color:#667085!important}
-.kzEmailSetup{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.kzEmailSetup p{flex-basis:100%;margin:0 0 4px;line-height:1.6}
-@media(max-width:767px){
- .kzSortButton,.kzChip,.kzMapToggle,.profileSettings .kzPhotoActions button{min-height:44px!important;height:auto!important}
- .kzAdIconBtn,.kzAdFilterToggle{min-width:44px!important;min-height:44px!important}
- .kzToolbar,.kzTypeChips,.kzQuickFilters{align-items:center;row-gap:8px}
- .kzEmailSetup .kzButtonGhost{min-height:44px;max-width:100%;white-space:normal;text-align:center}
-}
-/* Information pages use readable body text rather than the muted caption style. */
-.prose p:not(.eyebrow),.prose li{font-size:15px!important;line-height:1.7!important;color:var(--kz-text)!important}
-@media(max-width:767px){.prose p:not(.eyebrow),.prose li{font-size:14px!important}}
-
-/* Reserve the full icon row: the raised publish circle must end before the label. */
-:root{--kz-safe-bottom:env(safe-area-inset-bottom,0px)}
-@media(max-width:767px){
- .kzTabbar{height:calc(72px + var(--kz-safe-bottom))!important;padding:6px env(safe-area-inset-right,0px) calc(6px + var(--kz-safe-bottom)) env(safe-area-inset-left,0px)!important;align-items:stretch}
- .kzTabbar>a,.kzTabbar>a.kzTabbarPublish{gap:6px!important;justify-content:center!important;min-height:44px;box-sizing:border-box}
- .kzTabbar>a svg.kzTabIcon.kzTabSolid{width:26px!important;height:32px!important;flex:none}
- .kzTabPublishIcon{width:32px!important;height:32px!important;flex:none;position:relative}
- .kzTabbar .kzTabbarPublish .kzTabPlus{top:auto!important;bottom:0;left:50%;width:clamp(40px,12vw,48px)!important;height:clamp(40px,12vw,48px)!important;transform:translateX(-50%);margin:0!important}
- .kzTabbar .kzTabbarPublish .kzTabPlus svg{width:clamp(22px,6vw,26px)!important;height:clamp(22px,6vw,26px)!important}
- .kzTabbar>a>span:not(.kzTabPublishIcon){display:flex!important;align-items:center;justify-content:center;height:14px;max-width:100%;flex:none;white-space:nowrap;line-height:1.2}
- .kzTabbar .unreadMessages{top:0;left:auto;right:calc(50% - 24px);font-size:10px;line-height:16px;box-sizing:border-box}
- html:not(.kz-login)>body:not(.kz-chat-open):not(.kz-tabbar-hidden){padding-bottom:calc(80px + var(--kz-safe-bottom))!important}
- .kzHistoryPages{justify-content:space-between;flex-wrap:wrap;gap:8px}
- .kzHistoryPages .kzAdBtn{min-height:44px}
-}
-
-/* Put listing photography ahead of advertising without loading larger originals. */
-.kzHome .kzCardPhoto img{object-fit:cover!important}
-.kzHome .kzCardPhoto{aspect-ratio:6/5}
-.kzCatalogAd{grid-column:1/-1;min-width:0}
-.kzCatalogAd:empty{display:none}
-.kzHome>.kzSuggestions>.kzBanners{margin:20px 0}
-@media(min-width:1024px){.kzHome .kzGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
-@media(min-width:768px) and (max-width:1023px){.kzHome .kzGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
-@media(max-width:767px){
- .kzHome .kzGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:12px!important}
- .kzHome .kzCard .kzPrice{font-size:18px!important}
- .kzTabbar .kzTabbarPublish .kzTabPlus{width:clamp(42px,12vw,48px)!important;height:clamp(42px,12vw,48px)!important;border-width:2px;bottom:6px}
- .kzTabbar .kzTabbarPublish .kzTabPlus svg{width:clamp(26px,7vw,30px)!important;height:clamp(26px,7vw,30px)!important}
-}
-
-.kzHeaderInner>.languageToggle{display:flex!important}
-.kzHeaderInner>.languageToggle>button{display:flex!important;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--kz-text);font:inherit;font-size:16px;font-weight:500;box-shadow:none;cursor:pointer}
-.kzHeaderInner>.languageToggle>button:hover{background:var(--kz-soft)}
-@media(max-width:767px){
- .kzHeader .kzLogo{position:static!important;transform:none!important;margin:0 auto 0 0!important;font-size:clamp(20px,5.7vw,24px)!important}
- .kzHeaderInner{column-gap:8px!important}
- .kzMobilePublish{margin-left:0;min-width:36px;min-height:44px;align-items:center;justify-content:center}
-}
-
-@media(max-width:767px){
- .kzHeader .mobileMenuButton,.kzHeader .kzMobilePublish{display:flex!important;align-items:center!important;justify-content:center!important;align-self:center!important;flex:0 0 44px;width:44px!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;box-sizing:border-box}
- .kzHeader .mobileMenuButton svg{width:26px!important;height:26px!important}
-}
-
-/* Keep account status controls clear of the first card on every screen size. */
-.accountDashboard .kzOwnTabs{margin:0 0 18px!important;padding:0!important}
-.accountDashboard .kzProfileCard h1{max-width:100%;overflow-wrap:anywhere}
-.accountDashboard .kzOwnReason .kzExpandableParagraph{margin:4px 0 0}
-.accountDashboard .accountListings article .accountItemActions>*{min-height:44px!important;height:auto!important;white-space:normal!important;line-height:1.35!important}
-.accountDashboard .kzOwnPagination{margin-top:18px}
-@media(max-width:767px){.accountDashboard .kzProfileCard .kzProfileAvatarLink{grid-row:1/span 2}}
-
-/* A single brand treatment and explicit promotion labels keep navigation quiet. */
-.kzHeader .kzLogo,.loginPage .authHeader .logo,.siteMenuPanel.kzSide .siteMenuHeading .logo{font-weight:700!important;letter-spacing:-.8px!important;line-height:1.2!important}
-.siteMenuPanel.kzSide .siteMenuHeading{align-items:center;gap:12px;margin-bottom:16px!important}
-.siteMenuPanel.kzSide nav a{min-height:48px!important}
-.kzPromo{display:inline-flex;align-items:center;gap:4px;padding:2px 6px;border-radius:6px;background:#fff4dc;color:#94610b;white-space:nowrap;font-size:11px!important;line-height:18px;font-weight:600}
-.kzPromo.kzPromo-vip{background:#fff0e8;color:#b84116}
-.kzPromo svg{width:14px!important;height:14px!important;flex:none;fill:none;stroke:currentColor}
-.kzPromo>span{font-size:11px!important;line-height:18px}
-.kzHeaderInner>.languageToggle>button:hover{background:transparent}
-@media(max-width:767px){
- .siteMenuPanel.kzSide .siteMenuHeading .logo{font-size:clamp(20px,5.7vw,24px)!important}
- .kzHome .kzCardMeta{flex-direction:column;align-items:flex-start;gap:6px}
- .kzHome .kzCardMeta>span:first-child{flex:initial;width:100%}
-}
-
-/* Shared control rhythm: compact text, comfortable targets and readable form fields. */
-.loginPage .textButton,.loginPage .authBack,.kzFeedbackRetry,.kzMore,.kzMoreLink{min-height:44px!important;display:inline-flex;align-items:center}
-@media(max-width:767px){
- main input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]),main select,main textarea{font-size:16px!important;min-height:44px}
- .kzFooter .kzFooterInner>nav>a{min-height:44px}
- .kzSortButton,.kzChip,.kzMapToggle{font-size:13px!important}
- .kzAuthTerms,.listingForm .formSafety p{font-size:12px!important;line-height:1.5}
-}
-
-.loginPage .authPasswordGroup .textButton{min-height:44px!important;padding:0!important}
-@media(max-width:767px){
- .kzCategories>button>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-height:2.7em!important}
-}
-
-/* Contact details read as links, without nested card and button borders. */
-.siteMenuPanel.kzSide .siteContact.kzContactCard{margin-top:18px!important;padding:16px 0 0!important;border:0!important;border-top:1px solid var(--kz-line)!important;border-radius:0!important;background:transparent!important}
-.kzFooter .kzFooterContact.kzContactCard{padding:0!important;border:0!important;border-radius:0!important;background:transparent!important}
-.kzContactCard>strong{display:block;margin-bottom:10px;font-size:14px!important;font-weight:600!important;color:var(--kz-text)!important}
-.kzContactCard .kzContactLinks{gap:10px!important}
-.kzContactCard .kzContactEmail{gap:10px!important;font-size:14px!important}
-.kzContactCard .kzContactIcon{width:20px;height:20px;border-radius:0;background:transparent!important}
-.kzContactCard .kzContactIcon.instagram{color:#bd3472!important}
-.kzContactCard .kzContactIcon.tiktok{color:#172126!important}
-.kzContactCard .kzContactIcon.email{color:var(--kz-brand)!important}
-.kzContactCard .kzContactSocials{gap:10px!important}
-.kzContactCard .kzContactSocials a,.siteMenuPanel.kzSide .siteContact .kzContactSocials a{min-height:44px;padding:0 10px!important;gap:8px;border:0!important;border-radius:10px;background:#f3f5f6;font-size:14px!important;font-weight:500!important}
-.kzContactCard .kzContactSocials a:hover{background:#eaf0ed}
-
-/* ===== Dizayn auditi 2026-11 ===== */
-/* Elan formu: hesab yoxlanmayanda mesaj və düymələr ayrı sətirlərdə, səliqəli. */
-.kzLoadError{display:flex!important;flex-direction:column;align-items:flex-start;gap:12px}
-.kzLoadError p{margin:0}
-.kzLoadErrorActions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
-.kzLoadErrorActions .secondary{min-height:40px;margin:0}
-.kzLoadErrorActions a{font-weight:600;color:var(--kz-brand)!important}
-/* Bölmə başlığı ilə "Son elanlar" keçidi eyni xətdə. */
-.kzSectionHead>h2+.kzMore,.kzSectionHead>h2+.kzMoreLink{align-self:center;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
-/* Mobil başlıqdakı dil düyməsi kiçik çip kimi görünsün. */
-.kzHeaderInner>.languageToggle>button{width:auto!important;min-width:44px}
-.kzHeaderInner>.languageToggle>button>*:only-child,.kzHeaderInner>.languageToggle>button{font-size:13px!important;font-weight:600!important;letter-spacing:.3px}
-@media(max-width:767px){
- .kzHeaderInner>.languageToggle>button{position:relative}
- .kzHeaderInner>.languageToggle>button::before{content:"";position:absolute;inset:9px 4px;border:1px solid var(--kz-line,#e5e7eb);border-radius:8px;pointer-events:none}
-}
-/* Kabinet status tabları masaüstündə sətrə bölünməsin. */
-@media(min-width:768px){.accountDashboard .kzOwnTabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}.accountDashboard .kzOwnTabs button{white-space:nowrap;padding:0 12px}}
-
-/* ===== Vahid dizayn qatı 2026-11 (son söz) ===== */
-/* Aşağı menyu: adi hərflə, oxunaqlı ölçü, sakit boz; seçilmiş bölmə brend rəngində. */
-@media(max-width:767px){
- .kzTabbar>a,.kzTabbar>a.kzTabbarPublish,.kzTabbar>a.kzTabbarPublish span{text-transform:none!important;letter-spacing:0!important;font-size:11.5px!important;font-weight:500!important}
- .kzTabbar>a{color:#6b7280!important}
- .kzTabbar>a[aria-current=page]{color:var(--kz-brand)!important;font-weight:600!important}
- .kzTabbar>a.kzTabbarPublish{color:var(--kz-accent-dark,#c2410c)!important;font-weight:600!important}
- .kzTabbar>a svg.kzTabIcon.kzTabSolid{width:24px!important;height:24px!important}
- .kzTabbar>a:not([aria-current=page]) svg.kzTabIcon.kzTabSolid{opacity:.82}
-}
-@media(max-width:359px){.kzTabbar>a,.kzTabbar>a.kzTabbarPublish span{font-size:10.5px!important}}
-/* Footer: keçidlər arasında artıq boşluq olmasın. */
-@media(max-width:767px){
- .kzFooter nav{gap:0!important}
- .kzFooter nav a{min-height:36px!important;height:auto!important;padding:0!important;align-items:center}
- .kzFooter nav strong{margin-bottom:4px}
-}
-/* Elan səhifəsi: əsas əlaqə — yaşıl zəng, mesaj isə səliqəli ikinci düymə (göy rəng çıxarıldı). */
-.listingDetails .detailSide .contactActions .kzMsgBtn,.stickyContact .messageAction{background:#fff!important;border:1.5px solid var(--kz-brand)!important;color:var(--kz-brand)!important}
-.listingDetails .detailSide .contactActions .kzMsgBtn:hover,.stickyContact .messageAction:hover{background:var(--kz-brand-soft,#e9f3f0)!important}
-.listingDetails .detailSide .contactActions .kzWaBtn{border-color:#cfe9da!important;background:#f3fbf6!important;color:#128c4a!important}

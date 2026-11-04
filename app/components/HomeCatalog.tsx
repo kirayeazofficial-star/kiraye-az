@@ -8,7 +8,7 @@ import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
 import SortMenu from "./SortMenu";
-import { useCallback } from "react";
+import { Fragment, useCallback } from "react";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { useLanguage } from "./LanguageProvider";
 import { rentalCategorySpecs } from "../../lib/rental-category-specs";
@@ -46,6 +46,7 @@ import {
 
 export default function Home() {
   const {t} = useLanguage();
+  const [premiumAvailable,setPremiumAvailable]=useState(false);
   const [listings, setListings] = useState<Listing[]>([]),
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
@@ -400,9 +401,8 @@ export default function Home() {
           ))}
         </section>
         {!onlyFavorites && !category && !query && <StoresStrip />}
-        {browsing && <BannerStrip placement="home" />}
         <SideBanners />
-        {browsing && <ListingSuggestions premiumOnly/>}
+        {browsing && <ListingSuggestions premiumOnly homeLayout onAvailabilityChange={setPremiumAvailable}/>}
         <section className="kzSection" id="elanlar">
           <div className="kzSectionHead">
             <div>
@@ -651,11 +651,11 @@ export default function Home() {
             <ListingsMap items={filtered} />
           ) : (
             <div className="kzGrid">
-              {filtered.map((x) => (
-                <ListingCard
-                  key={x.id}
-                  item={x}
-                />
+              {filtered.map((x,index) => (
+                <Fragment key={x.id}>
+                  <ListingCard item={x}/>
+                  {browsing&&!premiumAvailable&&index===Math.min(1,filtered.length-1)&&<div className="kzCatalogAd"><BannerStrip placement="home"/></div>}
+                </Fragment>
               ))}
             </div>
           )}

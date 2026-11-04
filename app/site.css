@@ -3399,3 +3399,32 @@ html.kz-login>body{padding-bottom:0!important}
  .kzHistoryPages{justify-content:space-between;flex-wrap:wrap;gap:8px}
  .kzHistoryPages .kzAdBtn{min-height:44px}
 }
+
+/* Put listing photography ahead of advertising without loading larger originals. */
+.kzHome .kzCardPhoto img{object-fit:cover!important}
+.kzHome .kzCardPhoto{aspect-ratio:6/5}
+.kzCatalogAd{grid-column:1/-1;min-width:0}
+.kzCatalogAd:empty{display:none}
+.kzHome>.kzSuggestions>.kzBanners{margin:20px 0}
+@media(min-width:1024px){.kzHome .kzGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(min-width:768px) and (max-width:1023px){.kzHome .kzGrid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:767px){
+ .kzHome .kzGrid{grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:12px!important}
+ .kzHome .kzCard .kzPrice{font-size:18px!important}
+ .kzTabbar .kzTabbarPublish .kzTabPlus{width:clamp(48px,14vw,56px)!important;height:clamp(48px,14vw,56px)!important;border-width:2px;bottom:6px}
+ .kzTabbar .kzTabbarPublish .kzTabPlus svg{width:clamp(30px,8vw,34px)!important;height:clamp(30px,8vw,34px)!important}
+}
+
+.kzHeaderInner>.languageToggle{display:flex!important}
+.kzHeaderInner>.languageToggle>button{display:flex!important;align-items:center;justify-content:center;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--kz-text);font:inherit;font-size:16px;font-weight:500;box-shadow:none;cursor:pointer}
+.kzHeaderInner>.languageToggle>button:hover{background:var(--kz-soft)}
+@media(max-width:767px){
+ .kzHeader .kzLogo{position:static!important;transform:none!important;margin:0 auto 0 0!important;font-size:clamp(20px,5.7vw,24px)!important}
+ .kzHeaderInner{column-gap:8px!important}
+ .kzMobilePublish{margin-left:0;min-width:36px;min-height:44px;align-items:center;justify-content:center}
+}
+
+@media(max-width:767px){
+ .kzHeader .mobileMenuButton,.kzHeader .kzMobilePublish{display:flex!important;align-items:center!important;justify-content:center!important;align-self:center!important;flex:0 0 44px;width:44px!important;height:44px!important;min-height:44px!important;margin:0!important;padding:0!important;box-sizing:border-box}
+ .kzHeader .mobileMenuButton svg{width:26px!important;height:26px!important}
+}

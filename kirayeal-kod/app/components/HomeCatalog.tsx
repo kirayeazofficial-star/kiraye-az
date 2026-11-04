@@ -47,6 +47,13 @@ import {
 export default function Home() {
   const {t} = useLanguage();
   const [premiumAvailable,setPremiumAvailable]=useState(false);
+  const [firstRowCount,setFirstRowCount]=useState(2);
+  useEffect(()=>{
+    const desktop=window.matchMedia("(min-width:1024px)"),tablet=window.matchMedia("(min-width:768px)");
+    const sync=()=>setFirstRowCount(desktop.matches?4:tablet.matches?3:2);
+    sync();desktop.addEventListener("change",sync);tablet.addEventListener("change",sync);
+    return()=>{desktop.removeEventListener("change",sync);tablet.removeEventListener("change",sync);};
+  },[]);
   const [listings, setListings] = useState<Listing[]>([]),
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
@@ -654,7 +661,7 @@ export default function Home() {
               {filtered.map((x,index) => (
                 <Fragment key={x.id}>
                   <ListingCard item={x}/>
-                  {browsing&&!premiumAvailable&&index===Math.min(1,filtered.length-1)&&<div className="kzCatalogAd"><BannerStrip placement="home"/></div>}
+                  {browsing&&!premiumAvailable&&index===Math.min(firstRowCount-1,filtered.length-1)&&<div className="kzCatalogAd"><BannerStrip placement="home"/></div>}
                 </Fragment>
               ))}
             </div>

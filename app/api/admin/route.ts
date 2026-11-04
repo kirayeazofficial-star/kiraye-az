@@ -1,4 +1,4 @@
-import { ADMIN_LIST_PAGE_SIZE } from "../../../lib/admin-list-page";
+import { ADMIN_LIST_PAGE_SIZE, ADMIN_ACTIVITY_PREVIEW_SIZE, ADMIN_HISTORY_PAGE_SIZE } from "../../../lib/admin-list-page";
 import {NextRequest,NextResponse} from "next/server";
 import {hostQuery,hostTransaction} from "../../../lib/host/db";
 import {currentUser} from "../../../lib/host/session";
@@ -58,7 +58,7 @@ export async function GET(request:NextRequest){
       const [userPeriods,listingPeriods,activity,incomeRows]=await Promise.all([
         hostQuery<{today:string;week:string;month:string}>(`select coalesce(sum(d1),0)::text as today,coalesce(sum(d7),0)::text as week,coalesce(sum(d30),0)::text as month from (select ${periods} from auth.users where created_at>=now()-interval '30 days') x`),
         hostQuery<{today:string;week:string;month:string}>(`select coalesce(sum(d1),0)::text as today,coalesce(sum(d7),0)::text as week,coalesce(sum(d30),0)::text as month from (select ${periods} from public.listings where created_at>=now()-interval '30 days') x`),
-        hostQuery(`select e.id,e.listing_id,e.action,e.actor_kind,e.new_status,e.reason,e.created_at,p.display_name actor_name,l.title from public.moderation_events e left join public.profiles p on p.id=e.actor_id left join public.listings l on l.id=e.listing_id where e.actor_kind='admin' order by e.id desc limit 8`),
+        hostQuery(`select e.id,e.listing_id,e.action,e.actor_kind,e.new_status,e.reason,e.created_at,p.display_name actor_name,l.title from public.moderation_events e left join public.profiles p on p.id=e.actor_id left join public.listings l on l.id=e.listing_id where e.actor_kind='admin' order by e.id desc limit $1`,[ADMIN_ACTIVITY_PREVIEW_SIZE]),
         income,
       ]);
       const money=(value?:string)=>Number(value||0);
@@ -113,9 +113,10 @@ export async function GET(request:NextRequest){
     }
 
     if(action==="history"){
-      const before=Number(param(request,"before"))||null;
-      const rows=await hostQuery<{id:string}>(`select e.*,p.display_name actor_name from public.moderation_events e left join public.profiles p on p.id=e.actor_id where ($1::bigint is null or e.id<$1) order by e.id desc limit 51`,[before]);
-      return reply({events:rows.slice(0,50),next:rows.length>50?rows[49].id:null});
+      const raw=param(request,"before");
+      if(raw&&(!/^[1-9]\d{0,18}$/.test(raw)||BigInt(raw)>BigInt("9223372036854775807")))return reply({error:"INVALID_CURSOR"},400);
+      const rows=await hostQuery<{id:string}>(`select e.*,p.display_name actor_name from public.moderation_events e left join public.profiles p on p.id=e.actor_id where ($1::bigint is null or e.id<$1) order by e.id desc limit $2`,[raw||null,ADMIN_HISTORY_PAGE_SIZE+1]);
+      return reply({events:rows.slice(0,ADMIN_HISTORY_PAGE_SIZE),next:rows.length>ADMIN_HISTORY_PAGE_SIZE?rows[ADMIN_HISTORY_PAGE_SIZE-1].id:null});
     }
 
     if(action==="reports"){

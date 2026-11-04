@@ -50,3 +50,5 @@ Build zamanı yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`) lazı
 `npm run test:recovery` yalnız yerli `kiraye_dev` PostgreSQL bazasında işləyir. Bərpa, rəhbər səlahiyyəti, ödəniş gözləyən köhnə vəziyyət, təkrar göndərmə və audit xətasında geri qaytarılma real sorğularla yoxlanılır; bütün sınaq məlumatları sonda `ROLLBACK` edilir.
 
 `npm run test:audit` qaralamanın yerləşməsini, təhlükəsiz Google hesabı axınını, tərcümə zamanı sabit şəhər dəyərini, e-poçt mövzusunu və mobil plus/düymə ölçülərini təcrid edilmiş cavablarla yoxlayır.
+
+`npm run test:responsive` 320–767 px ekranlarda üç dildə plus dairəsi ilə yazının arasını, mesaj sayğacını, toxunma sahələrini və ekranın aşağı təhlükəsiz boşluğunu yoxlayır. `npm run test:history` rəhbər panelində son fəaliyyətlərin və tarixçə səhifələrinin dörd qeydlə məhdud qalmasını, geri/irəli keçidi və xəta zamanı yenidən cəhdi yoxlayır. Bu yoxlamalar yerli tətbiq və təcrid edilmiş cavablarla işləyir.

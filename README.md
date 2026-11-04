@@ -58,3 +58,7 @@ Build zamanı yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`) lazı
 `npm run test:account-layout` 320–1920 px ekranlarda kabinetdə şəxsi əlaqə məlumatlarının təkrarlanmamasını, statuslardan sonra boşluğu, dörd elanlıq səhifələri, uzun rədd səbəblərini və toxunma sahələrini yoxlayır.
 
 `npm run test:featured` yalnız yerli `kiraye_dev` bazasında, geri qaytarılan tranzaksiya daxilində VIP/Premium seçimini və adi siyahıda təkrarlanmamasını yoxlayır. `test:home` yan menyuda təkrar dil seçiminin olmamasını və loqo şriftlərinin uyğunluğunu da yoxlayır.
+
+`npm run test:session` bağlantı/server xətasından sonra çıxışın təkrar edilməsini, gecikmiş kabinet cavablarının yeni məlumatı əvəz etməməsini və sessiya bitəndə köhnə məlumatların təmizlənməsini yoxlayır. `npm run test:catalog` 320–1440 px ekranlarda kataloqun açılmasını, klaviatura fokusunu, bağlanmasını və kateqoriya keçidini yoxlayır. Cavablar təcrid olunur.
+
+`npm run test:cards` böyük qiymətlərin, kirayə müddətinin və iki sətirlik başlığın kəsilməməsini, məhsul şəklinin bütöv göstərilməsini 320–1440 px ekranlarda yoxlayır.

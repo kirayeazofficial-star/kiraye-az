@@ -1,5 +1,6 @@
 "use client";
 import TopBanner from "./TopBanner";
+import MobileCatalog from "./MobileCatalog";
 import { CirclePlus, LayoutGrid, Plus, X } from "lucide-react";
 import AccountMenu from "./AccountMenu";
 import TabIcon from "./TabIcon";
@@ -21,6 +22,8 @@ export default function Header() {
   const [favoritesPage, setFavoritesPage] = useState(false);
   const [query, setQuery] = useState("");
   const [catalogOpen, setCatalogOpen] = useState(false);
+  const [mobile,setMobile]=useState(false);
+  useEffect(()=>{const media=window.matchMedia('(max-width:1023px)'),sync=()=>setMobile(media.matches);sync();media.addEventListener('change',sync);return()=>media.removeEventListener('change',sync);},[]);
   useEffect(() => {
     const open = () => setCatalogOpen(true);
     window.addEventListener("kiraye:catalog", open);
@@ -30,7 +33,7 @@ export default function Header() {
     if (!catalogOpen) return;
     const close = (event: Event) => {
       if (event instanceof KeyboardEvent && event.key !== "Escape") return;
-      if (event instanceof PointerEvent && (event.target as Element)?.closest?.(".kzCatalog")) return;
+      if (event instanceof PointerEvent && (event.target as Element)?.closest?.(".kzCatalog,.kzCatalogDialog")) return;
       setCatalogOpen(false);
     };
     window.addEventListener("pointerdown", close);
@@ -60,6 +63,8 @@ export default function Header() {
   const accountPage = ["/profile", "/account", "/balance", "/admin"].some(path => pathname === path || pathname?.startsWith(path + "/"));
   useEffect(() => {
     let active = true;
+    const expired=()=>{active=false;setSignedIn(false);setAccountId('');setAccountName('');setAccountPhone('');};
+    window.addEventListener('kiraye:session-expired',expired);
     fetch('/api/auth/host',{cache:'no-store'})
       .then(response=>response.json())
       .then((data) => {
@@ -67,7 +72,7 @@ export default function Header() {
       })
       .catch(() => {});
     return () => {
-      active = false;
+      active = false;window.removeEventListener('kiraye:session-expired',expired);
     };
   }, []);
   // Adverts only on public pages, never in the cabinet, messages, forms or the leader panel.
@@ -80,11 +85,11 @@ export default function Header() {
           <SiteMenu />
           <a className="kzLogo" href="/" aria-label="kirayeal.az — ana səhifə">kirayeal<span>.az</span></a>
           <div className="kzCatalog">
-            <button type="button" className="kzCatalogButton" aria-expanded={catalogOpen} aria-controls="kz-catalog" onClick={() => setCatalogOpen(!catalogOpen)}>
+            <button type="button" className="kzCatalogButton" aria-label={t("Kataloq")} title={t("Kataloq")} aria-expanded={catalogOpen} aria-controls="kz-catalog" onClick={() => setCatalogOpen(!catalogOpen)}>
               <LayoutGrid aria-hidden="true" size={18} strokeWidth={2} />
               <span>{t("Kataloq")}</span>
             </button>
-            {catalogOpen && <nav id="kz-catalog" className="kzCatalogPanel" aria-label={t("Kateqoriyalar")}>
+            {catalogOpen && !mobile && <nav id="kz-catalog" className="kzCatalogPanel" aria-label={t("Kateqoriyalar")}>
               <div className="kzCatalogHead"><strong>{t("Kataloq")}</strong><button type="button" aria-label={t("Bağla")} onClick={() => setCatalogOpen(false)}><X aria-hidden="true" size={20} strokeWidth={2} /></button></div>
               {categories.map(item => <a key={item.id} href={`/?category=${item.id}#elanlar`}><CategoryVisual id={item.id}/><span>{t(item.name)}</span></a>)}
             </nav>}
@@ -132,6 +137,7 @@ export default function Header() {
           </Link>
         </div>
       </header>
+      {catalogOpen&&mobile&&<MobileCatalog onClose={()=>setCatalogOpen(false)}/>}
       <nav className={`kzTabbar${pathname?.startsWith("/listings/") ? " kzTabbarHidden" : ""}`} aria-label="Mobil menyu">
         <a href="/" onClick={sameSection("home")} aria-current={pathname === "/" && !favoritesPage ? "page" : undefined}>
           <TabIcon name="home" active={pathname === "/" && !favoritesPage}/><span>{t("Əsas")}</span>

@@ -204,8 +204,9 @@ export const photo = (id: string) =>
 export { sampleListings as examples } from "./sample-listings";
 export async function loadListings(
   scope: "public" | "mine" | "admin" = "public",
+  signal?: AbortSignal,
 ) {
-  const response=await fetch(`/api/listings?scope=${scope}&limit=200`,{cache:'no-store',signal:AbortSignal.timeout(15000)});const result=await response.json();
+  const response=await fetch(`/api/listings?scope=${scope}&limit=200`,{cache:'no-store',signal:signal||AbortSignal.timeout(15000)});const result=await response.json();
   if(!response.ok)throw new Error(response.status===401?"Əvvəl hesabınıza daxil olun.":"Elanları yükləmək mümkün olmadı. Yenidən yoxlayın.");return result.items as Listing[];
 }
 export function readFavorites(): string[] {

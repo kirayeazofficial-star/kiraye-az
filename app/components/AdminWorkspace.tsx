@@ -148,26 +148,27 @@ function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, posi
 
 function ModerationHistory({ onInspect }: { onInspect: (id: string) => void }) {
   const [events,setEvents]=useState<ModerationEvent[]>([]),[trail,setTrail]=useState<(string|null)[]>([null]),[cursor,setCursor]=useState<string|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[refresh,setRefresh]=useState(0);
-  const before=trail[trail.length-1];
+  const before=trail[trail.length-1],moving=useRef(true);
+  const prepare=()=>{if(moving.current)return false;moving.current=true;setLoading(true);setEvents([]);setCursor(null);return true;};
   useEffect(()=>{
     let active=true;const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),20000);
-    setLoading(true);setError("");setCursor(null);setEvents([]);
+    moving.current=true;setLoading(true);setError("");setCursor(null);setEvents([]);
     api(before?{action:"history",before}:{action:"history"},controller.signal).then(data=>{
       if(!active)return;
       if(!Array.isArray(data.events))throw new Error("INVALID_HISTORY_RESPONSE");
       setEvents(data.events.slice(0,ADMIN_HISTORY_PAGE_SIZE));
       setCursor(data.next?String(data.next):null);
-    }).catch(()=>{if(active)setError("Tarixçə yüklənmədi. Yenidən cəhd edin.");}).finally(()=>{clearTimeout(timer);if(active)setLoading(false);});
+    }).catch(()=>{if(active)setError("Tarixçə yüklənmədi. Yenidən cəhd edin.");}).finally(()=>{clearTimeout(timer);if(active){moving.current=false;setLoading(false);}});
     return()=>{active=false;clearTimeout(timer);controller.abort();};
   },[before,refresh]);
-  const reload=()=>{setTrail([null]);setRefresh(value=>value+1);};
+  const reload=()=>{if(prepare()){setTrail([null]);setRefresh(value=>value+1);}};
   return <Panel title="Əməliyyat tarixçəsi" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" disabled={loading} onClick={reload}><RefreshCw aria-hidden="true" size={16} strokeWidth={2}/></button>}>
-    {loading?<p role="status" className="kzAdMuted">Yüklənir…</p>:error?<div className="kzAdError" role="alert"><p>{error}</p><button type="button" className="kzAdBtn" onClick={()=>setRefresh(value=>value+1)}>Yenidən cəhd et</button></div>:!events.length?<Empty title="Hələ qeyd yoxdur"/>:<EventList events={events} onInspect={onInspect}/>}
+    {loading?<p role="status" className="kzAdMuted">Yüklənir…</p>:error?<div className="kzAdError" role="alert"><p>{error}</p><button type="button" className="kzAdBtn" onClick={()=>{if(prepare())setRefresh(value=>value+1);}}>Yenidən cəhd et</button></div>:!events.length?<Empty title="Hələ qeyd yoxdur"/>:<EventList events={events} onInspect={onInspect}/>}
     <nav className="kzAdPager kzHistoryPages" aria-label="Tarixçə səhifələri">
-      <button type="button" className="kzAdBtn" disabled={loading||trail.length===1} onClick={()=>setTrail(old=>old.slice(0,-1))}><ChevronLeft aria-hidden="true" size={16}/>Əvvəlki</button>
+      <button type="button" className="kzAdBtn" disabled={loading||trail.length===1} onClick={()=>{if(trail.length>1&&prepare())setTrail(old=>old.slice(0,-1));}}><ChevronLeft aria-hidden="true" size={16}/>Əvvəlki</button>
       <span aria-live="polite">{trail.length}</span>
-      <button type="button" className="kzAdBtn" disabled={loading||!cursor} onClick={()=>{if(cursor)setTrail(old=>[...old,cursor]);}}>Növbəti<ChevronRight aria-hidden="true" size={16}/></button>
+      <button type="button" className="kzAdBtn" disabled={loading||!cursor} onClick={()=>{if(cursor&&prepare())setTrail(old=>[...old,cursor]);}}>Növbəti<ChevronRight aria-hidden="true" size={16}/></button>
     </nav>
   </Panel>;
 }

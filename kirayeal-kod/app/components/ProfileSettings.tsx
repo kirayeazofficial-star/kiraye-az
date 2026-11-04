@@ -1,6 +1,6 @@
 "use client";
 import Notice from "./Notice";
-import { AlertCircle, Bell, Camera, CheckCircle2, ChevronLeft, LogOut, Mail, Trash2 } from "lucide-react";
+import { AlertCircle, Bell, Camera, Check, CheckCircle2, ChevronLeft, ChevronRight, Copy, LogOut, Mail, Phone, Smartphone, Star, Trash2, UserRound } from "lucide-react";
 import {FormEvent,useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import Header from './Header';
@@ -21,6 +21,7 @@ export default function ProfileSettings(){
  async function toggleNotices(enabled:boolean){if(!profile)return;setBusy('notify');setError('');const previous=profile.email_notifications;setProfile({...profile,email_notifications:enabled});
   try{const response=await fetch('/api/account/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'notifications',enabled})});if(!response.ok)throw new Error();setNotice(enabled?'Bildirişlər açıldı.':'Bildirişlər söndürüldü.');}
   catch{setProfile({...profile,email_notifications:previous});setError('Dəyişiklik saxlanmadı. Yenidən cəhd edin.');}finally{setBusy('');}}
+ const [open,setOpen]=useState<''|'name'|'phone'|'email'>(''),[idCopied,setIdCopied]=useState(false);
  const identity=useRef('');const [emailStep,setEmailStep]=useState<0|1|2>(0),[emailCode,setEmailCode]=useState('');
  function accept(value:Profile){setProfile(current=>({...value,avatar_url:value.avatar_url!==undefined?value.avatar_url:current?.avatar_url,created_at:value.created_at||current?.created_at}));setName(value.name||'');setPhone(value.phone||'');setEmail(value.pending_email||value.email||'');}
  useEffect(()=>{let active=true;
@@ -49,9 +50,9 @@ export default function ProfileSettings(){
   event.preventDefault();if(!profile||busy)return;setBusy(action);setWhere(action==='profile'?'profile':'email');setError('');setNotice('');const actor=identity.current;
   try{const response=await fetch('/api/account/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(action==='profile'?{action,name,phone,password}:action==='email'?{action,email,password:emailPassword}:{action,email,code:emailCode})});const data=await response.json();if(identity.current!==actor)return;
    if(response.ok&&data.code_sent){setEmailStep(2);setNotice('Kod köhnə e-poçt ünvanına göndərildi.');return;}
-   if(response.ok&&data.email_changed&&data.profile){accept(data.profile);setEmailStep(0);setEmailCode('');setNotice('E-poçt dəyişdirildi.');return;}
+   if(response.ok&&data.email_changed&&data.profile){accept(data.profile);setEmailStep(0);setEmailCode('');setOpen('');setNotice('E-poçt dəyişdirildi.');return;}
    if(!response.ok){setError(messages[data.code]||'Dəyişiklik təsdiqlənmədi. Yenidən yoxlayın.');return;}if(!data.profile){setError('Nəticə təsdiqlənmədi. Səhifəni yeniləyin.');return;}
-   accept(data.profile);setNotice('Saxlanıldı.');
+   accept(data.profile);setOpen('');setNotice('Saxlanıldı.');
   }catch{setError('Bağlantı alınmadı. Dəyişiklik nəticəsini səhifəni yeniləyərək yoxlayın.');}finally{setBusy('');setPassword('');setEmailPassword('');}
  }
  const status=(panel:string)=>where===panel&&error?<div className={`kzFormStatus${error?' error':''}`} role={error?'alert':'status'}>{error?<AlertCircle aria-hidden="true" size={18} strokeWidth={2}/>:<CheckCircle2 aria-hidden="true" size={18} strokeWidth={2}/>}<span>{error||notice}</span></div>:null;
@@ -61,45 +62,66 @@ export default function ProfileSettings(){
   <h1 className="kzPageTitle">Profil</h1>
   <Notice text={notice} />{!where&&error&&<div role="alert" className="notice error"><span>{error}</span></div>}
   {loading?<p role="status">Yüklənir…</p>:!signedIn?<p className="notice"><Link href="/login?next=/account">Davam etmək üçün daxil olun.</Link></p>:profile?<div className="kzAccountGrid">
-   <section className="kzPanel kzProfileInfo">
-    <UserAvatar src={profile.avatar_url} name={profile.name}/>
-    <div>
-     <strong>{profile.name||'Profil'}</strong>
-     {profile.phone&&<span>{formatContact(profile.phone)}</span>}
-     <span>{profile.email}</span>
-     <div className="kzProfileMeta">{profile.profile_no?<span>Profil № {profile.profile_no}</span>:null}{profile.created_at?<span>Qeydiyyat: {azDate(profile.created_at)}</span>:null}</div>
+   <section className="kzPanel kzAccHead">
+    <div className="kzAccAvatar">
+     <UserAvatar src={profile.avatar_url} name={profile.name}/>
+     <button type="button" className="kzAccCamera" disabled={!!busy} aria-label={profile.avatar_url?'Profil şəklini dəyiş':'Profil şəkli əlavə et'} onClick={()=>photoInput.current?.click()}><Camera aria-hidden="true" size={16} strokeWidth={2}/></button>
+     <input ref={photoInput} type="file" accept="image/*" hidden onChange={event=>changePhoto(event.target.files?.[0])}/>
     </div>
-   </section>
-   <section className="kzPanel kzPhotoRow">
-    <span>Profil şəkli</span>
-    <div className="kzPhotoActions">
-     {profile.avatar_url&&<button type="button" className="kzButtonGhost" disabled={!!busy} onClick={removePhoto}><Trash2 aria-hidden="true" size={15} strokeWidth={2} />Sil</button>}
-     <button type="button" className="kzButtonGhost" disabled={!!busy} onClick={()=>photoInput.current?.click()}><Camera aria-hidden="true" size={15} strokeWidth={2} />{busy==='photo'?'Yüklənir…':profile.avatar_url?'Dəyiş':'Əlavə et'}</button>
+    <strong className="kzAccName">{profile.name||'Profil'}</strong>
+    <div className="kzAccChips">
+     {profile.profile_no?<button type="button" className="kzAccChip" aria-label={`ID ${profile.profile_no} — kopyala`} onClick={()=>{void navigator.clipboard?.writeText(String(profile.profile_no)).then(()=>{setIdCopied(true);window.setTimeout(()=>setIdCopied(false),1600);}).catch(()=>{});}}>ID {profile.profile_no}{idCopied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>:null}
+     {profile.staff_role==='leader'&&<span className="kzAccChip lead"><Star aria-hidden="true" size={13} strokeWidth={2.2}/>Rəhbər</span>}
     </div>
-    <input ref={photoInput} type="file" accept="image/*" hidden onChange={event=>changePhoto(event.target.files?.[0])}/>
+    {profile.created_at&&<p className="kzAccSince">{azDate(profile.created_at)} tarixindən saytdadır</p>}
+    {busy==='photo'&&<p className="kzAccSince" role="status">Şəkil yüklənir…</p>}
+    {profile.avatar_url&&busy!=='photo'&&<button type="button" className="kzAccRemovePhoto" disabled={!!busy} onClick={removePhoto}><Trash2 aria-hidden="true" size={14} strokeWidth={2}/>Şəkli sil</button>}
    </section>
    {status('photo')}
-   <form className="kzPanel listingForm accountForm" onSubmit={event=>submit(event,'profile')}>
+
+   <section className="kzPanel kzAccList" aria-label="Şəxsi məlumatlar">
     <h2>Şəxsi məlumatlar</h2>
-    <label>Ad və soyad<input value={name} onChange={e=>setName(e.target.value)} maxLength={100} required autoComplete="name"/></label>
-    <label>Telefon<PhoneInput label="Telefon" value={phone} onChange={setPhone} required /></label>
-    <button className="kzButton" disabled={!!busy}>{busy==='profile'?'Saxlanılır…':'Yadda saxla'}</button>
-    {status('profile')}
-   </form>
-   <div className="kzPanel listingForm accountForm emailBox">
-    <h2>E-poçt</h2>
-    <p className="kzEmailNow">Hazırkı: {profile.email}</p>
-    {emailStep===0&&<button type="button" className="kzButtonGhost" onClick={()=>{setEmail('');setEmailStep(1);setError('');setNotice('');}}><Mail aria-hidden="true" size={16} strokeWidth={2} />E-poçtu dəyiş</button>}
-    {emailStep===1&&<form onSubmit={event=>submit(event,'email')}><label>Yeni e-poçt<input type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} required autoComplete="email"/></label><label>Cari şifrə<input type="password" value={emailPassword} onChange={e=>setEmailPassword(e.target.value)} autoComplete="current-password" required maxLength={512}/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email'?'Göndərilir…':'Kod göndər'}</button><button type="button" className="kzButtonGhost" onClick={()=>setEmailStep(0)}>Ləğv et</button></div></form>}
-    {emailStep===2&&<form onSubmit={event=>submit(event,'email_confirm')}><p className="muted">6 rəqəmli kod {profile.email} ünvanına göndərildi.</p><label>Kod<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={emailCode} onChange={e=>setEmailCode(e.target.value.replace(/\D/g,''))} required autoComplete="one-time-code"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email_confirm'?'Yoxlanılır…':'Təsdiqlə'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setEmailCode('');}}>Ləğv et</button></div></form>}
-   </div>
-   <div className="kzEmailStatus">{status('email')}</div>
-   <section className="kzPanel kzNotifyRow">
-    <span className="kzNotifyIcon"><Bell aria-hidden="true" size={18} strokeWidth={2}/></span>
-    <div><strong>E-poçt bildirişləri</strong><small>Yeni mesaj, elanın müddətinin bitməsi və yadda saxlanan axtarışa uyğun yeni elanlar.</small></div>
-    <label className="kzSwitch"><input type="checkbox" checked={profile.email_notifications!==false} disabled={busy==='notify'} onChange={event=>void toggleNotices(event.target.checked)}/><span/></label>
+    <button type="button" className="kzAccRow" aria-expanded={open==='name'} onClick={()=>{setOpen(open==='name'?'':'name');setName(profile.name||'');setError('');}}>
+     <span className="kzAccIcon"><UserRound aria-hidden="true" size={18} strokeWidth={1.9}/></span><span className="kzAccText"><small>Ad və soyad</small><b>{profile.name||'Əlavə edin'}</b></span><ChevronRight className="kzAccChevron" aria-hidden="true" size={18} strokeWidth={2}/>
+    </button>
+    {open==='name'&&<form className="kzAccEdit listingForm" onSubmit={event=>submit(event,'profile')}>
+     <label>Ad və soyad<input value={name} onChange={e=>setName(e.target.value)} maxLength={100} required autoComplete="name" autoFocus/></label>
+     <div className="kzAccEditActions"><button className="kzButton" disabled={!!busy}>{busy==='profile'?'Saxlanılır…':'Yadda saxla'}</button><button type="button" className="kzButtonGhost" onClick={()=>setOpen('')}>Ləğv et</button></div>
+     {status('profile')}
+    </form>}
+    <button type="button" className="kzAccRow" aria-expanded={open==='phone'} onClick={()=>{setOpen(open==='phone'?'':'phone');setPhone(profile.phone||'');setError('');}}>
+     <span className="kzAccIcon"><Phone aria-hidden="true" size={18} strokeWidth={1.9}/></span><span className="kzAccText"><small>Telefon</small><b>{profile.phone?formatContact(profile.phone):'Nömrənizi əlavə edin'}</b></span><ChevronRight className="kzAccChevron" aria-hidden="true" size={18} strokeWidth={2}/>
+    </button>
+    {open==='phone'&&<form className="kzAccEdit listingForm" onSubmit={event=>submit(event,'profile')}>
+     <label>Telefon<PhoneInput label="Telefon" value={phone} onChange={setPhone} required /></label>
+     <div className="kzAccEditActions"><button className="kzButton" disabled={!!busy||!phoneChanged}>{busy==='profile'?'Saxlanılır…':'Yadda saxla'}</button><button type="button" className="kzButtonGhost" onClick={()=>setOpen('')}>Ləğv et</button></div>
+     {status('profile')}
+    </form>}
+    <button type="button" className="kzAccRow" aria-expanded={open==='email'} onClick={()=>{const next=open==='email'?'':'email';setOpen(next);setEmail('');setEmailStep(next?1:0);setError('');setNotice('');}}>
+     <span className="kzAccIcon"><Mail aria-hidden="true" size={18} strokeWidth={1.9}/></span><span className="kzAccText"><small>E-poçt</small><b>{profile.email}</b></span><ChevronRight className="kzAccChevron" aria-hidden="true" size={18} strokeWidth={2}/>
+    </button>
+    {open==='email'&&<div className="kzAccEdit listingForm accountForm emailBox">
+     {emailStep===1&&<form onSubmit={event=>submit(event,'email')}><label>Yeni e-poçt<input type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} required autoComplete="email"/></label><label>Cari şifrə<input type="password" value={emailPassword} onChange={e=>setEmailPassword(e.target.value)} autoComplete="current-password" required maxLength={512}/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email'?'Göndərilir…':'Kod göndər'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setOpen('');}}>Ləğv et</button></div></form>}
+     {emailStep===2&&<form onSubmit={event=>submit(event,'email_confirm')}><p className="muted">6 rəqəmli kod {profile.email} ünvanına göndərildi.</p><label>Kod<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={emailCode} onChange={e=>setEmailCode(e.target.value.replace(/\D/g,''))} required autoComplete="one-time-code"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email_confirm'?'Yoxlanılır…':'Təsdiqlə'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setEmailCode('');}}>Ləğv et</button></div></form>}
+     <div className="kzEmailStatus">{status('email')}</div>
+    </div>}
    </section>
-   <button type="button" className="kzPanel kzLogoutRow" disabled={busy==='logout'} onClick={logout}><LogOut aria-hidden="true" size={18} strokeWidth={2}/>Hesabdan çıx</button>
+
+   <section className="kzPanel kzAccList" aria-label="Bildirişlər">
+    <h2>Bildirişlər</h2>
+    <div className="kzAccRow static">
+     <span className="kzAccIcon"><Bell aria-hidden="true" size={18} strokeWidth={1.9}/></span>
+     <span className="kzAccText"><b>E-poçt bildirişləri</b><small>Yeni mesaj, elanın müddətinin bitməsi və axtarışınıza uyğun yeni elanlar</small></span>
+     <label className="kzSwitch"><input type="checkbox" aria-label="E-poçt bildirişləri" checked={profile.email_notifications!==false} disabled={busy==='notify'} onChange={event=>void toggleNotices(event.target.checked)}/><span/></label>
+    </div>
+    <div className="kzAccRow static">
+     <span className="kzAccIcon"><Smartphone aria-hidden="true" size={18} strokeWidth={1.9}/></span>
+     <span className="kzAccText"><b>SMS bildirişləri</b><small>Vacib xəbərlər telefonunuza</small></span>
+     <span className="kzAccSoon">Tezliklə</span>
+    </div>
+   </section>
+
+   <button type="button" className="kzPanel kzLogoutRow" disabled={busy==='logout'} onClick={logout}><LogOut aria-hidden="true" size={18} strokeWidth={2}/>{busy==='logout'?'Çıxılır…':'Hesabdan çıx'}</button>
   </div>:null}
  </main><Footer/></>;
 }

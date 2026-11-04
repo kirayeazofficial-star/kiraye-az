@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
+import { formDictionary } from "../../lib/form-translations";
 import { extraDictionary } from "../../lib/i18n";
 export type Language = "az" | "ru" | "en";
 const dictionary: Record<string, [string, string]> = {
@@ -88,6 +89,7 @@ const dictionary: Record<string, [string, string]> = {
  "Depoziti dəqiqləşdir":["Уточни депозит", "Confirm deposit"],
 };
 for (const [key, value] of Object.entries(extraDictionary)) dictionary[key] ??= value;
+Object.assign(dictionary, formDictionary);
 
 // Texts written directly in components (not through t()) are translated on the page itself:
 // each Azerbaijani text node or placeholder found in the dictionary is swapped, and restored
@@ -106,6 +108,14 @@ function lookup(text: string, language: Language) {
 }
 // Texts with numbers or times inside them.
 const patterns: [RegExp, (match: RegExpMatchArray, language: Exclude<Language, "az">) => string][] = [
+  [/^Məsələn[:,]? (.+)$/, (m,l) => `${l==='ru'?'Например':'For example'}: ${m[1]}`],
+  [/^(.+): bu sahəni doldurun\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?'заполните это поле.':'fill in this field.'}`],
+  [/^(.+): ən (azı|çox) (\d+) simvol daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?`введите ${m[2]==='azı'?'не менее':'не более'} ${m[3]} символов.`:`enter ${m[2]==='azı'?'at least':'at most'} ${m[3]} characters.`}`],
+  [/^(.+): dəyər ən (azı|çox) ([\d.]+) olmalıdır\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?`значение должно быть ${m[2]==='azı'?'не меньше':'не больше'} ${m[3]}.`:`the value must be ${m[2]==='azı'?'at least':'at most'} ${m[3]}.`}`],
+  [/^(.+): ([\d.]+) addımına uyğun rəqəm daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?`введите число с шагом ${m[2]}.`:`enter a number in increments of ${m[2]}.`}`],
+  [/^(.+): düzgün rəqəm daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?'введите корректное число.':'enter a valid number.'}`],
+  [/^(.+): düzgün formatda məlumat daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?'введите данные в правильном формате.':'enter information in the correct format.'}`],
+  [/^(.+): məlumatı yoxlayıb yenidən daxil edin\.$/, (m,l) => `${lookup(m[1],l) ?? m[1]}: ${l==='ru'?'проверьте и повторно введите данные.':'check and re-enter the information.'}`],
   [/^Bu gün, (\d{2}:\d{2})$/, (m, l) => `${l === "ru" ? "Сегодня" : "Today"}, ${m[1]}`],
   [/^Dünən, (\d{2}:\d{2})$/, (m, l) => `${l === "ru" ? "Вчера" : "Yesterday"}, ${m[1]}`],
   [/^(\d+) gün$/, (m, l) => l === "ru" ? `${m[1]} дн.` : `${m[1]} ${m[1] === "1" ? "day" : "days"}`],

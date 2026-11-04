@@ -1,6 +1,6 @@
 import "server-only";
 import {hostQuery} from "./db";
-import {noticeLetter,sendLetter} from "./mailer";
+import {noticeLetter,noticeSubject,sendLetter} from "./mailer";
 
 // One notice per (kind, ref): returns false when it was already sent.
 async function claim(userId:string|null,kind:string,ref:string){
@@ -18,7 +18,7 @@ export async function notifyNewMessage(threadId:string,authorId:string){
     const row=rows[0];if(!row?.email||!row.enabled)return;
     const slot=Math.floor(Date.now()/1800000);
     if(!await claim(row.peer,"message",`${threadId}:${row.peer}:${slot}`))return;
-    await sendLetter(row.email,`Yeni mesaj: ${row.title}`.slice(0,120),noticeLetter({
+    await sendLetter(row.email,noticeSubject("Yeni mesaj",row.title),noticeLetter({
       label:"Yeni mesaj",
       heading:"Yeni mesajınız var",
       name:row.name,
@@ -36,7 +36,7 @@ export async function notifyRejected(listingId:string,reason:string){
       from public.listings l join auth.users u on u.id=l.owner_id left join public.profiles p on p.id=l.owner_id where l.id=$1`,[listingId]);
     const row=rows[0];if(!row?.email)return;
     if(!await claim(row.owner,"rejected",`${listingId}:${Math.floor(Date.now()/60000)}`))return;
-    await sendLetter(row.email,`Elanınız rədd edildi — «${row.title}»`.slice(0,120),noticeLetter({
+    await sendLetter(row.email,noticeSubject("Elanınız rədd edildi",row.title),noticeLetter({
       label:"Elanın yoxlanılması",
       heading:"Elanınız rədd edildi",
       name:row.name,

@@ -1,10 +1,11 @@
 "use client";
+import { fieldValidationMessage } from "../../lib/form-validation";
 import { dateFormat } from "../../lib/date-format";
 import { photoHash } from "../../lib/photo-hash";
 import { listingPrice, manat } from "../../lib/limit-rules";
 import { Check, ChevronLeft, ChevronRight, CircleCheck, Clock, ImagePlus, Plus, RotateCcw, X } from "lucide-react";
 import StatusCard from "./StatusCard";
-import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
+import { readListingDraft, saveListingDraft, clearListingDraft, draftLocation, type ListingDraft } from "../../lib/listing-draft";
 import { sharePreview, watermarkPhoto } from "../../lib/photo-watermark";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
@@ -18,7 +19,7 @@ import { contactInText, contactInTextMessage } from "../../lib/contact-filter";
 import { paidVisible, useSiteFlags } from "../../lib/use-site-flags";
 import { editLimitMessage, nextEditAt } from "../../lib/edit-limit";
 import LocationPicker from "./LocationPicker";
-import { locationCategories } from "../../lib/location";
+import { locationCategories, validPoint } from "../../lib/location";
 import PhotoOrganizer, { type ListingPhoto } from "./PhotoOrganizer";
 
 import {
@@ -73,6 +74,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     setCategory(base?.category || "");
     setTitle(base?.title || "");
     setCity(base?.city || "");
+    setDistrict(base?.district || "");setMetro(typeof base?.attributes?.metro==='string'?base.attributes.metro:'');setPoint(validPoint(base?.lat,base?.lng));setExactLocation(base?.location_exact===true);
     setPrice(base?.price == null ? "" : String(Number(base.price)));
     setDescriptionText(base?.description || "");
     manualTitle.current = !!base;
@@ -135,7 +137,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     if(listingId||!user||success||busy||!draftDirty.current||!category||!formRef.current)return;
     const form=new FormData(formRef.current),fields:Record<string,string[]>={};
     for(const [key,value] of form.entries())if(typeof value==='string'&&!['contact','contact_name'].includes(key))(fields[key] ||= []).push(value);
-    const draft:ListingDraft={version:1,updatedAt:Date.now(),category,step,fields,files};
+    const draft:ListingDraft={version:1,updatedAt:Date.now(),category,step,fields,files,location:{district,metro,point,exact:exactLocation}};
     void saveListingDraft(user,draft).then(mode=>setDraftNotice(mode==='text'&&files.length?'Mətn saxlanıldı; şəkilləri yenidən seçmək lazım ola bilər.':'Qaralama bu cihazda saxlanıldı.')).catch(()=>setDraftNotice('Bu brauzerdə qaralamanı saxlamaq mümkün olmadı.'));
   };
   function queueDraft(){if(listingId)return;draftDirty.current=true;setSavedDraft(null);if(draftTimer.current)clearTimeout(draftTimer.current);draftTimer.current=setTimeout(()=>draftSave.current(),350);}
@@ -145,11 +147,12 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     if(!savedDraft||!categories.some(item=>item.id===savedDraft.category))return;
     const form=new FormData();for(const [key,values] of Object.entries(savedDraft.fields))for(const value of values)form.append(key,value);
     const text=(key:string)=>String(form.get(key)||'');
+    const location=draftLocation(savedDraft);setDistrict(location.district);setMetro(location.metro);setPoint(location.point);setExactLocation(location.exact);
     const attributes=readListingAttributes(savedDraft.category,form);
     setInitial({id:'',owner_id:user,category:savedDraft.category,title:text('title'),city:text('city'),price:Number(text('price'))||0,rental_period:text('rental_period')||'daily',description:text('description'),contact:'',images:[],status:'draft',created_at:'',deposit:Number(text('deposit'))||0,min_days:Number(text('min_days'))||1,rooms:Number(text('rooms'))||undefined,area_m2:Number(text('area_m2'))||undefined,attributes});
     setCategory(savedDraft.category);setTitle(text('title'));manualTitle.current=!!text('title');setCity(text('city'));setPrice(text('price'));setDescriptionText(text('description'));setRentalPeriod(text('rental_period')||'daily');setMinimumUnit(text('min_rental_unit')||'day');
     setPhotos(savedDraft.files.filter(file=>file instanceof File).slice(0,6).map(photoFromFile));setStep(Math.max(1,Math.min(4,savedDraft.step||1)));setFormVersion(value=>value+1);setSavedDraft(null);draftDirty.current=true;
-    setDraftNotice(savedDraft.photosMissing?'Mətn bərpa edildi. Şəkilləri yenidən seç.':'Qaralama bərpa edildi.');
+    setDraftNotice(savedDraft.photosMissing?'Mətn bərpa edildi. Şəkilləri yenidən seçin.':'Qaralama bərpa edildi.');
   }
   useEffect(() => {
     setLoading(true);
@@ -159,6 +162,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     setTitle("");
     setDescriptionText("");
     setCity("");
+    setDistrict("");setMetro("");setPoint(null);setExactLocation(false);
     setPrice("");
     setPhotos([]);
     setError("");
@@ -175,7 +179,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       active = false;
       setLoading(false);
       setLoadError(true);
-      setError("Hesab yoxlaması gecikir. Bağlantını yoxlayıb yenidən cəhd et.");
+      setError("Hesab yoxlaması gecikir. Bağlantını yoxlayıb yenidən cəhd edin.");
     }, 15000);
     fetch("/api/auth/host",{cache:"no-store"})
       .then(async response => {
@@ -209,7 +213,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             );
             return;
           }
-          if(["archived","expired"].includes(result.item.status)){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetindən baxa bilərsən.");return;}
+          if(["archived","expired"].includes(result.item.status)){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetinizdən baxa bilərsiniz.");return;}
           setInitial(result.item as Listing);
           setMinimumUnit(result.item.attributes?.min_rental_unit || "day");
           setRentalPeriod(result.item.rental_period);
@@ -258,8 +262,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         setStep(current);
         field.setAttribute('aria-invalid','true');
         const label=field.getAttribute('aria-label')||field.closest('label')?.childNodes[0]?.textContent?.trim()||'Məcburi sahə';
-        const minimum='minLength' in field?field.minLength:0;
-        const message=field.validity.valueMissing?`${label} boş qalıb. Bu sahəni doldur.`:field.validity.tooShort?`${label} ən azı ${minimum} simvol olmalıdır.`:field.validationMessage;
+        const message=fieldValidationMessage(field,label);
         setError(message);
         requestAnimationFrame(() => {
           field.scrollIntoView({behavior:'smooth',block:'center'});
@@ -294,7 +297,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       }
     }
     if (current === 3 && !files.length && !existingImages.length) {
-      setError("Ən azı bir şəkil əlavə et.");
+      setError("Ən azı bir şəkil əlavə edin.");
       return false;
     }
     return true;
@@ -321,7 +324,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       description = String(form.get("description") ?? "").trim(),
       contact = String(form.get("contact") ?? "").trim();
     if (!categories.some((item) => item.id === category)) {
-      setError("Kateqoriya seç.");
+      setError("Kateqoriya seçin.");
       return;
     }
     const textContact = contactInText(`${title} ${description}`);
@@ -369,7 +372,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     }
     const price = Number(form.get("price"));
     if (!Number.isFinite(price) || price <= 0 || price > 1000000) {
-      setError("Qiymət 0 ilə 1 000 000 ₼ arasında olmalıdır.");
+      setError("Qiymət 0-dan böyük və ən çox 1 000 000 ₼ olmalıdır.");
       return;
     }
     submitLock.current = true;
@@ -501,7 +504,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           </div>
         ) : !user ? null : (
           <div className="formLayout">
-            {savedDraft && <aside className="draftResume"><p>Yarımçıq elanın var. Davam etmək istəyirsən?</p><button type="button" className="secondary" onClick={restoreDraft}>Qaralamaya davam et</button><button type="button" className="textButton" onClick={()=>{void clearListingDraft(user);setSavedDraft(null);}}>Qaralamanı sil</button></aside>}
+            {savedDraft && <aside className="draftResume"><p>Yarımçıq elanınız var. Davam etmək istəyirsiniz?</p><button type="button" className="secondary" onClick={restoreDraft}>Qaralamaya davam et</button><button type="button" className="textButton" onClick={()=>{void clearListingDraft(user);setSavedDraft(null);}}>Qaralamanı sil</button></aside>}
             {!listingId && draftNotice && <p className="draftNotice" role="status">{draftNotice}</p>}
             {listingId && editBlockedUntil && editBlockedUntil.getTime() > Date.now() && <p className="kzEditLimit" role="status">{editLimitMessage(editBlockedUntil)}</p>}
             <form
@@ -556,9 +559,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                   )}
                 </nav>
                 <section data-post-step="1" hidden={step !== 1}>
-                  <h2 tabIndex={-1}>Nəyi kirayəyə verirsən?</h2>
+                  <h2 tabIndex={-1}>Nəyi kirayəyə verirsiniz?</h2>
                   <p className="muted">
-                    Kateqoriyanı seç. Yalnız elanına uyğun suallar göstəriləcək.
+                    Kateqoriyanı seçin. Yalnız elanınıza uyğun sahələr göstəriləcək.
                   </p>
                   <label>
                     Kateqoriya <span className="requiredMark">*</span>
@@ -588,7 +591,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                   </label>
                   {!category && (
                     <p className="muted">
-                      Əvvəl kateqoriyanı seç — uyğun xanalar açılacaq.
+                      Əvvəlcə kateqoriyanı seçin. Uyğun sahələr açılacaq.
                     </p>
                   )}
                 </section>
@@ -599,7 +602,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         Elan məlumatları
                       </h2>
                       <p className="muted">
-                        Əsas xüsusiyyətləri seç, şəhəri və kirayə qiymətini yaz.
+                        Əsas xüsusiyyətləri seçin, şəhəri və kirayə qiymətini daxil edin.
                       </p>
                       <ListingCategoryFields
                         key={category}
@@ -622,16 +625,16 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             Şəhər seç
                           </option>
                           {initial?.city && !cities.includes(initial.city) && (
-                            <option>{initial.city}</option>
+                            <option value={initial.city}>{initial.city}</option>
                           )}
                           {cities.map((city) => (
-                            <option key={city}>{city}</option>
+                            <option key={city} value={city}>{city}</option>
                           ))}
                         </select>
                       </label>
                       <div className="rentalPriceBlock">
                         <p className="fieldLabel">
-                          Qiyməti hansı müddət üçün göstərirsən?
+                          Qiyməti hansı müddət üçün göstərirsiniz?
                         </p>
                         <div className="rentalPeriodChoice">
                           {[
@@ -709,7 +712,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       </div>
                       {hasLocation && city && <LocationPicker city={city} district={district} metro={metro} point={point} exact={exactLocation}
                         onDistrict={value => { setDistrict(value); queueDraft(); }} onMetro={value => { setMetro(value); queueDraft(); }}
-                        onPoint={value => { setPoint(value); queueDraft(); }} onExact={setExactLocation} />}
+                        onPoint={value => { setPoint(value); queueDraft(); }} onExact={value => { setExactLocation(value); queueDraft(); }} />}
                       <h3 className="formSubheading">Məzmun</h3>
                       <label>
                         Elanın başlığı <span className="requiredMark">*</span>

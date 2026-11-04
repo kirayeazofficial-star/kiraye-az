@@ -177,11 +177,14 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     <h1>{identity||"Profil"}</h1>
                     {profileNumber&&<button type="button" className="kzProfileId" aria-label={`ID ${profileNumber} — kopyala`} onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setIdCopied(true);window.setTimeout(()=>setIdCopied(false),1600);}).catch(()=>{});}}>ID {profileNumber}{idCopied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
                   </div>
+                  <Link className="kzProfileHeadGo" href="/account" aria-label="Profil məlumatları"><ChevronRight aria-hidden="true" size={20} strokeWidth={2}/></Link>
                 </section>
-                <ul className="kzProfileContacts">
-                  <li><Phone aria-hidden="true" size={17} strokeWidth={1.9}/>{accountPhone ? <span>{formatContact(accountPhone)}</span> : <Link href="/account">Telefon nömrənizi əlavə edin</Link>}</li>
-                  {accountEmail&&<li><Mail aria-hidden="true" size={17} strokeWidth={1.9}/><span>{accountEmail}</span></li>}
-                </ul>
+                {!balanceOnly&&<div className="kzProfileStats">
+                  <Link href="/profile?section=listings&tab=published" onClick={()=>{setStatusFilter("published");}}><b>{listings.filter(x=>matchesTab(x,"published")).length}</b><small>Aktiv elan</small></Link>
+                  <Link href="/profile?section=listings&tab=pending" onClick={()=>{setStatusFilter("pending");}}><b>{listings.filter(x=>matchesTab(x,"pending")).length}</b><small>Yoxlamada</small></Link>
+                  <span><b>{listings.filter(x=>!x.deleted_at).reduce((sum,x)=>sum+(x.views??0),0)}</b><small>Baxış</small></span>
+                </div>}
+                {!accountPhone&&<Link className="kzProfileHint" href="/account"><Phone aria-hidden="true" size={16} strokeWidth={1.9}/>Telefon nömrənizi əlavə edin<ChevronRight aria-hidden="true" size={16} strokeWidth={2}/></Link>}
                 {!balanceOnly && <BalancePreview compact/>}
               </div>
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">

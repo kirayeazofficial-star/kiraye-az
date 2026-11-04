@@ -3,7 +3,7 @@ import { dateFormat } from "../../lib/date-format";
 import Notice from "./Notice";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { Check, ChevronLeft, ChevronRight, Copy, Mail, Pencil, Phone, Plus, ShieldCheck, Store, Trash2 } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Copy, Eye, Mail, Pencil, Phone, Plus, ShieldCheck, Star, Store, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -170,28 +170,36 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ) : (
           <><div className={`cabinetLayout screen-${screen}`}>
             <aside className="cabinetSidebar">
-              <div className="kzProfileBlock">
-                <section className="kzProfileHead">
-                  <Link href="/account" className="kzProfileHeadAvatar" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
-                  <div className="kzProfileHeadText">
-                    <h1>{identity||"Profil"}</h1>
-                    {profileNumber&&<button type="button" className="kzProfileId" aria-label={`ID ${profileNumber} — kopyala`} onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setIdCopied(true);window.setTimeout(()=>setIdCopied(false),1600);}).catch(()=>{});}}>ID {profileNumber}{idCopied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
-                  </div>
-                </section>
-                <ul className="kzProfileContacts">
-                  <li><Phone aria-hidden="true" size={17} strokeWidth={1.9}/>{accountPhone ? <span>{formatContact(accountPhone)}</span> : <Link href="/account">Telefon nömrənizi əlavə edin</Link>}</li>
-                  {accountEmail&&<li><Mail aria-hidden="true" size={17} strokeWidth={1.9}/><span>{accountEmail}</span></li>}
-                </ul>
-                {!balanceOnly && <BalancePreview compact/>}
+              <div className={`kzProfileBlock kzProfileB${balanceOnly?" only":""}`}>
+                <div className="kzProfileHero">
+                  <section className="kzProfileHead">
+                    <Link href="/account" className="kzProfileHeadAvatar" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
+                    <div className="kzProfileHeadText">
+                      <div className="kzProfileNameRow"><h1>{identity||"Profil"}</h1>{leader&&<span className="kzLeaderChip"><Star aria-hidden="true" size={12} strokeWidth={2.2}/>Rəhbər</span>}</div>
+                      {profileNumber&&<button type="button" className="kzProfileId" aria-label={`ID ${profileNumber} — kopyala`} onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setIdCopied(true);window.setTimeout(()=>setIdCopied(false),1600);}).catch(()=>{});}}>ID {profileNumber}{idCopied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
+                    </div>
+                    <Link className="kzProfileHeadGo" href="/account" aria-label="Profil məlumatları"><ChevronRight aria-hidden="true" size={22} strokeWidth={2}/></Link>
+                  </section>
+                  {!balanceOnly&&<div className="kzHeroBalance" aria-label="Şəxsi hesabın balansı">
+                    <span><small>Şəxsi hesab</small><b>0,00 ₼</b></span>
+                    <span className="kzHeroBalanceBtn" aria-disabled="true">Artır · tezliklə</span>
+                  </div>}
+                </div>
+                {!balanceOnly&&<div className="kzProfileStats">
+                  <Link href="/profile?section=listings&tab=published" onClick={()=>{setStatusFilter("published");}}><b>{listings.filter(x=>matchesTab(x,"published")).length}</b><small><i className="kzDot green" aria-hidden="true"/>Aktiv elan</small></Link>
+                  <Link href="/profile?section=listings&tab=pending" onClick={()=>{setStatusFilter("pending");}}><b>{listings.filter(x=>matchesTab(x,"pending")).length}</b><small><i className="kzDot amber" aria-hidden="true"/>Yoxlamada</small></Link>
+                  <span><b>{listings.filter(x=>!x.deleted_at).reduce((sum,x)=>sum+(x.views??0),0).toLocaleString("az-AZ")}</b><small><Eye aria-hidden="true" size={13} strokeWidth={2}/>Baxış</small></span>
+                </div>}
               </div>
+              {!accountPhone&&!balanceOnly&&<Link className="kzProfileHint" href="/account"><Phone aria-hidden="true" size={16} strokeWidth={1.9}/>Telefon nömrənizi əlavə edin<ChevronRight aria-hidden="true" size={16} strokeWidth={2}/></Link>}
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
               <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 <span className="kzNavIcon"><NavigationIcon name="home"/></span><span>Mənim elanlarım
               </span></Link>
               
               <Link href="/account"><span className="kzNavIcon"><NavigationIcon name="account"/></span><span>Profil</span></Link>
-                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="history"/></span><span>Əməliyyat tarixçəsi</span></Link>
-              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="card"/></span><span>Mənim kartlarım</span></Link>
+                            <Link href="/profile?section=transactions" onClick={()=>openSection('transactions')} aria-current={section === "transactions" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="history"/></span><span><span className="kzLabelLong">Əməliyyat tarixçəsi</span><span className="kzLabelShort">Tarixçə</span></span></Link>
+              <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="card"/></span><span><span className="kzLabelLong">Mənim kartlarım</span><span className="kzLabelShort">Kartlarım</span></span></Link>
               <Link href="/profile?section=store" aria-current={section === "store" ? "page" : undefined}><span className="kzNavIcon"><Store aria-hidden="true" size={19} strokeWidth={2} /></span><span>Mağaza</span></Link>
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
               <div className="cabinetNavFoot">

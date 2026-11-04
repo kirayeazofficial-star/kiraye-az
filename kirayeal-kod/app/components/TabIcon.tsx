@@ -1,6 +1,6 @@
-import { Heart, House, MessageCircle, Plus, UserRound } from "lucide-react";
+import { Heart, House, MessageSquareText, Plus, UserRound } from "lucide-react";
 
-const icons = { home: House, heart: Heart, chat: MessageCircle, user: UserRound, plus: Plus };
+const icons = { home: House, heart: Heart, chat: MessageSquareText, user: UserRound, plus: Plus };
 type Name = keyof typeof icons;
 
 // The same outline family and stroke weight in navigation, menus and the cabinet.

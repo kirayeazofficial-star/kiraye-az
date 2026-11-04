@@ -3487,3 +3487,25 @@ html.kz-login>body{padding-bottom:0!important}
 }
 /* Kabinet status tabları masaüstündə sətrə bölünməsin. */
 @media(min-width:768px){.accountDashboard .kzOwnTabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}.accountDashboard .kzOwnTabs button{white-space:nowrap;padding:0 12px}}
+
+/* ===== Vahid dizayn qatı 2026-11 (son söz) ===== */
+/* Aşağı menyu: adi hərflə, oxunaqlı ölçü, sakit boz; seçilmiş bölmə brend rəngində. */
+@media(max-width:767px){
+ .kzTabbar>a,.kzTabbar>a.kzTabbarPublish,.kzTabbar>a.kzTabbarPublish span{text-transform:none!important;letter-spacing:0!important;font-size:11.5px!important;font-weight:500!important}
+ .kzTabbar>a{color:#6b7280!important}
+ .kzTabbar>a[aria-current=page]{color:var(--kz-brand)!important;font-weight:600!important}
+ .kzTabbar>a.kzTabbarPublish{color:var(--kz-accent-dark,#c2410c)!important;font-weight:600!important}
+ .kzTabbar>a svg.kzTabIcon.kzTabSolid{width:24px!important;height:24px!important}
+ .kzTabbar>a:not([aria-current=page]) svg.kzTabIcon.kzTabSolid{opacity:.82}
+}
+@media(max-width:359px){.kzTabbar>a,.kzTabbar>a.kzTabbarPublish span{font-size:10.5px!important}}
+/* Footer: keçidlər arasında artıq boşluq olmasın. */
+@media(max-width:767px){
+ .kzFooter nav{gap:0!important}
+ .kzFooter nav a{min-height:36px!important;height:auto!important;padding:0!important;align-items:center}
+ .kzFooter nav strong{margin-bottom:4px}
+}
+/* Elan səhifəsi: əsas əlaqə — yaşıl zəng, mesaj isə səliqəli ikinci düymə (göy rəng çıxarıldı). */
+.listingDetails .detailSide .contactActions .kzMsgBtn,.stickyContact .messageAction{background:#fff!important;border:1.5px solid var(--kz-brand)!important;color:var(--kz-brand)!important}
+.listingDetails .detailSide .contactActions .kzMsgBtn:hover,.stickyContact .messageAction:hover{background:var(--kz-brand-soft,#e9f3f0)!important}
+.listingDetails .detailSide .contactActions .kzWaBtn{border-color:#cfe9da!important;background:#f3fbf6!important;color:#128c4a!important}

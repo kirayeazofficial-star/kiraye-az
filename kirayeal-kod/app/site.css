@@ -3454,3 +3454,17 @@ html.kz-login>body{padding-bottom:0!important}
 @media(max-width:767px){
  .kzCategories>button>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-height:2.7em!important}
 }
+
+/* Contact details read as links, without nested card and button borders. */
+.siteMenuPanel.kzSide .siteContact.kzContactCard{margin-top:18px!important;padding:16px 0 0!important;border:0!important;border-top:1px solid var(--kz-line)!important;border-radius:0!important;background:transparent!important}
+.kzFooter .kzFooterContact.kzContactCard{padding:0!important;border:0!important;border-radius:0!important;background:transparent!important}
+.kzContactCard>strong{display:block;margin-bottom:10px;font-size:14px!important;font-weight:600!important;color:var(--kz-text)!important}
+.kzContactCard .kzContactLinks{gap:10px!important}
+.kzContactCard .kzContactEmail{gap:10px!important;font-size:14px!important}
+.kzContactCard .kzContactIcon{width:20px;height:20px;border-radius:0;background:transparent!important}
+.kzContactCard .kzContactIcon.instagram{color:#bd3472!important}
+.kzContactCard .kzContactIcon.tiktok{color:#172126!important}
+.kzContactCard .kzContactIcon.email{color:var(--kz-brand)!important}
+.kzContactCard .kzContactSocials{gap:10px!important}
+.kzContactCard .kzContactSocials a,.siteMenuPanel.kzSide .siteContact .kzContactSocials a{min-height:44px;padding:0 10px!important;gap:8px;border:0!important;border-radius:10px;background:#f3f5f6;font-size:14px!important;font-weight:500!important}
+.kzContactCard .kzContactSocials a:hover{background:#eaf0ed}

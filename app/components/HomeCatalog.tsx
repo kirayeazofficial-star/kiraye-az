@@ -402,10 +402,6 @@ export default function Home() {
             </button>
           ))}
         </section>
-        {browsing && <section className="kzHero" aria-label={t("Elan yerləşdir")}>
-          <div className="kzHeroText"><strong>{t("Əşyanız boş dayanmasın")}</strong><p>{t("Ev, maşın və avadanlığınızı kirayəyə verin. Elan yerləşdirmək pulsuzdur.")}</p></div>
-          <Link className="kzHeroCta" href="/new"><Plus aria-hidden="true" size={18} strokeWidth={2.4}/>{t("Elan yerləşdir")}</Link>
-        </section>}
         {!onlyFavorites && !category && !query && <StoresStrip />}
         <SideBanners />
         {browsing && <ListingSuggestions featured homeLayout onAvailabilityChange={setFeaturedAvailable}/>}

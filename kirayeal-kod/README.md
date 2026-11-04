@@ -53,6 +53,8 @@ Build zamanı yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`) lazı
 
 `npm run test:responsive` 320–767 px ekranlarda Azərbaycan və rus dillərində plus dairəsi ilə yazının arasını, mesaj sayğacını, toxunma sahələrini və ekranın aşağı təhlükəsiz boşluğunu yoxlayır. `npm run test:history` rəhbər panelində son fəaliyyətlərin və tarixçə səhifələrinin dörd qeydlə məhdud qalmasını, geri/irəli keçidi və xəta zamanı yenidən cəhdi yoxlayır. Bu yoxlamalar yerli tətbiq və təcrid edilmiş cavablarla işləyir.
 
-`npm run test:home` elanların reklamdan əvvəl görünməsini, şəkil ölçülərini və yuxarıdakı AZ/RU düyməsinin dili bir toxunuşla dəyişib yadda saxlamasını yoxlayır.
+`npm run test:home` aktiv VIP/Premium elanlarının ayrıca göstərilməsini, şəkil ölçülərini və yuxarıdakı AZ/RU düyməsinin dili bir toxunuşla dəyişib yadda saxlamasını yoxlayır.
 
 `npm run test:account-layout` 320–1920 px ekranlarda kabinetdə şəxsi əlaqə məlumatlarının təkrarlanmamasını, statuslardan sonra boşluğu, dörd elanlıq səhifələri, uzun rədd səbəblərini və toxunma sahələrini yoxlayır.
+
+`npm run test:featured` yalnız yerli `kiraye_dev` bazasında, geri qaytarılan tranzaksiya daxilində VIP/Premium seçimini və adi siyahıda təkrarlanmamasını yoxlayır. `test:home` yan menyuda təkrar dil seçiminin olmamasını və loqo şriftlərinin uyğunluğunu da yoxlayır.

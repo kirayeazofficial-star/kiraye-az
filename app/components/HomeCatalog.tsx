@@ -8,7 +8,7 @@ import { matchesSearch, rentalSearchIntent } from "../../lib/search-query";
 import { readSavedSearches, saveSearch, removeSavedSearch, type SavedSearch } from "../../lib/saved-searches";
 import CatalogFilters from "./CatalogFilters";
 import SortMenu from "./SortMenu";
-import { Fragment, useCallback } from "react";
+import { useCallback } from "react";
 import AzerbaijaniDateInput from "./AzerbaijaniDateInput";
 import { useLanguage } from "./LanguageProvider";
 import { rentalCategorySpecs } from "../../lib/rental-category-specs";
@@ -46,14 +46,7 @@ import {
 
 export default function Home() {
   const {t} = useLanguage();
-  const [premiumAvailable,setPremiumAvailable]=useState(false);
-  const [firstRowCount,setFirstRowCount]=useState(2);
-  useEffect(()=>{
-    const desktop=window.matchMedia("(min-width:1024px)"),tablet=window.matchMedia("(min-width:768px)");
-    const sync=()=>setFirstRowCount(desktop.matches?4:tablet.matches?3:2);
-    sync();desktop.addEventListener("change",sync);tablet.addEventListener("change",sync);
-    return()=>{desktop.removeEventListener("change",sync);tablet.removeEventListener("change",sync);};
-  },[]);
+  const [featuredAvailable,setFeaturedAvailable]=useState<boolean|null>(null);
   const [listings, setListings] = useState<Listing[]>([]),
     [loading, setLoading] = useState(true),
     [notice, setNotice] = useState(""),
@@ -126,8 +119,8 @@ export default function Home() {
     setLoading(true);
     const timer = setTimeout(() => {
       searchCatalog({
-        // The Premium block above already shows premium listings: keep them out of the plain list.
-        notPremium: !ownerFilter && !onlyFavorites && !category && !query,
+        // The featured block already shows active VIP/Premium listings; avoid duplicates.
+        notFeatured: !ownerFilter && !onlyFavorites && !category && !query,
         kind: kindFilter || undefined,
         metro: isProperty(category) ? metro || undefined : undefined,
         complex: category === "property" ? complex.trim() || undefined : undefined,
@@ -395,6 +388,8 @@ export default function Home() {
             <button
               key={c.id}
               type="button"
+              aria-label={t(c.name)}
+              title={t(c.name)}
               className={category === c.id ? "active" : ""}
               aria-pressed={category === c.id}
               onClick={() => {
@@ -409,7 +404,8 @@ export default function Home() {
         </section>
         {!onlyFavorites && !category && !query && <StoresStrip />}
         <SideBanners />
-        {browsing && <ListingSuggestions premiumOnly homeLayout onAvailabilityChange={setPremiumAvailable}/>}
+        {browsing && <ListingSuggestions featured homeLayout onAvailabilityChange={setFeaturedAvailable}/>}
+        {browsing&&featuredAvailable===false&&<BannerStrip placement="home"/>}
         <section className="kzSection" id="elanlar">
           <div className="kzSectionHead">
             <div>
@@ -658,12 +654,7 @@ export default function Home() {
             <ListingsMap items={filtered} />
           ) : (
             <div className="kzGrid">
-              {filtered.map((x,index) => (
-                <Fragment key={x.id}>
-                  <ListingCard item={x}/>
-                  {browsing&&!premiumAvailable&&index===Math.min(firstRowCount-1,filtered.length-1)&&<div className="kzCatalogAd"><BannerStrip placement="home"/></div>}
-                </Fragment>
-              ))}
+              {filtered.map(x=><ListingCard key={x.id} item={x}/>)}
             </div>
           )}
           {!loading && !filtered.length && (

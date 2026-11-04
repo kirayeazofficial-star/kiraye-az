@@ -12,7 +12,7 @@ async function fixture(page,hasPassword=true){
  await page.route('**/api/listings/limits',r=>r.fulfill({json:{items:[]}}));
  await page.route('**/tile.openstreetmap.org/**',r=>r.abort());
 }
-async function chooseLanguage(p,language){await p.getByRole('button',{name:/Menyunu aç|Open menu|Открыть меню/,exact:true}).click();await p.getByRole('dialog').getByRole('button',{name:language,exact:true}).click();await p.locator('.siteMenuClose').click();}
+async function chooseLanguage(p,language){await p.locator('.kzHeader .languageToggle').getByRole('button',{name:language,exact:true}).click();}
 (async()=>{
  const {noticeSubject}=await import('../scripts/email-frame.mjs');
  for(const topic of ['Yeni mesaj','Elanınız rədd edildi','Elanınızın yayım müddəti başa çatır'])for(const title of ['Normal başlıq','Uzun mənzil başlığı '.repeat(12),'🏠'.repeat(140)]){const subject=noticeSubject(topic,title);assert.ok(Array.from(subject).length<=120);assert.ok(subject.endsWith('»'));assert.equal((subject.match(/«/g)||[]).length,1);assert.ok(!/[\uD800-\uDBFF]$/.test(subject.slice(0,-1)));}

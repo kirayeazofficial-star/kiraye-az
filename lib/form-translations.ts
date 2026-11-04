@@ -1,5 +1,6 @@
 // Canonical form values stay Azerbaijani; only displayed copy is translated.
 export const formDictionary: Record<string, [string, string]> = {
+  "VIP elanlar": ["VIP-объявления", "VIP listings"],
   "Elanı kim verir?": ["Кто размещает объявление?", "Who is posting the listing?"],
   "Mülkiyyətçi": ["Собственник", "Owner"],
   "Vasitəçi": ["Посредник", "Agent"],

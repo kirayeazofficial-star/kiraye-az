@@ -1,7 +1,7 @@
 import "server-only";
 import nodemailer from "nodemailer";
 import {verificationLetter} from "./email-template";
-export {noticeLetter} from "./email-template";
+export {noticeLetter,noticeSubject} from "./email-template";
 
 function required(name:string){const value=process.env[name]?.trim();if(!value)throw new Error(`${name} is missing.`);return value;}
 

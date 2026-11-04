@@ -3365,3 +3365,21 @@ input[type=password]::placeholder{letter-spacing:normal!important}
 .loginPage .authLayout .authModeLinks a[aria-current=page]{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;box-shadow:inset 0 0 0 1px #c9ded5!important;font-weight:600!important}
 /* Authentication pages have no bottom navigation, including the tablet breakpoint. */
 html.kz-login>body{padding-bottom:0!important}
+
+/* Publish actions share the orange wordmark accent in every navigation layout. */
+:root{--kz-publish:#f65320;--kz-publish-hover:#df4516}
+.kzHeader .kzRoundPlus,.kzTabbar .kzTabbarPublish .kzTabPlus{background:var(--kz-publish)!important;color:#fff!important;box-shadow:none!important}
+.kzHeader .kzRoundPlus svg,.kzTabbar .kzTabbarPublish .kzTabPlus svg{color:#fff!important;stroke:currentColor!important}
+.kzTabbar>a.kzTabbarPublish{color:var(--kz-accent-dark)!important}
+.kzCard .kzCardMeta{color:#667085!important}
+.kzEmailSetup{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.kzEmailSetup p{flex-basis:100%;margin:0 0 4px;line-height:1.6}
+@media(max-width:767px){
+ .kzSortButton,.kzChip,.kzMapToggle,.profileSettings .kzPhotoActions button{min-height:44px!important;height:auto!important}
+ .kzAdIconBtn,.kzAdFilterToggle{min-width:44px!important;min-height:44px!important}
+ .kzToolbar,.kzTypeChips,.kzQuickFilters{align-items:center;row-gap:8px}
+ .kzEmailSetup .kzButtonGhost{min-height:44px;max-width:100%;white-space:normal;text-align:center}
+}
+/* Information pages use readable body text rather than the muted caption style. */
+.prose p:not(.eyebrow),.prose li{font-size:15px!important;line-height:1.7!important;color:var(--kz-text)!important}
+@media(max-width:767px){.prose p:not(.eyebrow),.prose li{font-size:14px!important}}

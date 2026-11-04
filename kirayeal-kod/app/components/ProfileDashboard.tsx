@@ -114,7 +114,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
       setDeleteConfirm("");
       setNotice("Elan silindi.");
     } catch {
-      setError("Elanı silmək mümkün olmadı. Yenidən cəhd et.");
+      setError("Elanı silmək mümkün olmadı. Yenidən cəhd edin.");
     } finally {
       setBusy("");
     }
@@ -164,9 +164,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ) : !userId ? (
           <div className="empty">
             <h2>
-              Hesabına daxil ol
+              Hesabınıza daxil olun
             </h2>
-            <p>Elanlarını və onların vəziyyətini burada görə bilərsən.</p>
+            <p>Elanlarınızı və onların vəziyyətini burada görə bilərsiniz.</p>
             <Link className="add" href={balanceOnly ? "/login?next=/balance" : "/login?next=/profile"}>
               Daxil ol / Qeydiyyatdan keç
             </Link>
@@ -178,7 +178,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                 <Link href="/account" className="kzProfileAvatarLink" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
                 <h1>{identity||"Profil"}</h1>
                 {profileNumber&&<p>Profil № {profileNumber}</p>}
-                {accountPhone ? <p>Tel: {formatContact(accountPhone)}</p> : <Link href="/account">Telefon nömrəni əlavə et</Link>}
+                {accountPhone ? <p>Tel: {formatContact(accountPhone)}</p> : <Link href="/account">Telefon nömrənizi əlavə edin</Link>}
                 {accountEmail&&<p className="kzProfileEmail">{accountEmail}</p>}
               </section>
               {!balanceOnly && <BalancePreview compact/>}

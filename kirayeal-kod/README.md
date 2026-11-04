@@ -48,3 +48,5 @@ Build zamanı yalnız `NEXT_PUBLIC_SITE_URL` (məs. `https://kirayeal.az`) lazı
 `npm run test:account` kabinet bölmələrini boş siyahı, rəhbər hesabı, bağlı/açıq ödəniş xidməti və mövcud ödəniş gözləyən elan üçün təcrid olunmuş cavablarla yoxlayır. Elan və ya ödəniş yaradılmır.
 
 `npm run test:recovery` yalnız yerli `kiraye_dev` PostgreSQL bazasında işləyir. Bərpa, rəhbər səlahiyyəti, ödəniş gözləyən köhnə vəziyyət, təkrar göndərmə və audit xətasında geri qaytarılma real sorğularla yoxlanılır; bütün sınaq məlumatları sonda `ROLLBACK` edilir.
+
+`npm run test:audit` qaralamanın yerləşməsini, təhlükəsiz Google hesabı axınını, tərcümə zamanı sabit şəhər dəyərini, e-poçt mövzusunu və mobil plus/düymə ölçülərini təcrid edilmiş cavablarla yoxlayır.

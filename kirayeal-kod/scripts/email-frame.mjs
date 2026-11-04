@@ -86,3 +86,14 @@ export function verificationLetter(purpose, name, code) {
   if (!copy) throw new Error("Unknown verification purpose");
   return { subject: `${copy.label} üçün təsdiq kodu — kirayeal.az`, ...codeLetter({ ...copy, name, code, note: "Kodun etibarlılıq müddəti: 10 dəqiqə." }) };
 }
+
+// Keep the subject readable without splitting Unicode characters or losing the closing quote.
+export function noticeSubject(topic, title) {
+  const prefix = `${String(topic).replace(/\s+/g, " ").trim()} — «`, suffix = "»";
+  const text = Array.from(String(title ?? "").replace(/\s+/g, " ").trim());
+  const available = Math.max(1, 120 - Array.from(prefix + suffix).length);
+  const fragment=text.slice(0,available-1).join("");
+  const boundary=fragment.lastIndexOf(" ");
+  const short = text.length > available ? (boundary>available*.6?fragment.slice(0,boundary):fragment).trimEnd() + "…" : text.join("");
+  return prefix + short + suffix;
+}

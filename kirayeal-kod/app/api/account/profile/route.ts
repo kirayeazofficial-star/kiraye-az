@@ -7,7 +7,7 @@ import {sendVerificationCode} from '../../../../lib/host/mailer';
 export const runtime='nodejs';export const dynamic='force-dynamic';
 const reply=(body:object,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 async function status(id:string){
- const rows=await hostQuery<{profile_no:number;name:string;phone:string;email:string}>(`select p.profile_no,p.display_name as name,p.phone,u.email from auth.users u join public.profiles p on p.id=u.id where u.id=$1`,[id]);
+ const rows=await hostQuery<{profile_no:number;name:string;phone:string;email:string;has_password:boolean}>(`select p.profile_no,p.display_name as name,p.phone,u.email,u.password_hash is not null as has_password from auth.users u join public.profiles p on p.id=u.id where u.id=$1`,[id]);
  const row=rows[0];if(!row)return null;
  let staff_role:string|null=null,role=row.email.toLowerCase()==='kirayeal.az@gmail.com'?'admin':'user';
  try{const staff=await hostQuery<{staff_role:string}>(`select staff_role from public.staff_members where user_id=$1`,[id]);staff_role=staff[0]?.staff_role||null;}catch{}
@@ -25,11 +25,12 @@ export async function GET(){
   try{const rows=await hostQuery<{staff_role:string}>(`select staff_role from public.staff_members where user_id=$1`,[user.id]);staff_role=rows[0]?.staff_role||null;}catch{}
   let avatar_url:string|null=null;
   try{const rows=await hostQuery<{avatar_url:string|null}>(`select avatar_url from public.profiles where id=$1`,[user.id]);avatar_url=rows[0]?.avatar_url||null;}catch{}
+  const passwordState=await hostQuery<{has_password:boolean}>(`select password_hash is not null as has_password from auth.users where id=$1`,[user.id]);
   let email_notifications=true;
   try{const rows=await hostQuery<{email_notifications:boolean}>(`select email_notifications from public.profiles where id=$1`,[user.id]);if(rows[0])email_notifications=rows[0].email_notifications!==false;}catch{}
   let created_at:string|null=null;
   try{const ts=await hostQuery<{created_at:string}>(`select created_at from auth.users where id=$1`,[user.id]);created_at=ts[0]?.created_at||null;}catch{}
-  return reply({profile:{profile_no,name:user.display_name||user.email.split('@')[0]||'İstifadəçi',display_name:user.display_name||'',phone:user.phone||'',email:user.email,role,staff_role,phone_changes:0,email_changes:0,phone_remaining:3,email_remaining:3,phone_verified:false,pending_email:null,created_at,avatar_url,email_notifications}});
+  return reply({profile:{profile_no,name:user.display_name||user.email.split('@')[0]||'İstifadəçi',display_name:user.display_name||'',phone:user.phone||'',email:user.email,role,staff_role,phone_changes:0,email_changes:0,phone_remaining:3,email_remaining:3,phone_verified:false,pending_email:null,created_at,avatar_url,email_notifications,has_password:passwordState[0]?.has_password===true}});
  }catch(error){console.error('profile get',error);return reply({code:'profile_unavailable',stage:'session'},503);}
 }
 export async function POST(request:Request){
@@ -56,7 +57,8 @@ export async function POST(request:Request){
   if(input.action==='email'){
    // Only changing the sign-in e-mail asks for the password again; name and phone do not.
    const password=String(input.password||'');const auth=await hostQuery<{password_hash:string|null}>(`select password_hash from auth.users where id=$1`,[user.id]);
-   if(!password||!auth[0]?.password_hash||!await passwordMatches(password,auth[0].password_hash))return reply({code:'reauth_failed'},401);
+   if(!auth[0]?.password_hash)return reply({code:'provider_reauth_required'},409);
+   if(!password||!await passwordMatches(password,auth[0].password_hash))return reply({code:'reauth_failed'},401);
    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanNew)||cleanNew.length>254)return reply({code:'invalid_email'},400);
    if(cleanNew===user.email.toLowerCase())return reply({code:'same_email'},400);
    const taken=await hostQuery(`select 1 from auth.users where lower(email)=$1`,[cleanNew]);if(taken[0])return reply({code:'email_taken'},409);

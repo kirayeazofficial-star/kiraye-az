@@ -1,0 +1,214 @@
+/* kirayeal.az — dizayn 2026-11. Bu fayl ən sonda yüklənir və saytın üz görünüşünü müəyyən edir:
+   rənglər (yaşıl, narıncı, günəş sarısı), başlıq, aşağı menyu, kartlar, profil və rəhbər paneli.
+   Köhnə fayllar toxunulmaz qalır, burada yalnız görünüş verilir. */
+
+:root{
+  --kz-brand:#0d5c4d;
+  --kz-brand-2:#13856b;
+  --kz-brand-soft:#e7f4ef;
+  --kz-accent:#e9561b;
+  --kz-accent-dark:#c4430e;
+  --kz-accent-soft:#fff0e8;
+  --kz-sun:#f5a623;
+  --kz-sun-soft:#fff5dd;
+  --kz-green:#16a05a;
+  --kz-green-dark:#0f8048;
+  --kz-ink:#17201d;
+  --kz-text:#3b4542;
+  --kz-muted:#6a7572;
+  --kz-line:#e2e8e5;
+  --kz-soft:#f3f6f4;
+  --kz-page:#f1f4f2;
+  --kz-radius:14px;
+  --kz-shadow:0 1px 2px rgba(16,40,32,.05),0 2px 8px rgba(16,40,32,.04);
+  --kz-shadow-hover:0 6px 20px rgba(16,40,32,.10);
+}
+
+/* ---------- Səhifə fonu: açıq boz-yaşıl, kartlar ağ ---------- */
+html body{background:var(--kz-page)!important}
+html body .kzMain,html body main.wrap{background:transparent}
+
+/* ---------- Başlıq ---------- */
+html body .kzHeader{background:#fff!important;border-bottom:1px solid var(--kz-line)!important;box-shadow:0 1px 0 rgba(16,40,32,.02)}
+html body .kzHeader .kzLogo,html body .loginPage .authHeader .logo,html body .siteMenuPanel.kzSide .siteMenuHeading .logo{color:var(--kz-brand)!important;font-weight:800!important;letter-spacing:-.9px!important}
+html body .kzHeader .kzLogo span,html body .loginPage .authHeader .logo span,html body .siteMenuPanel.kzSide .siteMenuHeading .logo span{color:var(--kz-accent)!important}
+html body .kzHeader .kzSearch{border:1.5px solid var(--kz-line)!important;border-radius:12px!important;background:var(--kz-soft)!important;transition:border-color .15s,background .15s}
+html body .kzHeader .kzSearch:focus-within{border-color:var(--kz-brand-2)!important;background:#fff!important}
+html body .kzHeader .kzSearch input{background:transparent!important}
+html body .kzHeader .kzSearch button{background:var(--kz-brand)!important;color:#fff!important;border-radius:0 10px 10px 0!important;font-weight:600!important}
+html body .kzHeader .kzSearch button:hover{background:var(--kz-brand-2)!important}
+html body .kzHeader .kzCatalogButton{background:var(--kz-brand-soft)!important;border:0!important;color:var(--kz-brand)!important;border-radius:12px!important;font-weight:600!important}
+html body .kzHeader .kzCatalogButton:hover,html body .kzHeader .kzCatalogButton[aria-expanded=true]{background:#d6ece4!important}
+html body .kzHeader .kzPublish{background:var(--kz-accent)!important;border-radius:12px!important;box-shadow:0 4px 12px rgba(233,86,27,.28)!important;font-weight:700!important}
+html body .kzHeader .kzPublish:hover{background:var(--kz-accent-dark)!important}
+html body .kzHeader .kzRoundPlus{background:var(--kz-accent)!important;box-shadow:0 3px 10px rgba(233,86,27,.3)}
+html body .kzHeaderNav>a,html body .kzHeaderNav .accountMenu>summary{border-radius:12px!important}
+html body .kzHeaderNav>a:hover,html body .kzHeaderNav>a[aria-current=page]{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important}
+html body .kzHeaderInner>.languageToggle>button{color:var(--kz-brand)!important}
+
+/* Elan zolağı (yuxarıdakı xəbərdarlıq): günəş sarısı, yumşaq. */
+html body .kzAnnouncement,html body .siteAnnouncement{background:var(--kz-sun-soft)!important;border-bottom:1px solid #f6e2b0!important}
+
+/* ---------- Aşağı menyu (telefon) ---------- */
+@media(max-width:767px){
+  html body .kzTabbar{background:rgba(255,255,255,.97)!important;border-top:1px solid var(--kz-line)!important;box-shadow:0 -4px 18px rgba(16,40,32,.06)!important;-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px)}
+  html body .kzTabbar>a{color:#7a8481!important;gap:3px!important}
+  html body .kzTabbar>a svg.kzTabIcon{width:24px!important;height:24px!important;box-sizing:content-box;padding:3px 14px;border-radius:999px;stroke-width:1.9;transition:background .15s,color .15s}
+  html body .kzTabbar>a[aria-current=page]{color:var(--kz-brand)!important}
+  html body .kzTabbar>a[aria-current=page] svg.kzTabIcon{background:var(--kz-brand-soft);stroke:var(--kz-brand)!important;stroke-width:2.2}
+  html body .kzTabbar>a[aria-current=page]>span:not(.kzTabPublishIcon){font-weight:700!important}
+  html body .kzTabbar .kzTabbarPublish .kzTabPlus{background:linear-gradient(135deg,#f6772f,var(--kz-accent))!important;box-shadow:0 6px 16px rgba(233,86,27,.35)!important}
+  html body .kzTabbar>a.kzTabbarPublish{color:var(--kz-accent-dark)!important}
+}
+@media(max-width:359px){html body .kzTabbar>a svg.kzTabIcon{padding:3px 9px}}
+
+/* ---------- Ana səhifə ---------- */
+/* Kateqoriyalar: hər biri öz rəngli plitəsində. */
+html body .kzCategories .categoryVisual,html body .kzCategories .kzCatalogTile{border-radius:18px!important;background-color:var(--kz-brand-soft)!important;transition:transform .15s,box-shadow .15s}
+html body .kzCategories>button:nth-child(4n+2) .categoryVisual{background-color:var(--kz-accent-soft)!important}
+html body .kzCategories>button:nth-child(4n+3) .categoryVisual{background-color:var(--kz-sun-soft)!important}
+html body .kzCategories>button:nth-child(4n+4) .categoryVisual{background-color:#eaf3fb!important}
+html body .kzCategories .kzCatalogTile{background-color:var(--kz-brand)!important;color:#fff!important}
+html body .kzCategories>button:hover .categoryVisual,html body .kzCategories>button:hover .kzCatalogTile{transform:translateY(-2px);box-shadow:var(--kz-shadow-hover)}
+html body .kzCategories>button.active .categoryVisual{box-shadow:0 0 0 2px var(--kz-brand) inset}
+html body .kzCategories>button>span:last-child{font-weight:500;color:var(--kz-ink)}
+
+/* Çağırış zolağı: yaşıl fonda narıncı düymə. */
+.kzHero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:18px 0 6px;padding:22px 24px;border-radius:20px;background:linear-gradient(120deg,var(--kz-brand) 0%,var(--kz-brand-2) 100%);color:#fff;box-shadow:0 8px 24px rgba(13,92,77,.18)}
+.kzHero::before{content:"";position:absolute;right:-40px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.45),rgba(245,166,35,0) 70%);pointer-events:none}
+.kzHero::after{content:"";position:absolute;left:38%;bottom:-70px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
+.kzHeroText{position:relative;min-width:0}
+.kzHeroText strong{display:block;font-size:22px;line-height:1.25;font-weight:800;letter-spacing:-.4px}
+.kzHeroText p{margin:6px 0 0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.88)}
+.kzHeroCta{position:relative;flex:none;display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 22px;border-radius:14px;background:var(--kz-accent);color:#fff!important;font-weight:700;font-size:15px;text-decoration:none!important;box-shadow:0 6px 16px rgba(0,0,0,.18);transition:background .15s,transform .15s}
+.kzHeroCta:hover{background:var(--kz-accent-dark);transform:translateY(-1px)}
+@media(max-width:767px){
+  .kzHero{flex-direction:column;align-items:flex-start;gap:14px;margin:14px 0 4px;padding:18px;border-radius:18px}
+  .kzHeroText strong{font-size:19px}
+  .kzHeroText p{font-size:14px}
+  .kzHeroCta{width:100%;justify-content:center;box-sizing:border-box}
+}
+
+/* Bölmə başlıqları */
+html body .kzSectionHead h2{font-size:21px!important;font-weight:750!important;letter-spacing:-.4px!important;color:var(--kz-ink)!important}
+@media(max-width:767px){html body .kzSectionHead h2{font-size:19px!important}}
+html body .kzSectionHead .kzMore,html body .kzSectionHead .kzMoreLink{color:var(--kz-accent-dark)!important;font-weight:600!important}
+
+/* ---------- Elan kartları: ağ kart, yumşaq kölgə ---------- */
+html body .kzCard.kzCard{background:#fff!important;border:1px solid var(--kz-line)!important;border-radius:var(--kz-radius)!important;box-shadow:var(--kz-shadow)!important;overflow:hidden;transition:box-shadow .18s,transform .18s}
+html body .kzCard.kzCard:hover{box-shadow:var(--kz-shadow-hover)!important;transform:translateY(-2px)}
+html body .kzCard.kzCard .kzCardPhoto,html body .kzCard.kzCard .kzCardPhoto img{border-radius:0!important}
+html body .kzCard.kzCard .kzCardBody{padding:10px 12px 12px!important;gap:3px!important}
+html body .kzCard.kzCard .kzPrice{font-size:17px!important;font-weight:800!important;color:var(--kz-ink)!important;letter-spacing:-.2px}
+html body .kzCard.kzCard .kzPrice small{font-size:12px!important;font-weight:500!important;color:var(--kz-muted)!important}
+html body .kzCard.kzCard .kzCardTitle{font-size:14px!important;line-height:1.4!important;color:var(--kz-text)!important}
+html body .kzCard.kzCard .kzCardMeta,html body .kzCard.kzCard .kzCardMeta>span{font-size:12px!important;color:var(--kz-muted)!important}
+html body .kzCard.kzCard .kzCardMeta{margin-top:4px!important}
+@media(max-width:767px){
+  html body .kzCard.kzCard .kzCardBody{padding:8px 10px 10px!important}
+  html body .kzCard.kzCard .kzPrice{font-size:16px!important}
+  html body .kzCard.kzCard .kzCardTitle{font-size:13.5px!important}
+}
+/* VIP və Premium nişanları günəş rəngində */
+html body .kzPromo{background:var(--kz-sun-soft)!important;color:#93590a!important;border-radius:999px!important;padding:2px 8px!important;font-weight:700!important}
+html body .kzPromo.kzPromo-vip{background:var(--kz-accent-soft)!important;color:var(--kz-accent-dark)!important}
+
+/* Filtr çipləri və düymələr */
+html body .kzHome .kzChips>button,html body .kzHome .kzQuickFilters>button,html body .kzHome .kzFilterChips>button{border-radius:999px!important}
+html body .kzHome button[aria-pressed=true].kzChip,html body .kzHome .kzChips>button[aria-pressed=true]{background:var(--kz-brand)!important;border-color:var(--kz-brand)!important;color:#fff!important}
+
+/* ---------- Elan səhifəsi ---------- */
+html body .listingDetails:not(.compactDetails) .detailHead h1,html body .listingDetails .kzTitleRow>h1{font-weight:750!important;letter-spacing:-.4px!important;color:var(--kz-ink)!important}
+html body .detailContactCard{background:#fff!important;border:1px solid var(--kz-line);box-shadow:var(--kz-shadow)}
+html body .detailContactCard .detailPrice,html body .listingDetails .detailSide .detailPrice{color:var(--kz-ink)!important;font-weight:800!important;letter-spacing:-.6px}
+html body .listingDetails .detailSide .contactActions .add,html body .stickyContact .add,html body .stickyContact .kzPhoneShown{background:var(--kz-green)!important;border-color:var(--kz-green)!important;color:#fff!important}
+html body .listingDetails .detailSide .contactActions .add:hover{background:var(--kz-green-dark)!important}
+html body .listingDetails .detailSide>.sellerCard,html body .listingDetails .detailSide>.kzStoreCard{background:#fff!important;border:1px solid var(--kz-line)!important;box-shadow:var(--kz-shadow)}
+html body .listingDetails .listingInfo,html body .listingDetails>.kzSuggestions{background:#fff!important;border:1px solid var(--kz-line)!important;border-radius:16px!important}
+html body .listingDetails .listingGallery .galleryStage{background:#e9eeec!important}
+
+/* ---------- Profil (şəxsi kabinet) ---------- */
+html body .accountDashboard .kzProfileCard{position:relative;display:grid!important;grid-template-columns:72px minmax(0,1fr)!important;column-gap:14px!important;row-gap:12px!important;align-items:center!important;margin:0 0 14px!important;padding:18px!important;border-radius:18px!important;background:#fff!important;border:1px solid var(--kz-line)!important;box-shadow:var(--kz-shadow)!important;overflow:hidden}
+html body .accountDashboard .kzProfileCard::before{content:"";position:absolute;inset:0 0 auto 0;height:54px;background:linear-gradient(120deg,var(--kz-brand),var(--kz-brand-2));z-index:0}
+html body .accountDashboard .kzProfileCard::after{content:"";position:absolute;right:-30px;top:-50px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.5),rgba(245,166,35,0) 70%);z-index:0}
+html body .accountDashboard .kzProfileCard>*{position:relative;z-index:1}
+html body .accountDashboard .kzProfileCard .kzProfileAvatarLink{grid-row:auto!important;grid-column:1;margin:14px 0 0!important;align-self:start}
+html body .accountDashboard .kzProfileCard .kzUserAvatar.large{width:72px!important;height:72px!important;border-radius:50%!important;border:3px solid #fff!important;box-shadow:0 4px 12px rgba(16,40,32,.15);background:var(--kz-accent)!important;font-size:28px}
+html body .accountDashboard .kzProfileCard .kzUserAvatar.large b{color:#fff!important}
+html body .accountDashboard .kzProfileCard .kzProfileInfo{display:block!important;grid-column:2;min-width:0;align-self:start;padding:52px 0 0!important}
+html body .accountDashboard .kzProfileCard .kzProfileInfo .kzProfileId{display:inline-flex!important}
+html body .accountDashboard .kzProfileCard .kzProfileInfo h1{margin:0 0 6px!important;font-size:19px!important;font-weight:750!important;line-height:1.25!important;color:var(--kz-ink)!important;overflow-wrap:anywhere}
+.kzProfileId{display:inline-flex;align-items:center;gap:6px;min-height:28px;margin:0;padding:0 10px;border:0;border-radius:999px;background:var(--kz-sun-soft);color:#7a4a05;font:inherit;font-size:13px;font-weight:700;letter-spacing:.2px;cursor:pointer}
+.kzProfileId:hover{background:#ffecbf}
+.kzProfileFacts{grid-column:1/-1;display:flex;flex-direction:column;gap:8px;margin:2px 0 0;padding:12px 0 0;border-top:1px solid var(--kz-line);list-style:none}
+.kzProfileFacts li{display:flex;align-items:center;gap:10px;min-width:0;font-size:14px;color:var(--kz-text)}
+.kzProfileFacts li>svg{flex:none;color:var(--kz-brand-2)}
+.kzProfileFacts li>span{min-width:0;overflow-wrap:anywhere}
+.kzProfileFacts li>a{color:var(--kz-accent-dark)!important;font-weight:600}
+.kzProfileStats{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.kzProfileStats>span{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:12px;background:var(--kz-soft);text-align:center}
+.kzProfileStats>span:nth-child(1){background:var(--kz-brand-soft)}
+.kzProfileStats>span:nth-child(2){background:var(--kz-sun-soft)}
+.kzProfileStats>span:nth-child(3){background:var(--kz-accent-soft)}
+.kzProfileStats b{display:inline-flex;align-items:center;gap:4px;font-size:18px;font-weight:800;color:var(--kz-ink)}
+.kzProfileStats b svg{color:var(--kz-muted)}
+.kzProfileStats small{font-size:12px;color:var(--kz-muted)}
+.kzProfileEdit{grid-column:1/-1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;border-radius:12px;border:1.5px solid var(--kz-line);background:#fff;color:var(--kz-brand)!important;font-size:14px;font-weight:600;text-decoration:none!important}
+.kzProfileEdit:hover{border-color:var(--kz-brand-2);background:var(--kz-brand-soft)}
+
+/* Balans kartı və kabinet menyusu */
+html body .accountDashboard .kzBalancePreview,html body .accountDashboard .balancePreview{border-radius:16px!important;border:1px solid var(--kz-line)!important;background:#fff!important;box-shadow:var(--kz-shadow)!important}
+html body .accountDashboard .cabinetNav.cabinetCards{background:#fff!important;border:1px solid var(--kz-line)!important;border-radius:18px!important;box-shadow:var(--kz-shadow)!important;padding:8px!important}
+html body .accountDashboard .cabinetNav.cabinetCards>a[aria-current=page]{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;font-weight:600!important}
+html body .accountDashboard .cabinetContent{background:#fff;border:1px solid var(--kz-line);border-radius:18px;box-shadow:var(--kz-shadow)}
+@media(max-width:767px){html body .accountDashboard .cabinetContent{background:transparent;border:0;box-shadow:none}}
+
+/* Kabinet tabları */
+html body .accountDashboard .kzOwnTabs button{border-radius:12px!important}
+html body .accountDashboard .kzOwnTabs button[aria-pressed=true]{background:var(--kz-brand)!important;border-color:var(--kz-brand)!important;color:#fff!important}
+html body .accountDashboard .kzOwnTabs button[aria-pressed=true] svg{color:#fff!important}
+html body .accountDashboard .kzOwnTabs button[aria-pressed=true] b{background:rgba(255,255,255,.22)!important;color:#fff!important}
+html body .accountDashboard .accountListings article{border-radius:16px!important;background:#fff!important;box-shadow:var(--kz-shadow)}
+
+/* ---------- Rəhbər paneli ---------- */
+html body .kzAdminHead{position:relative;overflow:hidden;margin:0 0 18px!important;padding:22px 24px!important;border-radius:20px;background:linear-gradient(120deg,var(--kz-brand),var(--kz-brand-2));color:#fff}
+html body .kzAdminHead::after{content:"";position:absolute;right:-30px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.5),rgba(245,166,35,0) 70%)}
+html body .kzAdminHead h1{position:relative;z-index:1;margin:0!important;color:#fff!important;font-size:24px!important;font-weight:800!important;letter-spacing:-.4px}
+html body .kzAdminHead p{position:relative;z-index:1;margin:6px 0 0!important;color:rgba(255,255,255,.85)!important;font-size:14px!important}
+@media(max-width:767px){html body .kzAdminHead{padding:18px!important;border-radius:18px}html body .kzAdminHead h1{font-size:21px!important}}
+html body .kzAdNav{border-radius:18px!important;border:1px solid var(--kz-line)!important;box-shadow:var(--kz-shadow)!important;background:#fff!important}
+html body .kzAdNav button[aria-pressed=true]{background:var(--kz-brand-soft)!important;color:var(--kz-brand)!important;font-weight:700!important}
+html body .kzAdNav button>b{background:var(--kz-accent)!important;color:#fff!important}
+html body .kzAdPanel{border-radius:18px!important;border:1px solid var(--kz-line)!important;box-shadow:var(--kz-shadow)!important;background:#fff!important}
+html body .kzAdMenu{border-radius:18px!important;border:1px solid var(--kz-line)!important;box-shadow:var(--kz-shadow)!important}
+/* Statistika: hər rəqəm öz rəngində */
+html body .kzAdKpis>*{border-radius:14px!important;border:0!important;text-align:left}
+html body .kzAdKpis>*:nth-child(1){background:var(--kz-brand-soft)!important}
+html body .kzAdKpis>*:nth-child(2){background:var(--kz-sun-soft)!important}
+html body .kzAdKpis>*:nth-child(3){background:var(--kz-accent-soft)!important}
+html body .kzAdKpis>*:nth-child(4){background:#eaf3fb!important}
+html body .kzAdKpis>*:nth-child(1) b{color:var(--kz-brand)!important}
+html body .kzAdKpis>*:nth-child(2) b{color:#a3640a!important}
+html body .kzAdKpis>*:nth-child(3) b{color:var(--kz-accent-dark)!important}
+html body .kzAdKpis>*:nth-child(4) b{color:#2a5f93!important}
+html body .kzAdKpis b{font-size:26px!important;font-weight:800!important}
+html body .kzAdTodo>button{border-radius:14px!important}
+html body .kzAdIncomeTotal{background:var(--kz-brand-soft)!important;border-radius:14px!important}
+
+/* ---------- Giriş / qeydiyyat ---------- */
+html body .loginPage{background:var(--kz-page)!important}
+html body .loginPage .authLayout section{background:#fff!important;box-shadow:0 10px 30px rgba(16,40,32,.08)!important;border-radius:20px!important}
+html body .loginPage .authLayout button[type=submit],html body .loginPage .authLayout .primary{background:var(--kz-brand)!important;border-color:var(--kz-brand)!important;border-radius:12px!important}
+html body .loginPage .authLayout button[type=submit]:hover{background:var(--kz-brand-2)!important}
+html body .authIntro h2 span,html body .authIntro h2 em{color:var(--kz-accent)!important}
+
+/* ---------- Footer ---------- */
+html body .kzFooter{background:#fff!important;border-top:1px solid var(--kz-line)!important}
+html body .kzFooter nav strong,html body .kzFooter .kzFooterContact strong{color:var(--kz-ink)!important;font-weight:700!important}
+html body .kzFooter nav a:hover{color:var(--kz-brand-2)!important}
+html body .kzFooterBottom{background:var(--kz-soft)!important}
+
+/* Ümumi düymələr */
+html body .kzButton,html body .add:not(.kzMsgBtn):not(.kzWaBtn){border-radius:12px!important}
+html body .kzButton{background:var(--kz-accent)!important;border-color:var(--kz-accent)!important}
+html body .kzButton:hover{background:var(--kz-accent-dark)!important}

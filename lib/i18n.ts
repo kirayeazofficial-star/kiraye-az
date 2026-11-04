@@ -206,6 +206,8 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Dil": ["Язык", "Language"],
   "Şəxsi kabinet": ["Личный кабинет", "My account"],
   "Elan yerləşdir": ["Разместить объявление", "Post a listing"],
+  "Əşyanız boş dayanmasın": ["Пусть ваши вещи приносят доход", "Put your things to work"],
+  "Ev, maşın və avadanlığınızı kirayəyə verin. Elan yerləşdirmək pulsuzdur.": ["Сдавайте жильё, машину и технику в аренду. Размещение бесплатное.", "Rent out your home, car or equipment. Posting is free."],
   "Qaydalar və təhlükəsizlik": ["Правила и безопасность", "Rules and safety"],
   "Məxfilik": ["Конфиденциальность", "Privacy"],
   "İstifadəçi razılaşması": ["Пользовательское соглашение", "Terms of use"],

@@ -1,5 +1,5 @@
 "use client";
-import { ADMIN_LIST_PAGE_SIZE } from "../../lib/admin-list-page";
+import { ADMIN_LIST_PAGE_SIZE, ADMIN_ACTIVITY_PREVIEW_SIZE, ADMIN_HISTORY_PAGE_SIZE } from "../../lib/admin-list-page";
 import TabIcon from "./TabIcon";
 import ExpandableText from "./ExpandableText";
 import { sized } from "../../lib/image-size";
@@ -146,21 +146,29 @@ function ReviewSheet({ item, onClose, onInspect, onSaved, onDecide, onNext, posi
   </div>, document.body);
 }
 
-function ModerationHistory({ revision, onInspect }: { revision: number; onInspect: (id: string) => void }) {
-  const [events, setEvents] = useState<ModerationEvent[]>([]), [cursor, setCursor] = useState<number | null>(null), [loading, setLoading] = useState(false), [error, setError] = useState("");
-  const load = useCallback(async (before?: number | null) => {
-    setLoading(true); setError("");
-    try {
-      const data = await api(before ? { action: "history", before } : { action: "history" });
-      setEvents(old => before ? [...old, ...data.events] : data.events); setCursor(data.next);
-    } catch { setError("Tarixçə yüklənmədi. Yenidən cəhd edin."); }
-    finally { setLoading(false); }
-  }, []);
-  useEffect(() => { void load(); }, [load, revision]);
-  return <Panel title="Əməliyyat tarixçəsi" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" disabled={loading} onClick={() => void load()}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>
-    {error && <p className="kzAdError" role="alert">{error}</p>}
-    {!events.length && !loading && !error ? <Empty title="Hələ qeyd yoxdur" /> : <EventList events={events} onInspect={onInspect} />}
-    {cursor && <button type="button" className="kzAdBtn kzAdMoreBtn" disabled={loading} onClick={() => void load(cursor)}>Daha köhnə qeydlər</button>}
+function ModerationHistory({ onInspect }: { onInspect: (id: string) => void }) {
+  const [events,setEvents]=useState<ModerationEvent[]>([]),[trail,setTrail]=useState<(string|null)[]>([null]),[cursor,setCursor]=useState<string|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[refresh,setRefresh]=useState(0);
+  const before=trail[trail.length-1];
+  useEffect(()=>{
+    let active=true;const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),20000);
+    setLoading(true);setError("");setCursor(null);setEvents([]);
+    api(before?{action:"history",before}:{action:"history"},controller.signal).then(data=>{
+      if(!active)return;
+      if(!Array.isArray(data.events))throw new Error("INVALID_HISTORY_RESPONSE");
+      setEvents(data.events.slice(0,ADMIN_HISTORY_PAGE_SIZE));
+      setCursor(data.next?String(data.next):null);
+    }).catch(()=>{if(active)setError("Tarixçə yüklənmədi. Yenidən cəhd edin.");}).finally(()=>{clearTimeout(timer);if(active)setLoading(false);});
+    return()=>{active=false;clearTimeout(timer);controller.abort();};
+  },[before,refresh]);
+  const reload=()=>{setTrail([null]);setRefresh(value=>value+1);};
+  return <Panel title="Əməliyyat tarixçəsi" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" disabled={loading} onClick={reload}><RefreshCw aria-hidden="true" size={16} strokeWidth={2}/></button>}>
+    {loading?<p role="status" className="kzAdMuted">Yüklənir…</p>:error?<div className="kzAdError" role="alert"><p>{error}</p><button type="button" className="kzAdBtn" onClick={()=>setRefresh(value=>value+1)}>Yenidən cəhd et</button></div>:!events.length?<Empty title="Hələ qeyd yoxdur"/>:<EventList events={events} onInspect={onInspect}/>}
+    <nav className="kzAdPager kzHistoryPages" aria-label="Tarixçə səhifələri">
+      <button type="button" className="kzAdBtn" disabled={loading||trail.length===1} onClick={()=>setTrail(old=>old.slice(0,-1))}><ChevronLeft aria-hidden="true" size={16}/>Əvvəlki</button>
+      <span aria-live="polite">{trail.length}</span>
+      <button type="button" className="kzAdBtn" disabled={loading||!cursor} onClick={()=>{if(cursor)setTrail(old=>[...old,cursor]);}}>Növbəti<ChevronRight aria-hidden="true" size={16}/></button>
+    </nav>
   </Panel>;
 }
 
@@ -347,7 +355,7 @@ export default function AdminWorkspace() {
   }, [allowed, section, filter, query, page, revision, dateFrom, reviewKind, owner]);
   useEffect(() => {
     if (!allowed) return;
-    api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(data.activity || []); setIncome(data.income || null); }).catch(() => {});
+    api({ action: "overview" }).then(data => { setCounts(data.counts); setPeriods(data.periods || null); setActivity(Array.isArray(data.activity)?data.activity.slice(0,ADMIN_ACTIVITY_PREVIEW_SIZE):[]); setIncome(data.income || null); }).catch(() => {});
   }, [allowed, revision]);
 
   // Words worth a look in each listing's text, worked out once per list (not on every render).
@@ -448,7 +456,7 @@ export default function AdminWorkspace() {
           {income && !income.total && <p className="kzAdMuted">Ödəniş sistemi qoşulduqdan sonra daxil olan ödənişlər burada avtomatik hesablanacaq.</p>}
         </Panel>
         <Panel title="Son fəaliyyətlər" actions={<button type="button" className="kzAdBtn" onClick={() => open("history")}>Hamısı</button>}>
-          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.slice(0, 4).map(item => <li key={item.id}>
+          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.slice(0, ADMIN_ACTIVITY_PREVIEW_SIZE).map(item => <li key={item.id}>
             <div className="kzActivityHeading"><span className={`kzActivityStatus ${item.new_status || ""}`}>{moderationActions[item.action] || "Elan yeniləndi"}</span><time dateTime={item.created_at}>{adminDate(item.created_at)}</time></div>
             <button type="button" className="kzAdLink kzActivityTitle" translate="no" onClick={() => inspect(item.listing_id)}>{item.title || "Silinmiş elan"}</button>
             <p className="kzActivityActor" translate="no">{item.actor_name || "İdarəçi"}</p>
@@ -490,7 +498,7 @@ export default function AdminWorkspace() {
         return <ReviewSheet item={details} onClose={() => setDetails(null)} onInspect={id => { setDetails(null); inspect(id); }} onSaved={() => setRevision(value => value + 1)}
           onDecide={(status, reason) => moderate(details, status, reason)} onNext={next ? () => setDetails(next) : undefined} position={index >= 0 ? `${index + 1}/${items.length}` : undefined} />; })()}
       {section === "reports" && <ReportQueue onInspect={inspect} onChange={() => setRevision(x => x + 1)} />}
-      {section === "history" && <ModerationHistory revision={revision} onInspect={inspect} />}
+      {section === "history" && <ModerationHistory key={revision} onInspect={inspect} />}
       {section === "banners" && <BannerManager />}
       {section === "stores" && <StoreAdmin leader={role === "leader"} />}
       {section === "limits" && role === "leader" && <LimitAdmin />}

@@ -272,5 +272,6 @@ export const formDictionary: Record<string, [string, string]> = {
   "Qiyməti hansı müddət üçün göstərirsiniz?": ["За какой период указана цена?", "What period is the price for?"],
   "Elan bu qiymətlə göstəriləcək. Depozit varsa, aşağıda ayrıca qeyd edin.": ["Эта цена будет показана в объявлении. Залог укажите отдельно ниже.", "The listing will show this price. Add any deposit separately below."],
   "Qiymət 0-dan böyük və ən çox 1 000 000 ₼ olmalıdır.": ["Цена должна быть больше нуля и не более 1 000 000 ₼.", "The price must be greater than zero and at most 1,000,000 ₼."],
-  "Mətn bərpa edildi. Şəkilləri yenidən seçin.": ["Текст восстановлен. Выберите фотографии повторно.", "The text was restored. Select the photos again."]
+  "Mətn bərpa edildi. Şəkilləri yenidən seçin.": ["Текст восстановлен. Выберите фотографии повторно.", "The text was restored. Select the photos again."],
+  "Tarixçə səhifələri": ["Страницы истории", "History pages"]
 };

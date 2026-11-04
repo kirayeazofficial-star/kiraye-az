@@ -3383,3 +3383,19 @@ html.kz-login>body{padding-bottom:0!important}
 /* Information pages use readable body text rather than the muted caption style. */
 .prose p:not(.eyebrow),.prose li{font-size:15px!important;line-height:1.7!important;color:var(--kz-text)!important}
 @media(max-width:767px){.prose p:not(.eyebrow),.prose li{font-size:14px!important}}
+
+/* Reserve the full icon row: the raised publish circle must end before the label. */
+:root{--kz-safe-bottom:env(safe-area-inset-bottom,0px)}
+@media(max-width:767px){
+ .kzTabbar{height:calc(72px + var(--kz-safe-bottom))!important;padding:6px env(safe-area-inset-right,0px) calc(6px + var(--kz-safe-bottom)) env(safe-area-inset-left,0px)!important;align-items:stretch}
+ .kzTabbar>a,.kzTabbar>a.kzTabbarPublish{gap:6px!important;justify-content:center!important;min-height:44px;box-sizing:border-box}
+ .kzTabbar>a svg.kzTabIcon.kzTabSolid{width:26px!important;height:32px!important;flex:none}
+ .kzTabPublishIcon{width:32px!important;height:32px!important;flex:none;position:relative}
+ .kzTabbar .kzTabbarPublish .kzTabPlus{top:auto!important;bottom:0;left:50%;width:clamp(40px,12vw,48px)!important;height:clamp(40px,12vw,48px)!important;transform:translateX(-50%);margin:0!important}
+ .kzTabbar .kzTabbarPublish .kzTabPlus svg{width:clamp(22px,6vw,26px)!important;height:clamp(22px,6vw,26px)!important}
+ .kzTabbar>a>span:not(.kzTabPublishIcon){display:flex!important;align-items:center;justify-content:center;height:14px;max-width:100%;flex:none;white-space:nowrap;line-height:1.2}
+ .kzTabbar .unreadMessages{top:0;left:auto;right:calc(50% - 24px);font-size:10px;line-height:16px;box-sizing:border-box}
+ html:not(.kz-login)>body:not(.kz-chat-open):not(.kz-tabbar-hidden){padding-bottom:calc(80px + var(--kz-safe-bottom))!important}
+ .kzHistoryPages{justify-content:space-between;flex-wrap:wrap;gap:8px}
+ .kzHistoryPages .kzAdBtn{min-height:44px}
+}

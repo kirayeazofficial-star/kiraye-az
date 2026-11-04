@@ -3468,3 +3468,22 @@ html.kz-login>body{padding-bottom:0!important}
 .kzContactCard .kzContactSocials{gap:10px!important}
 .kzContactCard .kzContactSocials a,.siteMenuPanel.kzSide .siteContact .kzContactSocials a{min-height:44px;padding:0 10px!important;gap:8px;border:0!important;border-radius:10px;background:#f3f5f6;font-size:14px!important;font-weight:500!important}
 .kzContactCard .kzContactSocials a:hover{background:#eaf0ed}
+
+/* ===== Dizayn auditi 2026-11 ===== */
+/* Elan formu: hesab yoxlanmayanda mesaj və düymələr ayrı sətirlərdə, səliqəli. */
+.kzLoadError{display:flex!important;flex-direction:column;align-items:flex-start;gap:12px}
+.kzLoadError p{margin:0}
+.kzLoadErrorActions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.kzLoadErrorActions .secondary{min-height:40px;margin:0}
+.kzLoadErrorActions a{font-weight:600;color:var(--kz-brand)!important}
+/* Bölmə başlığı ilə "Son elanlar" keçidi eyni xətdə. */
+.kzSectionHead>h2+.kzMore,.kzSectionHead>h2+.kzMoreLink{align-self:center;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
+/* Mobil başlıqdakı dil düyməsi kiçik çip kimi görünsün. */
+.kzHeaderInner>.languageToggle>button{width:auto!important;min-width:44px}
+.kzHeaderInner>.languageToggle>button>*:only-child,.kzHeaderInner>.languageToggle>button{font-size:13px!important;font-weight:600!important;letter-spacing:.3px}
+@media(max-width:767px){
+ .kzHeaderInner>.languageToggle>button{position:relative}
+ .kzHeaderInner>.languageToggle>button::before{content:"";position:absolute;inset:9px 4px;border:1px solid var(--kz-line,#e5e7eb);border-radius:8px;pointer-events:none}
+}
+/* Kabinet status tabları masaüstündə sətrə bölünməsin. */
+@media(min-width:768px){.accountDashboard .kzOwnTabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}.accountDashboard .kzOwnTabs button{white-space:nowrap;padding:0 12px}}

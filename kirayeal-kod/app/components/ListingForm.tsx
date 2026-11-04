@@ -471,7 +471,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           <section className="guestPublishPrompt" aria-labelledby="guest-publish-title">
             <div>
               <h2 id="guest-publish-title">Əvvəl hesabına daxil ol</h2>
-              <p>Elanlarını şəxsi hesabından idarə et.</p>
+              <p>Elanlarınızı şəxsi kabinetdən idarə edin.</p>
             </div>
             <div className="guestPublishActions">
               <Link className="add" href="/login?next=/new">Daxil ol</Link>
@@ -479,7 +479,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </div>
           </section>
         )}
-        {!success && step === 1 && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></section>}
+        {!success && step === 1 && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartınızın PIN/CVV kodunu, SMS kodunu və şifrənizi heç kimə verməyin. Naməlum şəxslərin ödəniş keçidlərini açmayın. Yalnız sizə məxsus və ya icazəniz olan əşyanı düzgün məlumat və şəkillərlə yerləşdirin.</p></section>}
         {loading ? (
           <section><p role="status">Hesab yoxlanılır…</p>
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
@@ -499,8 +499,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             actions={[{ href: "/profile?section=listings&tab=pending", label: "Elanlarıma keç", primary: true }, { href: "/new", label: "Yeni elan yerləşdir", icon: Plus, external: true }]} />}
           </div>
         ) : loadError ? (
-          <div className="error" role="alert">
-            {error} <button type="button" className="secondary" onClick={() => window.location.reload()}>Yenidən yoxla</button> <Link href="/profile">Kabinetə qayıt</Link> <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a>
+          <div className="error kzLoadError" role="alert">
+            <p>{error} Bağlantını yoxlayıb səhifəni yeniləyin.</p>
+            <div className="kzLoadErrorActions"><button type="button" className="secondary" onClick={() => window.location.reload()}>Yenidən yoxla</button><Link href="/profile">Kabinetə qayıt</Link></div>
           </div>
         ) : !user ? null : (
           <div className="formLayout">

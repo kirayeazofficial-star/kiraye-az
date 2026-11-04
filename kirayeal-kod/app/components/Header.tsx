@@ -126,7 +126,7 @@ export default function Header() {
           <Link className="kzPublish" href="/new">
             <CirclePlus aria-hidden="true" size={20} strokeWidth={2} /><span>{t("Yeni elan")}</span>
           </Link>
-          <LanguageSelect />
+          <LanguageSelect toggle />
           <Link className="kzMobilePublish" href="/new" aria-label={t("Yeni elan")}>
             <span className="kzRoundPlus" aria-hidden="true"><Plus size={20} strokeWidth={2.25} /></span>
           </Link>

@@ -189,7 +189,7 @@ function translateTree(root: Node, language: Language) {
 const Context = createContext<{ language: Language; setLanguage: (value: Language) => void; t: (value: string) => string }>({ language: "az", setLanguage: () => {}, t: value => value });
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
  const [language, setLanguage] = useState<Language>("az");
- useEffect(() => { try { const saved = localStorage.getItem("kirayeal:language"); if (saved === "ru" || saved === "en") setLanguage(saved); } catch {} }, []);
+ useEffect(() => { try { const saved = localStorage.getItem("kirayeal:language"); if (saved === "ru") setLanguage(saved); else if(saved === "en") localStorage.setItem("kirayeal:language","az"); } catch {} }, []);
  useEffect(() => { document.documentElement.lang = language; }, [language]);
  useEffect(() => {
   translateTree(document.body, language);
@@ -204,7 +204,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   observer.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: translatedAttributes });
   return () => observer.disconnect();
  }, [language]);
- function choose(value: Language) { setLanguage(value); try { localStorage.setItem("kirayeal:language", value); } catch {} }
+ function choose(value: Language) { value=value==="ru"?"ru":"az"; setLanguage(value); try { localStorage.setItem("kirayeal:language", value); } catch {} }
  function t(value: string) { return language === "az" ? value : dictionary[value]?.[language === "ru" ? 0 : 1] || value; }
  return <Context.Provider value={{ language, setLanguage: choose, t }}>{children}</Context.Provider>;
 }

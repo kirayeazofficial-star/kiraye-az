@@ -1,17 +1,10 @@
 "use client";
-import { useLanguage, type Language } from "./LanguageProvider";
-const languages: {value: Language; label: string; name: string}[] = [
-  {value: "az", label: "AZ", name: "Azərbaycanca"},
-  {value: "ru", label: "RU", name: "Русский"},
-  {value: "en", label: "EN", name: "English"},
-];
-export default function LanguageSelect() {
-  const {language, setLanguage} = useLanguage();
-  return <div className="languageSelect" role="group" aria-label="Dil seçimi">
-    <select className="mobileLanguageSelect" aria-label="Dil seçimi" value={language} onChange={event=>setLanguage(event.target.value as Language)}>
-      {languages.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}
-    </select>
-    {languages.map(item => <button key={item.value} type="button" aria-label={item.name}
-      aria-pressed={language === item.value} onClick={() => setLanguage(item.value)}>{item.label}</button>)}
-  </div>;
+import { useLanguage } from "./LanguageProvider";
+export default function LanguageSelect({toggle=false}:{toggle?:boolean}) {
+ const {language,setLanguage}=useLanguage();
+ if(toggle)return <div className="languageSelect languageToggle"><button type="button" translate="no" aria-label={language==="ru"?"Azərbaycanca":"Русский"} lang={language==="ru"?"az":"ru"} onClick={()=>setLanguage(language==="ru"?"az":"ru")}>{language==="ru"?"AZ":"RU"}</button></div>;
+ return <div className="languageSelect" role="group" aria-label="Dil seçimi">
+  <button type="button" aria-label="Azərbaycanca" aria-pressed={language==="az"} onClick={()=>setLanguage("az")}>AZ</button>
+  <button type="button" aria-label="Русский" aria-pressed={language==="ru"} onClick={()=>setLanguage("ru")}>RU</button>
+ </div>;
 }

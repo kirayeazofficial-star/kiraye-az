@@ -33,7 +33,6 @@ const pass=name=>{passed++;console.log('PASS',name)};
    }
    await page.goto(base+'/help');await page.locator('.helpCard summary').first().click();assert.equal(await page.locator('.helpCard').first().getAttribute('open'),'');
    await page.evaluate(()=>localStorage.setItem('kirayeal:language','ru'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='ru'&&document.querySelector('main h1')?.textContent==='Есть вопрос? Начните здесь.');await checkNavigation();
-   await page.evaluate(()=>localStorage.setItem('kirayeal:language','en'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='en'&&document.querySelector('main h1')?.textContent==='Have a question? Start here.');await checkNavigation();assert.ok(!(await page.locator('.kzTabbar').innerText()).includes('İ'),'English labels must use English casing');
    await page.evaluate(()=>localStorage.setItem('kirayeal:language','az'));await page.reload();await page.waitForFunction(()=>document.documentElement.lang==='az'&&document.querySelector('main h1')?.textContent==='Sualınız var? Buradan başlayın.');
    assert.equal(errors.length,0,errors.join('\n'));pass(`${width}px layout, card budget, favorites where available, FAQ and language switching`);await context.close();
   }

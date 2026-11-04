@@ -3,7 +3,7 @@ import { dateFormat } from "../../lib/date-format";
 import Notice from "./Notice";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { ChevronLeft, ChevronRight, Pencil, Plus, ShieldCheck, Store, Trash2 } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Copy, Mail, Pencil, Phone, Plus, ShieldCheck, Store, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -43,6 +43,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
   const [identity, setIdentity] = useState(""),
     [userId, setUserId] = useState(""),
     [accountPhone, setAccountPhone] = useState(""),
+    [idCopied, setIdCopied] = useState(false),
     [accountEmail, setAccountEmail] = useState(""),
     [loading, setLoading] = useState(true),
     [listings, setListings] = useState<Listing[]>([]),
@@ -169,14 +170,20 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
         ) : (
           <><div className={`cabinetLayout screen-${screen}`}>
             <aside className="cabinetSidebar">
-              <section className="kzProfileCard">
-                <Link href="/account" className="kzProfileAvatarLink" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
-                <h1>{identity||"Profil"}</h1>
-                {profileNumber&&<p>Profil № {profileNumber}</p>}
-                {accountPhone ? <p>Tel: {formatContact(accountPhone)}</p> : <Link href="/account">Telefon nömrəni əlavə et</Link>}
-                {accountEmail&&<p className="kzProfileEmail">{accountEmail}</p>}
-              </section>
-              {!balanceOnly && <BalancePreview compact/>}
+              <div className="kzProfileBlock">
+                <section className="kzProfileHead">
+                  <Link href="/account" className="kzProfileHeadAvatar" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
+                  <div className="kzProfileHeadText">
+                    <h1>{identity||"Profil"}</h1>
+                    {profileNumber&&<button type="button" className="kzProfileId" aria-label={`ID ${profileNumber} — kopyala`} onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setIdCopied(true);window.setTimeout(()=>setIdCopied(false),1600);}).catch(()=>{});}}>ID {profileNumber}{idCopied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
+                  </div>
+                </section>
+                <ul className="kzProfileContacts">
+                  <li><Phone aria-hidden="true" size={17} strokeWidth={1.9}/>{accountPhone ? <span>{formatContact(accountPhone)}</span> : <Link href="/account">Telefon nömrənizi əlavə edin</Link>}</li>
+                  {accountEmail&&<li><Mail aria-hidden="true" size={17} strokeWidth={1.9}/><span>{accountEmail}</span></li>}
+                </ul>
+                {!balanceOnly && <BalancePreview compact/>}
+              </div>
             <nav id="cabinet-menu" className="cabinetNav cabinetCards" aria-label="Şəxsi kabinet">
               <Link href="/profile?section=listings" onClick={()=>openSection('listings')} aria-current={!balanceOnly && section === "listings" ? "page" : undefined}>
                 <span className="kzNavIcon"><NavigationIcon name="home"/></span><span>Mənim elanlarım

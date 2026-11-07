@@ -3180,3 +3180,62 @@ html body .loginPage .rememberLogin{margin:2px 0 0!important}
 html body .loginPage .authInvalid .kzPhoneInput{border-color:#e5484d!important;background:#fff8f7!important}
 html body .loginPage .authInvalid .kzPhoneInput input{background:transparent!important}
 html body .loginPage .forgotPassword{min-height:36px!important;margin:-4px 0 -6px auto!important}
+
+/* ===== Giriş və qeydiyyat (yeni dizayn) ===== */
+html body .loginPage{background:#fff!important}
+html body .loginPage .authShell{max-width:440px!important;margin:0 auto!important;padding:0 20px 24px!important;box-sizing:border-box}
+html body .loginPage .authShell>section{padding:26px 0 0!important;border:0!important;box-shadow:none!important;background:none!important;border-radius:0!important;max-width:none!important}
+.authBadge{display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0 auto 12px;border-radius:16px;background:linear-gradient(135deg,#104c43,#13856b);color:#fff;box-shadow:0 6px 16px rgba(16,76,67,.25)}
+html body .loginPage #auth-title{margin:0!important;text-align:center;font-size:22px!important;font-weight:800!important;letter-spacing:-.4px!important;color:var(--kz-ink)!important}
+html body .loginPage .authLead{margin:6px 0 0!important;text-align:center;font-size:14px!important;color:var(--kz-muted)!important}
+html body .loginPage .authModeLinks{display:flex!important;gap:0!important;margin:22px 0 22px!important;padding:0!important;border:0!important;border-bottom:1px solid #eceff0!important;border-radius:0!important;background:none!important}
+html body .loginPage .authModeLinks a{position:relative;flex:1;display:flex!important;justify-content:center;min-height:0!important;height:auto!important;padding:0 0 12px!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;font-size:15px!important;font-weight:600!important;color:#9aa29f!important;text-decoration:none!important}
+html body .loginPage .authModeLinks a[aria-current=page]{color:var(--kz-ink)!important;background:none!important;box-shadow:none!important}
+html body .loginPage .authModeLinks a[aria-current=page]::after{content:"";position:absolute;left:22%;right:22%;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:#104c43}
+html body .loginPage .authFields{display:grid!important;grid-template-columns:1fr auto;gap:16px 12px!important;margin:0!important;padding:0!important;border:0!important}
+html body .loginPage .authFields>*{grid-column:1/-1;margin:0!important}
+html body .loginPage .authFields>.rememberLogin{grid-column:1;order:1}
+html body .loginPage .authFields>.forgotPassword{grid-column:2;order:2}
+html body .loginPage .authFields>.authSubmit,html body .loginPage .authFields>.kzAuthTerms,html body .loginPage .authFields>.authCodeNote{order:3}
+html body .loginPage .authFloat{position:relative;display:block!important;margin:0!important;font-size:0!important}
+html body .loginPage .authTag{position:absolute;top:-9px;left:11px;z-index:2;padding:0 5px;background:#fff;font-size:12px!important;font-weight:600!important;line-height:18px;color:var(--kz-muted)!important;pointer-events:none}
+html body .loginPage .authFloat>input,html body .loginPage .authFloat .kzPhoneInput{display:flex;align-items:center;width:100%!important;height:54px!important;min-height:54px!important;box-sizing:border-box;border:1.5px solid #dfe4e2!important;border-radius:12px!important;background:#fff!important;box-shadow:none!important}
+html body .loginPage .authFloat>input{padding:0 14px!important;font-size:16px!important;color:var(--kz-ink)!important}
+html body .loginPage .authFloat .kzPhoneInput input{height:100%!important;min-height:0!important;border:0!important;background:none!important;box-shadow:none!important;font-size:16px!important}
+html body .loginPage .authFloat .kzPhonePrefix{font-size:16px!important}
+html body .loginPage .authFloat:focus-within>input,html body .loginPage .authFloat:focus-within .kzPhoneInput,html body .loginPage .passwordField.authFloat:focus-within{border-color:#104c43!important}
+html body .loginPage .authFloat:focus-within .authTag{color:#104c43!important}
+html body .loginPage .authFloat.authInvalid>input,html body .loginPage .authFloat.authInvalid .kzPhoneInput,html body .loginPage .passwordField.authFloat.authInvalid{border-color:#d92d20!important;background:#fff!important}
+html body .loginPage .authFloat.authInvalid .authTag{color:#d92d20!important}
+html body .loginPage .authFieldError{display:block;margin:-10px 0 0 2px!important;font-size:12.5px!important;color:#d92d20!important}
+html body .loginPage .authPasswordGroup{display:block!important}
+html body .loginPage .passwordField.authFloat{display:flex!important;align-items:center;gap:4px;height:54px;padding:0 6px 0 0!important;border:1.5px solid #dfe4e2!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box}
+html body .loginPage .passwordField.authFloat input{flex:1;min-width:0;height:100%!important;min-height:0!important;padding:0 14px!important;border:0!important;background:none!important;box-shadow:none!important;outline:none}
+html body .loginPage .passwordField.authFloat .passwordToggle{flex:none;width:40px!important;height:40px!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:10px!important;background:none!important;color:#7a8380!important;box-shadow:none!important}
+html body .loginPage .authPasswordGroup .authFieldError{margin:6px 0 0 2px!important}
+.authMeter{display:flex;gap:4px;margin:10px 2px 6px}
+.authMeter i{flex:1;height:4px;border-radius:2px;background:#e6eae8}
+.authMeter i.on.s1,.authMeter i.on.s2{background:#e5484d}.authMeter i.on.s3{background:#f5a623}.authMeter i.on.s4{background:#22a45d}
+.authPasswordRow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px}
+html body .loginPage .authPasswordRow .passwordHint{margin:0!important;font-size:12.5px!important;color:var(--kz-muted)!important}
+html body .loginPage .authPasswordRow .textButton{flex:none;min-height:0!important;height:auto!important;margin:0!important;padding:4px 0!important;border:0!important;background:none!important;font-size:13px!important;font-weight:700!important;color:#13856b!important}
+.authCodeNote{display:flex;gap:10px;align-items:flex-start;padding:12px 14px!important;border-radius:12px;background:#f1f8f5;border:1px solid #d8ece4;font-size:13px;line-height:1.45;color:#2f5f55}
+.authCodeNote svg{flex:none;margin-top:1px}
+.authCodeNote b{font-weight:700;overflow-wrap:anywhere}
+html body .loginPage .rememberLogin{display:flex!important;align-items:center;gap:8px;font-size:14px!important;font-weight:500!important;color:var(--kz-text)!important;cursor:pointer}
+html body .loginPage .rememberLogin input{-webkit-appearance:none;appearance:none;position:relative;flex:none;width:36px!important;height:22px!important;min-height:0!important;margin:0!important;border:0!important;border-radius:11px!important;background:#d5dad8!important;cursor:pointer;transition:background .15s}
+html body .loginPage .rememberLogin input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+html body .loginPage .rememberLogin input:checked{background:#22a45d!important}
+html body .loginPage .rememberLogin input:checked::after{transform:translateX(14px)}
+html body .loginPage .forgotPassword{display:flex!important;align-items:center;min-height:0!important;margin:0!important;font-size:14px!important;font-weight:600!important;color:#13856b!important;text-decoration:none!important;white-space:nowrap}
+html body .loginPage .authSubmit{height:52px!important;min-height:52px!important;border-radius:14px!important;background:#ff5a1f!important;border:0!important;color:#fff!important;font-size:16px!important;font-weight:700!important;box-shadow:0 6px 14px rgba(255,90,31,.25)!important}
+html body .loginPage .kzAuthTerms{margin:0!important;text-align:center;font-size:12px!important;line-height:1.55!important;color:var(--kz-muted)!important}
+html body .loginPage .kzAuthTerms a{color:var(--kz-text)!important;font-weight:600;text-decoration:none!important}
+html body .loginPage .googleLogin{display:flex!important;flex-direction:column;margin:0!important}
+html body .loginPage .googleLogin .authDivider{order:-1;margin:18px 0!important}
+html body .loginPage .googleButton{max-width:none!important;width:100%;height:50px!important;min-height:50px!important;margin:0!important;border:1.5px solid #dfe4e2!important;border-radius:14px!important;background:#fff!important;font-size:15px!important;font-weight:600!important;color:var(--kz-ink)!important}
+.authSafe{display:flex;align-items:center;justify-content:center;gap:6px;margin:22px 0 4px;font-size:12.5px;color:#8a928f}
+html body .loginPage .authBack{margin:6px auto 0!important}
+html body .loginPage .kzHeader .kzSearch,html body .loginPage .kzHeader .kzSearchRow{display:none!important}
+html body .loginPage .authModeLinks{margin-bottom:0!important}
+html body .loginPage .authShell>section>form,html body .loginPage .authShell>section>.confirmationPanel{margin-top:26px!important}

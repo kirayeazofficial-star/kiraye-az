@@ -1,5 +1,6 @@
 "use client";
-import { ChevronLeft, Eye, EyeOff, House, Mail, ShieldX } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff, House, KeyRound, Lock, LogIn, Mail, ShieldX, UserPlus } from "lucide-react";
+import Header from "./Header";
 import StatusCard from "./StatusCard";
 import { normalizePhone } from "../../lib/rental-details";
 import { createStrongPassword } from "../../lib/strong-password";
@@ -16,6 +17,13 @@ import PhoneInput from "./PhoneInput";
 import "../login/style.css";
 type Verification = "signup" | "recovery" | "staff";
 const pendingKey = "kiraye:pending-confirmation";
+// 0 empty, 1 short, 2 weak, 3 good, 4 strong.
+function passwordStrength(value: string) {
+  if (!value) return 0;
+  if (value.length < 8) return 1;
+  const kinds = [/[a-zəğıöüşç]/, /[A-ZƏĞIÖÜŞÇİ]/, /\d/, /[^\p{L}\d]/u].filter(test => test.test(value)).length;
+  return value.length >= 12 && kinds >= 3 ? 4 : kinds >= 2 ? 3 : 2;
+}
 async function hostAuth(action:string,payload:Record<string,unknown>={}){
   const response=await fetch('/api/auth/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,...payload})});
   const data=await response.json();
@@ -48,6 +56,7 @@ export default function Login({
   const [mode, setMode] = useState<"login" | "signup" | "reset">(initialMode),
     [notice, setNotice] = useState(""),
     [fieldErrors, setFieldErrors] = useState<Record<string, string>>({}),
+    [passwordScore, setPasswordScore] = useState(0),
     [blocked, setBlocked] = useState<false | string>(false),
     [busy, setBusy] = useState(false),
     [emailAddress, setEmailAddress] = useState(""),
@@ -328,12 +337,7 @@ export default function Login({
   </main>;
   return (
     <main className="loginPage">
-      <div className="authHeader">
-        <a className="logo" href="/" onClick={() => { clearPending(); try { sessionStorage.removeItem("kiraye:login-email"); } catch {} }}>
-          kirayeal<span>.az</span>
-        </a>
-        <Link href="/help">Kömək</Link>
-      </div>
+      <Header />
       <div className="authShell">
         <section aria-labelledby="auth-title">
           <noscript>
@@ -341,10 +345,6 @@ export default function Login({
               Qeydiyyat və giriş üçün brauzerdə JavaScript-i aktiv edin.
             </p>
           </noscript>
-          {mode !== "reset" && !verification && <nav className="authModeLinks" aria-label="Hesab seçimi">
-            <a href={`/login?next=${encodeURIComponent(next)}`} aria-current={mode === "login" ? "page" : undefined}>Daxil ol</a>
-            <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyat</a>
-          </nav>}
           {!ready && (
             // Shown only if the form is still not ready after a few seconds (see .authSlowNote), so a normal load never flashes it.
             <div className="authSlowNote"><p className="notice" role="status">
@@ -354,6 +354,7 @@ export default function Login({
               </a>.
             </p></div>
           )}
+          <span className={`authBadge${verification ? " mail" : ""}`} aria-hidden="true">{verification ? <Mail size={26} strokeWidth={2}/> : mode === "signup" ? <UserPlus size={26} strokeWidth={2}/> : mode === "reset" ? <KeyRound size={26} strokeWidth={2}/> : <LogIn size={26} strokeWidth={2}/>}</span>
           <h1 id="auth-title">
             {method === "phone"
               ? "Hesabınıza daxil olun"
@@ -364,23 +365,24 @@ export default function Login({
                   ? "Kodu daxil edin"
                   : "E-poçtunuzu yoxlayın"
                 : mode === "signup"
-                  ? "Yeni hesab yaradın"
+                  ? "Hesab yaradın"
                   : mode === "reset"
                     ? "Şifrənizi yeniləyin"
-                    : "Hesabınıza daxil olun"}
+                    : "Xoş gəlmisiniz"}
           </h1>
           {!verification && method === "email" && (
                 <p className="authLead">
                   {mode === "signup"
-                    ? "Qeydiyyat pulsuzdur və bir dəqiqə çəkir."
+                    ? "Pulsuz qeydiyyat, bir dəqiqəyə hazır"
                     : mode === "reset"
                       ? "Hesabınıza bağlı e-poçt ünvanını yazın. Həmin ünvana 6 rəqəmli bərpa kodu göndəriləcək."
-                      : "Elanlarınızı və mesajlarınızı idarə etmək üçün daxil olun."}
+                      : "Elanlarınız və mesajlarınız sizi gözləyir"}
                 </p>
               )}
-          {!verification && mode !== "reset" && method === "email" && (
-            <GoogleLogin />
-          )}
+          {mode !== "reset" && !verification && <nav className="authModeLinks" aria-label="Hesab seçimi">
+            <a href={`/login?next=${encodeURIComponent(next)}`} aria-current={mode === "login" ? "page" : undefined}>Daxil ol</a>
+            <a href={`/login?mode=signup&next=${encodeURIComponent(next)}`} aria-current={mode === "signup" ? "page" : undefined}>Qeydiyyat</a>
+          </nav>}
           {phoneEnabled && !verification && mode === "login" && (
             <div className="authMethods" aria-label="Giriş üsulu">
               <button
@@ -404,7 +406,7 @@ export default function Login({
           )}
           {method === "email" && (
             <>
-              {!verification ? (
+              {!verification ? (<>
                 <form
                   onSubmit={submit}
                   method="post"
@@ -433,13 +435,13 @@ export default function Login({
                 >
                   <fieldset className="authFields" disabled={busy}>
                     {mode === "signup" && <>
-                      <label>Ad və soyad<input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Adınız və soyadınız" aria-invalid={!!fieldErrors.full_name} /></label>
+                      <label className={`authFloat${fieldErrors.full_name ? " authInvalid" : ""}`}><span className="authTag">Ad və soyad</span><input name="full_name" aria-label="Ad və soyad" autoComplete="name" required minLength={3} maxLength={100} placeholder="Məsələn: Elvin Məmmədov" aria-invalid={!!fieldErrors.full_name} /></label>
                       {fieldErrors.full_name && <small className="authFieldError" role="alert">{fieldErrors.full_name}</small>}
-                      <label className={fieldErrors.contact_phone ? "authInvalid" : undefined}>Telefon nömrəsi<PhoneInput name="contact_phone" label="Telefon nömrəsi" required /></label>
+                      <label className={`authFloat${fieldErrors.contact_phone ? " authInvalid" : ""}`}><span className="authTag">Telefon</span><PhoneInput name="contact_phone" label="Telefon nömrəsi" required /></label>
                       {fieldErrors.contact_phone && <small className="authFieldError" role="alert">{fieldErrors.contact_phone}</small>}
                     </>}
-                    <label>
-                      E-poçt
+                    <label className={`authFloat${fieldErrors.email ? " authInvalid" : ""}`}>
+                      <span className="authTag">E-poçt</span>
                       <input
                         ref={emailInput}
                         name="email"
@@ -452,12 +454,11 @@ export default function Login({
                         onChange={(e) => setEmailAddress(e.target.value)}
                         required
                         maxLength={254}
-                        placeholder="E-poçt ünvanınız"
+                        placeholder="ad@gmail.com"
                         aria-invalid={!!fieldErrors.email}
                       />
                     </label>
                     {fieldErrors.email && <small className="authFieldError" role="alert">{fieldErrors.email}</small>}
-                    {mode === "signup" && !fieldErrors.email && <small className="authHint"><Mail aria-hidden="true" size={15} strokeWidth={2}/>Bu ünvana 6 rəqəmli təsdiq kodu göndəriləcək.</small>}
                     {emailAddress.includes("@") && !emailAddress.split("@")[1]?.includes(".") && (
                       <div className="emailSuggestions" aria-label="E-poçt ünvanını tamamlayın">
                         {["gmail.com", "mail.ru", "outlook.com", "icloud.com"].filter(domain => domain.startsWith(emailAddress.split("@")[1] || "")).map(domain => (
@@ -470,8 +471,8 @@ export default function Login({
                     )}
                     {mode !== "reset" && (
                       <div className="authPasswordGroup">
-                        <label htmlFor="auth-password">Şifrə</label>
-                        <div className="passwordField">
+                        <div className={`passwordField authFloat${fieldErrors.password ? " authInvalid" : ""}`}>
+                        <label className="authTag" htmlFor="auth-password">Şifrə</label>
                           <input
                             ref={passwordInput}
                             id="auth-password"
@@ -491,6 +492,7 @@ export default function Login({
                             placeholder={
                               mode === "signup" ? "Ən azı 8 simvol" : "Şifrəniz"
                             }
+                            onInput={(event) => setPasswordScore(passwordStrength(event.currentTarget.value))}
                           />
                           <button
                             type="button"
@@ -507,16 +509,20 @@ export default function Login({
                         {fieldErrors.password && <small className="authFieldError" role="alert">{fieldErrors.password}</small>}
                         {mode === "signup" && (
                           <>
-                            <button type="button" className="textButton" onClick={() => {
+                            <div className="authMeter" aria-hidden="true">{[1, 2, 3, 4].map(step => <i key={step} className={passwordScore >= step ? `on s${passwordScore}` : undefined} />)}</div>
+                            <div className="authPasswordRow">
+                              <small className="passwordHint" id="password-hint">{passwordScore >= 4 ? "Güclü şifrə" : passwordScore === 3 ? "Yaxşı şifrə" : passwordScore >= 1 ? "Zəif şifrə" : "Ən azı 8 simvol"}</small>
+                              <button type="button" className="textButton" onClick={() => {
                               try {
                                 if (passwordInput.current) {
                                   passwordInput.current.value = createStrongPassword();
+                                  setPasswordScore(4);
                                   setShowPassword(true);
                                   passwordInput.current.focus();
                                 }
                               } catch { setNotice("Avtomatik şifrə yaratmaq mümkün olmadı. Şifrəni özünüz yaza bilərsiniz."); }
                             }}>Güclü şifrə yarat</button>
-                            <small className="passwordHint" id="password-hint">Şifrə ən azı 8 simvoldan ibarət olmalıdır. Yaradılan şifrəni şifrə menecerində saxlayın.</small>
+                            </div>
                           </>
                         )}
                       </div>
@@ -542,7 +548,8 @@ export default function Login({
                         Şifrəni unutmusunuz?
                       </a>
                     )}
-                    {mode!=="reset"&&<label className="rememberLogin"><input type="checkbox" checked={remember} onChange={event=>setRemember(event.target.checked)}/>Məni yadda saxla</label>}
+                    {mode==="login"&&<label className="rememberLogin"><input type="checkbox" checked={remember} onChange={event=>setRemember(event.target.checked)}/>Məni yadda saxla</label>}
+                    {mode === "signup" && <p className="authCodeNote"><Mail aria-hidden="true" size={18} strokeWidth={2}/><span>{emailAddress.includes("@") ? <>Təsdiq kodu <b>{emailAddress}</b> ünvanına göndəriləcək</> : "E-poçtunuza 6 rəqəmli təsdiq kodu göndəriləcək"}</span></p>}
                     <button
                       className="authSubmit"
                       disabled={!ready || busy || submitBlocked}
@@ -555,11 +562,12 @@ export default function Login({
                             ? "6 rəqəmli kod göndər"
                             : "Daxil ol"}
                     </button>
-                    {mode === "login" && <p className="kzAuthTerms">Daxil olmaqla <Link href="/terms">İstifadəçi razılaşması</Link> və <Link href="/privacy">Məxfilik siyasəti</Link> ilə razılaşırsınız.</p>}
-                    {mode === "signup" && <p className="kzAuthTerms">«Hesab yarat» düyməsini basmaqla <Link href="/terms">İstifadəçi razılaşmasını</Link> və <Link href="/rules">Elan qaydalarını</Link> qəbul edirsiniz.</p>}
+                    {mode === "login" && <p className="kzAuthTerms">Davam etməklə <Link href="/terms">İstifadəçi razılaşması</Link> və <Link href="/privacy">Məxfilik siyasəti</Link> ilə razılaşırsınız</p>}
+                    {mode === "signup" && <p className="kzAuthTerms">Davam etməklə <Link href="/terms">İstifadəçi razılaşması</Link> və <Link href="/rules">Elan qaydalarını</Link> qəbul edirsiniz</p>}
                   </fieldset>
                 </form>
-              ) : (
+                {mode !== "reset" && <GoogleLogin />}
+              </>) : (
                 <div className="confirmationPanel">
                   <p className="authLead">
                     {verification === "staff"
@@ -630,14 +638,10 @@ export default function Login({
                   )}
                 </div>
               )}
-              {!verification && <div className="authFooter">
+              {!verification && mode === "reset" && <div className="authFooter">
                 <a
                   className="link"
-                  href={
-                    mode === "login" && !verification
-                      ? `/login?mode=signup&next=${encodeURIComponent(next)}`
-                      : `/login?next=${encodeURIComponent(next)}`
-                  }
+                  href={`/login?next=${encodeURIComponent(next)}`}
                   aria-disabled={busy}
                   onClick={(event) => {
                     if (busy) {
@@ -653,14 +657,13 @@ export default function Login({
                     } catch {}
                   }}
                 >
-                  {mode === "login" && !verification
-                    ? "Hesabınız yoxdur? Qeydiyyatdan keçin"
-                    : "Hesabınız var? Daxil olun"}
+                  Daxil olmağa qayıt
                 </a>
               </div>}
             </>
           )}
         </section>
+        {!verification && <p className="authSafe"><Lock aria-hidden="true" size={14} strokeWidth={2}/>Məlumatlarınız qorunur və heç kimə verilmir</p>}
         {!verification && <Link className="authBack" href="/">
           <ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Elanlara qayıt
         </Link>}

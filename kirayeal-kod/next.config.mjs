@@ -2,6 +2,8 @@
 const nextConfig = {
   output: "standalone",
   productionBrowserSourceMaps: false,
+  // Kept as a real package next to the server so the thumbnail worker thread can load it.
+  serverExternalPackages: ["jpeg-js"],
   // The shared hosting kills big builds ("Array buffer allocation failed"),
   // so keep build memory low: no on-disk webpack cache, leaner webpack, and
   // no type-check pass inside `next build` (run `npm run lint` for types).

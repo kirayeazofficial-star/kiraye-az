@@ -3284,3 +3284,10 @@ html body .kzAccountPage .kzAccEdit form,html body .kzAccountPage .kzAccEdit lab
 /* Hesab menyusu: ad tünd, ID boz. */
 html body .accountMenuPanel .accountMenuHead strong,html body .accountMenuPanel .accountMenuHead b{color:var(--kz-ink)!important}
 html body .accountMenuPanel .accountMenuHead small,html body .accountMenuPanel .accountMenuHead span:not(.kzUserAvatar):not(.accountMenuAvatar){color:var(--kz-muted)!important}
+/* Yeni şifrə səhifəsi. */
+html body .loginPage .authShell>section>.authFormNotice{margin-top:22px!important}
+html body .loginPage .authFormNotice.ok{border-color:#bfe3cf!important;background:#effaf3!important;color:#15603a!important}
+html body .loginPage .kzAuthDone{display:flex!important;align-items:center;justify-content:center;margin-top:16px!important;text-decoration:none!important}
+html body .loginPage .kzAuthLinks{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:18px}
+html body .loginPage .kzAuthLinks a{font-size:14px;font-weight:600;color:#13856b!important;text-decoration:none!important}
+html body .loginPage .kzAuthLinks a:first-child{display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:14px;background:#ff5a1f;color:#fff!important;font-size:16px;font-weight:700}

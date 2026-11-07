@@ -13,7 +13,7 @@ import { formatContact } from "../../lib/contact-mask";
 import {WalletActivity,SavedCards} from "./WalletPanels";
 import PhotoMark from "./PhotoMark";
 import PaymentDialog from "./PaymentDialog";
-import { listingPrice, restorePrice } from "../../lib/limit-rules";
+import { fixedLimitRules, listingPrice, restorePrice } from "../../lib/limit-rules";
 import PromotionOptions from "./PromotionOptions";
 import EmptyArt from "./EmptyArt";
 import { activePromotion } from "./PromotionBadges";
@@ -121,8 +121,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     }
   }
 
-  const paidRestore = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişlə bərpa", text: "Bərpa edilən elan yenidən 30 gün yayımlanır.", price: restorePrice(item.category) } : { title: "Ödənişlə bərpa", text: "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
-  const paidSubmit = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişli elan", text: (item as Listing & { paid_reason?: string | null }).paid_reason === "repeat" ? "Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir — təkrar elan ödənişlidir. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır." : "Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır.", price: listingPrice(item.category) } : { title: "Ödənişli elan", text: "Ödənişli xidmətlər müvəqqəti dayandırılıb. Bu əməliyyat ödənişli xidmətlər yenidən açılanda mümkün olacaq." });
+  const paidRestore = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişlə bərpa", text: "Bərpa edilən elan yenidən 30 gün yayımlanır.", price: restorePrice(item.category) } : { title: "Ödənişlə bərpa", text: "Ödəniş sistemi hələ aktiv deyil. Aktiv olduqdan sonra bu elanı «Ödəniş gözləyir» bölməsindən ödəyib yoxlamaya göndərə biləcəksiniz." });
+  const paidSubmit = (item: Listing) => setPayment(paidVisible(flags) ? { title: "Ödənişli elan", text: (item as Listing & { paid_reason?: string | null }).paid_reason === "repeat" ? "Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir — təkrar elan ödənişlidir. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır." : fixedLimitRules.paid.includes(item.category) ? "Bu kateqoriyada elanlar ödənişlidir. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır." : "Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Ödənişdən sonra elan yoxlamaya göndərilir və 30 gün yayımlanır.", price: listingPrice(item.category) } : { title: "Ödənişli elan", text: "Ödəniş sistemi hələ aktiv deyil. Aktiv olduqdan sonra bu elanı «Ödəniş gözləyir» bölməsindən ödəyib yoxlamaya göndərə biləcəksiniz." });
   // Restoring is a paid step (payments are not connected yet, so this opens the payment notice).
   // Only the leader restores their own listings for free.
   async function restore(item: Listing) {

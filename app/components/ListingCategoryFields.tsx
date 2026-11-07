@@ -383,7 +383,7 @@ function VehicleFields({
           />
           <SelectField name="seats" label="Oturacaq sayı" options={["2", "4", "5", "7", "8", "9 və çox"]} value={extra("seats")} />
           <SelectField name="insurance" label="Sığorta" options={["Qiymətə daxildir", "Daxil deyil"]} value={extra("insurance")} />
-          <SelectField name="taxi_use" label="Taksi işi üçün verilir (Bolt, Uber)" options={["Bəli", "Xeyr"]} value={extra("taxi_use")} />
+          <SelectField name="taxi_use" label="Taksi işi üçün verilir (Bolt, Uber, Yango və s.)" options={["Bəli", "Xeyr"]} value={extra("taxi_use")} />
           <SelectField name="documents" label="Tələb olunan sənədlər" options={["Şəxsiyyət vəsiqəsi və sürücülük vəsiqəsi", "Yalnız sürücülük vəsiqəsi", "Pasport və beynəlxalq sürücülük vəsiqəsi", "Razılaşma ilə"]} value={extra("documents")} />
           <SelectField name="travel_area" label="Rayonlara / ölkədən çıxış" options={["Yalnız şəhər daxilində", "Rayonlara getmək olar", "Ölkədən çıxmaq da olar", "Razılaşma ilə"]} value={extra("travel_area")} />
           <SelectField name="fuel_policy" label="Yanacaq qaydası" options={["Dolu götür, dolu qaytar", "Eyni səviyyədə qaytar", "Yanacaq qiymətə daxildir", "Razılaşma ilə"]} value={extra("fuel_policy")} />
@@ -393,7 +393,7 @@ function VehicleFields({
         <div className="formGrid">
           <SelectField name="helmet" label="Kask verilir" options={["Bəli", "Xeyr"]} value={extra("helmet")} />
           <SelectField name="license_class" label="Lazım olan sürücülük vəsiqəsi" options={["A", "A1", "B kifayətdir", "Vəsiqə lazım deyil"]} value={extra("license_class")} />
-          <SelectField name="courier_use" label="Kuryer işi üçün verilir (Wolt, Bolt Food)" options={["Bəli", "Xeyr"]} value={extra("courier_use")} />
+          <SelectField name="courier_use" label="Kuryer işi üçün verilir (Wolt, Bolt Food və s.)" options={["Bəli", "Xeyr"]} value={extra("courier_use")} />
         </div>
       )}
       {bicycle && (

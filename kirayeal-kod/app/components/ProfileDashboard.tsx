@@ -1,9 +1,10 @@
 "use client";
+import { toast } from "../../lib/toast";
 import { dateFormat } from "../../lib/date-format";
 import Notice from "./Notice";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { Camera, Check, ChevronLeft, ChevronRight, Copy, Eye, LogOut, Mail, Pencil, Phone, Plus, ShieldCheck, Star, Store, Trash2 } from "lucide-react";
+import { Camera, Check, ChevronLeft, ChevronRight, Copy, Crown, Gem, Eye, LogOut, Mail, Pencil, Phone, Plus, ShieldCheck, Star, Store, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { signOut } from "../../lib/sign-out";
 import Link from "next/link";
@@ -60,8 +61,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [fullCategories, setFullCategories] = useState<string[]>([]),
     [payment, setPayment] = useState<{ title: string; text: string; price?: number } | null>(null),
     [refreshing, setRefreshing] = useState(false),
-    [leaving, setLeaving] = useState(false),
-    [topUpNote, setTopUpNote] = useState(false);
+    [leaving, setLeaving] = useState(false);
   useAutoClear(notice, () => setNotice(""));
   // Tapping the cabinet link while already here reloads the data.
   useEffect(() => {
@@ -185,9 +185,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   </Link>
                   {!balanceOnly&&<div className="kzHeroBalance" aria-label="Şəxsi hesabın balansı">
                     <span><small>Şəxsi hesab</small><b>0,00 ₼</b></span>
-                    <button type="button" className="kzHeroBalanceBtn" onClick={() => { setTopUpNote(true); window.setTimeout(() => setTopUpNote(false), 3500); }}>Artır</button>
+                    <button type="button" className="kzHeroBalanceBtn" onClick={() => toast("Balans artırma müvəqqəti işləmir. Ödəniş sistemi tezliklə qoşulacaq.", { kind: "info" })}>Artır</button>
                   </div>}
-                  {topUpNote&&<p className="kzTopUpNote" role="status">Balans artırma müvəqqəti işləmir. Ödəniş sistemi tezliklə qoşulacaq.</p>}
+                  
                 </div>
               </div>
               {!accountPhone&&!balanceOnly&&<Link className="kzProfileHint" href="/account"><Phone aria-hidden="true" size={16} strokeWidth={1.9}/>Telefon nömrənizi əlavə edin<ChevronRight aria-hidden="true" size={16} strokeWidth={2}/></Link>}
@@ -243,7 +243,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     return <article key={x.id} className={x.deleted_at ? "kzOwnDeleted" : undefined}>
                       <Link href={href} aria-label={`${x.title} — elana bax`} className="ownedPhoto"><img src={sized(x.images?.[0]) || "/placeholder.svg"} alt="" loading="lazy" decoding="async" /></Link>
                       <div className="kzOwnBody">
-                        <div className="kzOwnTop"><span className={`status ${x.deleted_at ? "archived" : x.payment_required ? "payment" : expired ? "expired" : current}`}>{x.deleted_at ? "Silinib" : x.payment_required ? "Ödəniş gözləyir" : statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
+                        <div className="kzOwnTop"><span className={`status ${x.deleted_at ? "archived" : x.payment_required ? "payment" : expired ? "expired" : current}`}>{x.deleted_at ? "Silinib" : x.payment_required ? "Ödəniş gözləyir" : statusName(expired ? "expired" : current)}</span>{promo && <span className={`kzOwnPromo ${promo}`}>{promo === "premium" && <Crown aria-hidden="true" size={13} strokeWidth={2} color="#e9a514" fill="#f5c24c" />}<Gem aria-hidden="true" size={13} strokeWidth={2} color="#e84a10" fill="#ff8a5c" />{promo === "premium" ? "Premium" : "VIP"}</span>}</div>
                         <h3><Link href={href}>{x.title}</Link></h3>
                         <p className="kzOwnPrice">{money(x.price)} ₼ / {periodName(x.rental_period)} · {x.city}</p>
                         <p className="kzOwnMeta">{x.listing_no ? `№ ${x.listing_no} · ` : ""}Baxış: {x.views ?? 0}</p>

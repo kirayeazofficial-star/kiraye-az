@@ -3511,3 +3511,7 @@ html body .kzDrawerSocial a>span{width:22px!important;height:22px!important}
 .kzDrawerSocial a.mail>span{background:#104c43}
 html body .kzFooter .kzFooterSocial{margin-top:0!important}
 html body .kzDrawerSocial+.kzDrawerCopy{margin-top:20px!important}
+.kzToast.info{border-color:#f3d9a4;background:#fffaf0;color:#7a4a00}.kzToast.info svg{color:#d97706}
+/* Kabinet elan kartı: Premium = tac + almaz, VIP = almaz (saytdakı kartlar kimi). */
+html body .kzOwnPromo{display:inline-flex!important;align-items:center;gap:4px}
+html body .kzOwnPromo svg{flex:none}

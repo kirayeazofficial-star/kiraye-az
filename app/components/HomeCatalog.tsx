@@ -75,6 +75,7 @@ export default function Home() {
     [area, setArea] = useState(""),
     [brand, setBrand] = useState(""),
     [gearbox, setGearbox] = useState(""),
+    [work, setWork] = useState(""),
     [noDeposit, setNoDeposit] = useState(false),
     [from, setFrom] = useState(""),
     [until, setUntil] = useState(""),
@@ -134,6 +135,7 @@ export default function Home() {
         area,
         brand,
         gearbox,
+        work,
         noDeposit,
         from,
         until,
@@ -186,6 +188,7 @@ export default function Home() {
     area,
     brand,
     gearbox,
+    work,
     noDeposit,
     from,
     until,
@@ -211,6 +214,7 @@ export default function Home() {
     area,
     brand,
     gearbox,
+    work,
     noDeposit,
     from,
     until,
@@ -236,6 +240,7 @@ export default function Home() {
             area,
             brand,
             gearbox,
+            work,
             noDeposit,
             from,
             until,
@@ -271,6 +276,7 @@ export default function Home() {
     area,
     brand,
     gearbox,
+    work,
     noDeposit,
     from,
     until,
@@ -348,6 +354,7 @@ export default function Home() {
     setBrand("");
     setGearbox("");
     setNoDeposit(false);
+    setWork("");
     setFrom("");
     setUntil("");
   }
@@ -375,6 +382,7 @@ export default function Home() {
     area && { label: `Ən azı ${area} m²`, clear: () => setArea("") },
     brand && { label: brand, clear: () => setBrand("") },
     gearbox && { label: gearbox, clear: () => setGearbox("") },
+    work && { label: t(category === "motorcycle" ? "Kuryer işi üçün" : "Taksi işi üçün"), clear: () => setWork("") },
     noDeposit && { label: t("Depozitsiz"), clear: () => setNoDeposit(false) },
     kindFilter && { label: kindFilter, clear: () => setKindFilter("") },
     from && { label: `Başlanğıc: ${from}`, clear: () => setFrom("") },
@@ -623,6 +631,12 @@ export default function Home() {
                     <option value="Avtomat">{t("Avtomat")}</option>
                     <option value="Mexaniki">{t("Mexaniki")}</option>
                   </select>
+                </label>
+              )}
+              {["car", "motorcycle"].includes(category) && (
+                <label className="checkLabel">
+                  <input type="checkbox" checked={work === "1"} onChange={(e) => setWork(e.target.checked ? "1" : "")} />
+                  {t(category === "motorcycle" ? "Kuryer işi üçün" : "Taksi işi üçün")}
                 </label>
               )}
               <AzerbaijaniDateInput label={t("Başlanğıc tarixi")} value={from} onChange={setFrom} />

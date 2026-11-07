@@ -45,6 +45,8 @@ export async function GET(request:NextRequest){
     const brand=(input.get('brand')||'').replace(/[%_]/g,'').slice(0,40);if(brand)add(`attributes->>'brand' ilike ?`,`%${brand}%`);
     const gearbox=(input.get('gearbox')||'').slice(0,40);if(gearbox)add(`attributes->>'gearbox'=?`,gearbox);
     if(input.get('noDeposit')==='1')where.push('deposit=0');
+    // Cars given for taxi work, motorcycles for courier work.
+    if(input.get('work')==='1')where.push(`(attributes->>'taxi_use'='Bəli' or attributes->>'courier_use'='Bəli')`);
     const kind=(input.get('kind')||'').slice(0,60);if(kind){values.push(kind);where.push(`(attributes->>'kind'=$${values.length} or attributes->>'body_type'=$${values.length})`);}
     const favorites=(input.get('favorites')||'').split(',').filter(id=>uuid.test(id)).slice(0,200);if(input.has('favorites')){if(!favorites.length)return reply({items:[],total:0});values.push(favorites);where.push(`id=any($${values.length}::uuid[])`);}
     // Listing number search: "10000004" or "№ 10000004".

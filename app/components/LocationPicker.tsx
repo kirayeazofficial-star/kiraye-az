@@ -25,13 +25,13 @@ export default function LocationPicker({ city, district, metro, point, exact, on
     {baku && <div className="formGrid">
       <label>Rayon
         <select name="district" value={district} onChange={event => onDistrict(event.target.value)}>
-          <option value="">Seç</option>
+          <option value="">Seçin</option>
           {bakuDistricts.map(name => <option key={name}>{name}</option>)}
         </select>
       </label>
       <label>Metro
         <select name="metro" value={metro} onChange={event => onMetro(event.target.value)}>
-          <option value="">Seç</option>
+          <option value="">Seçin</option>
           {bakuMetro.map(name => <option key={name}>{name}</option>)}
         </select>
       </label>

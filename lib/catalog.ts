@@ -57,6 +57,7 @@ export function applyCatalogFilters<T>(builder: T, input: CatalogQuery): T {
       `%${input.brand.replace(/[%_]/g, "").slice(0, 40)}%`,
     );
   if (input.gearbox) q = q.eq("attributes->>gearbox", input.gearbox);
+  if (input.work) q = q.or("attributes->>taxi_use.eq.Bəli,attributes->>courier_use.eq.Bəli");
   if (input.noDeposit) q = q.eq("deposit", 0);
   if (date(input.from)) {
     q = q

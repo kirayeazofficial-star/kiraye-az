@@ -149,7 +149,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
     setInitial({id:'',owner_id:user,category:savedDraft.category,title:text('title'),city:text('city'),price:Number(text('price'))||0,rental_period:text('rental_period')||'daily',description:text('description'),contact:'',images:[],status:'draft',created_at:'',deposit:Number(text('deposit'))||0,min_days:Number(text('min_days'))||1,rooms:Number(text('rooms'))||undefined,area_m2:Number(text('area_m2'))||undefined,attributes});
     setCategory(savedDraft.category);setTitle(text('title'));manualTitle.current=!!text('title');setCity(text('city'));setPrice(text('price'));setDescriptionText(text('description'));setRentalPeriod(text('rental_period')||'daily');setMinimumUnit(text('min_rental_unit')||'day');
     setPhotos(savedDraft.files.filter(file=>file instanceof File).slice(0,6).map(photoFromFile));setStep(Math.max(1,Math.min(4,savedDraft.step||1)));setFormVersion(value=>value+1);setSavedDraft(null);draftDirty.current=true;
-    setDraftNotice(savedDraft.photosMissing?'Mətn bərpa edildi. Şəkilləri yenidən seç.':'Qaralama bərpa edildi.');
+    setDraftNotice(savedDraft.photosMissing?'Mətn bərpa edildi. Şəkilləri yenidən seçin.':'Qaralama bərpa edildi.');
   }
   useEffect(() => {
     setLoading(true);
@@ -175,7 +175,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       active = false;
       setLoading(false);
       setLoadError(true);
-      setError("Hesab yoxlaması gecikir. Bağlantını yoxlayıb yenidən cəhd et.");
+      setError("Hesab yoxlaması gecikir. Bağlantınızı yoxlayıb yenidən cəhd edin.");
     }, 15000);
     fetch("/api/auth/host",{cache:"no-store"})
       .then(async response => {
@@ -209,7 +209,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             );
             return;
           }
-          if(["archived","expired"].includes(result.item.status)){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetindən baxa bilərsən.");return;}
+          if(["archived","expired"].includes(result.item.status)){setLoadError(true);setError("Arxivdəki elanı bərpa etmək ödənişli xidmətdir. Ödənişlər hazırda aktiv deyil. Elana kabinetinizdən baxa bilərsiniz.");return;}
           setInitial(result.item as Listing);
           setMinimumUnit(result.item.attributes?.min_rental_unit || "day");
           setRentalPeriod(result.item.rental_period);
@@ -259,7 +259,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         field.setAttribute('aria-invalid','true');
         const label=field.getAttribute('aria-label')||field.closest('label')?.childNodes[0]?.textContent?.trim()||'Məcburi sahə';
         const minimum='minLength' in field?field.minLength:0;
-        const message=field.validity.valueMissing?`${label} boş qalıb. Bu sahəni doldur.`:field.validity.tooShort?`${label} ən azı ${minimum} simvol olmalıdır.`:field.validationMessage;
+        const message=field.validity.valueMissing?`${label} boş qalıb. Bu sahəni doldurun.`:field.validity.tooShort?`${label} ən azı ${minimum} simvol olmalıdır.`:field.validationMessage;
         setError(message);
         requestAnimationFrame(() => {
           field.scrollIntoView({behavior:'smooth',block:'center'});
@@ -294,7 +294,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       }
     }
     if (current === 3 && !files.length && !existingImages.length) {
-      setError("Ən azı bir şəkil əlavə et.");
+      setError("Ən azı bir şəkil əlavə edin.");
       return false;
     }
     return true;
@@ -321,7 +321,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
       description = String(form.get("description") ?? "").trim(),
       contact = String(form.get("contact") ?? "").trim();
     if (!categories.some((item) => item.id === category)) {
-      setError("Kateqoriya seç.");
+      setError("Kateqoriya seçin.");
       return;
     }
     const textContact = contactInText(`${title} ${description}`);
@@ -467,8 +467,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         {!loading && !success && !loadError && !user && (
           <section className="guestPublishPrompt" aria-labelledby="guest-publish-title">
             <div>
-              <h2 id="guest-publish-title">Əvvəl hesabına daxil ol</h2>
-              <p>Elanlarını şəxsi hesabından idarə et.</p>
+              <h2 id="guest-publish-title">Əvvəlcə hesabınıza daxil olun</h2>
+              <p>Elanlarınızı şəxsi kabinetinizdən idarə edin.</p>
             </div>
             <div className="guestPublishActions">
               <Link className="add" href="/login?next=/new">Daxil ol</Link>
@@ -476,10 +476,10 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </div>
           </section>
         )}
-        {!success && step === 1 && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartının PIN/CVV-sini, SMS kodunu və şifrəni heç kimə vermə. Naməlum şəxslərin ödəniş keçidlərini açma. Yalnız sənə məxsus və ya icazən olan əşyanı, düzgün məlumat və şəkillərlə yerləşdir.</p></section>}
+        {!success && step === 1 && <section className="kzSafety" aria-label="Təhlükəsiz elan yerləşdirmə"><strong>Təhlükəsizlik qaydası</strong><p>Kartınızın PIN/CVV kodunu, SMS kodunu və şifrənizi heç kimə verməyin. Naməlum şəxslərin göndərdiyi ödəniş keçidlərini açmayın. Yalnız sizə məxsus və ya icazəniz olan əşyanı düzgün məlumat və şəkillərlə yerləşdirin.</p></section>}
         {loading ? (
           <section><p role="status">Hesab yoxlanılır…</p>
-            <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
+            <p>Hesabınız yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
         ) : success ? (
           <div role="status">{paymentWaiting ? <StatusCard as="h2" tone="warn" icon={Clock} badge="Ödəniş gözləyir" title="Elanınız yoxlamaya göndərilə bilmədi" className="kzScInline"
             lead={repeatListing ? `Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir. Bu, təkrar elan sayılır və ödənişlidir (${manat(listingPrice(category))}). Elan «Ödəniş gözləyir» bölməsində saxlanıldı.` : `${fixedLimitRules.paid.includes(category) ? `«${categories.find(item => item.id === category)?.name || ""}» kateqoriyasında elanlar ödənişlidir.` : "Bu qrupda 30 günlük pulsuz elan limitiniz dolub."} Elan saxlanıldı və «Ödəniş gözləyir» bölməsinə keçirildi. ${paidVisible(flags) ? `Ödənişdən (${manat(listingPrice(category))}) sonra yoxlamaya göndəriləcək.` : "Ödəniş sistemi hələ aktiv deyil; aktiv olduqdan sonra elanı bu bölmədən ödəyib yoxlamaya göndərə biləcəksiniz."}`}
@@ -501,7 +501,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
           </div>
         ) : !user ? null : (
           <div className="formLayout">
-            {savedDraft && <aside className="draftResume"><p>Yarımçıq elanın var. Davam etmək istəyirsən?</p><button type="button" className="secondary" onClick={restoreDraft}>Qaralamaya davam et</button><button type="button" className="textButton" onClick={()=>{void clearListingDraft(user);setSavedDraft(null);}}>Qaralamanı sil</button></aside>}
+            {savedDraft && <aside className="draftResume"><p>Yarımçıq elanınız var. Davam etmək istəyirsiniz?</p><button type="button" className="secondary" onClick={restoreDraft}>Qaralamaya davam et</button><button type="button" className="textButton" onClick={()=>{void clearListingDraft(user);setSavedDraft(null);}}>Qaralamanı sil</button></aside>}
             {!listingId && draftNotice && <p className="draftNotice" role="status">{draftNotice}</p>}
             {listingId && editBlockedUntil && editBlockedUntil.getTime() > Date.now() && <p className="kzEditLimit" role="status">{editLimitMessage(editBlockedUntil)}</p>}
             <form
@@ -556,9 +556,9 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                   )}
                 </nav>
                 <section data-post-step="1" hidden={step !== 1}>
-                  <h2 tabIndex={-1}>Nəyi kirayəyə verirsən?</h2>
+                  <h2 tabIndex={-1}>Nəyi kirayəyə verirsiniz?</h2>
                   <p className="muted">
-                    Kateqoriyanı seç. Yalnız elanına uyğun suallar göstəriləcək.
+                    Kateqoriyanı seçin. Yalnız elanınıza uyğun suallar göstəriləcək.
                   </p>
                   <label>
                     Kateqoriya <span className="requiredMark">*</span>
@@ -576,7 +576,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       }}
                     >
                       <option value="" disabled>
-                        Kateqoriya seç
+                        Kateqoriya seçin
                       </option>
                       {categories.map((c) => (
                         <option value={c.id} key={c.id}>
@@ -588,7 +588,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                   </label>
                   {!category && (
                     <p className="muted">
-                      Əvvəl kateqoriyanı seç — uyğun xanalar açılacaq.
+                      Əvvəlcə kateqoriyanı seçin — uyğun xanalar açılacaq.
                     </p>
                   )}
                 </section>
@@ -599,7 +599,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         Elan məlumatları
                       </h2>
                       <p className="muted">
-                        Əsas xüsusiyyətləri seç, şəhəri və kirayə qiymətini yaz.
+                        Əsas xüsusiyyətləri seçin, şəhəri və kirayə qiymətini yazın.
                       </p>
                       <ListingCategoryFields
                         key={category}
@@ -619,7 +619,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           autoComplete="off"
                         >
                           <option value="" disabled>
-                            Şəhər seç
+                            Şəhər seçin
                           </option>
                           {initial?.city && !cities.includes(initial.city) && (
                             <option>{initial.city}</option>
@@ -631,7 +631,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                       </label>
                       <div className="rentalPriceBlock">
                         <p className="fieldLabel">
-                          Qiyməti hansı müddət üçün göstərirsən?
+                          Qiyməti hansı müddət üçün göstərirsiniz?
                         </p>
                         <div className="rentalPeriodChoice">
                           {[
@@ -695,7 +695,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         </label>
                         <small>
                           Elan bu qiymətlə göstəriləcək. Depozit varsa, aşağıda
-                          ayrıca qeyd et.
+                          ayrıca qeyd edin.
                         </small>
                         <details className="kzOtherPrices" open={["price_daily", "price_weekly", "price_monthly"].some(key => !!initial?.attributes?.[key])}>
                           <summary>Başqa müddətlər üçün qiymət (istəyə bağlı)</summary>
@@ -704,7 +704,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                               <div className="priceInputWrap"><input name={key} aria-label={`${label} qiymət`} type="number" inputMode="decimal" min="1" max="1000000" step="0.01" defaultValue={String(initial?.attributes?.[key] || "")} placeholder="Məsələn, 250" /><span>₼ / {periodName(period)}</span></div>
                             </label>)}
                           </div>
-                          <p className="muted">Məsələn, günlük 50 ₼, həftəlik 300 ₼. Uzun müddətə endirim edirsənsə, burada yaz.</p>
+                          <p className="muted">Məsələn, günlük 50 ₼, həftəlik 300 ₼. Uzun müddətə endirim edirsinizsə, burada yazın.</p>
                         </details>
                       </div>
                       {hasLocation && city && <LocationPicker city={city} district={district} metro={metro} point={point} exact={exactLocation}
@@ -794,8 +794,8 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         </div>
                         <RentalTermsFields key={category} category={category} attributes={initial?.attributes} />
                         <p className="muted">
-                          Məsələn: 20 gün və ya 1 ay. Rəqəmi yaz, yanından
-                          vahidi seç. Ən çox 365 gün / 12 ay / 1 il.
+                          Məsələn: 20 gün və ya 1 ay. Rəqəmi yazın, yanında
+                          vahidi seçin. Ən çox 365 gün / 12 ay / 1 il.
                         </p>
                       </details>
                     </section>
@@ -863,7 +863,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                         Əlaqə və göndəriş
                       </h2>
                       <p className="muted">
-                        Kirayə götürmək istəyənlər bu nömrə ilə səninlə əlaqə
+                        Kirayə götürmək istəyənlər bu nömrə ilə sizinlə əlaqə
                         saxlayacaq.
                       </p>
                       <label>
@@ -888,7 +888,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                             autoComplete="email"
                           />
                           <small>
-                            Hesabına bağlı ünvan. E-poçtun elanda açıq
+                            Hesabınıza bağlı ünvan. E-poçtunuz elanda açıq
                             göstərilmir.
                           </small>
                         </label>
@@ -905,7 +905,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
                           placeholder="+994 50 123 45 67"
                         />
                         <small>
-                          Yeni elanda hesabın əsas telefonu istifadə olunur. Telefonu Profil bölməsindən dəyişə bilərsiniz. Mövcud elanın nömrəsi avtomatik dəyişdirilmir.
+                          Yeni elanda hesabınızın əsas telefonu istifadə olunur. Telefonu Profil bölməsindən dəyişə bilərsiniz. Mövcud elanın nömrəsi avtomatik dəyişdirilmir.
                         </small>
                       </label>
                       <label className="checkLabel kzAgree">
@@ -993,12 +993,12 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             </form>
             <aside className="tips">
               <h3>Yaxşı elan daha tez seçilir</h3>
-              <p>Öz çəkdiyin, aydın və işıqlı şəkillərdən istifadə et.</p>
+              <p>Özünüz çəkdiyiniz, aydın və işıqlı şəkillərdən istifadə edin.</p>
               <p>
-                Qiyməti düzgün göstər. Depozit və digər şərtləri təsvirdə qeyd
-                et.
+                Qiyməti düzgün göstərin. Depozit və digər şərtləri təsvirdə qeyd
+                edin.
               </p>
-              <p>Şəxsi sənəd və bank kartı məlumatlarını paylaşma.</p>
+              <p>Şəxsi sənəd və bank kartı məlumatlarını paylaşmayın.</p>
               <hr />
               <small>Elanlar yayımlanmadan əvvəl yoxlanılır.</small>
             </aside>

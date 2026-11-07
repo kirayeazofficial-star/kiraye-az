@@ -7,7 +7,7 @@ export const categories = [
   { id: "commercial", name: "Kommersiya", icon: "▦" },
   { id: "equipment", name: "Alətlər və texnika", icon: "⚒" },
   { id: "clothing", name: "Geyim və aksesuar", icon: "👗" },
-  { id: "electric", name: "Elektrik skuter və velosiped", icon: "🛴" },
+  { id: "electric", name: "Elektrik skuter", icon: "🛴" },
   { id: "photo", name: "Foto və video", icon: "📷" },
   { id: "camping", name: "Turizm və düşərgə", icon: "⛺" },
   { id: "bicycle", name: "Velosiped", icon: "◎" },

@@ -21,7 +21,7 @@ export default function ProfileSettings(){
  async function toggleNotices(enabled:boolean){if(!profile)return;setBusy('notify');setError('');const previous=profile.email_notifications;setProfile({...profile,email_notifications:enabled});
   try{const response=await fetch('/api/account/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'notifications',enabled})});if(!response.ok)throw new Error();setNotice(enabled?'Bildirişlər açıldı.':'Bildirişlər söndürüldü.');}
   catch{setProfile({...profile,email_notifications:previous});setError('Dəyişiklik saxlanmadı. Yenidən cəhd edin.');}finally{setBusy('');}}
- const [open,setOpen]=useState<''|'name'|'phone'|'email'>(''),[idCopied,setIdCopied]=useState(false),[pwLocked,setPwLocked]=useState(true);
+ const [open,setOpen]=useState<''|'name'|'phone'|'email'>(''),[idCopied,setIdCopied]=useState(false),[pwLocked,setPwLocked]=useState(true),[photoSheet,setPhotoSheet]=useState(false);
  const identity=useRef('');const [emailStep,setEmailStep]=useState<0|1|2>(0),[emailCode,setEmailCode]=useState('');
  function accept(value:Profile){setProfile(current=>({...value,avatar_url:value.avatar_url!==undefined?value.avatar_url:current?.avatar_url,created_at:value.created_at||current?.created_at}));setName(value.name||'');setPhone(value.phone||'');setEmail(value.pending_email||value.email||'');}
  useEffect(()=>{let active=true;
@@ -59,8 +59,7 @@ export default function ProfileSettings(){
   {loading?<p role="status">Yüklənir…</p>:!signedIn?<p className="notice"><Link href="/login?next=/account">Davam etmək üçün daxil olun.</Link></p>:profile?<div className="kzAccountGrid">
    <section className="kzPanel kzAccHead">
     <div className="kzAccAvatar">
-     <UserAvatar src={profile.avatar_url} name={profile.name}/>
-     <button type="button" className="kzAccCamera" disabled={!!busy} aria-label={profile.avatar_url?'Profil şəklini dəyiş':'Profil şəkli əlavə et'} onClick={()=>photoInput.current?.click()}><Camera aria-hidden="true" size={16} strokeWidth={2}/></button>
+     <button type="button" className="kzAccAvatarBtn" disabled={!!busy} aria-label="Profil şəkli" aria-haspopup="dialog" onClick={()=>profile.avatar_url?setPhotoSheet(true):photoInput.current?.click()}><UserAvatar src={profile.avatar_url} name={profile.name}/><span className="kzAccCamera" aria-hidden="true"><Camera size={16} strokeWidth={2}/></span></button>
      <input ref={photoInput} type="file" accept="image/*" hidden onChange={event=>changePhoto(event.target.files?.[0])}/>
     </div>
     <strong className="kzAccName">{profile.name||'Profil'}</strong>
@@ -70,9 +69,18 @@ export default function ProfileSettings(){
     </div>
     {profile.created_at&&<p className="kzAccSince">{azDate(profile.created_at)} tarixindən saytdadır</p>}
     {busy==='photo'&&<p className="kzAccSince" role="status">Şəkil yüklənir…</p>}
-    {profile.avatar_url&&busy!=='photo'&&<button type="button" className="kzAccRemovePhoto" disabled={!!busy} onClick={removePhoto}><Trash2 aria-hidden="true" size={14} strokeWidth={2}/>Şəkli sil</button>}
+    {busy!=='photo'&&<p className="kzAccSince">{profile.avatar_url?'Şəkli dəyişmək və ya silmək üçün şəkilə toxunun':'Şəkil əlavə etmək üçün şəkilə toxunun'}</p>}
    </section>
    {status('photo')}
+   {photoSheet&&<div className="kzSheetLayer" role="dialog" aria-modal="true" aria-label="Profil şəkli" onClick={()=>setPhotoSheet(false)}>
+    <div className="kzSheet" onClick={event=>event.stopPropagation()}>
+     <span className="kzSheetGrab" aria-hidden="true"/>
+     <strong>Profil şəkli</strong>
+     <button type="button" onClick={()=>{setPhotoSheet(false);photoInput.current?.click();}}><Camera aria-hidden="true" size={19} strokeWidth={1.9}/>Yeni şəkil seç</button>
+     <button type="button" className="danger" onClick={()=>{setPhotoSheet(false);void removePhoto();}}><Trash2 aria-hidden="true" size={19} strokeWidth={1.9}/>Şəkli sil</button>
+     <button type="button" className="cancel" onClick={()=>setPhotoSheet(false)}>Ləğv et</button>
+    </div>
+   </div>}
 
    <section className="kzPanel kzAccList" aria-label="Şəxsi məlumatlar">
     <h2>Şəxsi məlumatlar</h2>

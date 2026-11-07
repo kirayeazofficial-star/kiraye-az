@@ -75,7 +75,7 @@ export default function SiteMenu() {
         <nav className="siteMenuHelp" aria-label={t("Məlumat və kömək")}>
           {helpLinks.map(([href, title, Icon, tone]) => <Link key={href} href={href} onClick={() => setOpen(false)}><span className={`kzSideIcon ${tone}`}><Icon aria-hidden="true" size={18} strokeWidth={2} /></span><span>{t(title)}</span><ChevronRight className="kzSideArrow" aria-hidden="true" size={16} strokeWidth={2} /></Link>)}
         </nav>
-        <SiteContact />
+        <SiteContact compact />
       </aside>
     </div>, document.body)}
   </>;

@@ -3239,3 +3239,17 @@ html body .loginPage .authBack{margin:6px auto 0!important}
 html body .loginPage .kzHeader .kzSearch,html body .loginPage .kzHeader .kzSearchRow{display:none!important}
 html body .loginPage .authModeLinks{margin-bottom:0!important}
 html body .loginPage .authShell>section>form,html body .loginPage .authShell>section>.confirmationPanel{margin-top:26px!important}
+
+/* Yan menyu: yığcam əlaqə sətri. */
+.kzContactMini{display:flex;flex-direction:column;gap:8px;margin:14px 0 4px;padding:14px 4px 0;border-top:1px solid var(--kz-line)}
+.kzContactMini>span{font-size:12px;font-weight:600;color:var(--kz-muted)}
+.kzContactMini>div{display:flex;flex-wrap:wrap;gap:8px}
+.kzContactMini a{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:1px solid var(--kz-line);border-radius:999px;background:#fff;color:var(--kz-ink)!important;font-size:13px;font-weight:500;text-decoration:none!important}
+.kzContactMini a svg{flex:none;color:var(--kz-text)}
+/* Kabinet menyusu: Profil düyməsi çıxdı, telefonda 4 düymə bərabər yerləşir. */
+@media(max-width:767px){.accountDashboard .cabinetNav.cabinetCards{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+/* Qeydiyyat və giriş: xəbərdarlıq əsas düymənin üstündə. */
+html body .loginPage .authFormNotice{order:3;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0!important;padding:12px 14px!important;border-radius:12px!important;border:1px solid #f5c2bd!important;background:#fff4f2!important;color:#b42318!important;font-size:13.5px!important;line-height:1.45!important}
+html body .loginPage .authFormNotice .recoveryAction{min-height:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;background:none!important;color:#13856b!important;font-weight:700!important;font-size:13.5px!important;text-decoration:underline}
+.kzContactMini>div{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important}
+.kzContactMini a{justify-content:center;gap:5px!important;padding:0 6px!important;font-size:12.5px!important;white-space:nowrap;min-width:0}

@@ -14,15 +14,15 @@ const languages: { value: Language; label: string; name: string }[] = [
 ];
 
 const menuGroups = [
-  { title: "Kömək və əlaqə", items: [
-    { href: "/help", label: "Kömək", hint: "Suallar və cavablar", icon: LifeBuoy },
-    { href: `mailto:${siteContact.email}`, label: "Bizə yazın", hint: siteContact.email, icon: Mail, external: true },
-    { href: "/magaza", label: "Mağazalar", hint: "Bütün aktiv mağazalar", icon: Store },
-  ] },
   { title: "Hüquqi məlumat", items: [
     { href: "/rules", label: "Qaydalar və təhlükəsizlik", hint: "Elan və kirayə qaydaları", icon: ShieldCheck },
     { href: "/privacy", label: "Məxfilik", hint: "Məlumatlarınız necə qorunur", icon: Lock },
     { href: "/terms", label: "İstifadəçi razılaşması", hint: "Saytdan istifadə şərtləri", icon: FileText },
+  ] },
+  { title: "Kömək və əlaqə", items: [
+    { href: "/help", label: "Kömək", hint: "Suallar və cavablar", icon: LifeBuoy },
+    { href: `mailto:${siteContact.email}`, label: "Bizə yazın", hint: "E-poçtla müraciət", icon: Mail, external: true },
+    { href: "/magaza", label: "Mağazalar", hint: "Bütün aktiv mağazalar", icon: Store },
   ] },
 ];
 
@@ -76,7 +76,7 @@ export default function SiteMenu() {
             <p className="kzMenuHead">{t(group.title)}</p>
             <nav className="kzMenuList" aria-label={t(group.title)}>
               {group.items.map(({ href, label, hint, icon: Icon, external }) => {
-                const inner = <><span className="kzMenuIcon"><Icon aria-hidden="true" size={20} strokeWidth={1.9} /></span><span className="kzMenuText"><b>{t(label)}</b><small>{hint.includes("@") ? hint : t(hint)}</small></span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={17} strokeWidth={2} /></>;
+                const inner = <><span className="kzMenuIcon"><Icon aria-hidden="true" size={20} strokeWidth={1.9} /></span><span className="kzMenuText"><b>{t(label)}</b><small>{t(hint)}</small></span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={17} strokeWidth={2} /></>;
                 return external ? <a key={href} href={href}>{inner}</a> : <Link key={href} href={href} onClick={() => setOpen(false)}>{inner}</Link>;
               })}
             </nav>

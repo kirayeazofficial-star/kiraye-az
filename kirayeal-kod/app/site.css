@@ -3258,3 +3258,10 @@ html body .loginPage .authFormNotice .recoveryAction{min-height:0!important;heig
 .kzAccList h2+.kzAccEdit{border-top:0!important}
 .kzAccCurrent{margin:0!important;font-size:13px;color:var(--kz-muted)}
 .kzAccCurrent b{color:var(--kz-ink);font-weight:600;overflow-wrap:anywhere}
+
+/* Düymə yazıları telefonun ölçüsünə uyğun: 320px-də 14px, 390px-də ~15px, kompüterdə 16px. */
+@media(max-width:767px){
+ html body .kzButton,html body .kzButtonGhost,html body .authSubmit,html body .loginPage .authSubmit,html body a.add,html body button.add,html body .secondary,html body .kzScBtn,html body .kzDangerButton,html body .loginPage .googleButton,html body .kzLogoutRow,html body .kzAccEdit .kzButton,html body .kzAccEdit .kzButtonGhost{font-size:clamp(14px,3.85vw,15.5px)!important}
+ html body .loginPage .authSubmit{height:48px!important;min-height:48px!important}
+ html body .loginPage .googleButton{height:46px!important;min-height:46px!important}
+}

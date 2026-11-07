@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 export const metadata: Metadata = { title: "Kömək | kirayeal.az", description: "Kirayeal.az-dan istifadə qaydaları, əlaqə və suallar.", alternates: { canonical: "/help" } };
-import HelpContact from "../components/HelpContact";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 export default function Help() {
@@ -18,8 +17,8 @@ export default function Help() {
             ["Kirayə xərcini necə hesablayım?", "Elan səhifəsində götürmə və qaytarma tarixlərini seçin. Günlük qiymət gün sayına, aylıq qiymət ayların sayına vurulur. Depozit ayrıca göstərilir. Çatdırılma və kommunal kimi əlavə xərcləri elan sahibi ilə dəqiqləşdirin."],
             ["Tarix seçmək rezervasiya yaradır?", "Xeyr. Hesablama tarixləri tutmur. Mövcudluğu və son qiyməti elan sahibi təsdiqləməlidir."],
             ["Saytda ödəniş edə bilərəm?", "Kirayə haqqını sayt qəbul etmir, elan sahibi ilə birbaşa razılaşırsınız. Əşyanı və ya əmlakı görmədən beh göndərməyin."],
-            ["Şübhəli elanı necə bildirim?", "Elan səhifəsində «Şikayət et» düyməsini seçin, səbəbi və qısa izahı yazın. Şikayəti administrasiya yoxlayacaq."],
-            ["Hesabıma necə daxil olum?", "«Daxil ol» bölməsində e-poçt ünvanınızı və şifrənizi yazın. Hesabınız yoxdursa, «Qeydiyyat» seçin. Şifrəni unutmusunuzsa, «Şifrəni unutdum» ilə bərpa edin."],
+            ["Şübhəli elanı necə bildirim?", "Elan səhifəsində bayraq işarəsinə («Şikayət et») toxunun, səbəbi və qısa izahı yazın. Şikayəti administrasiya yoxlayacaq."],
+            ["Hesabıma necə daxil olum?", "«Daxil ol» bölməsində e-poçt ünvanınızı və şifrənizi yazın. Hesabınız yoxdursa, «Qeydiyyat» seçin. Şifrəni unutmusunuzsa, «Şifrəni unutmusunuz?» keçidi ilə bərpa edin."],
             ["Təsdiq məktubu gəlmir?", "Spam qovluğunu yoxlayın. Giriş səhifəsində yeni kod istəyin və yalnız ən son məktubdakı koddan istifadə edin."],
           ].map(([q, a]) => (
             <details key={q} className="helpCard">
@@ -28,7 +27,6 @@ export default function Help() {
             </details>
           ))}
         </div>
-        <HelpContact />
       </main>
       <Footer />
     </>

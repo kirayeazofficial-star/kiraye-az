@@ -179,7 +179,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                     <span className="kzProfileHeadAvatar"><UserAvatar src={avatar} name={identity} className="large"/></span>
                     <span className="kzProfileHeadText">
                       <span className="kzProfileNameRow"><h1>{identity||"Profil"}</h1>{leader&&<span className="kzLeaderChip"><Star aria-hidden="true" size={12} strokeWidth={2.2}/>Rəhbər</span>}</span>
-                      <small className="kzProfileSub">{profileNumber ? `ID ${profileNumber} · ` : ""}Profilə bax</small>
+                      <small className="kzProfileSub">{profileNumber && <span className="kzProfileSubId">ID {profileNumber}</span>}<span className="kzProfileSubGo">Profilə bax</span></small>
                     </span>
                     <span className="kzProfileHeadGo" aria-hidden="true"><ChevronRight size={22} strokeWidth={2}/></span>
                   </Link>

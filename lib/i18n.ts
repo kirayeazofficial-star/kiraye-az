@@ -1,5 +1,8 @@
 // Russian and English for texts written directly in components. Key: exact Azerbaijani text.
 export const extraDictionary: Record<string, [string, string]> = {
+  "Elan seçdiyiniz sayda, hər 8 saatdan bir öz kateqoriyasında ən yuxarıya qalxır.": ["Объявление поднимается в начало своей категории каждые 8 часов выбранное число раз.", "The listing rises to the top of its category every 8 hours, as many times as you choose."],
+  "Elan ana səhifənin VIP bölməsində və öz kateqoriyasında daha çox göstərilir.": ["Объявление чаще показывается в разделе VIP на главной и в своей категории.", "The listing is shown more often in the VIP section on the home page and in its category."],
+  "Elan ana səhifənin ən üstündəki Premium bölməsində xidmət bitənədək göstərilir.": ["Объявление показывается в разделе Premium вверху главной страницы до конца услуги.", "The listing is shown in the Premium section at the top of the home page until the service ends."],
   "Sualınız var? Buradan başlayın.": ["Есть вопрос? Начните здесь.", "Have a question? Start here."],
   "Cavab tapmadınız?": ["Не нашли ответ?", "Didn't find an answer?"],
   "Bizə e-poçtla yazın, ən qısa zamanda cavab verəcəyik.": ["Напишите нам на e-mail — ответим как можно скорее.", "Write to us by e-mail and we'll reply as soon as possible."],

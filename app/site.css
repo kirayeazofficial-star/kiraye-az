@@ -3547,3 +3547,19 @@ html body .kzHelpAsk>div{display:flex;flex-wrap:wrap;gap:10px}
 html body .kzHelpAsk a{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 18px;border-radius:10px;border:1px solid #d8ece4;background:#fff;color:#104c43!important;font-size:14px;font-weight:600;text-decoration:none!important}
 html body .kzHelpAsk a.main{background:#104c43;border-color:#104c43;color:#fff!important}
 @media (max-width:480px){html body .kzHelpAsk a{flex:1 1 0}}
+/* Sayt sonu (telefon): loqo öz sətrində, şüar altında kiçik və səliqəli. */
+@media (max-width:767px){
+html body .kzFooterBrand{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:4px!important}
+html body .kzFooterBrand p{margin:0!important;font-size:13px!important;line-height:1.4;color:var(--kz-muted)}
+}
+/* "Elanı reklam et": qiymət başlığın yanında, saytın rəngində; mətn tam en tutur. */
+html body .kzPromoOption{align-items:flex-start!important}
+html body .kzPromoOptionText strong{display:flex;align-items:center;justify-content:space-between;gap:8px}
+html body .kzPromoOptionText strong em{font-style:normal;font-size:13px;font-weight:700;color:#104c43;white-space:nowrap;background:#eaf5f1;padding:3px 8px;border-radius:999px}
+html body .kzPromoOptionText small{font-size:13px!important;line-height:1.45}
+html body .kzPromoOption>.kzPromoChevron{flex:none;align-self:center;color:#b4bbb8}
+html body .kzPromoPlan{flex:1;min-width:0}
+html body .kzPromoPlanPrice{flex:none;margin-left:auto;font-size:15px;font-weight:700;color:#104c43;white-space:nowrap}
+html body .kzPromoPlan{flex:0 1 auto}
+html body .kzPromoList .kzPromoExtra{order:2}
+html body .kzPromoPlanPrice{order:3}

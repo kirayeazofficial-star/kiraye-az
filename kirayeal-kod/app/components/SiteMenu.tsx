@@ -1,4 +1,5 @@
 "use client";
+import type React from "react";
 import { ChevronRight, FileText, LifeBuoy, Lock, Mail, Menu, ShieldCheck, Store, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
@@ -23,6 +24,8 @@ const menuGroups = [
     { href: "/help", label: "Kömək", hint: "Suallar və cavablar", icon: LifeBuoy },
     { href: `mailto:${siteContact.email}`, label: "Bizə yazın", hint: "E-poçtla müraciət", icon: Mail, external: true },
     { href: "/magaza", label: "Mağazalar", hint: "Bütün aktiv mağazalar", icon: Store },
+    { href: siteContact.instagram, label: "Instagram", hint: "Yeniliklər və elanlar", icon: InstagramIcon, external: true, newTab: true },
+    { href: siteContact.tiktok, label: "TikTok", hint: "Qısa videolar", icon: TikTokIcon, external: true, newTab: true },
   ] },
 ];
 
@@ -75,20 +78,13 @@ export default function SiteMenu() {
           {menuGroups.map(group => <section key={group.title} className="kzMenuGroup">
             <p className="kzMenuHead">{t(group.title)}</p>
             <nav className="kzMenuList" aria-label={t(group.title)}>
-              {group.items.map(({ href, label, hint, icon: Icon, external }) => {
-                const inner = <><span className="kzMenuIcon"><Icon aria-hidden="true" size={20} strokeWidth={1.9} /></span><span className="kzMenuText"><b>{t(label)}</b><small>{t(hint)}</small></span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={17} strokeWidth={2} /></>;
-                return external ? <a key={href} href={href}>{inner}</a> : <Link key={href} href={href} onClick={() => setOpen(false)}>{inner}</Link>;
+              {group.items.map(({ href, label, hint, icon: Icon, external, newTab }: { href: string; label: string; hint: string; icon: React.ComponentType<{ size?: number; strokeWidth?: number }>; external?: boolean; newTab?: boolean }) => {
+                const inner = <><span className="kzMenuIcon"><Icon size={20} strokeWidth={1.9} /></span><span className="kzMenuText"><b>{t(label)}</b><small>{t(hint)}</small></span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={17} strokeWidth={2} /></>;
+                return external ? <a key={href} href={href} {...(newTab ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{inner}</a> : <Link key={href} href={href} onClick={() => setOpen(false)}>{inner}</Link>;
               })}
             </nav>
           </section>)}
-          <div className="kzMenuFollow">
-            <span>{t("Bizi izləyin")}</span>
-            <div>
-              <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={22} /></a>
-              <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={21} /></a>
-            </div>
-            <p>© {new Date().getFullYear()} kirayeal.az</p>
-          </div>
+          <p className="kzMenuCopy">© {new Date().getFullYear()} kirayeal.az</p>
         </div>
       </aside>
     </div>, document.body)}

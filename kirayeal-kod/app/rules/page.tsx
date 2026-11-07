@@ -25,7 +25,7 @@ const sections = [
     rules: [
       "Elan yerləşdirmək üçün hesabınıza daxil olun. Yayımlanmış elanlara qeydiyyatsız baxmaq mümkündür.",
       "Elanı əşyanın növünə uyğun kateqoriyada yerləşdirin. Limitdən yayınmaq üçün yanlış kateqoriya seçmək olmaz.",
-      "Elan yerləşdirməyə kateqoriya üzrə müəyyən edilən limit tətbiq olunur. Elan göndərilərkən kateqoriya üzrə limit yoxlanılır.",
+      "Elan yerləşdirməyə pulsuz elan limiti tətbiq olunur (bax: 8.2). Elan göndərilərkən limit avtomatik yoxlanılır.",
       "Bir elan konkret əmlakı, əşyanı və ya birlikdə kirayəyə verilən dəsti təsvir etməlidir. Əlaqəsiz məhsulları bir elanda birləşdirmək olmaz.",
     ],
   },

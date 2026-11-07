@@ -3372,3 +3372,25 @@ html body .kzButton,html body .kzButtonGhost,html body .kzAccEdit .kzButton,html
 html body .loginPage .authSubmit{height:46px!important;min-height:46px!important;font-size:15px!important;border-radius:12px!important}
 html body .loginPage .googleButton{height:44px!important;min-height:44px!important;font-size:14px!important}
 html body .kzAccountPage .kzAccEdit input{height:44px!important;min-height:44px!important}
+
+/* Kabinet: profil başlığında böyük ox. */
+html body .kzProfileB .kzProfileHeadGo{display:flex!important;align-items:center;justify-content:center;width:44px!important;height:44px!important;margin-right:-6px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff!important}
+html body .kzProfileB .kzProfileHeadAvatar{cursor:default}
+/* Yan menyu: hesab bloku və kateqoriyalar. */
+.siteMenuAccount{display:flex;align-items:center;gap:12px;margin:4px 0 14px;padding:12px;border-radius:14px;background:linear-gradient(135deg,#104c43,#13856b);color:#fff!important;text-decoration:none!important}
+.siteMenuAvatar{flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:#fff;color:#104c43;font-size:18px;font-weight:800}
+.siteMenuAccountText{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.siteMenuAccountText strong{font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.siteMenuAccountText small{font-size:13px;color:rgba(255,255,255,.8)}
+.siteMenuAuth{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 14px}
+.siteMenuAuth a{display:flex;align-items:center;justify-content:center;height:44px;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none!important}
+.siteMenuAuthMain{background:#ff5a1f;color:#fff!important}
+.siteMenuAuthAlt{border:1px solid var(--kz-line);color:var(--kz-ink)!important;background:#fff}
+.siteMenuCats{margin:0 0 6px;padding:0 0 12px;border-bottom:1px solid var(--kz-line)}
+.siteMenuCats>strong{display:block;margin:0 0 8px;font-size:12px;font-weight:600;color:var(--kz-muted)}
+.siteMenuCats>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.siteMenuCats a{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px;border-radius:12px;background:var(--kz-soft);color:var(--kz-ink)!important;text-decoration:none!important;text-align:center;font-size:12px;line-height:1.25}
+.siteMenuCats a .categoryVisual{width:48px!important;height:48px!important;border-radius:10px;background-size:400% 300%!important;flex:none}
+.siteMenuCats a span:last-child{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.5em}
+html body .kzProfileB .kzProfileHeadAvatar{cursor:pointer}
+html body .kzProfileNameLink{color:inherit!important;text-decoration:none!important}

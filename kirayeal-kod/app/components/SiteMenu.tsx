@@ -70,8 +70,8 @@ export default function SiteMenu() {
           <div className="kzDrawerLang"><LanguageSelect /></div>
           <p className="kzDrawerHead">{t("Bizi izləyin")}</p>
           <div className="kzDrawerSocial">
-            <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={17} /></a>
-            <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={17} /></a>
+            <a className="ig" href={siteContact.instagram} target="_blank" rel="noopener noreferrer"><span><InstagramIcon size={15} /></span>Instagram</a>
+            <a className="tt" href={siteContact.tiktok} target="_blank" rel="noopener noreferrer"><span><TikTokIcon size={14} /></span>TikTok</a>
           </div>
           <p className="kzDrawerCopy">© {new Date().getFullYear()} kirayeal.az</p>
         </div>

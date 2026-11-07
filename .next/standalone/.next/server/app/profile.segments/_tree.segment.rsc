@@ -2,7 +2,7 @@
 :HL["/_next/static/css/fb79bcc8c11de537.css","style"]
 :HL["/_next/static/css/b992bc7381648637.css","style"]
 :HL["/_next/static/css/7e0abde59e6deee1.css","style"]
-:HL["/_next/static/css/73af291f03b8d8a3.css","style"]
+:HL["/_next/static/css/f1fb27db71fc2af8.css","style"]
 2:[["children",{"s":"__PAGE__","h":160}]]
 1:[["children",{"s":"profile","h":64,"c":"$Q2"}]]
-0:{"b":"1mBjLi97rgJUxbvNz15Wo","t":{"t":{"s":"","h":16,"c":"$Q1"}}}
+0:{"b":"4ODYMXmo-fm7_FXPwh2J-","t":{"t":{"s":"","h":16,"c":"$Q1"}}}

@@ -3539,3 +3539,11 @@ html body .kzMenuFollow>div{display:flex;gap:14px}
 html body .kzMenuFollow a{display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#eaf5f1;color:#104c43!important}
 html body .kzMenuFollow p{margin:0!important;font-size:12px;color:var(--kz-muted)}
 html body .siteMenuPanel.kzSide .kzMenuIcon svg{width:20px!important;height:20px!important;color:#104c43!important;stroke:#104c43!important;opacity:1!important}
+/* Kömək səhifəsi: sonda "Cavab tapmadınız?" kartı (yan menyudakı yaşıl üslubda). */
+html body .kzHelpAsk{margin:20px 0 8px;padding:18px;border-radius:16px;background:#f1f8f5}
+html body .kzHelpAsk strong{display:block;font-size:17px;color:#104c43}
+html body .kzHelpAsk p{margin:4px 0 14px!important;font-size:14px;line-height:1.45;color:var(--kz-text)}
+html body .kzHelpAsk>div{display:flex;flex-wrap:wrap;gap:10px}
+html body .kzHelpAsk a{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 18px;border-radius:10px;border:1px solid #d8ece4;background:#fff;color:#104c43!important;font-size:14px;font-weight:600;text-decoration:none!important}
+html body .kzHelpAsk a.main{background:#104c43;border-color:#104c43;color:#fff!important}
+@media (max-width:480px){html body .kzHelpAsk a{flex:1 1 0}}

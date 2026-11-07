@@ -13,6 +13,19 @@ const languages: { value: Language; label: string; name: string }[] = [
   { value: "en", label: "EN", name: "English" },
 ];
 
+const menuGroups = [
+  { title: "Kömək və əlaqə", items: [
+    { href: "/help", label: "Kömək", hint: "Suallar və cavablar", icon: LifeBuoy },
+    { href: `mailto:${siteContact.email}`, label: "Bizə yazın", hint: siteContact.email, icon: Mail, external: true },
+    { href: "/magaza", label: "Mağazalar", hint: "Bütün aktiv mağazalar", icon: Store },
+  ] },
+  { title: "Hüquqi məlumat", items: [
+    { href: "/rules", label: "Qaydalar və təhlükəsizlik", hint: "Elan və kirayə qaydaları", icon: ShieldCheck },
+    { href: "/privacy", label: "Məxfilik", hint: "Məlumatlarınız necə qorunur", icon: Lock },
+    { href: "/terms", label: "İstifadəçi razılaşması", hint: "Saytdan istifadə şərtləri", icon: FileText },
+  ] },
+];
+
 export default function SiteMenu() {
   const {t,language,setLanguage}=useLanguage();
   const [open, setOpen] = useState(false);
@@ -51,7 +64,6 @@ export default function SiteMenu() {
       }}>
         <div className="kzMenuHero">
           <Link className="kzMenuLogo" href="/" onClick={() => setOpen(false)}>kirayeal<span>.az</span></Link>
-          <p>{t("Ehtiyacınız olanı almaq məcburiyyətində deyilsiniz.")}</p>
           <div className="kzMenuLang" role="group" aria-label={t("Dil seçimi")}>
             {languages.map(item => <button key={item.value} type="button" aria-label={item.name} aria-pressed={language === item.value} onClick={() => setLanguage(item.value)}>{item.label}</button>)}
           </div>
@@ -60,23 +72,22 @@ export default function SiteMenu() {
           </button>
         </div>
         <div className="kzDrawerBody">
-          <nav className="kzMenuList" aria-label={t("Məlumat və kömək")}>
-            {[
-              { href: "/help", label: "Kömək", icon: LifeBuoy },
-              { href: `mailto:${siteContact.email}`, label: "Bizə yazın", icon: Mail, external: true },
-              { href: "/magaza", label: "Mağazalar", icon: Store },
-              { href: "/rules", label: "Qaydalar və təhlükəsizlik", icon: ShieldCheck },
-              { href: "/privacy", label: "Məxfilik", icon: Lock },
-              { href: "/terms", label: "İstifadəçi razılaşması", icon: FileText },
-            ].map(({ href, label, icon: Icon, external }) => {
-              const inner = <><Icon aria-hidden="true" size={20} strokeWidth={1.9} /><span>{t(label)}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={17} strokeWidth={2} /></>;
-              return external ? <a key={href} href={href}>{inner}</a> : <Link key={href} href={href} onClick={() => setOpen(false)}>{inner}</Link>;
-            })}
-          </nav>
+          {menuGroups.map(group => <section key={group.title} className="kzMenuGroup">
+            <p className="kzMenuHead">{t(group.title)}</p>
+            <nav className="kzMenuList" aria-label={t(group.title)}>
+              {group.items.map(({ href, label, hint, icon: Icon, external }) => {
+                const inner = <><span className="kzMenuIcon"><Icon aria-hidden="true" size={20} strokeWidth={1.9} /></span><span className="kzMenuText"><b>{t(label)}</b><small>{hint.includes("@") ? hint : t(hint)}</small></span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={17} strokeWidth={2} /></>;
+                return external ? <a key={href} href={href}>{inner}</a> : <Link key={href} href={href} onClick={() => setOpen(false)}>{inner}</Link>;
+              })}
+            </nav>
+          </section>)}
           <div className="kzMenuFollow">
             <span>{t("Bizi izləyin")}</span>
-            <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={22} /></a>
-            <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={21} /></a>
+            <div>
+              <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={22} /></a>
+              <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={21} /></a>
+            </div>
+            <p>© {new Date().getFullYear()} kirayeal.az</p>
           </div>
         </div>
       </aside>

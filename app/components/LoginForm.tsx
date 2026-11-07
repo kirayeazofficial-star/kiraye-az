@@ -375,7 +375,7 @@ export default function Login({
                   {mode === "signup"
                     ? "Pulsuz qeydiyyat, bir dəqiqəyə hazır"
                     : mode === "reset"
-                      ? "Hesabınıza bağlı e-poçt ünvanını yazın. Həmin ünvana 6 rəqəmli bərpa kodu göndəriləcək."
+                      ? "Hesabınızın e-poçt ünvanını yazın, bərpa kodunu ora göndərəcəyik"
                       : "Elanlarınız və mesajlarınız sizi gözləyir"}
                 </p>
               )}
@@ -563,7 +563,7 @@ export default function Login({
                         )}
                       </div>
                     )}
-                    {mode === "signup" && !notice && <p className="authCodeNote"><Mail aria-hidden="true" size={18} strokeWidth={2}/><span>{emailAddress.includes("@") ? <>Təsdiq kodu <b>{emailAddress}</b> ünvanına göndəriləcək</> : "E-poçtunuza 6 rəqəmli təsdiq kodu göndəriləcək"}</span></p>}
+                    {mode === "signup" && !notice && <p className="authCodeNote"><Mail aria-hidden="true" size={18} strokeWidth={2}/><span>{emailAddress.includes("@") ? <>Təsdiq kodu <b>{emailAddress}</b> ünvanına göndəriləcək</> : "E-poçtunuza təsdiq kodu göndəriləcək"}</span></p>}
                     <button
                       className="authSubmit"
                       disabled={!ready || busy || submitBlocked}
@@ -573,7 +573,7 @@ export default function Login({
                         : mode === "signup"
                           ? "Hesab yarat"
                           : mode === "reset"
-                            ? "6 rəqəmli kod göndər"
+                            ? "Bərpa kodu göndər"
                             : "Daxil ol"}
                     </button>
                     {mode === "login" && <p className="kzAuthTerms">Davam etməklə <Link href="/terms">İstifadəçi razılaşması</Link> və <Link href="/privacy">Məxfilik siyasəti</Link> ilə razılaşırsınız</p>}

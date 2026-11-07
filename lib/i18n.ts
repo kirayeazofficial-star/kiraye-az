@@ -26,6 +26,7 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Mənim kartlarım": ["Мои карты", "My cards"],
   "Limitlər": ["Лимиты", "Limits"],
   "Hesabdan çıx": ["Выйти", "Sign out"],
+  "Çıxılır…": ["Выход…", "Signing out…"],
   "Metro": ["Метро", "Metro"],
   "Yaşayış kompleksi": ["Жилой комплекс", "Residential complex"],
   "Məsələn: Port Baku": ["Например: Port Baku", "E.g. Port Baku"],

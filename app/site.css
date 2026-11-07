@@ -3291,3 +3291,18 @@ html body .loginPage .kzAuthDone{display:flex!important;align-items:center;justi
 html body .loginPage .kzAuthLinks{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:18px}
 html body .loginPage .kzAuthLinks a{font-size:14px;font-weight:600;color:#13856b!important;text-decoration:none!important}
 html body .loginPage .kzAuthLinks a:first-child{display:flex;align-items:center;justify-content:center;width:100%;height:50px;border-radius:14px;background:#ff5a1f;color:#fff!important;font-size:16px;font-weight:700}
+
+/* Hesabdan çıx: kabinet menyusunda və yan menyuda aydın qırmızı sətir. */
+html body .accountDashboard .cabinetNavFoot{display:flex!important;flex-direction:column;gap:2px}
+html body .kzCabinetLogout{display:flex!important;align-items:center;gap:12px;width:100%;min-height:52px;margin:0!important;padding:0 12px!important;border:0!important;border-radius:12px!important;background:none!important;color:#d92d20!important;font:inherit;font-size:15px!important;font-weight:600!important;text-align:left;cursor:pointer;box-shadow:none!important}
+html body .kzCabinetLogout:hover{background:#fff4f2!important}
+.kzMenuIcon.logout{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:#fff1ef;color:#d92d20}
+.siteMenuLogout{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;margin:6px 0 0;padding:10px 8px 0;border:0;border-top:1px solid var(--kz-line);border-radius:0;background:none;color:#d92d20;font:inherit;font-size:15px;font-weight:600;text-align:left;cursor:pointer}
+.kzSideIcon.red{background:#fff1ef!important;color:#d92d20!important}
+/* Rəhbər paneli: elan sətrində tək düymə. */
+html body .kzAdListing .kzAdRowActions{display:flex;align-items:center}
+html body .kzAdListing .kzAdRowActions .kzAdBtn{min-height:42px;padding:0 16px;white-space:nowrap}
+@media(max-width:767px){html body .kzAdListing .kzAdRowActions{grid-column:1/-1}html body .kzAdListing .kzAdRowActions .kzAdBtn{width:100%;justify-content:center}}
+/* Deaktiv əsas düymələr solğun narıncı yox, boz görünsün. */
+html body .kzAdBtn.primary:disabled,html body .kzButton:disabled{background:#e6e9e8!important;border-color:#e6e9e8!important;color:#8a928f!important;box-shadow:none!important;opacity:1!important}
+html body .accountDashboard .cabinetNav .cabinetNavFoot .kzCabinetLogout,html body .accountDashboard .cabinetNav .cabinetNavFoot .kzCabinetLogout span{color:#d92d20!important}

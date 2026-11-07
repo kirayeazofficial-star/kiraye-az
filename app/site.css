@@ -3313,25 +3313,3 @@ html body .kzPhonePrefix,html body .kzPhoneInput input{line-height:1.2!important
 html body .kzPhonePrefix,html body .kzPhoneInput input{font-family:var(--kz-font)!important;font-size:16px!important;font-weight:500!important;color:var(--kz-ink)!important;-webkit-text-fill-color:var(--kz-ink)!important}
 html body .kzPhoneInput input::placeholder{font-weight:400!important;color:#a7afac!important;-webkit-text-fill-color:#a7afac!important}
 html body .kzPhoneInput.kzPhoneInput.kzPhoneInput input:not([type=hidden]),html body .kzPhoneInput.kzPhoneInput.kzPhoneInput .kzPhonePrefix{font-weight:500!important;font-size:16px!important}
-
-/* Kabinet: elan tabları telefonda sürüşmür, hamısı görünür (lazım olsa ikinci sətrə keçir). */
-@media(max-width:767px){
- html body .accountDashboard .kzOwnTabs{display:flex!important;flex-wrap:wrap!important;gap:6px!important;overflow:visible!important;margin:0 0 14px!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important}
- html body .accountDashboard .kzOwnTabs button{flex:0 0 auto!important;display:inline-flex!important;align-items:center;gap:6px!important;min-height:36px!important;height:36px!important;margin:0!important;padding:0 10px 0 12px!important;border:1px solid var(--kz-line)!important;border-radius:999px!important;background:#fff!important;box-shadow:none!important;color:var(--kz-text)!important;font-size:13.5px!important;font-weight:500!important;white-space:nowrap!important}
- html body .accountDashboard .kzOwnTabs button svg{display:none!important}
- html body .accountDashboard .kzOwnTabs button .kzOwnTabLabel{display:inline!important}
- html body .accountDashboard .kzOwnTabs button[aria-pressed=true]{background:#104c43!important;border-color:#104c43!important;color:#fff!important;font-weight:600!important}
- html body .accountDashboard .kzOwnTabs button b{min-width:20px;height:20px;padding:0 6px!important;border-radius:10px!important;background:var(--kz-soft)!important;color:var(--kz-text)!important;font-size:12px!important;line-height:20px!important;text-align:center}
- html body .accountDashboard .kzOwnTabs button[aria-pressed=true] b{background:rgba(255,255,255,.22)!important;color:#fff!important}
- /* Elan kartının düymələri bir sətirdə bərabər. */
- html body .accountDashboard .accountListings article .accountItemActions{display:grid!important;grid-auto-flow:column!important;grid-auto-columns:minmax(0,1fr)!important;grid-template-columns:none!important;gap:8px!important}
- html body .accountDashboard .accountListings article .accountItemActions>*{min-width:0!important;padding:0 6px!important;font-size:14px!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
- html body .accountDashboard .accountListings article .accountItemActions>* svg{display:none!important}
-}
-/* Yan menyu: əlaqə — səliqəli dairəvi ikonlar, aşağıda Safari panelinə sıxılmır. */
-.kzContactMini{flex-direction:row!important;align-items:center!important;justify-content:space-between;gap:12px!important}
-.kzContactMini>div{display:flex!important;gap:10px!important;grid-template-columns:none!important}
-.kzContactMini a{width:40px!important;height:40px!important;padding:0!important;border-radius:50%!important;justify-content:center!important;gap:0!important;font-size:0!important;color:var(--kz-ink)!important}
-.kzContactMini a svg{width:18px!important;height:18px!important}
-.siteMenuPanel.kzSide{padding-bottom:calc(28px + env(safe-area-inset-bottom))!important}
-@media(max-width:767px){html body .accountDashboard .accountListings article .accountItemActions>*{font-size:clamp(12.5px,3.7vw,14px)!important;padding:0 4px!important}}

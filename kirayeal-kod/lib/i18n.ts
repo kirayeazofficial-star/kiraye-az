@@ -179,7 +179,7 @@ export const extraDictionary: Record<string, [string, string]> = {
   "İstifadəçi razılaşması": ["Пользовательское соглашение", "Terms of use"],
   "Kömək": ["Помощь", "Help"],
   "Bizimlə əlaqə": ["Связаться с нами", "Contact us"],
-  "Ehtiyacın olanı almalı deyilsən.": ["Не обязательно покупать то, что нужно.", "You don't have to buy what you need."],
+  "Ehtiyacınız olanı almaq məcburiyyətində deyilsiniz.": ["Не обязательно покупать то, что нужно.", "You don't have to buy what you need."],
   "Kateqoriyalar": ["Категории", "Categories"],
   "Bakının rayonları": ["Районы Баку", "Baku districts"],
   "Şəhərlər": ["Города", "Cities"],
@@ -352,6 +352,7 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Digər elanlara bax": ["Смотреть другие объявления", "See other listings"],
   "Digər": ["Другое", "Other"],
   "Bütün kateqoriyalar": ["Все категории", "All categories"],
+  "Mağazalar": ["Магазины", "Stores"],
   // Statuses and reasons
   "Qəbul edilməyib": ["Не принято", "Not accepted"],
   "Saxta və ya şübhəli elan": ["Фейковое или подозрительное", "Fake or suspicious"],

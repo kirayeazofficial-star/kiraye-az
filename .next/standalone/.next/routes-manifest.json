@@ -335,6 +335,12 @@
       "namedRegex": "^/login(?:/)?$"
     },
     {
+      "page": "/magaza",
+      "regex": "^/magaza(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/magaza(?:/)?$"
+    },
+    {
       "page": "/maintenance",
       "regex": "^/maintenance(?:/)?$",
       "routeKeys": {},

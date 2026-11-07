@@ -12,7 +12,7 @@ export default function Footer() {
       <div className="kzFooterInner">
         <div className="kzFooterBrand">
           <Link href="/" className="kzLogo">kirayeal<span>.az</span></Link>
-          <p>{t("Ehtiyacın olanı almalı deyilsən.")}</p>
+          <p>{t("Ehtiyacınız olanı almaq məcburiyyətində deyilsiniz.")}</p>
         </div>
         <nav aria-label={t("Populyar kateqoriyalar")}>
           <strong>{t("Kateqoriyalar")}</strong>

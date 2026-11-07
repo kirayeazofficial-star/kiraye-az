@@ -5,7 +5,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 35239,
+      "htmlSize": 35260,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -62,7 +62,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 40173,
+      "htmlSize": 40194,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -90,7 +90,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 30429,
+      "htmlSize": 30450,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -118,7 +118,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 30802,
+      "htmlSize": 30823,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -202,7 +202,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 38615,
+      "htmlSize": 38636,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -258,6 +258,34 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/magaza": {
+      "routeType": "page",
+      "response": "complete",
+      "compute": "static",
+      "htmlSize": 30048,
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/magaza",
+      "dataRoute": "/magaza.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/manifest.webmanifest": {
       "initialHeaders": {
         "cache-control": "public, max-age=0, must-revalidate",
@@ -294,7 +322,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 29971,
+      "htmlSize": 29992,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -322,7 +350,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 30850,
+      "htmlSize": 30871,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -350,7 +378,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 32906,
+      "htmlSize": 32927,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -466,7 +494,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 55778,
+      "htmlSize": 55799,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -494,7 +522,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 48407,
+      "htmlSize": 48428,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -522,8 +550,8 @@
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "9310cf223ebb0bf8c076ac7ec0a59d94",
-    "previewModeSigningKey": "102b1896aee6d0529586ffa93c45157282c2bee765707e0820548f1fa0711b5f",
-    "previewModeEncryptionKey": "e48980b4ed57ed9848725feb200c2a1af32fa4dddf855f624ed7401778bb4793"
+    "previewModeId": "dfcf31b7652d83ef64fe5a956071c270",
+    "previewModeSigningKey": "10c38b4d6120f58ad09f3f7a7b7b8b61b9a6049b5c756424503029fde0a616be",
+    "previewModeEncryptionKey": "178da1652d0dbe96efa512d96fddbc2aabd9d7c50c5b7e534a85648aeb45967b"
   }
 }

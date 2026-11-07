@@ -1,0 +1,32 @@
+2:"$Sreact.fragment"
+3:I[57121,[],""]
+4:I[74581,[],""]
+9:"static/chunks/2348-eb7e42c29808f76a.js"
+a:"static/chunks/2815-5197e9128feb0a0e.js"
+b:"static/chunks/8714-8dd26feec450ce4b.js"
+c:"static/chunks/2437-24ab93ca8ab2836e.js"
+d:"static/chunks/app/magaza/page-24bd5b6bf4c4c72f.js"
+e:I[62437,["2348","$9","2815","$a","8714","$b","2437","$c","5688","$d"],"default"]
+f:I[72348,["2348","$9","2815","$a","8714","$b","2437","$c","5688","$d"],"default"]
+10:I[79692,["2348","$9","2815","$a","8714","$b","2437","$c","5688","$d"],"default"]
+11:I[90484,[],"OutletBoundary"]
+12:"$Sreact.suspense"
+15:"ViewportBoundary"
+16:I[90484,[],"$15"]
+17:"MetadataBoundary"
+18:I[90484,[],"$17"]
+19:I[86869,[],"IconMark"]
+6:X
+6:C
+7:X
+8:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$2","c",{"children":[[["$","$Le",null,{}],["$","main",null,{"className":"wrap kzStoresPage","children":[["$","h1",null,{"className":"kzPageTitle","children":"Mağazalar"}],["$","$Lf",null,{}]]}],["$","$L10",null,{}]],null,["$","$L11",null,{"children":["$","$12",null,{"name":"Next.MetadataOutlet","children":"$@13"}]}]]}],"p":"$@14","v":null,"s":"$7"}}]]
+1:[["children",{"s":"magaza","h":64,"d":{"r":["$","$2","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]]}],"p":"$@5","v":"$6","s":"$7"},"c":"$Q8"}]]
+0:{"t":{"t":{"s":"","h":16,"c":"$Q1"},"h":{"r":["$","$2","h",{"children":[null,["$","$L16",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#ffffff"}]]}],["$","$L18",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$12",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Mağazalar | kirayeal.az"}],["$","meta","1",{"name":"description","content":"kirayeal.az-da kirayə verən mağazalar."}],["$","link","2",{"rel":"manifest","href":"/manifest.webmanifest"}],["$","meta","3",{"name":"google","content":"notranslate"}],["$","link","4",{"rel":"canonical","href":"https://kirayeal.az/magaza"}],["$","meta","5",{"name":"mobile-web-app-capable","content":"yes"}],["$","meta","6",{"name":"apple-mobile-web-app-title","content":"kirayeal.az"}],["$","meta","7",{"name":"apple-mobile-web-app-status-bar-style","content":"default"}],["$","meta","8",{"property":"og:title","content":"Mağazalar | kirayeal.az"}],["$","meta","9",{"property":"og:description","content":"kirayeal.az-da kirayə verən mağazalar."}],["$","meta","10",{"property":"og:site_name","content":"kirayeal.az"}],["$","meta","11",{"property":"og:locale","content":"az_AZ"}],["$","meta","12",{"property":"og:image","content":"https://kirayeal.az/og-default.jpg"}],["$","meta","13",{"property":"og:image:width","content":"1200"}],["$","meta","14",{"property":"og:image:height","content":"630"}],["$","meta","15",{"property":"og:image:alt","content":"kirayeal.az — Kirayə üçün bir ünvan"}],["$","meta","16",{"property":"og:type","content":"website"}],["$","meta","17",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","18",{"name":"twitter:title","content":"Mağazalar | kirayeal.az"}],["$","meta","19",{"name":"twitter:description","content":"kirayeal.az-da kirayə verən mağazalar."}],["$","meta","20",{"name":"twitter:image","content":"https://kirayeal.az/og-default.jpg"}],["$","link","21",{"rel":"icon","href":"/icon.svg","type":"image/svg+xml"}],["$","link","22",{"rel":"icon","href":"/favicon-48.png","sizes":"48x48","type":"image/png"}],["$","link","23",{"rel":"apple-touch-icon","href":"/apple-touch-icon.png","sizes":"180x180"}],["$","$L19","24",{}]]}]}],null]}],null]}],"p":"$@1a","v":null,"s":"$7"}},"a":"$@1b","u":"$@1c","b":"wgP9Brw_D-48Ryo6I5jTI"}
+13:null
+1c:true
+7:300
+7:C
+1b:0
+5:"$undefined"
+1a:"$undefined"
+14:"$undefined"

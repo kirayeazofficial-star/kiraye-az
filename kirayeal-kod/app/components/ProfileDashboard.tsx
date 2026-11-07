@@ -3,8 +3,9 @@ import { dateFormat } from "../../lib/date-format";
 import Notice from "./Notice";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { Check, ChevronLeft, ChevronRight, Copy, Eye, Mail, Pencil, Phone, Plus, ShieldCheck, Star, Store, Trash2 } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Copy, Eye, LogOut, Mail, Pencil, Phone, Plus, ShieldCheck, Star, Store, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { signOut } from "../../lib/sign-out";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { formatContact } from "../../lib/contact-mask";
@@ -58,7 +59,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [reloadKey, setReloadKey] = useState(0),
     [fullCategories, setFullCategories] = useState<string[]>([]),
     [payment, setPayment] = useState<{ title: string; text: string; price?: number } | null>(null),
-    [refreshing, setRefreshing] = useState(false);
+    [refreshing, setRefreshing] = useState(false),
+    [leaving, setLeaving] = useState(false);
   useAutoClear(notice, () => setNotice(""));
   // Tapping the cabinet link while already here reloads the data.
   useEffect(() => {
@@ -196,9 +198,10 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <Link href="/profile?section=cards" onClick={()=>openSection('cards')} aria-current={section === "cards" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="card"/></span><span><span className="kzLabelLong">Mənim kartlarım</span><span className="kzLabelShort">Kartlarım</span></span></Link>
               <Link href="/profile?section=store" aria-current={section === "store" ? "page" : undefined}><span className="kzNavIcon"><Store aria-hidden="true" size={19} strokeWidth={2} /></span><span>Mağaza</span></Link>
               <Link href="/profile?section=limits" onClick={()=>openSection('limits')} aria-current={section === "limits" ? "page" : undefined}><span className="kzNavIcon"><NavigationIcon name="limits"/></span><span>Limitlər</span></Link>
-              {admin && <div className="cabinetNavFoot">
-                <Link className="kzMenuRow" href="/admin"><span className="kzMenuIcon admin"><ShieldCheck size={18} strokeWidth={2} /></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={18} strokeWidth={1.75} /></Link>
-              </div>}
+              <div className="cabinetNavFoot">
+                {admin && <Link className="kzMenuRow" href="/admin"><span className="kzMenuIcon admin"><ShieldCheck size={18} strokeWidth={2} /></span><span>{staffRole==='leader'?'Rəhbər paneli':'Admin paneli'}</span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={18} strokeWidth={1.75} /></Link>}
+                <button type="button" className="kzMenuRow kzCabinetLogout" disabled={leaving} onClick={() => { setLeaving(true); signOut().catch(() => { setLeaving(false); setError("Hesabdan çıxmaq mümkün olmadı. Yenidən cəhd edin."); }); }}><span className="kzMenuIcon logout"><LogOut size={18} strokeWidth={2} /></span><span>{leaving ? "Çıxılır…" : "Hesabdan çıx"}</span></button>
+              </div>
             </nav>
             </aside>
             <div className="cabinetContent">

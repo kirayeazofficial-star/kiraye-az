@@ -192,9 +192,9 @@ function ReportQueue({ onInspect, onChange }: { onInspect: (id: string) => void;
         <p className="kzAdMuted">Elan № {report.listing_no ?? "—"}{report.reporter_email ? ` · göndərən: ${report.reporter_email}` : ""}{tab === "resolved" ? ` · baxılıb: ${adminDate(report.resolved_at)}` : ""}</p>
       </div>
       <div className="kzAdRowActions">
-        <button type="button" className="kzAdBtn" onClick={() => onInspect(report.listing_id)}>Elanı yoxla</button>
-        <Link className="kzAdBtn" href={`/listings/${report.listing_id}`} target="_blank">Elana bax</Link>
-        {tab === "open" && <button type="button" className="kzAdBtn primary" disabled={!!busy} onClick={() => void resolve(report.id)}>{busy === report.id ? "Saxlanılır…" : "Baxıldı"}</button>}
+        <button type="button" className="kzAdBtn" onClick={() => onInspect(report.listing_id)}>Paneldə yoxla</button>
+        <Link className="kzAdBtn" href={`/listings/${report.listing_id}`} target="_blank">Saytda aç</Link>
+        {tab === "open" && <button type="button" className="kzAdBtn primary" disabled={!!busy} onClick={() => void resolve(report.id)}>{busy === report.id ? "Saxlanılır…" : "Şikayəti bağla"}</button>}
       </div>
     </article>)}</div>}
     {(page > 0 || reports.length >= 50) && <nav className="kzAdPager" aria-label="Şikayət səhifələri"><button type="button" className="kzAdBtn" disabled={!page || loading} onClick={() => setPage(page - 1)}><ChevronLeft className="kzI kzIL" aria-hidden="true" size={16} strokeWidth={2.25} />Əvvəlki</button><span>{page + 1}</span><button type="button" className="kzAdBtn" disabled={reports.length < 50 || loading} onClick={() => setPage(page + 1)}>Növbəti<ChevronRight className="kzI kzIR" aria-hidden="true" size={16} strokeWidth={2.25} /></button></nav>}
@@ -299,15 +299,8 @@ const ListingRow = memo(function ListingRow({ item, risk, busy, rejecting, reaso
               {item.rejection_reason && <details className="kzAdReasonDisclosure"><summary>Rədd səbəbi</summary><p className="kzAdReason" translate="no">{item.rejection_reason}</p></details>}
             </div>
             <div className="kzAdRowActions">
-              {["pending", "rejected"].includes(item.status) && <button type="button" className="kzAdBtn success" disabled={!!busy} onClick={() => actions.moderate(item, "published")}><Check aria-hidden="true" size={16} strokeWidth={2.4} />{busy === item.id ? "Saxlanılır…" : "Təsdiqlə"}</button>}
-              <button type="button" className="kzAdBtn danger" disabled={!!busy || !["pending", "published"].includes(item.status)} onClick={() => actions.toggleReject(item.id)}><X aria-hidden="true" size={16} strokeWidth={2.4} />{item.status === "published" ? "Yayımdan çıxar" : "Rədd et"}</button>
+              <button type="button" className={`kzAdBtn ${item.status === "pending" ? "primary" : ""}`} disabled={!!busy} onClick={() => actions.details(item)}>{item.status === "pending" ? <><Check aria-hidden="true" size={16} strokeWidth={2.4} />Yoxla və qərar ver</> : <><Eye aria-hidden="true" size={16} strokeWidth={2} />Ətraflı bax</>}</button>
             </div>
-            {rejecting && <div className="kzAdReject">
-              <label>Səbəb<select value={rejectionReasons.includes(reason || "") ? reason : ""} onChange={event => actions.setReason(item.id, event.target.value)}><option value="">Hazır səbəb seç və ya aşağıda yaz</option>{rejectionReasons.map(reason => <option key={reason} value={reason}>{reason}</option>)}</select></label>
-              <textarea aria-label="Rədd səbəbi" maxLength={500} rows={2} value={reason ?? ""} onChange={event => actions.setReason(item.id, event.target.value)} placeholder="Elan sahibinə görünəcək səbəb (ən azı 10 simvol)" />
-              <div className="kzAdCenter start"><button type="button" className="kzAdBtn danger solid" disabled={!!busy || (reason?.trim().length || 0) < 10} onClick={() => actions.moderate(item, "rejected")}>Rədd et</button><button type="button" className="kzAdBtn" onClick={() => actions.toggleReject("")}>Ləğv et</button></div>
-            </div>}
-            <button type="button" className="kzAdDetailsBtn" onClick={() => actions.details(item)}><Eye aria-hidden="true" size={16} strokeWidth={2} />Ətraflı bax</button>
           </article>;
 });
 const noRisk: string[] = [];
@@ -466,7 +459,7 @@ export default function AdminWorkspace() {
           <span className={`kzAdExtra${moreFilters ? " open" : ""}`}>
           <AzerbaijaniDateInput label="Elanın tarixi" value={dateFrom} onChange={value => { setDateFrom(value); setPage(1); }} />
           <select aria-label="Digər vəziyyətlər" value={otherStatuses.some(([status]) => status === filter) ? filter : ""} onChange={event => { setFilter(event.target.value || "all"); setPage(1); }}><option value="">Digər vəziyyətlər</option>{otherStatuses.map(([status, label]) => <option key={status} value={status}>{label}{counts ? ` (${status === "archived" ? (counts.statuses.archived || 0) + (counts.statuses.expired || 0) : counts.statuses[status] || 0})` : ""}</option>)}</select>
-          <select aria-label="Yoxlama növü" value={reviewKind} onChange={event => { setReviewKind(event.target.value); setPage(1); }}><option value="">Hamısı</option><option value="new">Yeni</option><option value="edited">Dəyişdirilmiş</option></select>
+          <select aria-label="Yoxlama növü" value={reviewKind} onChange={event => { setReviewKind(event.target.value); setPage(1); }}><option value="">Yeni və dəyişdirilmiş</option><option value="new">Yeni</option><option value="edited">Dəyişdirilmiş</option></select>
           </span>
           <button className="kzAdBtn primary" disabled={!!busy}>Axtar</button>
         </form>
@@ -746,7 +739,7 @@ const healthNames: Record<string, string> = { site: "Sayt", database: "Baza", di
 function SiteHealth() {
   const [items, setItems] = useState<HealthRow[] | null>(null);
   useEffect(() => { api({ action: "site_health" }).then(data => setItems(data.items as HealthRow[])).catch(() => setItems([])); }, []);
-  if (!items) return null;
+  if (!items || !items.length) return null;
   const bad = items.filter(item => item.level === "bad").length, warn = items.filter(item => item.level === "warn").length;
   const last = items.reduce((max, item) => item.checked_at > max ? item.checked_at : max, "");
   const fresh = last && Date.now() - Date.parse(last) < 20 * 60000;

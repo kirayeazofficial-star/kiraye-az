@@ -1,5 +1,13 @@
 // Russian and English for texts written directly in components. Key: exact Azerbaijani text.
 export const extraDictionary: Record<string, [string, string]> = {
+  "Kömək və əlaqə": ["Помощь и связь", "Help and contact"],
+  "Hüquqi məlumat": ["Правовая информация", "Legal"],
+  "Suallar və cavablar": ["Вопросы и ответы", "Questions and answers"],
+  "Bütün aktiv mağazalar": ["Все активные магазины", "All active stores"],
+  "Elan və kirayə qaydaları": ["Правила объявлений и аренды", "Listing and rental rules"],
+  "Məlumatlarınız necə qorunur": ["Как защищены ваши данные", "How your data is protected"],
+  "Saytdan istifadə şərtləri": ["Условия использования сайта", "Terms of use"],
+  "Dil seçimi": ["Выбор языка", "Language"],
   "Taksi işi üçün verilir (Bolt, Uber, Yango və s.)": ["Сдаётся для работы в такси (Bolt, Uber, Yango и др.)", "For taxi work (Bolt, Uber, Yango, etc.)"],
   "Taksi işi üçün verilir": ["Сдаётся для работы в такси", "For taxi work"],
   "Kuryer işi üçün verilir (Wolt, Bolt Food və s.)": ["Сдаётся для курьерской работы (Wolt, Bolt Food и др.)", "For courier work (Wolt, Bolt Food, etc.)"],

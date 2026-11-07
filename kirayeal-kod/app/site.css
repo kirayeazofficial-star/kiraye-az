@@ -3515,21 +3515,27 @@ html body .kzDrawerSocial+.kzDrawerCopy{margin-top:20px!important}
 /* Kabinet elan kartı: Premium = tac + almaz, VIP = almaz (saytdakı kartlar kimi). */
 html body .kzOwnPromo{display:inline-flex!important;align-items:center;gap:4px}
 html body .kzOwnPromo svg{flex:none}
-/* Yan menyu (variant O): yaşıl başlıq — loqo, şüar, dil; ikonlu siyahı; ən altda "Bizi izləyin". */
-html body .siteMenuPanel.kzSide .kzMenuHero{position:relative;padding:22px 18px 18px;background:linear-gradient(135deg,#104c43,#13856b);color:#fff}
-html body .kzMenuHero .kzMenuLogo{display:inline-block;font-size:24px;font-weight:800;letter-spacing:-.8px;color:#fff!important;text-decoration:none!important}
+/* Yan menyu (Q2): yaşıl başlıq — loqo və dil; iki qrup ikonlu sətir; "Bizi izləyin" ən altda. */
+html body .siteMenuPanel.kzSide{display:flex!important;flex-direction:column!important}
+html body .siteMenuPanel.kzSide .kzMenuHero{position:relative;flex:none;padding:20px 18px 18px;background:linear-gradient(135deg,#104c43,#13856b);color:#fff}
+html body .kzMenuHero .kzMenuLogo{display:block;width:max-content;font-size:24px;font-weight:800;letter-spacing:-.8px;color:#fff!important;text-decoration:none!important}
 html body .kzMenuHero .kzMenuLogo span{color:#ffb38a}
-html body .kzMenuHero p{margin:6px 52px 14px 0!important;font-size:13px;line-height:1.4;color:rgba(255,255,255,.85)}
-html body .kzMenuLang{display:flex;gap:18px}
-html body .kzMenuLang button{min-height:0!important;margin:0!important;padding:0 0 4px!important;border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;background:none!important;box-shadow:none!important;font:inherit;font-size:14px!important;font-weight:500!important;color:rgba(255,255,255,.7)!important;cursor:pointer}
-html body .kzMenuLang button[aria-pressed="true"]{color:#fff!important;font-weight:700!important;border-bottom-color:#fff!important}
+html body .kzMenuLang{display:inline-flex;gap:2px;margin-top:14px;padding:3px;border-radius:999px;background:rgba(255,255,255,.16)}
+html body .kzMenuLang button{min-height:0!important;margin:0!important;padding:6px 16px!important;border:0!important;border-radius:999px!important;background:none!important;box-shadow:none!important;font:inherit;font-size:13px!important;font-weight:600!important;color:rgba(255,255,255,.8)!important;cursor:pointer}
+html body .kzMenuLang button[aria-pressed="true"]{background:#fff!important;color:#104c43!important}
 html body .siteMenuPanel.kzSide .kzMenuHero .siteMenuClose{position:absolute;top:14px;right:14px;display:flex!important;align-items:center;justify-content:center;width:36px!important;height:36px!important;min-height:0!important;padding:0!important;border:0!important;border-radius:50%!important;background:rgba(255,255,255,.16)!important;color:#fff!important}
-html body .siteMenuPanel.kzSide .kzDrawerBody{padding-top:8px!important}
+html body .siteMenuPanel.kzSide .kzDrawerBody{flex:1 1 auto;display:flex!important;flex-direction:column!important;overflow-y:auto;padding-top:4px!important}
+html body .kzMenuHead{margin:20px 4px 4px!important;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--kz-muted)}
 html body .kzMenuList{display:flex;flex-direction:column}
-html body .siteMenuPanel.kzSide .kzMenuList a{display:flex!important;align-items:center;gap:14px;min-height:50px;padding:0 4px!important;border-bottom:1px solid var(--kz-line)!important;font-size:15px;color:var(--kz-ink)!important;text-decoration:none!important;background:none!important;box-shadow:none!important;border-radius:0!important}
-html body .kzMenuList a>svg:first-child{flex:none;color:#104c43}
-html body .kzMenuList a>span{flex:1;min-width:0}
+html body .siteMenuPanel.kzSide .kzMenuList a{display:flex!important;align-items:center;gap:14px;min-height:70px!important;padding:0 4px!important;border-bottom:1px solid var(--kz-line)!important;color:var(--kz-ink)!important;text-decoration:none!important;background:none!important;box-shadow:none!important;border-radius:0!important}
+html body .siteMenuPanel.kzSide .kzMenuList a:last-child{border-bottom:0!important}
+html body .kzMenuIcon{flex:none;display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:#eaf5f1;color:#104c43}
+html body .kzMenuText{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+html body .kzMenuText b{font-size:15px;font-weight:500;line-height:1.3}
+html body .kzMenuText small{font-size:12.5px;line-height:1.3;color:var(--kz-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 html body .kzMenuList .kzMenuChevron{flex:none;color:#b4bbb8}
-html body .kzMenuFollow{display:flex;align-items:center;gap:18px;margin:22px 0 calc(12px + env(safe-area-inset-bottom));padding:0 4px;font-size:13.5px;color:var(--kz-muted)}
-html body .kzMenuFollow span{margin-right:auto}
-html body .kzMenuFollow a{display:flex;color:#104c43!important}
+html body .kzMenuFollow{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:auto;padding:18px 0 calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--kz-line);font-size:13.5px;color:var(--kz-muted)}
+html body .kzMenuFollow>div{display:flex;gap:14px}
+html body .kzMenuFollow a{display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#eaf5f1;color:#104c43!important}
+html body .kzMenuFollow p{margin:0!important;font-size:12px;color:var(--kz-muted)}
+html body .siteMenuPanel.kzSide .kzMenuIcon svg{width:20px!important;height:20px!important;color:#104c43!important;stroke:#104c43!important;opacity:1!important}

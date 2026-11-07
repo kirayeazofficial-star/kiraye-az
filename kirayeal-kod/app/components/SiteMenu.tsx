@@ -75,8 +75,8 @@ export default function SiteMenu() {
           {menuGroups.map(group => <section key={group.title} className="kzMenuGroup">
             <p className="kzMenuHead">{t(group.title)}</p>
             <nav className="kzMenuList" aria-label={t(group.title)}>
-              {group.items.map(({ href, label, icon: Icon, external }) => {
-                const inner = <><span className="kzMenuIcon"><Icon aria-hidden="true" size={17} strokeWidth={2} /></span><span className="kzMenuText"><b>{t(label)}</b></span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={17} strokeWidth={2} /></>;
+              {group.items.map(({ href, label, hint, icon: Icon, external }) => {
+                const inner = <><span className="kzMenuIcon"><Icon aria-hidden="true" size={20} strokeWidth={1.9} /></span><span className="kzMenuText"><b>{t(label)}</b><small>{t(hint)}</small></span><ChevronRight className="kzMenuChevron" aria-hidden="true" size={17} strokeWidth={2} /></>;
                 return external ? <a key={href} href={href}>{inner}</a> : <Link key={href} href={href} onClick={() => setOpen(false)}>{inner}</Link>;
               })}
             </nav>
@@ -84,8 +84,8 @@ export default function SiteMenu() {
           <div className="kzMenuFollow">
             <span>{t("Bizi izləyin")}</span>
             <div>
-              <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={18} /></a>
-              <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={17} /></a>
+              <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={22} /></a>
+              <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={21} /></a>
             </div>
             <p>© {new Date().getFullYear()} kirayeal.az</p>
           </div>

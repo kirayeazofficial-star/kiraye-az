@@ -1,60 +1,16 @@
 "use client";
-import TabIcon from "./TabIcon";
-import { Bike, Car, ChevronRight, CirclePlus, Hammer, Heart, House, LayoutGrid, LifeBuoy, Lock, Menu, MessageCircle, ShieldCheck, Store, TreePalm, User, X, type LucideIcon, FileText } from "lucide-react";
-import UserAvatar from "./UserAvatar";
+import { LifeBuoy, Mail, Menu, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import SiteContact from "./SiteContact";
+import { siteContact } from "../../lib/site-contact";
+import { InstagramIcon, TikTokIcon } from "./BrandIcons";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
-
-// Heart, messages and account use the same drawn icons as the bottom menu.
-const HeartIcon = ((props: { size?: number }) => <TabIcon name="heart" size={props.size} />) as unknown as LucideIcon;
-const ChatIcon = ((props: { size?: number }) => <TabIcon name="chat" size={props.size} />) as unknown as LucideIcon;
-const UserIcon = ((props: { size?: number }) => <TabIcon name="user" size={props.size} />) as unknown as LucideIcon;
-const primaryLinks: [string, string, LucideIcon, string][] = [
-  ["/#elanlar", "Elanlar", LayoutGrid, "orange"],
-  ["/?favorites=1", "Seçilmişlər", HeartIcon, "red"],
-  ["/new", "Elan yerləşdir", CirclePlus, "green"],
-  ["/messages", "Mesajlar", ChatIcon, "blue"],
-  ["/profile", "Şəxsi kabinet", UserIcon, "purple"],
-];
-const helpLinks: [string, string, LucideIcon, string][] = [
-  ["/help", "Kömək", LifeBuoy, "grey"],
-  ["/rules", "Qaydalar və təhlükəsizlik", ShieldCheck, "grey"],
-  ["/privacy", "Məxfilik", Lock, "grey"],
-  ["/terms", "İstifadəçi razılaşması", FileText, "grey"],
-];
-
-const menuCategories: [string, string, LucideIcon][] = [
-  ["property", "Ev və mənzil", House],
-  ["car", "Avtomobil", Car],
-  ["motorcycle", "Motosiklet", Bike],
-  ["villa", "Villa və bağ", TreePalm],
-  ["equipment", "Alətlər və texnika", Hammer],
-];
-const otherLinks: [string, string, LucideIcon][] = [
-  ["/magaza", "Mağazalar", Store],
-  ["/help", "Kömək", LifeBuoy],
-  ["/rules", "Qaydalar və təhlükəsizlik", ShieldCheck],
-  ["/privacy", "Məxfilik", Lock],
-];
 
 export default function SiteMenu() {
   const {t}=useLanguage();
   const [open, setOpen] = useState(false);
-  const [account, setAccount] = useState<{ name: string; number: string; avatar: string | null } | null | undefined>(undefined);
-  useEffect(() => {
-    if (!open) return;
-    let active = true;
-    fetch("/api/auth/host", { cache: "no-store" }).then(r => r.json()).then(async data => {
-      if (!data?.user) { if (active) setAccount(null); return; }
-      const profile = await fetch("/api/account/profile", { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null);
-      if (active) setAccount({ name: profile?.profile?.name || data.user.display_name || data.user.email || "", number: profile?.profile?.profile_no ? String(profile.profile.profile_no) : "", avatar: profile?.profile?.avatar_url || null });
-    }).catch(() => { if (active) setAccount(null); });
-    return () => { active = false; };
-  }, [open]);
   const panel = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const keyboardOpen = useRef(false);
@@ -95,26 +51,30 @@ export default function SiteMenu() {
           </button>
         </div>
         <div className="kzDrawerBody">
-          {account ? <Link className="kzDrawerAccount" href="/profile" onClick={() => setOpen(false)}>
-            <UserAvatar src={account.avatar} name={account.name} />
-            <span className="kzDrawerAccountText"><strong>{account.name || t("Hesabım")}</strong>{account.number && <small>ID {account.number}</small>}</span>
-            <ChevronRight className="kzDrawerChevron" aria-hidden="true" size={22} strokeWidth={2.2} />
-          </Link> : account === null ? <div className="kzDrawerAuth">
-            <Link className="main" href="/login" onClick={() => setOpen(false)}>{t("Daxil ol")}</Link>
-            <Link href="/login?mode=signup" onClick={() => setOpen(false)}>{t("Qeydiyyat")}</Link>
-          </div> : <div className="kzDrawerAccount placeholder" aria-hidden="true" />}
-          <Link className="kzDrawerCta" href="/new" onClick={() => setOpen(false)}><CirclePlus aria-hidden="true" size={18} strokeWidth={2.2} />{t("Elan yerləşdir")}</Link>
-          <p className="kzDrawerHead">{t("Kateqoriyalar")}</p>
-          <nav aria-label={t("Kateqoriyalar")}>
-            {menuCategories.map(([id, name, Icon]) => <a key={id} className="kzDrawerRow" href={`/?category=${id}#elanlar`} onClick={() => setOpen(false)}><Icon aria-hidden="true" size={19} strokeWidth={1.8} /><span>{t(name)}</span><ChevronRight className="kzDrawerChevron" aria-hidden="true" size={18} strokeWidth={2} /></a>)}
-            <button type="button" className="kzDrawerRow more" onClick={() => { setOpen(false); window.dispatchEvent(new Event("kiraye:catalog")); }}><span>{t("Bütün kateqoriyalar")}</span><ChevronRight className="kzDrawerChevron" aria-hidden="true" size={18} strokeWidth={2} /></button>
+          <div className="kzDrawerHelp">
+            <strong>{t("Sualınız var?")}</strong>
+            <p>{t("Kömək bölməsində cavabları tapın və ya bizə yazın.")}</p>
+            <div>
+              <Link className="main" href="/help" onClick={() => setOpen(false)}><LifeBuoy aria-hidden="true" size={16} strokeWidth={2} />{t("Kömək")}</Link>
+              <a href={`mailto:${siteContact.email}`}><Mail aria-hidden="true" size={16} strokeWidth={2} />{t("Bizə yazın")}</a>
+            </div>
+          </div>
+          <p className="kzDrawerHead">{t("Sayt")}</p>
+          <nav className="kzDrawerLinks" aria-label={t("Məlumat və kömək")}>
+            <Link href="/magaza" onClick={() => setOpen(false)}>{t("Mağazalar")}</Link>
+            <Link href="/rules" onClick={() => setOpen(false)}>{t("Qaydalar və təhlükəsizlik")}</Link>
+            <Link href="/privacy" onClick={() => setOpen(false)}>{t("Məxfilik")}</Link>
+            <Link href="/terms" onClick={() => setOpen(false)}>{t("İstifadəçi razılaşması")}</Link>
           </nav>
-          <p className="kzDrawerHead">{t("Digər")}</p>
-          <nav aria-label={t("Məlumat və kömək")}>
-            {otherLinks.map(([href, name, Icon]) => <Link key={href} className="kzDrawerRow" href={href} onClick={() => setOpen(false)}><Icon aria-hidden="true" size={19} strokeWidth={1.8} /><span>{t(name)}</span><ChevronRight className="kzDrawerChevron" aria-hidden="true" size={18} strokeWidth={2} /></Link>)}
-          </nav>
+          <p className="kzDrawerHead">{t("Dil")}</p>
+          <div className="kzDrawerLang"><LanguageSelect /></div>
+          <p className="kzDrawerHead">{t("Bizi izləyin")}</p>
+          <div className="kzDrawerSocial">
+            <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={17} /></a>
+            <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={17} /></a>
+          </div>
+          <p className="kzDrawerCopy">© {new Date().getFullYear()} kirayeal.az</p>
         </div>
-        <div className="kzDrawerFoot"><LanguageSelect /><SiteContact compact /></div>
       </aside>
     </div>, document.body)}
   </>;

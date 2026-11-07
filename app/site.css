@@ -3426,3 +3426,35 @@ html body .kzProfileB .kzProfileHeadGo{width:32px!important;height:32px!importan
 .kzStoresEmpty p{margin:0 0 8px;font-size:14px;color:var(--kz-muted)}
 /* Loqo hər yerdə eyni ölçüdə: telefonda 21px, kompüterdə 28px. */
 @media(max-width:767px){html body .kzFooter .kzLogo{font-size:21px!important;letter-spacing:-.8px!important;font-weight:700!important}}
+
+/* Yan menyu — C variantı. */
+.kzDrawerHelp{margin:6px 0 4px;padding:16px;border-radius:14px;background:#f1f8f5}
+.kzDrawerHelp strong{display:block;font-size:16px;color:#104c43}
+.kzDrawerHelp p{margin:4px 0 12px!important;font-size:13px;line-height:1.45;color:var(--kz-text)}
+.kzDrawerHelp>div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kzDrawerHelp a{display:flex;align-items:center;justify-content:center;gap:6px;height:40px;border-radius:10px;border:1px solid #d8ece4;background:#fff;color:#104c43!important;font-size:14px;font-weight:600;text-decoration:none!important}
+.kzDrawerHelp a.main{background:#104c43;border-color:#104c43;color:#fff!important}
+.kzDrawerLinks{display:flex;flex-direction:column}
+.kzDrawerLinks a{display:flex;align-items:center;min-height:42px;font-size:15px;color:var(--kz-ink)!important;text-decoration:none!important}
+.kzDrawerLang .languageSelect{display:flex!important}
+.kzDrawerSocial{display:flex;gap:10px}
+.kzDrawerSocial a{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--kz-line);color:var(--kz-ink)!important}
+.kzDrawerCopy{margin:18px 0 calc(8px + env(safe-area-inset-bottom))!important;font-size:12px;color:var(--kz-muted)}
+html body .siteMenuPanel.kzSide .kzDrawerFoot{display:none!important}
+/* Kabinet — bütün kart bir düymə. */
+html body .kzProfileHeadLink{display:flex!important;align-items:center;gap:14px;color:#fff!important;text-decoration:none!important}
+html body .kzProfileHeadLink .kzProfileHeadText{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.kzProfileSub{font-size:13px;color:rgba(255,255,255,.8)}
+/* Profil — şəkil düyməsi və seçim pəncərəsi. */
+html body .kzAccountPage .kzAccAvatarBtn{position:relative;display:block;width:88px;height:88px;margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:50%;cursor:pointer;min-height:0!important}
+html body .kzAccountPage .kzAccAvatarBtn .kzUserAvatar{width:88px!important;height:88px!important}
+html body .kzAccountPage .kzAccAvatarBtn .kzAccCamera{position:absolute;right:-2px;bottom:-2px;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#fff;border:1px solid var(--kz-line);color:var(--kz-ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.kzSheetLayer{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.4)}
+.kzSheet{width:100%;max-width:480px;display:flex;flex-direction:column;padding:10px 16px calc(18px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;background:#fff}
+@media(min-width:768px){.kzSheetLayer{align-items:center}.kzSheet{border-radius:18px;padding-bottom:16px;max-width:400px}}
+.kzSheetGrab{width:40px;height:5px;margin:0 auto 12px;border-radius:3px;background:#d6dbd9}
+.kzSheet strong{margin-bottom:8px;text-align:center;font-size:16px}
+html body .kzSheet button{display:flex!important;align-items:center;gap:12px;width:100%;min-height:50px!important;margin:0!important;padding:0 6px!important;border:0!important;border-top:1px solid var(--kz-line)!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--kz-ink)!important;font:inherit;font-size:15px!important;text-align:left;cursor:pointer}
+html body .kzSheet button.danger{color:#d92d20!important}
+html body .kzSheet button.cancel{justify-content:center;margin-top:10px!important;border:0!important;border-radius:12px!important;background:var(--kz-soft)!important;font-weight:600!important}
+html body .kzDrawerLang .languageSelect>*{flex:1 1 0!important;justify-content:center!important;text-align:center}

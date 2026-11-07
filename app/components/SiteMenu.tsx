@@ -69,7 +69,7 @@ export default function SiteMenu() {
           </button>
         </div>
         <div className="siteMenuLanguage"><span>{t("Dil")}</span><LanguageSelect /></div>
-        <nav aria-label={t("Sayt bölmələri")}>
+        <nav className="siteMenuPrimary" aria-label={t("Sayt bölmələri")}>
           {primaryLinks.map(([href, title, Icon, tone]) => <Link key={href} href={href} onClick={() => setOpen(false)}><span className={`kzSideIcon ${tone}`}><Icon aria-hidden="true" size={18} strokeWidth={2} /></span><span>{t(title)}</span><ChevronRight className="kzSideArrow" aria-hidden="true" size={16} strokeWidth={2} /></Link>)}
         </nav>
         <nav className="siteMenuHelp" aria-label={t("Məlumat və kömək")}>

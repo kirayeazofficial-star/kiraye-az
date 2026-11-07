@@ -3363,3 +3363,12 @@ html body .kzAdMore{display:flex!important;width:100%;justify-content:center;mar
 @media(max-width:767px){html body .kzStoreRow .kzStoreActions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%}
 html body .kzStoreRow .kzStoreActions select{grid-column:1/-1;width:100%!important;min-height:44px}
 html body .kzStoreRow .kzStoreActions .kzAdBtn{justify-content:center;width:100%}}
+
+/* Yan menyu: telefonda aşağı menyunu təkrarlayan sətirlər gizlədilir; loqo başlıqdakı ilə eyni. */
+@media(max-width:767px){html body .siteMenuPanel .siteMenuPrimary{display:none!important}}
+html body .siteMenuPanel.kzSide .siteMenuHeading .logo{font-size:21px!important;font-weight:700!important;letter-spacing:-.8px!important}
+/* Düymələr yığcam. */
+html body .kzButton,html body .kzButtonGhost,html body .kzAccEdit .kzButton,html body .kzAccEdit .kzButtonGhost{min-height:40px!important;height:40px!important;padding:0 16px!important;font-size:14px!important;border-radius:10px!important}
+html body .loginPage .authSubmit{height:46px!important;min-height:46px!important;font-size:15px!important;border-radius:12px!important}
+html body .loginPage .googleButton{height:44px!important;min-height:44px!important;font-size:14px!important}
+html body .kzAccountPage .kzAccEdit input{height:44px!important;min-height:44px!important}

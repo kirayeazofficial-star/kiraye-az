@@ -1,7 +1,7 @@
 "use client";
 import { dateFormat } from "../../lib/date-format";
 import { photoHash } from "../../lib/photo-hash";
-import { listingPrice, manat } from "../../lib/limit-rules";
+import { fixedLimitRules, listingPrice, manat } from "../../lib/limit-rules";
 import { Check, ChevronLeft, ChevronRight, CircleCheck, Clock, ImagePlus, Plus, RotateCcw, X } from "lucide-react";
 import StatusCard from "./StatusCard";
 import { readListingDraft, saveListingDraft, clearListingDraft, type ListingDraft } from "../../lib/listing-draft";
@@ -482,7 +482,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
             <p>Hesabın yoxdur? <a href="/login?mode=signup&next=/new">Qeydiyyatdan keç</a> · <a href="/login?next=/new">Daxil ol</a></p></section>
         ) : success ? (
           <div role="status">{paymentWaiting ? <StatusCard as="h2" tone="warn" icon={Clock} badge="Ödəniş gözləyir" title="Elanınız yoxlamaya göndərilə bilmədi" className="kzScInline"
-            lead={repeatListing ? `Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir. Bu, təkrar elan sayılır və ödənişlidir (${manat(listingPrice(category))}). Elan «Ödəniş gözləyir» bölməsində saxlanıldı.` : `Bu qrupda 30 günlük pulsuz elan limitiniz dolub. Elan saxlanıldı və «Ödəniş gözləyir» bölməsinə keçirildi. Ödənişdən (${manat(listingPrice(category))}) sonra yoxlamaya göndəriləcək.`}
+            lead={repeatListing ? `Bu elanın şəkilləri son 90 gündə verdiyiniz başqa elanla eynidir. Bu, təkrar elan sayılır və ödənişlidir (${manat(listingPrice(category))}). Elan «Ödəniş gözləyir» bölməsində saxlanıldı.` : `${fixedLimitRules.paid.includes(category) ? `«${categories.find(item => item.id === category)?.name || ""}» kateqoriyasında elanlar ödənişlidir.` : "Bu qrupda 30 günlük pulsuz elan limitiniz dolub."} Elan saxlanıldı və «Ödəniş gözləyir» bölməsinə keçirildi. ${paidVisible(flags) ? `Ödənişdən (${manat(listingPrice(category))}) sonra yoxlamaya göndəriləcək.` : "Ödəniş sistemi hələ aktiv deyil; aktiv olduqdan sonra elanı bu bölmədən ödəyib yoxlamaya göndərə biləcəksiniz."}`}
             actions={[{ href: "/profile?section=listings&tab=payment", label: "«Ödəniş gözləyir» bölməsinə keç", primary: true }]}>
             {/* Limit full: opening a store is usually cheaper than paying for every extra listing. */}
               {paymentWaiting && paidVisible(flags) && <div className="kzStoreOffer">

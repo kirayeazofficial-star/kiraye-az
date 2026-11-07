@@ -3,6 +3,7 @@ import { noticeLetter } from "./email-frame.mjs";
 // 1. "Elanınızın müddəti bitir" — 3 days before a listing expires (once per listing and expiry date).
 // 2. Saved search alerts — new listings matching a saved search, checked at most once an hour.
 // 3. Weekly report for the site owner — Monday after 09:00 (Baku time), once a week.
+// 4. Moderation reminder for the leader — listings waiting for review, at most once per 30 minutes.
 // Letters go out only between 09:00 and 21:00 Baku time. Every notice is recorded in notification_log.
 const site = (process.env.NEXT_PUBLIC_SITE_URL || "https://kirayeal.az").replace(/\/$/, "");
 const ownerEmail = "kirayeal.az@gmail.com";
@@ -22,7 +23,7 @@ export async function runNotices(db, requireFromApp) {
   const transport = nodemailer.createTransport({ host: process.env.KIRAYE_SMTP_HOST, port, secure: port === 465, auth: { user: process.env.KIRAYE_SMTP_USER, pass: process.env.KIRAYE_SMTP_PASSWORD } });
   const send = (to, subject, body) => transport.sendMail({ from: `kirayeal.az <${process.env.KIRAYE_SMTP_USER}>`, to, subject, text: body.text, html: body.html });
   const claim = async (userId, kind, ref) => (await db.query(`insert into public.notification_log(user_id,kind,ref) values($1,$2,$3) on conflict(kind,ref) do nothing returning id`, [userId, kind, ref])).rowCount > 0;
-  for (const task of [expiring, storeExpiring, savedSearches, weekly]) {
+  for (const task of [pendingDigest, expiring, storeExpiring, savedSearches, weekly]) {
     try { await task(db, send, claim); } catch (error) { console.error(`notice ${task.name} failed:`, String(error?.message || error).slice(0, 200)); }
   }
 }
@@ -127,5 +128,41 @@ async function weekly(db, send, claim) {
       ...top.map((row, i) => ({ label: `${i + 1}. Ən çox baxılan: ${names[row.category] || row.category}`, value: `${row.n} baxış` })),
     ],
     button: { text: "Rəhbər panelini aç", href: "/admin" },
+  }));
+}
+
+// Leader reminder: listings waiting for review. Sent only when a listing has waited at least 10 minutes,
+// at most once per 30 minutes; if nothing new arrived since the last letter, it is repeated after 2 hours.
+export async function pendingDigest(db, send, claim) {
+  const stats = (await db.query(`select count(*)::int as n, min(coalesce(updated_at,created_at)) as oldest, max(coalesce(updated_at,created_at)) as newest,
+      count(*) filter (where review_kind='edited')::int as edited,
+      to_char(min(coalesce(updated_at,created_at)) at time zone 'Asia/Baku','DD.MM.YYYY HH24:MI') as oldest_text
+    from public.listings where status='pending' and deleted_at is null`)).rows[0];
+  if (!stats || !stats.n || Date.now() - Date.parse(stats.oldest) < 10 * 60000) return;
+  const last = (await db.query(`select sent_at from public.notification_log where kind='pending_digest' order by sent_at desc limit 1`)).rows[0];
+  if (last) {
+    const since = Date.now() - Date.parse(last.sent_at);
+    if (since < 30 * 60000) return;
+    if (Date.parse(stats.newest) <= Date.parse(last.sent_at) && since < 2 * 3600000) return;
+  }
+  if (!(await claim(null, "pending_digest", String(Math.floor(Date.now() / (30 * 60000)))))) return;
+  const reports = Number((await db.query(`select count(*)::int as n from public.listing_reports where status='open'`).catch(() => ({ rows: [{ n: 0 }] }))).rows[0]?.n || 0);
+  const stores = Number((await db.query(`select count(*)::int as n from public.stores where status='pending'`).catch(() => ({ rows: [{ n: 0 }] }))).rows[0]?.n || 0);
+  const leaders = (await db.query(`select u.email from public.staff_members s join auth.users u on u.id=s.user_id where s.staff_role='leader'`).catch(() => ({ rows: [] }))).rows.map(row => row.email).filter(Boolean);
+  const to = Array.from(new Set([ownerEmail, ...leaders]));
+  await send(to.join(","), `Yoxlama gözləyən elanlar: ${stats.n} — kirayeal.az`, letter({
+    label: "Moderasiya",
+    heading: `Yoxlama gözləyən ${stats.n} elan var`,
+    name: "Rəhbər",
+    intro: "Saytda yoxlanılmamış elanlar mövcuddur. İstifadəçilərin gözləməməsi üçün onlara rəhbər panelində baxmağınız xahiş olunur.",
+    rows: [
+      { label: "Yoxlama gözləyən elan", value: String(stats.n) },
+      ...(stats.edited ? [{ label: "Onlardan redaktə edilmiş", value: String(stats.edited) }] : []),
+      { label: "Ən köhnə elan göndərilib", value: stats.oldest_text },
+      ...(reports ? [{ label: "Açıq şikayət", value: String(reports) }] : []),
+      ...(stores ? [{ label: "Mağaza müraciəti", value: String(stores) }] : []),
+    ],
+    button: { text: "Elanları yoxla", href: "/admin?section=listings" },
+    footerNote: "Bu məktub avtomatik göndərilmişdir. Yoxlama gözləyən elan olduqda ən çoxu 30 dəqiqədə bir göndərilir.",
   }));
 }

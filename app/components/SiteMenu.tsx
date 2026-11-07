@@ -1,7 +1,6 @@
 "use client";
 import TabIcon from "./TabIcon";
-import { ChevronRight, CirclePlus, Heart, LayoutGrid, LifeBuoy, Lock, LogOut, Menu, MessageCircle, ShieldCheck, User, X, type LucideIcon, FileText } from "lucide-react";
-import { signOut } from "../../lib/sign-out";
+import { ChevronRight, CirclePlus, Heart, LayoutGrid, LifeBuoy, Lock, Menu, MessageCircle, ShieldCheck, User, X, type LucideIcon, FileText } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -30,8 +29,6 @@ const helpLinks: [string, string, LucideIcon, string][] = [
 export default function SiteMenu() {
   const {t}=useLanguage();
   const [open, setOpen] = useState(false);
-  const [signedIn, setSignedIn] = useState(false), [leaving, setLeaving] = useState(false);
-  useEffect(() => { if (!open) return; fetch("/api/auth/host", { cache: "no-store" }).then(r => r.json()).then(data => setSignedIn(!!data?.user)).catch(() => {}); }, [open]);
   const panel = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const keyboardOpen = useRef(false);
@@ -78,7 +75,6 @@ export default function SiteMenu() {
         <nav className="siteMenuHelp" aria-label={t("Məlumat və kömək")}>
           {helpLinks.map(([href, title, Icon, tone]) => <Link key={href} href={href} onClick={() => setOpen(false)}><span className={`kzSideIcon ${tone}`}><Icon aria-hidden="true" size={18} strokeWidth={2} /></span><span>{t(title)}</span><ChevronRight className="kzSideArrow" aria-hidden="true" size={16} strokeWidth={2} /></Link>)}
         </nav>
-        {signedIn && <button type="button" className="siteMenuLogout" disabled={leaving} onClick={() => { setLeaving(true); signOut().catch(() => setLeaving(false)); }}><span className="kzSideIcon red"><LogOut aria-hidden="true" size={18} strokeWidth={2} /></span><span>{leaving ? t("Çıxılır…") : t("Hesabdan çıx")}</span></button>}
         <SiteContact compact />
       </aside>
     </div>, document.body)}

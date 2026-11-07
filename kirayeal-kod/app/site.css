@@ -3265,3 +3265,11 @@ html body .loginPage .authFormNotice .recoveryAction{min-height:0!important;heig
  html body .loginPage .authSubmit{height:48px!important;min-height:48px!important}
  html body .loginPage .googleButton{height:46px!important;min-height:46px!important}
 }
+/* Profil səhifəsi kompüterdə: ortada, 680px; redaktə hissəsi kartın tam enində. */
+html body .kzAccountPage .kzAccEdit{max-width:none!important;width:auto!important}
+html body .kzAccountPage .kzAccEdit form,html body .kzAccountPage .kzAccEdit label,html body .kzAccountPage .kzAccEdit input{max-width:none!important}
+@media(min-width:768px){
+ html body .kzAccountPage{max-width:720px!important}
+ html body .kzAccountPage .kzAccountGrid{display:flex!important;flex-direction:column;gap:14px;max-width:680px;margin:0 auto}
+ html body .kzAccountPage .cabinetBack,html body .kzAccountPage .kzPageTitle{max-width:680px;margin-left:auto!important;margin-right:auto!important}
+}

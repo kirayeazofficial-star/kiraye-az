@@ -3253,3 +3253,8 @@ html body .loginPage .authFormNotice{order:3;display:flex;flex-wrap:wrap;align-i
 html body .loginPage .authFormNotice .recoveryAction{min-height:0!important;height:auto!important;margin:0!important;padding:0!important;border:0!important;background:none!important;color:#13856b!important;font-weight:700!important;font-size:13.5px!important;text-decoration:underline}
 .kzContactMini>div{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important}
 .kzContactMini a{justify-content:center;gap:5px!important;padding:0 6px!important;font-size:12.5px!important;white-space:nowrap;min-width:0}
+/* Profil: redaktə açılanda sətir gizlənir, yalnız bir sahə görünür. */
+.kzAccountPage .kzAccEdit{border-top:1px solid var(--kz-line)!important;padding-top:14px!important}
+.kzAccList h2+.kzAccEdit{border-top:0!important}
+.kzAccCurrent{margin:0!important;font-size:13px;color:var(--kz-muted)}
+.kzAccCurrent b{color:var(--kz-ink);font-weight:600;overflow-wrap:anywhere}

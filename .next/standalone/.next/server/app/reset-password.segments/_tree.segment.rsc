@@ -6,4 +6,4 @@
 :HL["/_next/static/css/67c63aacd027dbd8.css","style"]
 2:[["children",{"s":"__PAGE__","h":160}]]
 1:[["children",{"s":"reset-password","h":64,"c":"$Q2"}]]
-0:{"b":"Qb0VRWjeGU0SLF6B2Zxtd","t":{"t":{"s":"","h":16,"c":"$Q1"}}}
+0:{"b":"b9q7HpVlNaczRu3sKYgm3","t":{"t":{"s":"","h":16,"c":"$Q1"}}}

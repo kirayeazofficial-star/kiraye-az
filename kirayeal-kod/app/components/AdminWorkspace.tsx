@@ -55,6 +55,10 @@ const initial = (name?: string | null) => (name || "?").trim().charAt(0).toUpper
 function Panel({ title, actions, children, className }: { title: string; actions?: ReactNode; children: ReactNode; className?: string }) {
   return <section className={`kzAdPanel${className ? " " + className : ""}`}><header className="kzAdPanelHead"><h2>{title}</h2>{actions && <div className="kzAdActions">{actions}</div>}</header>{children}</section>;
 }
+// A closed box on the overview: title and a one-line summary; opens on tap.
+function Fold({ title, hint, tone, children, className }: { title: string; hint?: string; tone?: string; children: ReactNode; className?: string }) {
+  return <details className={`kzAdPanel kzAdFold${className ? " " + className : ""}`}><summary><span className="kzAdFoldTitle">{title}</span>{hint && <span className={`kzAdFoldHint ${tone || ""}`}>{hint}</span>}</summary><div className="kzAdFoldBody">{children}</div></details>;
+}
 function Empty({ title, text }: { title: string; text?: string }) {
   return <div className="kzAdEmpty"><strong>{title}</strong>{text && <p>{text}</p>}</div>;
 }
@@ -382,14 +386,14 @@ export default function AdminWorkspace() {
   const pending = counts?.statuses?.pending || 0, openReports = counts?.reports || 0, storeRequests = counts?.stores || 0;
   const badge = (item: Section) => item === "moderation" ? pending : item === "reports" ? openReports : item === "stores" ? storeRequests : 0;
   const menuNote = (item: Section): { text: string; alert?: boolean } =>
-    item === "moderation" ? (pending ? { text: `${pending} elan yoxlama gözləyir`, alert: true } : { text: "Yoxlanılacaq elan yoxdur" })
+    item === "moderation" ? (pending ? { text: `${pending} elan gözləyir`, alert: true } : { text: "Yoxlanılacaq elan yoxdur" })
     : item === "reports" ? (openReports ? { text: `${openReports} açıq şikayət`, alert: true } : { text: "Açıq şikayət yoxdur" })
     : item === "users" ? { text: counts ? `${counts.users} istifadəçi` : "Hesablar və bloklama" }
     : item === "banners" ? { text: "Reklam bannerləri" }
-    : item === "backup" ? { text: "Hər gecə Google Drive-a" }
+    : item === "backup" ? { text: "Hər gecə avtomatik" }
     : item === "limits" ? { text: "Ödənişləri açmaq və bağlamaq" }
-    : item === "settings" ? { text: "Elan zolağı, texniki iş, ödənişlər" }
-    : item === "stores" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: "Müraciətlər və paketlər" })
+    : item === "settings" ? { text: "Ümumi ayarlar" }
+    : item === "stores" ? (storeRequests ? { text: `${storeRequests} mağaza müraciəti`, alert: true } : { text: "Müraciət və paketlər" })
     : { text: "Rəhbər və adminlər" };
 
   return <div className="kzAdm">
@@ -411,17 +415,7 @@ export default function AdminWorkspace() {
           </button>; })}
         </nav>
         {role === "leader" && <SiteHealth />}
-        <Panel title="Görüləcək işlər" className="kzAdTodoPanel">
-          <div className="kzAdTodo">
-            {([[pending, "Yoxlama gözləyən elan", "attention", ListChecks, () => showListings("pending")], [openReports, "Açıq şikayət", "warn", Flag, () => open("reports")], [storeRequests, "Mağaza müraciəti", "attention", Store, () => open("stores")]] as const).map(([count, label, tone, Icon, go]) =>
-              <button type="button" key={label} className={count ? tone : "done"} onClick={go}>
-                <span className="kzAdTodoIcon"><Icon aria-hidden="true" size={20} strokeWidth={2} /></span>
-                <span className="kzAdTodoText"><b>{count}</b><small>{label}</small></span>
-                <ChevronRight className="kzAdTodoGo" aria-hidden="true" size={18} strokeWidth={2.25} />
-              </button>)}
-          </div>
-        </Panel>
-        <Panel title="Statistika" actions={<button type="button" className="kzAdBtn kzAdIconBtn" aria-label="Yenilə" title="Yenilə" onClick={() => setRevision(x => x + 1)}><RefreshCw aria-hidden="true" size={16} strokeWidth={2} /></button>}>
+        <Fold title="Statistika" hint={counts ? `${counts.statuses?.published ?? 0} yayımda · ${counts.users} istifadəçi` : undefined}>
           <div className="kzAdKpis">
             <button type="button" onClick={() => showListings("published")}><b>{counts?.statuses?.published ?? "—"}</b><span>Yayımda olan elan</span></button>
             <button type="button" onClick={() => showListings("all")}><b>{counts?.listings ?? "—"}</b><span>Cəmi elan</span></button>
@@ -437,16 +431,17 @@ export default function AdminWorkspace() {
             </tbody>
           </table>
           {income && income.total > 0 && <p className="kzAdIncomeTotal"><span>Ümumi gəlir</span><b>{manatNumber(income.total)} ₼</b></p>}
-                  </Panel>
-        <Panel title="Son fəaliyyətlər" actions={<button type="button" className="kzAdBtn" onClick={() => open("history")}>Hamısı</button>}>
-          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.slice(0, 5).map(item => <li key={item.id}>
+                  </Fold>
+        <Fold title="Son fəaliyyətlər" hint={activity.length ? `${Math.min(activity.length, 3)} son qərar` : "Hələ yoxdur"}>
+          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.slice(0, 3).map(item => <li key={item.id}>
             <span className={`kzAdDot ${item.new_status || ""}`} aria-hidden="true" />
             <div><p><strong>{item.actor_name || "İdarəçi"}</strong> · {moderationActions[item.action] || "Elan yeniləndi"}{item.new_status ? ` — ${statusName(item.new_status)}` : ""}</p>
               <button type="button" className="kzAdLink" onClick={() => inspect(item.listing_id)}>{item.title || "Silinmiş elan"}</button>
               {item.reason && <details className="kzAdReasonDisclosure"><summary>Səbəb</summary><p className="kzAdReason">{item.reason}</p></details>}</div>
             <time>{adminDate(item.created_at)}</time>
           </li>)}</ul>}
-        </Panel>
+          <button type="button" className="kzAdBtn kzAdFoldMore" onClick={() => open("history")}>Bütün əməliyyatlar</button>
+        </Fold>
 
       </>}
 
@@ -744,13 +739,12 @@ function SiteHealth() {
   const fresh = last && Date.now() - Date.parse(last) < 20 * 60000;
   const tone = bad ? "bad" : warn ? "warn" : "ok";
   const status = !items.length ? "" : bad ? `${bad} problem` : warn ? `${warn} xəbərdarlıq` : "Qaydasındadır";
-  return <Panel title="Sayt sağlamlığı" className={`kzHealth ${tone}`} actions={status ? <span className={`kzHealthBadge ${tone}`}>{status}</span> : undefined}>
-    {!items.length ? null : <details className="kzHealthMore" open={tone !== "ok" || !fresh}>
-      <summary>{tone === "ok" && fresh ? `Hamısı qaydasındadır · son yoxlama ${adminDate(last)}` : "Təfərrüat"}</summary>
+  return <Fold title="Sayt sağlamlığı" hint={status} tone={tone} className={`kzHealth ${tone}`}>
+    {!items.length ? null : <div className="kzHealthMore">
       <ul className="kzHealthList">{[...items].sort((a, b) => healthOrder.indexOf(a.key) - healthOrder.indexOf(b.key)).map(item => <li key={item.key} className={item.level}><i aria-hidden="true" /><strong>{healthNames[item.key] || item.key}</strong><span>{item.detail}</span></li>)}</ul>
       <p className={`kzHealthFoot${fresh ? "" : " stale"}`}>{fresh ? `Hər 5 dəqiqədən bir yoxlanır. Son yoxlama: ${adminDate(last)}.` : `Son yoxlama: ${adminDate(last)}. Server yoxlaması dayanıb ola bilər.`}{bad ? " Problem Gmail-ə də yazılıb." : ""}</p>
-    </details>}
-  </Panel>;
+    </div>}
+  </Fold>;
 }
 
 // 1234.5 → "1 234,50" (Azerbaijani money format, without the currency sign).

@@ -3503,3 +3503,11 @@ html body .kzFooterSocial a:hover{border-color:#c9d3d0!important}
 html body .kzDrawerSocial{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;max-width:260px;margin-top:10px!important}
 html body .kzDrawerSocial a{display:flex!important;align-items:center!important;justify-content:center!important;gap:8px!important;height:38px!important;padding:0 10px!important;border:1px solid var(--kz-line)!important;border-radius:10px!important;background:#fff;color:var(--kz-ink)!important;font-size:13px!important;font-weight:500!important;line-height:1!important;white-space:nowrap;text-decoration:none!important}
 html body .kzDrawerSocial a>span{flex:none;display:flex;align-items:center;justify-content:center;width:20px!important;height:20px!important;border-radius:6px!important;color:#fff}
+/* Əlaqə: e-poçt, Instagram, TikTok — üçü eyni: çərçivəsiz, rəngli kiçik ikon, alt-alta, bərabər boşluq. */
+html body .kzDrawerSocial{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:12px!important;max-width:none!important;margin-top:8px!important}
+html body .kzDrawerSocial a{height:auto!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;justify-content:flex-start!important;gap:10px!important;font-size:14px!important;font-weight:400!important;color:var(--kz-text,#3d4542)!important}
+html body .kzDrawerSocial a:hover{color:var(--kz-brand,#104c43)!important}
+html body .kzDrawerSocial a>span{width:22px!important;height:22px!important}
+.kzDrawerSocial a.mail>span{background:#104c43}
+html body .kzFooter .kzFooterSocial{margin-top:0!important}
+html body .kzDrawerSocial+.kzDrawerCopy{margin-top:20px!important}

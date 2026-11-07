@@ -33,8 +33,8 @@ export default function Footer() {
         </nav>
         <div>
           <strong>{t("Bizimlə əlaqə")}</strong>
-          <a className="kzContactLine" href={`mailto:${siteContact.email}`}><Mail aria-hidden="true" size={15} strokeWidth={2} />{siteContact.email}</a>
           <span className="kzDrawerSocial kzFooterSocial">
+            <a className="mail" href={`mailto:${siteContact.email}`}><span><Mail aria-hidden="true" size={12} strokeWidth={2.2} /></span>{siteContact.email}</a>
             <a className="ig" href={siteContact.instagram} target="_blank" rel="noopener noreferrer"><span><InstagramIcon size={13} /></span>Instagram</a>
             <a className="tt" href={siteContact.tiktok} target="_blank" rel="noopener noreferrer"><span><TikTokIcon size={12} /></span>TikTok</a>
           </span>

@@ -70,7 +70,7 @@ parentPort.on("message", ({ id, source, side, quality }) => {
     parentPort.postMessage({ id, out: copy }, [copy.buffer]);
   } catch (error) { parentPort.postMessage({ id, error: String(error && error.message || error) }); }
 });`;
-let thread: Worker | null = null, nextId = 0;
+let thread: Worker | null = null, nextId = 0, workerBroken = false;
 const pending = new Map<number, { resolve: (value: Buffer) => void; reject: (error: Error) => void; source: Buffer }>();
 function getThread() {
   if (thread) return thread;
@@ -79,7 +79,7 @@ function getThread() {
     const job = pending.get(message.id); if (!job) return; pending.delete(message.id);
     if (message.error) job.reject(new Error(message.error)); else job.resolve(message.same ? job.source : Buffer.from(message.out!));
   });
-  const fail = (error: Error) => { thread = null; for (const job of pending.values()) job.reject(error); pending.clear(); };
+  const fail = (error: Error) => { thread = null; workerBroken = true; for (const job of pending.values()) job.reject(error); pending.clear(); };
   created.on("error", fail);
   created.on("exit", code => { if (thread === created) fail(new Error(`thumbnail worker exited ${code}`)); });
   created.unref();
@@ -87,11 +87,13 @@ function getThread() {
   return created;
 }
 export function makeThumbnailOffThread(source: Buffer, side = 560, quality = 78): Promise<Buffer> {
+  // If the worker cannot run on this server (e.g. the package is not found), keep the old way.
+  if (workerBroken) return Promise.resolve().then(() => makeThumbnail(source, side, quality));
   let worker: Worker;
-  try { worker = getThread(); } catch { return Promise.resolve(makeThumbnail(source, side, quality)); }
+  try { worker = getThread(); } catch { workerBroken = true; return Promise.resolve().then(() => makeThumbnail(source, side, quality)); }
   const id = ++nextId;
   return new Promise<Buffer>((resolve, reject) => {
     pending.set(id, { resolve, reject, source });
     worker.postMessage({ id, source, side, quality });
-  });
+  }).catch(error => { if (workerBroken) return makeThumbnail(source, side, quality); throw error; });
 }

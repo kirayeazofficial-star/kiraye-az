@@ -3310,3 +3310,6 @@ html body .accountDashboard .cabinetNav .cabinetNavFoot .kzCabinetLogout,html bo
 html body .kzPhoneInput,html body .kzPhoneInput input,html body .kzPhonePrefix,html body .kzAccText b,html body .contactActions .add strong,html body input[type=tel]{font-variant-numeric:tabular-nums!important;font-feature-settings:"tnum" 1!important}
 html body .kzPhoneInput{align-items:center!important}
 html body .kzPhonePrefix,html body .kzPhoneInput input{line-height:1.2!important;letter-spacing:.3px!important}
+html body .kzPhonePrefix,html body .kzPhoneInput input{font-family:var(--kz-font)!important;font-size:16px!important;font-weight:500!important;color:var(--kz-ink)!important;-webkit-text-fill-color:var(--kz-ink)!important}
+html body .kzPhoneInput input::placeholder{font-weight:400!important;color:#a7afac!important;-webkit-text-fill-color:#a7afac!important}
+html body .kzPhoneInput.kzPhoneInput.kzPhoneInput input:not([type=hidden]),html body .kzPhoneInput.kzPhoneInput.kzPhoneInput .kzPhonePrefix{font-weight:500!important;font-size:16px!important}

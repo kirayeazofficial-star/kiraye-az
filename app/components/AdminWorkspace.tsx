@@ -206,7 +206,8 @@ function ReportQueue({ onInspect, onChange }: { onInspect: (id: string) => void;
 }
 
 function UserList({ revision, onListings }: { revision: number; onListings: (user: User) => void }) {
-  const [query, setQuery] = useState(""), [users, setUsers] = useState<User[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState("");
+  const [query, setQuery] = useState(""), [users, setUsers] = useState<User[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState(""), [shown, setShown] = useState(10);
+  useEffect(() => setShown(10), [query]);
   const [busy, setBusy] = useState(""), [notice, setNotice] = useState("");
   useAutoClear(notice, () => setNotice(""));
   // Block: the account cannot sign in and its listings disappear from the site until unblocked.
@@ -232,7 +233,7 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
     {error && <p className="kzAdError" role="alert">{error}</p>}<Notice text={notice} />
     {loading && !users.length ? <p className="kzAdMuted" role="status">Yüklənir…</p> : !users.length ? <Empty title="İstifadəçi tapılmadı" /> : <div className="kzAdTable kzAdUsers" role="table" aria-label="İstifadəçilər">
       <div className="kzAdTableHead" role="row"><span>Ad</span><span>Əlaqə</span><span>Elan</span><span>Qeydiyyat</span><span>Rol</span><span /></div>
-      {users.map(user => <div className="kzAdTableRow" role="row" key={user.id}>
+      {users.slice(0, shown).map(user => <div className="kzAdTableRow" role="row" key={user.id}>
         <span className="kzAdPerson"><b aria-hidden="true">{initial(user.display_name || user.email)}</b><span><strong>{user.display_name || "Adsız istifadəçi"}</strong><small>#{user.profile_no}</small></span></span>
         <span className="kzAdContact"><span>{user.email}</span><small>{user.phone ? formatContact(user.phone) : "Telefon yoxdur"}</small></span>
         <span className="kzAdNum" data-label="Elan">{user.listing_count}</span>
@@ -244,11 +245,12 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
             : <button type="button" className="kzAdBtn small danger" disabled={busy === user.id} onClick={() => void block(user, true)}><Ban aria-hidden="true" size={14} strokeWidth={2.2} />Blokla</button>)}</span>
       </div>)}
     </div>}
+    {users.length > shown && <button type="button" className="kzAdBtn kzAdMore" onClick={() => setShown(value => value + 10)}>Daha çox göstər ({users.length - shown} qalıb)</button>}
   </Panel>;
 }
 
 function StaffManagement() {
-  const [members, setMembers] = useState<Member[]>([]), [events, setEvents] = useState<StaffEvent[]>([]), [cursor, setCursor] = useState<number | null>(null);
+  const [members, setMembers] = useState<Member[]>([]), [events, setEvents] = useState<StaffEvent[]>([]), [cursor, setCursor] = useState<number | null>(null), [allEvents, setAllEvents] = useState(false);
   const [query, setQuery] = useState(""), [found, setFound] = useState<Member | null>(null), [matches, setMatches] = useState<Member[]>([]), [busy, setBusy] = useState(false), [error, setError] = useState(""), [notice, setNotice] = useState("");
   useAutoClear(notice, () => setNotice(""));
   const load = useCallback(async () => { const data = await api({ action: "staff" }); setMembers(data.members); setEvents(data.events); setCursor(data.next); }, []);
@@ -284,8 +286,8 @@ function StaffManagement() {
     {found && <div className="kzAdFound">{person(found, found.role === "user" ? <button className="kzAdBtn primary" type="button" disabled={busy || !found.confirmed} onClick={() => void change(found, true)}>{found.confirmed ? "Admin təyin et" : "E-poçt təsdiqlənməyib"}</button> : found.role === "moderator" ? <button className="kzAdBtn danger" type="button" disabled={busy} onClick={() => void change(found, false)}>Səlahiyyəti geri al</button> : undefined)}</div>}
     {!!matches.length && <div className="kzAdFound"><p className="kzAdHint">{matches.length} hesab tapıldı. Lazım olanı seçin:</p><div className="kzAdList">{matches.map(account => person(account, account.role === "user" ? <button className="kzAdBtn" type="button" onClick={() => { setFound(account); setMatches([]); }}>Seç</button> : undefined))}</div></div>}
     <h3 className="kzAdSub">Son dəyişikliklər</h3>
-    {!events.length ? <p className="kzAdHint">Hələ heç bir dəyişiklik olmayıb.</p> : <ol className="kzAdTimeline kzAdChanges">{events.map(event => <li key={event.id}><div className="kzAdTimelineTop"><strong>{staffActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div><p>{event.target_email || "—"}{event.actor_email && <small> · {event.actor_email} tərəfindən</small>}</p></li>)}</ol>}
-    {cursor && <button type="button" className="kzAdBtn" disabled={busy} onClick={() => void older()}>Daha köhnə qeydlər</button>}
+    {!events.length ? <p className="kzAdHint">Hələ heç bir dəyişiklik olmayıb.</p> : <ol className="kzAdTimeline kzAdChanges">{(allEvents ? events : events.slice(0, 5)).map(event => <li key={event.id}><div className="kzAdTimelineTop"><strong>{staffActions[event.action] || event.action}</strong><time>{adminDate(event.created_at)}</time></div><p>{event.target_email || "—"}{event.actor_email && <small> · {event.actor_email} tərəfindən</small>}</p></li>)}</ol>}
+    {!allEvents && events.length > 5 ? <button type="button" className="kzAdBtn kzAdMore" onClick={() => setAllEvents(true)}>Hamısını göstər ({events.length - 5} qalıb)</button> : cursor && <button type="button" className="kzAdBtn kzAdMore" disabled={busy} onClick={() => void older()}>Daha köhnə qeydlər</button>}
   </Panel>;
 }
 
@@ -591,7 +593,13 @@ function BackupStatus() {
 // Stores: applications to approve, active stores to extend or stop, and the package prices (leader).
 type AdminStore = { id: string; slug: string; name: string; logo_url: string | null; phone: string; address: string; plan: string; plan_name: string; plan_price: string; status: string; active_until: string | null; reject_reason: string | null; owner_email: string; owner_name: string | null; created_at: string; description?: string; open_from?: string | null; open_to?: string | null; listings?: number };
 type AdminPlan = { id: string; name: string; price: string; listing_limit: number | null; free_bumps: number; featured: boolean };
+// Store groups for the tabs: new requests, stores that are live now, and everything else (stopped, expired, rejected).
+const storeGroup = (group: string) => (store: AdminStore) => {
+  const live = store.status === "active" && !!store.active_until && Date.parse(store.active_until) > Date.now();
+  return group === "requests" ? store.status === "pending" : group === "active" ? live : store.status !== "pending" && !live;
+};
 function StoreAdmin({ leader }: { leader: boolean }) {
+  const [tab, setTab] = useState<"" | "requests" | "active" | "stopped">("");
   const [items, setItems] = useState<AdminStore[]>([]), [plans, setPlans] = useState<AdminPlan[]>([]), [loading, setLoading] = useState(true), [error, setError] = useState(""), [notice, setNotice] = useState(""), [busy, setBusy] = useState("");
   useAutoClear(notice, () => setNotice(""));
   const load = useCallback(() => api({ action: "stores" }).then(data => { setItems(data.items); setPlans(data.plans); }).catch(() => setError("Mağazalar yüklənmədi.")).finally(() => setLoading(false)), []);
@@ -614,7 +622,10 @@ function StoreAdmin({ leader }: { leader: boolean }) {
     {error && <p className="kzAdError" role="alert">{error}</p>}<Notice text={notice} />
     <p className="kzAdHint">Mağaza sahibi kabinetdən müraciət edir. Ödənişi aldıqdan sonra «Aktivləşdir» basın — mağaza seçilən müddətə açılır, elanlarında «Mağaza» nişanı görünür və limiti paketə görə artır.</p>
     {loading ? <p className="kzAdMuted" role="status">Yüklənir…</p> : !items.length ? <Empty title="Hələ mağaza müraciəti yoxdur" text="Müraciət gələndə burada görünəcək." /> :
-      <div className="kzAdList">{items.map(store => { const live = store.status === "active" && !!store.active_until && Date.parse(store.active_until) > Date.now(); return <article className="kzAdRow kzStoreRow" key={store.id}>
+      <>{(() => { const counts = { requests: items.filter(storeGroup("requests")).length, active: items.filter(storeGroup("active")).length, stopped: items.filter(storeGroup("stopped")).length }; const current = tab || (counts.requests ? "requests" : counts.active ? "active" : "stopped"); return <>
+      <div className="kzAdTabs" role="group" aria-label="Mağaza vəziyyəti">{([["requests", "Müraciətlər"], ["active", "Aktiv"], ["stopped", "Dayandırılmış"]] as const).map(([key, label]) => <button key={key} type="button" aria-pressed={current === key} onClick={() => setTab(key)}>{label}<small>{counts[key]}</small></button>)}</div>
+      {!items.filter(storeGroup(current)).length ? <Empty title={current === "requests" ? "Yeni müraciət yoxdur" : current === "active" ? "Aktiv mağaza yoxdur" : "Dayandırılmış mağaza yoxdur"} /> :
+      <div className="kzAdList">{items.filter(storeGroup(current)).map(store => { const live = store.status === "active" && !!store.active_until && Date.parse(store.active_until) > Date.now(); return <article className="kzAdRow kzStoreRow" key={store.id}>
         <span className="kzStoreRowLogo">{store.logo_url ? <img src={store.logo_url} alt="" /> : <b>{store.name.charAt(0).toUpperCase()}</b>}</span>
         <div className="kzAdRowMain">
           <div className="kzAdRowTop"><span className={`status ${live ? "published" : store.status === "pending" ? "pending" : "archived"}`}>{live ? "Aktiv" : store.status === "active" ? "Müddəti bitib" : statusText[store.status] || store.status}</span><span className="kzAdMuted">{store.plan_name} · {Number(store.plan_price).toLocaleString("ru-RU")} ₼/ay</span></div>
@@ -632,6 +643,7 @@ function StoreAdmin({ leader }: { leader: boolean }) {
           {live && <button type="button" className="kzAdBtn danger" disabled={busy === store.id} onClick={() => void decide(store, "stop")}><Ban aria-hidden="true" size={14} strokeWidth={2.2} />Dayandır</button>}
         </div>
       </article>; })}</div>}
+      </>; })()}</>}
     {leader && <><h3 className="kzAdSubhead">Paketlər və qiymətlər</h3>
       <div className="kzPlanEdit">{plans.map(plan => <form key={plan.id} onSubmit={event => { event.preventDefault(); void savePlan(plan, event.currentTarget); }}>
         <strong>{plan.name}</strong>

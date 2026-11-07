@@ -21,7 +21,7 @@ export default function ProfileSettings(){
  async function toggleNotices(enabled:boolean){if(!profile)return;setBusy('notify');setError('');const previous=profile.email_notifications;setProfile({...profile,email_notifications:enabled});
   try{const response=await fetch('/api/account/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'notifications',enabled})});if(!response.ok)throw new Error();setNotice(enabled?'Bildirişlər açıldı.':'Bildirişlər söndürüldü.');}
   catch{setProfile({...profile,email_notifications:previous});setError('Dəyişiklik saxlanmadı. Yenidən cəhd edin.');}finally{setBusy('');}}
- const [open,setOpen]=useState<''|'name'|'phone'|'email'>(''),[idCopied,setIdCopied]=useState(false);
+ const [open,setOpen]=useState<''|'name'|'phone'|'email'>(''),[idCopied,setIdCopied]=useState(false),[pwLocked,setPwLocked]=useState(true);
  const identity=useRef('');const [emailStep,setEmailStep]=useState<0|1|2>(0),[emailCode,setEmailCode]=useState('');
  function accept(value:Profile){setProfile(current=>({...value,avatar_url:value.avatar_url!==undefined?value.avatar_url:current?.avatar_url,created_at:value.created_at||current?.created_at}));setName(value.name||'');setPhone(value.phone||'');setEmail(value.pending_email||value.email||'');}
  useEffect(()=>{let active=true;
@@ -92,12 +92,11 @@ export default function ProfileSettings(){
      <div className="kzAccEditActions"><button className="kzButton" disabled={!!busy}>{busy==='profile'?'Saxlanılır…':'Yadda saxla'}</button><button type="button" className="kzButtonGhost" onClick={()=>setOpen('')}>Ləğv et</button></div>
      {status('profile')}
     </form>}
-    {open!=='email'&&    <button type="button" className="kzAccRow" aria-expanded={false} onClick={()=>{setOpen('email');setEmail('');setEmailStep(1);setError('');setNotice('');}}>
+    {open!=='email'&&    <button type="button" className="kzAccRow" aria-expanded={false} onClick={()=>{setOpen('email');setEmail('');setEmailPassword('');setPwLocked(true);setEmailStep(1);setError('');setNotice('');}}>
      <span className="kzAccIcon"><Mail aria-hidden="true" size={18} strokeWidth={1.9}/></span><span className="kzAccText"><small>E-poçt</small><b>{profile.email}</b></span><ChevronRight className="kzAccChevron" aria-hidden="true" size={18} strokeWidth={2}/>
     </button>}
     {open==='email'&&<div className="kzAccEdit listingForm accountForm emailBox">
-     <p className="kzAccCurrent">Hazırkı e-poçt: <b>{profile.email}</b></p>
-     {emailStep===1&&<form onSubmit={event=>submit(event,'email')}><label>Yeni e-poçt<input type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} required autoComplete="email"/></label><label>Cari şifrə<input type="password" value={emailPassword} onChange={e=>setEmailPassword(e.target.value)} autoComplete="current-password" required maxLength={512}/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email'?'Göndərilir…':'Kod göndər'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setOpen('');}}>Ləğv et</button></div></form>}
+          {emailStep===1&&<form onSubmit={event=>submit(event,'email')}><label>Yeni e-poçt ünvanı<input type="email" value={email} onChange={e=>setEmail(e.target.value)} maxLength={254} required autoComplete="off" placeholder="ad@gmail.com" autoFocus/></label><label>Hesabın şifrəsi<input type="password" name="confirm-current" value={emailPassword} onChange={e=>setEmailPassword(e.target.value)} autoComplete="one-time-code" readOnly={pwLocked} onFocus={()=>setPwLocked(false)} required maxLength={512} placeholder="Təsdiq üçün şifrənizi yazın"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email'?'Göndərilir…':'Kod göndər'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setOpen('');}}>Ləğv et</button></div></form>}
      {emailStep===2&&<form onSubmit={event=>submit(event,'email_confirm')}><p className="muted">6 rəqəmli kod {profile.email} ünvanına göndərildi.</p><label>Kod<input inputMode="numeric" pattern="[0-9]{6}" maxLength={6} value={emailCode} onChange={e=>setEmailCode(e.target.value.replace(/\D/g,''))} required autoComplete="one-time-code"/></label><div className="emailActions"><button className="kzButton" disabled={!!busy}>{busy==='email_confirm'?'Yoxlanılır…':'Təsdiqlə'}</button><button type="button" className="kzButtonGhost" onClick={()=>{setEmailStep(0);setEmailCode('');setOpen('');}}>Ləğv et</button></div></form>}
      <div className="kzEmailStatus">{status('email')}</div>
     </div>}

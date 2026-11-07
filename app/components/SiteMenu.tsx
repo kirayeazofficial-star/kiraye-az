@@ -7,8 +7,6 @@ import Link from "next/link";
 import SiteContact from "./SiteContact";
 import LanguageSelect from "./LanguageSelect";
 import { useLanguage } from "./LanguageProvider";
-import CategoryVisual from "./CategoryVisual";
-import { categories } from "../../lib/marketplace";
 
 // Heart, messages and account use the same drawn icons as the bottom menu.
 const HeartIcon = ((props: { size?: number }) => <TabIcon name="heart" size={props.size} />) as unknown as LucideIcon;
@@ -31,8 +29,6 @@ const helpLinks: [string, string, LucideIcon, string][] = [
 export default function SiteMenu() {
   const {t}=useLanguage();
   const [open, setOpen] = useState(false);
-  const [account, setAccount] = useState<{ name: string; email: string } | null | undefined>(undefined);
-  useEffect(() => { if (!open || account !== undefined) return; fetch("/api/auth/host", { cache: "no-store" }).then(r => r.json()).then(data => setAccount(data?.user ? { name: data.user.display_name || "", email: data.user.email || "" } : null)).catch(() => setAccount(null)); }, [open, account]);
   const panel = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const keyboardOpen = useRef(false);
@@ -72,18 +68,6 @@ export default function SiteMenu() {
             <X aria-hidden="true" size={22} strokeWidth={2} />
           </button>
         </div>
-        {account ? <Link className="siteMenuAccount" href="/profile" onClick={() => setOpen(false)}>
-          <span className="siteMenuAvatar" aria-hidden="true">{(account.name || account.email).trim().charAt(0).toLocaleUpperCase("az-AZ")}</span>
-          <span className="siteMenuAccountText"><strong>{account.name || t("Hesabım")}</strong><small>{t("Şəxsi kabinet")}</small></span>
-          <ChevronRight aria-hidden="true" size={20} strokeWidth={2} />
-        </Link> : account === null ? <div className="siteMenuAuth">
-          <Link className="siteMenuAuthMain" href="/login" onClick={() => setOpen(false)}>{t("Daxil ol")}</Link>
-          <Link className="siteMenuAuthAlt" href="/login?mode=signup" onClick={() => setOpen(false)}>{t("Qeydiyyat")}</Link>
-        </div> : null}
-        <section className="siteMenuCats" aria-label={t("Kateqoriyalar")}>
-          <strong>{t("Kateqoriyalar")}</strong>
-          <div>{categories.map(c => <a key={c.id} href={`/?category=${c.id}#elanlar`} onClick={() => setOpen(false)}><CategoryVisual id={c.id} /><span>{t(c.name)}</span></a>)}</div>
-        </section>
         <div className="siteMenuLanguage"><span>{t("Dil")}</span><LanguageSelect /></div>
         <nav className="siteMenuPrimary" aria-label={t("Sayt bölmələri")}>
           {primaryLinks.map(([href, title, Icon, tone]) => <Link key={href} href={href} onClick={() => setOpen(false)}><span className={`kzSideIcon ${tone}`}><Icon aria-hidden="true" size={18} strokeWidth={2} /></span><span>{t(title)}</span><ChevronRight className="kzSideArrow" aria-hidden="true" size={16} strokeWidth={2} /></Link>)}

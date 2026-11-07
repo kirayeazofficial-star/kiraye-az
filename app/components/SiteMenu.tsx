@@ -35,6 +35,7 @@ const menuCategories: [string, string, LucideIcon][] = [
   ["equipment", "Alətlər və texnika", Hammer],
 ];
 const otherLinks: [string, string, LucideIcon][] = [
+  ["/magaza", "Mağazalar", Store],
   ["/help", "Kömək", LifeBuoy],
   ["/rules", "Qaydalar və təhlükəsizlik", ShieldCheck],
   ["/privacy", "Məxfilik", Lock],

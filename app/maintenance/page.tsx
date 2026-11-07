@@ -56,7 +56,7 @@ export default async function MaintenancePage() {
       <aside className="kzMtSide" aria-label="Faydalı məlumat">
         <div className="kzMtPromo">
           <p className="kzMtPromoLogo">kirayeal<span>.az</span></p>
-          <strong>Ehtiyacın olanı almalı deyilsən — kirayələ.</strong>
+          <strong>Ehtiyacınız olanı almaq məcburiyyətində deyilsiniz — kirayələyin.</strong>
           <p>Azərbaycanda ev, avtomobil və digər əşyaların kirayə elanları bir yerdə.</p>
           <ul>{promo.map(({ icon: Icon, name }) => <li key={name}><Icon aria-hidden="true" size={16} strokeWidth={2} />{name}</li>)}</ul>
         </div>

@@ -53,6 +53,9 @@ if (!dbReady) process.exit(1);
 // E-mail notices (expiring listings, saved searches, weekly report) ride on the same cron job.
 try { const { runNotices } = await import("./notify-tasks.mjs"); await runNotices(db, requireFromApp); }
 catch (error) { console.error("Notices failed:", String(error?.message || error).slice(0, 200)); }
+// Once a day: photos uploaded for listings that were never sent go to the trash folder (see clean-uploads.mjs).
+try { const { runCleanup } = await import("./clean-uploads.mjs"); await runCleanup(db); }
+catch (error) { console.error("Upload cleanup failed:", String(error?.message || error).slice(0, 200)); }
 
 // Same key scheme as lib/host/backup-secret.ts.
 function openSecret(sealed) {
@@ -163,7 +166,7 @@ async function dumpDatabase(file) {
 async function walk(root, folder = root, found = []) {
   for (const entry of await readdir(folder, { withFileTypes: true }).catch(() => [])) {
     const path = join(folder, entry.name);
-    if (entry.isDirectory()) await walk(root, path, found);
+    if (entry.isDirectory()) { if (!entry.name.startsWith(".")) await walk(root, path, found); }
     else if (entry.isFile()) found.push(relative(root, path).split(sep).join("/"));
   }
   return found;

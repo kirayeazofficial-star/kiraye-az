@@ -3,8 +3,9 @@ import { dateFormat } from "../../lib/date-format";
 import Notice from "./Notice";
 import { sized } from "../../lib/image-size";
 import { useAutoClear } from "../../lib/use-auto-clear";
-import { Check, ChevronLeft, ChevronRight, Copy, Eye, LogOut, Mail, Pencil, Phone, Plus, ShieldCheck, Star, Store, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Camera, Check, ChevronLeft, ChevronRight, Copy, Eye, LogOut, Mail, Pencil, Phone, Plus, ShieldCheck, Star, Store, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { squareAvatar } from "../../lib/avatar-image";
 import { signOut } from "../../lib/sign-out";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -60,7 +61,24 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [fullCategories, setFullCategories] = useState<string[]>([]),
     [payment, setPayment] = useState<{ title: string; text: string; price?: number } | null>(null),
     [refreshing, setRefreshing] = useState(false),
-    [leaving, setLeaving] = useState(false);
+    [leaving, setLeaving] = useState(false),
+    [photoBusy, setPhotoBusy] = useState(false);
+  const photoInput = useRef<HTMLInputElement>(null);
+  // The avatar in the green card changes the photo right here; the arrow opens the profile settings.
+  async function changePhoto(file: File | undefined) {
+    if (!file || photoBusy) return;
+    setPhotoBusy(true); setError(""); setNotice("");
+    try {
+      if (!file.type.startsWith("image/")) throw new Error("Şəkil faylı seçin.");
+      const form = new FormData(); form.append("file", await squareAvatar(file), "avatar.jpg");
+      const response = await fetch("/api/account/avatar", { method: "POST", body: form });
+      const data = await response.json();
+      if (!response.ok || !data.avatar_url) throw new Error("Şəkil yüklənmədi. Yenidən yoxlayın.");
+      setAvatar(data.avatar_url); setNotice("Profil şəkli yeniləndi.");
+      window.dispatchEvent(new Event("kiraye:profile"));
+    } catch (problem) { setError(problem instanceof Error ? problem.message : "Şəkil yüklənmədi."); }
+    finally { setPhotoBusy(false); if (photoInput.current) photoInput.current.value = ""; }
+  }
   useAutoClear(notice, () => setNotice(""));
   // Tapping the cabinet link while already here reloads the data.
   useEffect(() => {
@@ -175,12 +193,13 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <div className={`kzProfileBlock kzProfileB${balanceOnly?" only":""}`}>
                 <div className="kzProfileHero">
                   <section className="kzProfileHead">
-                    <Link href="/account" className="kzProfileHeadAvatar" aria-label="Profil məlumatları"><UserAvatar src={avatar} name={identity} className="large"/></Link>
+                    <button type="button" className="kzProfileHeadAvatar" aria-label="Profil şəklini dəyiş" disabled={photoBusy} onClick={() => photoInput.current?.click()}><UserAvatar src={avatar} name={identity} className="large"/><span className="kzAvatarCam" aria-hidden="true">{photoBusy ? <span className="kzSpinner" /> : <Camera size={14} strokeWidth={2.2}/>}</span></button>
+                    <input ref={photoInput} type="file" accept="image/*" hidden onChange={event => void changePhoto(event.target.files?.[0])}/>
                     <div className="kzProfileHeadText">
-                      <div className="kzProfileNameRow"><h1><Link href="/account" className="kzProfileNameLink">{identity||"Profil"}</Link></h1>{leader&&<span className="kzLeaderChip"><Star aria-hidden="true" size={12} strokeWidth={2.2}/>Rəhbər</span>}</div>
+                      <div className="kzProfileNameRow"><h1>{identity||"Profil"}</h1>{leader&&<span className="kzLeaderChip"><Star aria-hidden="true" size={12} strokeWidth={2.2}/>Rəhbər</span>}</div>
                       {profileNumber&&<button type="button" className="kzProfileId" aria-label={`ID ${profileNumber} — kopyala`} onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setIdCopied(true);window.setTimeout(()=>setIdCopied(false),1600);}).catch(()=>{});}}>ID {profileNumber}{idCopied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
                     </div>
-                    <Link className="kzProfileHeadGo" href="/account" aria-label="Profil məlumatları"><ChevronRight aria-hidden="true" size={28} strokeWidth={2.2}/></Link>
+                    <Link className="kzProfileHeadGo" href="/account" aria-label="Profil məlumatları"><ChevronRight aria-hidden="true" size={30} strokeWidth={2.4}/></Link>
                   </section>
                   {!balanceOnly&&<div className="kzHeroBalance" aria-label="Şəxsi hesabın balansı">
                     <span><small>Şəxsi hesab</small><b>0,00 ₼</b></span>

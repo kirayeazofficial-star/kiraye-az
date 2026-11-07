@@ -3575,9 +3575,18 @@ html body .kzMenuCopy{margin:auto 0 0!important;padding:18px 0 calc(12px + env(s
 html body .siteMenuPanel.kzSide .kzMenuIcon svg{color:#104c43}
 /* Menyu loqosu saytın başlığındakı ilə eyni ölçüdə və rəngdə. */
 html body .kzMenuHero .kzMenuLogo{font-size:21px!important;font-weight:700!important;letter-spacing:-.8px!important;color:rgb(20,63,59)!important}
-/* Telefon: sayt sonu qısa — keçidlər ☰ menyuda və aşağı paneldə var. */
+/* Telefon: sayt sonu yığcam — kateqoriyalar düymə kimi, keçidlər bir-iki sətirdə, əlaqə ikonları bir sırada. */
 @media (max-width:767px){
-html body .kzFooterInner>nav,html body .kzFooterInner>div:not(.kzFooterBrand){display:none!important}
-html body .kzFooterInner{padding-bottom:6px!important}
-html body .kzFooterBrand{padding-bottom:0!important;border-bottom:0!important}
+html body .kzFooterInner{display:flex!important;flex-direction:column!important;gap:16px!important;padding:20px var(--kz-gutter,16px) 12px!important}
+html body .kzFooterBrand{padding-bottom:14px!important}
+html body .kzFooterInner>nav,html body .kzFooterInner>div:not(.kzFooterBrand){display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center;gap:8px!important}
+html body .kzFooterInner>nav>strong,html body .kzFooterInner>div:not(.kzFooterBrand)>strong{flex-basis:100%;margin:0 0 2px!important;font-size:13px!important;font-weight:700;color:var(--kz-ink)}
+html body .kzFooterInner>nav:first-of-type>a{padding:6px 12px;border:1px solid var(--kz-line);border-radius:999px;font-size:13px!important;color:var(--kz-ink)!important;text-decoration:none!important;background:#fff}
+html body .kzFooterInner>nav:nth-of-type(2){gap:6px 14px!important}
+html body .kzFooterInner>nav:nth-of-type(2)>a{min-height:0!important;padding:2px 0!important;line-height:1.5;font-size:13.5px!important;color:var(--kz-text)!important}
+html body .kzFooterInner>nav:first-of-type>a{min-height:0!important}
+html body .kzFooterInner .kzFooterSocial{flex-direction:row!important;gap:10px!important;margin:0!important}
+html body .kzFooterInner .kzFooterSocial a{font-size:0!important;gap:0!important}
+html body .kzFooterInner .kzFooterSocial a>span{width:36px!important;height:36px!important;border-radius:50%!important}
+html body .kzFooterInner .kzFooterSocial a>span svg{width:17px;height:17px}
 }

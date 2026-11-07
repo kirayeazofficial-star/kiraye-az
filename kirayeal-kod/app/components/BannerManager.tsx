@@ -1,4 +1,5 @@
 "use client";
+import { ask } from "../../lib/ask";
 import Notice from "./Notice";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { ImagePlus, Pencil, Trash2 } from "lucide-react";
@@ -65,7 +66,7 @@ export default function BannerManager() {
     if (!response?.ok) { setError("Dəyişiklik saxlanmadı."); await load(); }
   }
   async function remove(banner: Banner) {
-    if (!window.confirm("Banner silinsin?")) return;
+    if (await ask({ title: "Banner silinsin?", ok: "Sil", danger: true }) === null) return;
     const response = await fetch("/api/admin/banners", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: banner.id }) }).catch(() => null);
     if (response?.ok) { setNotice("Banner silindi."); await load(); } else setError("Banner silinmədi.");
   }

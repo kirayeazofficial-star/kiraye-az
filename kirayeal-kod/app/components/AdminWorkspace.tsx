@@ -1,4 +1,5 @@
 "use client";
+import { ask } from "../../lib/ask";
 import { ADMIN_LIST_PAGE_SIZE } from "../../lib/admin-list-page";
 import TabIcon from "./TabIcon";
 import { sized } from "../../lib/image-size";
@@ -212,9 +213,11 @@ function UserList({ revision, onListings }: { revision: number; onListings: (use
   useAutoClear(notice, () => setNotice(""));
   // Block: the account cannot sign in and its listings disappear from the site until unblocked.
   async function block(user: User, blocked: boolean) {
-    const reason = blocked ? window.prompt(`«${user.display_name || user.email}» bloklansın? Hesaba girə bilməyəcək, elanları saytdan gizlənəcək.\n\nSəbəbi yazın (istifadəçiyə görünmür):`, "Saxtakarlıq / qaydaların pozulması") : "";
-    if (blocked && (reason === null || reason.trim().length < 5)) return;
-    if (!blocked && !window.confirm(`«${user.display_name || user.email}» hesabının bloku götürülsün?`)) return;
+    const who = user.display_name || user.email;
+    const reason = blocked
+      ? await ask({ title: `«${who}» bloklansın?`, text: "Hesaba girə bilməyəcək, elanları saytdan gizlənəcək.", label: "Səbəb (istifadəçiyə görünmür)", input: "Saxtakarlıq / qaydaların pozulması", minLength: 5, ok: "Blokla", danger: true })
+      : await ask({ title: `«${who}» hesabının bloku götürülsün?`, ok: "Bloku götür" });
+    if (reason === null) return;
     setBusy(user.id); setError("");
     try {
       await post({ action: "block_user", id: user.id, blocked, reason: reason || "" });
@@ -551,7 +554,7 @@ function BackupStatus() {
   useEffect(() => { if (!running) return; const timer = setTimeout(load, 4000); return () => clearTimeout(timer); }, [running, data, load]);
   const size = (bytes: number | null) => !Number(bytes) ? "0 KB" : Number(bytes) > 1048576 ? `${(Number(bytes) / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(Number(bytes) / 1024))} KB`;
   async function disconnect() {
-    if (!window.confirm("Google Drive ayrılsın? Drive-dakı fayllar silinmir, amma yeni ehtiyat nüsxələri dayanacaq.")) return;
+    if (await ask({ title: "Google Drive ayrılsın?", text: "Drive-dakı fayllar silinmir, amma yeni ehtiyat nüsxələri dayanacaq.", ok: "Ayır", danger: true }) === null) return;
     await fetch("/api/admin/backup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "disconnect" }) }).catch(() => null);
     load();
   }
@@ -605,9 +608,9 @@ function StoreAdmin({ leader }: { leader: boolean }) {
   const load = useCallback(() => api({ action: "stores" }).then(data => { setItems(data.items); setPlans(data.plans); }).catch(() => setError("Mağazalar yüklənmədi.")).finally(() => setLoading(false)), []);
   useEffect(() => { void load(); }, [load]);
   async function decide(store: AdminStore, decision: "activate" | "reject" | "stop", days = 30) {
-    const reason = decision === "reject" ? window.prompt("Rədd səbəbi (mağaza sahibinə görünəcək):", "Məlumatlar natamamdır. Loqo, ünvan və telefonu əlavə edin.") : "";
-    if (decision === "reject" && (!reason || reason.trim().length < 5)) return;
-    if (decision === "stop" && !window.confirm(`«${store.name}» mağazası dayandırılsın?`)) return;
+    const reason = decision === "reject" ? await ask({ title: `«${store.name}» müraciəti rədd edilsin?`, label: "Səbəb (mağaza sahibinə görünəcək)", input: "Məlumatlar natamamdır. Loqo, ünvan və telefonu əlavə edin.", minLength: 5, ok: "Rədd et", danger: true })
+      : decision === "stop" ? await ask({ title: `«${store.name}» mağazası dayandırılsın?`, text: "Mağaza səhifəsi bağlanacaq, «Mağaza» nişanı elanlardan götürüləcək.", ok: "Dayandır", danger: true }) : "";
+    if (reason === null) return;
     setBusy(store.id); setError("");
     try { await post({ action: "store_decide", id: store.id, decision, days, reason }); setNotice(decision === "activate" ? `Mağaza ${days} gün aktivləşdirildi.` : decision === "reject" ? "Müraciət rədd edildi." : "Mağaza dayandırıldı."); await load(); }
     catch { setError("Dəyişiklik saxlanmadı."); } finally { setBusy(""); }
@@ -663,7 +666,7 @@ function LimitAdmin() {
   useEffect(() => { api({ action: "limit_rules" }).then(data => setPayments(data.payments !== false)).catch(() => setError("Ayarlar yüklənmədi.")); }, []);
   async function switchPayments() {
     const next = !payments;
-    if (!next && !window.confirm("Bütün ödənişli xidmətlər dayandırılsın? İstifadəçilər «Reklam et», VIP, Premium, ödənişli bərpa və mağaza müraciəti düymələrini görməyəcək.")) return;
+    if (!next && await ask({ title: "Bütün ödənişli xidmətlər dayandırılsın?", text: "İstifadəçilər «Reklam et», VIP, Premium, ödənişli bərpa və mağaza müraciəti düymələrini görməyəcək.", ok: "Dayandır", danger: true }) === null) return;
     setBusy(true); setError("");
     try { await post({ action: "save_payments", enabled: next }); setPayments(next); toast(next ? "Ödənişli xidmətlər açıldı" : "Ödənişli xidmətlər dayandırıldı"); }
     catch { toast("Dəyişiklik saxlanmadı", { kind: "error" }); } finally { setBusy(false); }
@@ -724,7 +727,7 @@ function SiteSettingsAdmin() {
         <span className="kzPaySwitchIcon kzIconWorks"><Wrench aria-hidden="true" size={22} strokeWidth={2} /></span>
         <div><strong>Texniki iş rejimi <em className={`kzSwState${works.enabled ? " warn" : ""}`}>{works.enabled ? "Açıq" : "Bağlı"}</em></strong>
           <small>Açıq olanda ziyarətçilər «Saytda texniki iş gedir» səhifəsini görür. Siz və adminlər saytı adi qaydada istifadə edirsiniz; giriş səhifəsi açıq qalır.</small></div>
-        <button type="button" role="switch" aria-checked={works.enabled} aria-label="Texniki iş rejimi" className="kzToggle" disabled={!!busy} onClick={() => { if (works.enabled || window.confirm("Texniki iş rejimi açılsın? Ziyarətçilər sayta girə bilməyəcək.")) void save("maintenance", { ...worksDraft, enabled: !works.enabled }, works.enabled ? "Sayt yenidən hamı üçün açıqdır" : "Texniki iş rejimi açıldı"); }}><i aria-hidden="true" /></button>
+        <button type="button" role="switch" aria-checked={works.enabled} aria-label="Texniki iş rejimi" className="kzToggle" disabled={!!busy} onClick={async () => { if (works.enabled || await ask({ title: "Texniki iş rejimi açılsın?", text: "Ziyarətçilər sayta girə bilməyəcək.", ok: "Aç", danger: true }) !== null) void save("maintenance", { ...worksDraft, enabled: !works.enabled }, works.enabled ? "Sayt yenidən hamı üçün açıqdır" : "Texniki iş rejimi açıldı"); }}><i aria-hidden="true" /></button>
       </div>
       <form className="kzSetForm" onSubmit={event => { event.preventDefault(); void save("maintenance", { ...worksDraft, enabled: works.enabled }, "Yadda saxlanıldı"); }}>
         <label className="kzSetField"><span>Təxmini qayıtma vaxtı (istəyə görə)</span><input type="datetime-local" value={worksDraft.until} onChange={event => setWorksDraft({ ...worksDraft, until: event.target.value })} /></label>

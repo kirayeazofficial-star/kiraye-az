@@ -180,7 +180,6 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                       <div className="kzProfileNameRow"><h1>{identity||"Profil"}</h1>{leader&&<span className="kzLeaderChip"><Star aria-hidden="true" size={12} strokeWidth={2.2}/>Rəhbər</span>}</div>
                       {profileNumber&&<button type="button" className="kzProfileId" aria-label={`ID ${profileNumber} — kopyala`} onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setIdCopied(true);window.setTimeout(()=>setIdCopied(false),1600);}).catch(()=>{});}}>ID {profileNumber}{idCopied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
                     </div>
-                    <Link className="kzProfileHeadGo" href="/account" aria-label="Profil məlumatları"><ChevronRight aria-hidden="true" size={22} strokeWidth={2}/></Link>
                   </section>
                   {!balanceOnly&&<div className="kzHeroBalance" aria-label="Şəxsi hesabın balansı">
                     <span><small>Şəxsi hesab</small><b>0,00 ₼</b></span>

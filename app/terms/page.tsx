@@ -50,9 +50,9 @@ const sections: { title: string; points: string[] }[] = [
   {
     title: "Ödənişli xidmətlər",
     points: [
-      "Saytda ödənişli xidmətlər təklif oluna bilər: İrəli çək, VIP, Premium, limitdən artıq elan və elanın bərpası. Qiymətlər və şərtlər ödənişdən əvvəl göstərilir.",
+      "Saytda ödənişli xidmətlər təklif oluna bilər: İrəli çək, VIP, Premium, limitdən artıq elan, elanın bərpası və mağaza paketləri. Qiymətlər və şərtlər ödənişdən əvvəl göstərilir. Ödəniş sistemi qoşulana qədər bu xidmətlər müvəqqəti işləmir.",
       "Ödənişli xidmət elanın qaydalara uyğunluğunu yoxlamadan azad etmir. Qaydaları pozan elan silindikdə və ya gizlədildikdə ödənilmiş məbləğ qaytarılmır.",
-      "Aktivləşdirilmiş xidmət üçün ödəniş qaytarılmır. Texniki səbəbdən xidmət göstərilmədikdə məsələyə fərdi qaydada baxılır.",
+      "Başlamış xidmət üçün ödəniş qaytarılmır. Elan rədd edildikdə və xidmət tətbiq olunmadıqda, həmçinin texniki səbəbdən xidmət göstərilmədikdə ödənilən məbləğ şəxsi hesab balansına qaytarılır (ətraflı: Elan yerləşdirmə qaydaları, 9-cu bölmə).",
       "Şəxsi hesabdakı vəsait yalnız Saytdakı xidmətlər üçün istifadə olunur və nağd pula çevrilmir.",
     ],
   },
@@ -88,7 +88,7 @@ export default function Terms() {
     <main className="wrap prose">
       <p className="eyebrow">HÜQUQİ MƏLUMAT</p>
       <h1>İstifadəçi razılaşması</h1>
-      <p>Son yeniləmə: 30 oktyabr 2026</p>
+      <p>Son yeniləmə: 7 noyabr 2026</p>
       {sections.map((section, index) => <section key={section.title} id={`bend-${index + 1}`}>
         <h2>{index + 1}. {section.title}</h2>
         {section.points.map((point, pointIndex) => <p key={pointIndex}><strong>{index + 1}.{pointIndex + 1}.</strong> {point}</p>)}

@@ -25,6 +25,7 @@ export default function Footer() {
         <nav aria-label={t("Məlumat və kömək")}>
           <strong>{t("Məlumat")}</strong>
           <Link href="/help">{t("Kömək")}</Link>
+          <Link href="/magaza">{t("Mağazalar")}</Link>
           <Link href="/rules">{t("Qaydalar və təhlükəsizlik")}</Link>
           <Link href="/privacy">{t("Məxfilik")}</Link>
           <Link href="/terms">{t("İstifadəçi razılaşması")}</Link>
@@ -33,9 +34,9 @@ export default function Footer() {
         <div>
           <strong>{t("Bizimlə əlaqə")}</strong>
           <a className="kzContactLine" href={`mailto:${siteContact.email}`}><Mail aria-hidden="true" size={15} strokeWidth={2} />{siteContact.email}</a>
-          <span className="kzSocial">
-            <a href={siteContact.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><InstagramIcon size={15} />Instagram</a>
-            <a href={siteContact.tiktok} target="_blank" rel="noopener noreferrer" aria-label="TikTok"><TikTokIcon size={15} />TikTok</a>
+          <span className="kzDrawerSocial kzFooterSocial">
+            <a className="ig" href={siteContact.instagram} target="_blank" rel="noopener noreferrer"><span><InstagramIcon size={13} /></span>Instagram</a>
+            <a className="tt" href={siteContact.tiktok} target="_blank" rel="noopener noreferrer"><span><TikTokIcon size={12} /></span>TikTok</a>
           </span>
         </div>
       </div>

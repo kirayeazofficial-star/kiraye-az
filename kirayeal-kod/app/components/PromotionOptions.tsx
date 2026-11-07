@@ -14,14 +14,14 @@ type Pack = { kind: Kind; title: string; action: string; icon: LucideIcon; from:
 // Prices and wording of the paid services (payments are not connected yet: "Ödə" only explains that).
 export const packs: Pack[] = [
   { kind: "bump", title: "İrəli çək", action: "Elanı irəli çək", icon: ArrowUp, from: "2",
-    description: "Elan seçdiyin sayda, hər 8 saatdan bir öz kateqoriyasının axtarış nəticələrində birinci yerə qalxacaq.",
+    description: "Elan seçdiyiniz sayda, hər 8 saatdan bir öz kateqoriyasında ən yuxarıya qalxır.",
     plans: [{ label: "3 dəfə (8 saatdan bir)", price: "2,00" }, { label: "9 dəfə (8 saatdan bir)", price: "5,00" }, { label: "15 dəfə (8 saatdan bir)", price: "7,00" }, { label: "30 dəfə (8 saatdan bir)", price: "12,00" }] },
   { kind: "vip", title: "VIP", action: "VIP et", icon: Gem, from: "4",
-    description: "Elan VIP bölməsində və öz kateqoriyasının axtarış nəticələrində təsadüfi qaydada göstəriləcək.",
+    description: "Elan ana səhifənin VIP bölməsində və öz kateqoriyasında daha çox göstərilir.",
     bonus: { before: "1 dəfə irəli çək", now: "Hər gün irəli çək" },
     plans: [{ label: "1 gün", price: "4,00", extra: "1 irəli çək" }, { label: "5 gün", price: "10,00" }, { label: "15 gün", price: "22,00" }, { label: "30 gün", price: "35,00" }] },
   { kind: "premium", title: "Premium", action: "Premium et", icon: Crown, from: "6",
-    description: "Elan əsas səhifənin Premium bölməsində göstəriləcək və xidmət müddətinin sonunadək orada qalacaq.",
+    description: "Elan ana səhifənin ən üstündəki Premium bölməsində xidmət bitənədək göstərilir.",
     bonus: { before: "1 dəfə irəli çək + VIP", now: "Hər gün irəli çək + VIP" },
     plans: [{ label: "1 gün", price: "6,00", extra: "1 irəli çək + VIP" }, { label: "5 gün", price: "18,00" }, { label: "15 gün", price: "40,00" }, { label: "30 gün", price: "65,00" }] },
 ];
@@ -82,7 +82,7 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
   if (!paidVisible(flags)) return null;
   return <>
     <button type="button" className={`promotionTrigger${kind ? " " + kind : ""}${card ? " kzPromoCard" : ""}`} disabled={!eligible} onClick={() => setOpen(true)}>
-      {card && own ? <><span className="kzPromoCardText"><strong>{label ?? own.title}</strong><small>{own.from} AZN-dən</small></span><Icon aria-hidden="true" size={18} strokeWidth={2} /></>
+      {card && own ? <><span className="kzPromoCardText"><strong>{label ?? own.title}</strong><small>{own.from} ₼-dan</small></span><Icon aria-hidden="true" size={18} strokeWidth={2} /></>
         : <><Icon aria-hidden="true" size={16} strokeWidth={2} />{label ?? "Elanı reklam et"}</>}
     </button>
     {/* Rendered at the end of <body> so no card or list styling of the trigger's parent reaches it. */}
@@ -98,8 +98,8 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
         {!pack ? <div className="kzPromoChoose">
           {packs.map(item => <button key={item.kind} type="button" className="kzPromoOption" onClick={() => setChosen(item.kind)}>
             <span className={`kzPromoOptionIcon ${item.kind}`}><item.icon aria-hidden="true" size={20} strokeWidth={2} /></span>
-            <span className="kzPromoOptionText"><strong>{item.title}</strong><small>{item.description}</small></span>
-            <span className="kzPromoOptionPrice">{item.from} AZN-dən<ChevronRight aria-hidden="true" size={16} strokeWidth={2} /></span>
+            <span className="kzPromoOptionText"><strong>{item.title}<em>{item.from} ₼-dan</em></strong><small>{item.description}</small></span>
+            <ChevronRight className="kzPromoChevron" aria-hidden="true" size={18} strokeWidth={2} />
           </button>)}
         </div> : <>
           <p className="kzPromoDesc">{pack.description}</p>
@@ -118,13 +118,13 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
             {pack.plans.map((item, index) => <label key={item.label} className={plan === index ? "on" : ""}>
               <input type="radio" name={`${id}-plan`} checked={plan === index} onChange={() => setPlan(index)} />
               <span className="kzPromoRadio" aria-hidden="true" />
-              <span className="kzPromoPlan">{item.label} / {item.price} AZN</span>
+              <span className="kzPromoPlan">{item.label}</span><b className="kzPromoPlanPrice">{item.price} ₼</b>
               {item.extra && <span className="kzPromoExtra">{item.extra}</span>}
             </label>)}
           </div>
           {!staff && <><p className="kzPromoSection">Ödəniş üsulunu seçin</p>
           <div className="kzPromoList" role="radiogroup" aria-label="Ödəniş üsulu">
-            {[["card", "Bank kartı"], ["balance", "Şəxsi hesab (0,00 AZN)"]].map(([value, text]) => <label key={value} className={method === value ? "on" : ""}>
+            {[["card", "Bank kartı"], ["balance", "Şəxsi hesab (0,00 ₼)"]].map(([value, text]) => <label key={value} className={method === value ? "on" : ""}>
               <input type="radio" name={`${id}-method`} checked={method === value} onChange={() => setMethod(value)} />
               <span className="kzPromoRadio" aria-hidden="true" />
               <span className="kzPromoPlan">{text}</span>
@@ -137,7 +137,7 @@ export default function PromotionOptions({ eligible = true, kind, label, card = 
               <button type="button" className="kzPromoPay" disabled={busy || !!done || !listingId} onClick={() => void activate(pack.kind)}>{busy || done ? "Gözləyin…" : "Pulsuz aktivləşdir"}</button>
             </> : <>
               {notice && <p className="kzPromoNotice" role="alert">{PAYMENT_DOWN}</p>}
-              <button type="button" className="kzPromoPay" onClick={() => setNotice(true)}>Ödə · {pack.plans[plan].price} AZN</button>
+              <button type="button" className="kzPromoPay" onClick={() => setNotice(true)}>Ödə · {pack.plans[plan].price} ₼</button>
             </>}
             {!staff && <p className="kzPromoLegal">«Ödə» düyməsini sıxmaqla kirayeal.az-ın <Link href="/terms">İstifadəçi razılaşmasını</Link> qəbul etmiş olursunuz.</p>}
           </footer>

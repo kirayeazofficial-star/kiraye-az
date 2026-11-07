@@ -393,7 +393,7 @@ export default function ListingForm({ listingId }: { listingId?: string }) {
         const uploadResponse=await fetch("/api/uploads",{method:"POST",body:uploadForm});
         const uploaded=await uploadResponse.json();
         if (!uploadResponse.ok || !uploaded.path)
-          throw new Error("Şəkil yüklənmədi. Bir az sonra yenidən yoxlayın.");
+          throw new Error(uploaded?.error === "UPLOAD_LIMIT" ? "Son bir saatda çox şəkil yüklədiniz. Bir az sonra yenidən cəhd edin." : "Şəkil yüklənmədi. Bir az sonra yenidən yoxlayın.");
         paths.push(uploaded.path);images.push(uploaded.path);
       }
       const payload = {

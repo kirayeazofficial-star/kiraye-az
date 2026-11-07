@@ -1,12 +1,20 @@
-import {mkdir,unlink,writeFile} from "node:fs/promises";
+import {mkdir,readdir,stat,unlink,writeFile} from "node:fs/promises";
 import path from "node:path";
 import {NextRequest,NextResponse} from "next/server";
 import {currentUser} from "../../../lib/host/session";
 import {savePhotoHash} from "../../../lib/host/photo-hashes";
+import {isLeader} from "../../../lib/host/staff";
 
 export const dynamic="force-dynamic";
 const root=process.env.KIRAYE_STORAGE_ROOT||"";
 const fileName=/^[0-9a-f-]{36}\.jpg$/i;
+const HOURLY_LIMIT=60;
+// Photos this user uploaded in the last hour (main files only), so a script cannot fill the disk.
+async function recentUploads(directory:string){
+  const since=Date.now()-3600000;let count=0;
+  for(const name of await readdir(directory).catch(()=>[] as string[])){if(!fileName.test(name))continue;const info=await stat(path.join(directory,name)).catch(()=>null);if(info&&info.mtimeMs>since)count++;}
+  return count;
+}
 function reply(data:unknown,status=200){return NextResponse.json(data,{status,headers:{"Cache-Control":"no-store"}});}
 
 export async function POST(request:NextRequest){
@@ -18,6 +26,7 @@ export async function POST(request:NextRequest){
     const bytes=Buffer.from(await file.arrayBuffer());
     if(bytes[0]!==0xff||bytes[1]!==0xd8||bytes.at(-2)!==0xff||bytes.at(-1)!==0xd9)return reply({error:"INVALID_IMAGE"},400);
     const name=`${crypto.randomUUID()}.jpg`,directory=path.join(root,user.id);
+    if(await recentUploads(directory)>=HOURLY_LIMIT&&!await isLeader(user))return reply({error:"UPLOAD_LIMIT"},429);
     await mkdir(directory,{recursive:true,mode:0o700});await writeFile(path.join(directory,name),bytes,{mode:0o600,flag:"wx"});
     // Optional small copy for link previews (share-<same name>); a bad or missing one is simply skipped.
     const share=form.get("share");

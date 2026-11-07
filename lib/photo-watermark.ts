@@ -4,7 +4,7 @@ export async function watermarkPhoto(file: File): Promise<File> {
     const image = new Image();
     await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error("Şəkli oxumaq mümkün olmadı.")); image.src = url; });
     if (image.naturalWidth * image.naturalHeight > 40000000) throw new Error("Şəklin ölçüsü çox böyükdür. Daha kiçik şəkil seç.");
-    const scale = Math.min(1, 2560 / Math.max(image.naturalWidth, image.naturalHeight));
+    const scale = Math.min(1, 1600 / Math.max(image.naturalWidth, image.naturalHeight));
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, Math.round(image.naturalWidth * scale)); canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
     const context = canvas.getContext("2d");
@@ -14,10 +14,10 @@ export async function watermarkPhoto(file: File): Promise<File> {
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
     await document.fonts?.load(`600 32px ${brandFamily()}`).catch(() => undefined);
     drawBrandMark(context, canvas.width, canvas.height);
-    // Sharp enough to zoom in on, but always under the 5 MB upload limit.
+    // 1600px on the long side at quality 0.85: sharp on phones and computers, about 250–500 KB per photo.
     const encode = (quality: number) => new Promise<Blob>((resolve, reject) => canvas.toBlob(value => value ? resolve(value) : reject(new Error("Şəkli hazırlamaq mümkün olmadı.")), "image/jpeg", quality));
-    let blob = await encode(0.92);
-    for (const quality of [0.86, 0.8, 0.72]) { if (blob.size <= 4.5 * 1024 * 1024) break; blob = await encode(quality); }
+    let blob = await encode(0.85);
+    for (const quality of [0.8, 0.72]) { if (blob.size <= 4.5 * 1024 * 1024) break; blob = await encode(quality); }
     return new File([blob], `branded-${file.name}.jpg`, { type: "image/jpeg" });
   } finally { URL.revokeObjectURL(url); }
 }

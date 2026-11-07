@@ -3372,3 +3372,9 @@ html body .kzButton,html body .kzButtonGhost,html body .kzAccEdit .kzButton,html
 html body .loginPage .authSubmit{height:46px!important;min-height:46px!important;font-size:15px!important;border-radius:12px!important}
 html body .loginPage .googleButton{height:44px!important;min-height:44px!important;font-size:14px!important}
 html body .kzAccountPage .kzAccEdit input{height:44px!important;min-height:44px!important}
+
+/* Kabinet: profil başlığında böyük ox. */
+html body .kzProfileB .kzProfileHeadGo{display:flex!important;align-items:center;justify-content:center;width:44px!important;height:44px!important;margin-right:-6px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff!important}
+html body .kzProfileB .kzProfileHeadAvatar{cursor:default}
+html body .kzProfileB .kzProfileHeadAvatar{cursor:pointer}
+html body .kzProfileNameLink{color:inherit!important;text-decoration:none!important}

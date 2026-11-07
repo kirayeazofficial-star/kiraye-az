@@ -175,11 +175,12 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               <div className={`kzProfileBlock kzProfileB${balanceOnly?" only":""}`}>
                 <div className="kzProfileHero">
                   <section className="kzProfileHead">
-                    <Link href="/account" className="kzProfileHeadAvatar" aria-label="Profil şəklini dəyiş"><UserAvatar src={avatar} name={identity} className="large"/></Link>
+                    <Link href="/account" className="kzProfileHeadAvatar" aria-label="Profil məlumatları"><UserAvatar src={avatar} name={identity} className="large"/></Link>
                     <div className="kzProfileHeadText">
-                      <div className="kzProfileNameRow"><h1>{identity||"Profil"}</h1>{leader&&<span className="kzLeaderChip"><Star aria-hidden="true" size={12} strokeWidth={2.2}/>Rəhbər</span>}</div>
+                      <div className="kzProfileNameRow"><h1><Link href="/account" className="kzProfileNameLink">{identity||"Profil"}</Link></h1>{leader&&<span className="kzLeaderChip"><Star aria-hidden="true" size={12} strokeWidth={2.2}/>Rəhbər</span>}</div>
                       {profileNumber&&<button type="button" className="kzProfileId" aria-label={`ID ${profileNumber} — kopyala`} onClick={()=>{void navigator.clipboard?.writeText(profileNumber).then(()=>{setIdCopied(true);window.setTimeout(()=>setIdCopied(false),1600);}).catch(()=>{});}}>ID {profileNumber}{idCopied?<Check aria-hidden="true" size={14} strokeWidth={2.4}/>:<Copy aria-hidden="true" size={14} strokeWidth={2}/>}</button>}
                     </div>
+                    <Link className="kzProfileHeadGo" href="/account" aria-label="Profil məlumatları"><ChevronRight aria-hidden="true" size={28} strokeWidth={2.2}/></Link>
                   </section>
                   {!balanceOnly&&<div className="kzHeroBalance" aria-label="Şəxsi hesabın balansı">
                     <span><small>Şəxsi hesab</small><b>0,00 ₼</b></span>
@@ -217,7 +218,7 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
               </div>}
               <div className="kzOwnTabs" role="group" aria-label="Elan vəziyyəti">
                 {/* Empty tabs are hidden (Aktiv and Gözləmədə always stay), so the row stays short. */}
-                {listingTabs.filter(([status]) => status === "published" || status === "pending" || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => (
+                {listingTabs.filter(([status]) => status === "published" || status === "pending" || status === "payment" || status === statusFilter || listings.some((x) => matchesTab(x, status))).map(([status, label]) => (
                   <button key={status} type="button" aria-pressed={statusFilter === status} onClick={() => { setStatusFilter(status); setNotice(""); setError(""); }}>
                     {label}<b>{listings.filter((x) => matchesTab(x, status)).length}</b>
                   </button>

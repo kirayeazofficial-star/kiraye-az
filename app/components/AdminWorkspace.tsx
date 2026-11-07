@@ -433,18 +433,17 @@ export default function AdminWorkspace() {
             <tbody>
               <tr><th scope="row">İstifadəçi</th><td>{periods?.users.today ?? "—"}</td><td>{periods?.users.week ?? "—"}</td><td>{periods?.users.month ?? "—"}</td></tr>
               <tr><th scope="row">Elan</th><td>{periods?.listings.today ?? "—"}</td><td>{periods?.listings.week ?? "—"}</td><td>{periods?.listings.month ?? "—"}</td></tr>
-              {income && <tr className="kzAdIncome"><th scope="row">Gəlir, ₼</th><td>{manatNumber(income.today)}</td><td>{manatNumber(income.week)}</td><td>{manatNumber(income.month)}</td></tr>}
+              {income && income.total > 0 && <tr className="kzAdIncome"><th scope="row">Gəlir, ₼</th><td>{manatNumber(income.today)}</td><td>{manatNumber(income.week)}</td><td>{manatNumber(income.month)}</td></tr>}
             </tbody>
           </table>
-          {income && <p className="kzAdIncomeTotal"><span>Ümumi gəlir</span><b>{manatNumber(income.total)} ₼</b></p>}
-          {income && !income.total && <p className="kzAdMuted">Ödəniş sistemi qoşulduqdan sonra daxil olan ödənişlər burada avtomatik hesablanacaq.</p>}
-        </Panel>
+          {income && income.total > 0 && <p className="kzAdIncomeTotal"><span>Ümumi gəlir</span><b>{manatNumber(income.total)} ₼</b></p>}
+                  </Panel>
         <Panel title="Son fəaliyyətlər" actions={<button type="button" className="kzAdBtn" onClick={() => open("history")}>Hamısı</button>}>
-          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.map(item => <li key={item.id}>
+          {!activity.length ? <Empty title="Hələ qərar verilməyib" text="Təsdiq və rədd qərarları burada görünəcək." /> : <ul className="kzAdActivity">{activity.slice(0, 5).map(item => <li key={item.id}>
             <span className={`kzAdDot ${item.new_status || ""}`} aria-hidden="true" />
-            <div><p><strong>{item.actor_name || "İdarəçi"}</strong> · {moderationActions[item.action] || item.action}{item.new_status ? ` — ${statusName(item.new_status)}` : ""}</p>
+            <div><p><strong>{item.actor_name || "İdarəçi"}</strong> · {moderationActions[item.action] || "Elan yeniləndi"}{item.new_status ? ` — ${statusName(item.new_status)}` : ""}</p>
               <button type="button" className="kzAdLink" onClick={() => inspect(item.listing_id)}>{item.title || "Silinmiş elan"}</button>
-              {item.reason && <p className="kzAdReason">Səbəb: {item.reason}</p>}</div>
+              {item.reason && <details className="kzAdReasonDisclosure"><summary>Səbəb</summary><p className="kzAdReason">{item.reason}</p></details>}</div>
             <time>{adminDate(item.created_at)}</time>
           </li>)}</ul>}
         </Panel>
@@ -746,10 +745,11 @@ function SiteHealth() {
   const tone = bad ? "bad" : warn ? "warn" : "ok";
   const status = !items.length ? "" : bad ? `${bad} problem` : warn ? `${warn} xəbərdarlıq` : "Qaydasındadır";
   return <Panel title="Sayt sağlamlığı" className={`kzHealth ${tone}`} actions={status ? <span className={`kzHealthBadge ${tone}`}>{status}</span> : undefined}>
-    {!items.length ? <p className="kzAdMuted">Yoxlama hələ işləməyib. Sayt yeniləndikdən sonra 5 dəqiqə ərzində burada görünəcək.</p> : <>
+    {!items.length ? null : <details className="kzHealthMore" open={tone !== "ok" || !fresh}>
+      <summary>{tone === "ok" && fresh ? `Hamısı qaydasındadır · son yoxlama ${adminDate(last)}` : "Təfərrüat"}</summary>
       <ul className="kzHealthList">{[...items].sort((a, b) => healthOrder.indexOf(a.key) - healthOrder.indexOf(b.key)).map(item => <li key={item.key} className={item.level}><i aria-hidden="true" /><strong>{healthNames[item.key] || item.key}</strong><span>{item.detail}</span></li>)}</ul>
       <p className={`kzHealthFoot${fresh ? "" : " stale"}`}>{fresh ? `Hər 5 dəqiqədən bir yoxlanır. Son yoxlama: ${adminDate(last)}.` : `Son yoxlama: ${adminDate(last)}. Server yoxlaması dayanıb ola bilər.`}{bad ? " Problem Gmail-ə də yazılıb." : ""}</p>
-    </>}
+    </details>}
   </Panel>;
 }
 

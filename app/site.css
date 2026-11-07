@@ -3315,3 +3315,12 @@ html body .kzPhoneInput input::placeholder{font-weight:400!important;color:#a7af
 html body .kzPhoneInput.kzPhoneInput.kzPhoneInput input:not([type=hidden]),html body .kzPhoneInput.kzPhoneInput.kzPhoneInput .kzPhonePrefix{font-weight:500!important;font-size:16px!important}
 /* Çıxış: telefonda kabinetin altında, kompüterdə yalnız yuxarıdakı hesab menyusunda. */
 @media(min-width:768px){html body .accountDashboard .kzCabinetLogout{display:none!important}}
+/* Rəhbər paneli: yığcam sağlamlıq kartı və fəaliyyət səbəbləri. */
+.kzHealthMore>summary{display:flex;align-items:center;gap:8px;min-height:36px;cursor:pointer;list-style:none;font-size:14px;color:var(--kz-text)}
+.kzHealthMore>summary::-webkit-details-marker{display:none}
+.kzHealthMore>summary::after{content:"";width:8px;height:8px;margin-left:auto;border-right:2px solid #9aa29f;border-bottom:2px solid #9aa29f;transform:rotate(45deg);transition:transform .15s}
+.kzHealthMore[open]>summary::after{transform:rotate(-135deg)}
+.kzHealthMore[open]>summary{margin-bottom:10px}
+html body .kzAdActivity .kzAdReasonDisclosure{margin-top:4px}
+html body .kzAdActivity .kzAdReasonDisclosure summary{font-size:13px;color:var(--kz-muted);cursor:pointer}
+html body .kzAdActivity .kzAdReason{color:var(--kz-text)!important;font-size:13px}

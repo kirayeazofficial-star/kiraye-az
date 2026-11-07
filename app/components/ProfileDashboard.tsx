@@ -60,7 +60,8 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
     [fullCategories, setFullCategories] = useState<string[]>([]),
     [payment, setPayment] = useState<{ title: string; text: string; price?: number } | null>(null),
     [refreshing, setRefreshing] = useState(false),
-    [leaving, setLeaving] = useState(false);
+    [leaving, setLeaving] = useState(false),
+    [topUpNote, setTopUpNote] = useState(false);
   useAutoClear(notice, () => setNotice(""));
   // Tapping the cabinet link while already here reloads the data.
   useEffect(() => {
@@ -184,8 +185,9 @@ export default function ProfileDashboard({ balanceOnly = false }: { balanceOnly?
                   </Link>
                   {!balanceOnly&&<div className="kzHeroBalance" aria-label="Şəxsi hesabın balansı">
                     <span><small>Şəxsi hesab</small><b>0,00 ₼</b></span>
-                    <span className="kzHeroBalanceBtn" aria-disabled="true">Artır · tezliklə</span>
+                    <button type="button" className="kzHeroBalanceBtn" onClick={() => { setTopUpNote(true); window.setTimeout(() => setTopUpNote(false), 3500); }}>Artır</button>
                   </div>}
+                  {topUpNote&&<p className="kzTopUpNote" role="status">Balans artırma müvəqqəti işləmir. Ödəniş sistemi tezliklə qoşulacaq.</p>}
                 </div>
               </div>
               {!accountPhone&&!balanceOnly&&<Link className="kzProfileHint" href="/account"><Phone aria-hidden="true" size={16} strokeWidth={1.9}/>Telefon nömrənizi əlavə edin<ChevronRight aria-hidden="true" size={16} strokeWidth={2}/></Link>}

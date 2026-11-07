@@ -3306,3 +3306,7 @@ html body .kzAdListing .kzAdRowActions .kzAdBtn{min-height:42px;padding:0 16px;w
 /* Deaktiv əsas düymələr solğun narıncı yox, boz görünsün. */
 html body .kzAdBtn.primary:disabled,html body .kzButton:disabled{background:#e6e9e8!important;border-color:#e6e9e8!important;color:#8a928f!important;box-shadow:none!important;opacity:1!important}
 html body .accountDashboard .cabinetNav .cabinetNavFoot .kzCabinetLogout,html body .accountDashboard .cabinetNav .cabinetNavFoot .kzCabinetLogout span{color:#d92d20!important}
+/* Telefon nömrələri: bərabər enli rəqəmlər, +994 ilə eyni xətdə. */
+html body .kzPhoneInput,html body .kzPhoneInput input,html body .kzPhonePrefix,html body .kzAccText b,html body .contactActions .add strong,html body input[type=tel]{font-variant-numeric:tabular-nums!important;font-feature-settings:"tnum" 1!important}
+html body .kzPhoneInput{align-items:center!important}
+html body .kzPhonePrefix,html body .kzPhoneInput input{line-height:1.2!important;letter-spacing:.3px!important}

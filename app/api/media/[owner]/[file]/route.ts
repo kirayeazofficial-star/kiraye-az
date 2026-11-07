@@ -1,5 +1,7 @@
 import {open,readFile,stat,writeFile} from "node:fs/promises";
-import {makeThumbnail,queuedThumbnail} from "../../../../../lib/host/thumbnail";
+import {createReadStream} from "node:fs";
+import {Readable} from "node:stream";
+import {makeThumbnailOffThread,queuedThumbnail} from "../../../../../lib/host/thumbnail";
 import path from "node:path";
 import {NextResponse} from "next/server";
 
@@ -26,7 +28,7 @@ export async function GET(request:Request,{params}:{params:Promise<{owner:string
         if(ready)return new NextResponse(ready,{headers:{"Content-Type":types.jpg,...cache}});
         const made=await queuedThumbnail(thumbPath,async()=>{
           const source=await readFile(path.join(root,owner,`share-${plain}`)).catch(()=>null)||await readFile(location);
-          const small=makeThumbnail(source);
+          const small=await makeThumbnailOffThread(source);
           await writeFile(thumbPath,small,{mode:0o600,flag:"wx"}).catch(()=>{});
           return small;
         });
@@ -48,6 +50,11 @@ export async function GET(request:Request,{params}:{params:Promise<{owner:string
       if(start>end||start>=size)return new NextResponse(null,{status:416,headers:{"Content-Range":`bytes */${size}`}});
     }
     if(range)end=Math.min(end,start+4*1024*1024-1);
+    // A whole-file request is streamed from disk instead of being read into memory at once.
+    if(!range){
+      const stream=Readable.toWeb(createReadStream(location)) as unknown as ReadableStream;
+      return new NextResponse(stream,{status:200,headers:{"Content-Type":types[extension],"Accept-Ranges":"bytes","Content-Length":String(size),...cache}});
+    }
     const handle=await open(location,"r");
     try{
       const body=Buffer.alloc(end-start+1);await handle.read(body,0,body.length,start);

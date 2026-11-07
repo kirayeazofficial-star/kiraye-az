@@ -351,6 +351,7 @@ export const extraDictionary: Record<string, [string, string]> = {
   "Elanın müddəti bitmiş, sahibi tərəfindən silinmiş və ya keçid dəyişmiş ola bilər.": ["Срок истёк, владелец удалил его или ссылка изменилась.", "It expired, was removed by the owner, or the link changed."],
   "Digər elanlara bax": ["Смотреть другие объявления", "See other listings"],
   "Digər": ["Другое", "Other"],
+  "Bütün kateqoriyalar": ["Все категории", "All categories"],
   // Statuses and reasons
   "Qəbul edilməyib": ["Не принято", "Not accepted"],
   "Saxta və ya şübhəli elan": ["Фейковое или подозрительное", "Fake or suspicious"],

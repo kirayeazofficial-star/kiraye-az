@@ -3313,3 +3313,5 @@ html body .kzPhonePrefix,html body .kzPhoneInput input{line-height:1.2!important
 html body .kzPhonePrefix,html body .kzPhoneInput input{font-family:var(--kz-font)!important;font-size:16px!important;font-weight:500!important;color:var(--kz-ink)!important;-webkit-text-fill-color:var(--kz-ink)!important}
 html body .kzPhoneInput input::placeholder{font-weight:400!important;color:#a7afac!important;-webkit-text-fill-color:#a7afac!important}
 html body .kzPhoneInput.kzPhoneInput.kzPhoneInput input:not([type=hidden]),html body .kzPhoneInput.kzPhoneInput.kzPhoneInput .kzPhonePrefix{font-weight:500!important;font-size:16px!important}
+/* Çıxış: telefonda kabinetin altında, kompüterdə yalnız yuxarıdakı hesab menyusunda. */
+@media(min-width:768px){html body .accountDashboard .kzCabinetLogout{display:none!important}}

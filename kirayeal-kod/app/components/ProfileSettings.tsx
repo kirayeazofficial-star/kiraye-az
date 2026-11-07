@@ -1,6 +1,6 @@
 "use client";
 import Notice from "./Notice";
-import { AlertCircle, Bell, Camera, Check, CheckCircle2, ChevronLeft, ChevronRight, Copy, LogOut, Mail, Phone, Smartphone, Star, Trash2, UserRound } from "lucide-react";
+import { AlertCircle, Bell, Camera, Check, CheckCircle2, ChevronLeft, ChevronRight, Copy, Mail, Phone, Smartphone, Star, Trash2, UserRound } from "lucide-react";
 import {FormEvent,useEffect,useRef,useState} from 'react';
 import Link from 'next/link';
 import Header from './Header';
@@ -39,11 +39,6 @@ export default function ProfileSettings(){
   if(busy)return;setBusy('photo');setWhere('photo');setError('');setNotice('');
   try{const response=await fetch('/api/account/avatar',{method:'DELETE'});if(!response.ok)throw Error();setProfile(current=>current?{...current,avatar_url:null}:current);setNotice('Profil şəkli silindi.');window.dispatchEvent(new Event('kiraye:profile'));}
   catch{setError('Şəkli silmək mümkün olmadı.');}finally{setBusy('');}
- }
- async function logout(){
-  if(busy)return;setBusy('logout');
-  try{const response=await fetch('/api/auth/host',{method:'DELETE'});if(!response.ok)throw Error();try{sessionStorage.removeItem('kiraye:pending-confirmation');sessionStorage.removeItem('kiraye:login-email');}catch{}window.location.href='/';}
-  catch{setError('Hesabdan çıxmaq mümkün olmadı.');setBusy('');}
  }
  function reload(){setLoading(true);setError('');window.location.reload();}
  async function submit(event:FormEvent,action:'profile'|'email'|'email_confirm'){
@@ -122,7 +117,6 @@ export default function ProfileSettings(){
     </div>
    </section>
 
-   <button type="button" className="kzPanel kzLogoutRow" disabled={busy==='logout'} onClick={logout}><LogOut aria-hidden="true" size={18} strokeWidth={2}/>{busy==='logout'?'Çıxılır…':'Hesabdan çıx'}</button>
   </div>:null}
  </main><Footer/></>;
 }

@@ -3477,3 +3477,21 @@ html body .kzProfileHeadLink{gap:12px}
 html body .kzProfileSub{flex-direction:column;gap:2px}
 html body .kzProfileSubId+.kzProfileSubGo::before{content:none}
 }
+/* Saytın öz təsdiq pəncərəsi (brauzerin "kirayeal.az says" əvəzinə). */
+.kzAskLayer{position:fixed;inset:0;z-index:2000;display:flex;align-items:flex-end;justify-content:center;background:rgba(16,24,22,.45)}
+.kzAsk{width:100%;max-width:440px;display:flex;flex-direction:column;gap:10px;margin:0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.25);font-family:inherit}
+.kzAsk>strong{font-size:17px;font-weight:700;line-height:1.35;color:var(--kz-ink,#1c2220)}
+.kzAsk>p{margin:0;font-size:14px;line-height:1.5;color:var(--kz-text,#3d4542)}
+.kzAskField{display:flex;flex-direction:column;gap:6px;margin:2px 0 0}
+.kzAskField span{font-size:13px;font-weight:600;color:var(--kz-muted,#7a8380)}
+.kzAskField textarea{width:100%;min-height:76px;resize:vertical;padding:10px 12px;border:1px solid var(--kz-line,#e2e5e4);border-radius:10px;font:inherit;font-size:15px;line-height:1.45;color:var(--kz-ink,#1c2220);background:#fff}
+.kzAskField textarea:focus{outline:0;border-color:#104c43;box-shadow:0 0 0 3px rgba(16,76,67,.12)}
+.kzAskHint{font-size:12.5px;color:#d92d20}
+.kzAskActions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+.kzAskActions button{min-width:96px;height:40px;padding:0 16px;border-radius:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.kzAskCancel{border:1px solid var(--kz-line,#e2e5e4);background:#fff;color:var(--kz-ink,#1c2220)}
+.kzAskOk{border:0;background:#104c43;color:#fff}
+.kzAskOk.danger{background:#d92d20}
+.kzAskOk:disabled{opacity:.45;cursor:default}
+@media (max-width:767px){.kzAskActions button{flex:1}}
+@media (min-width:768px){.kzAskLayer{align-items:center;padding:24px}.kzAsk{border-radius:16px;padding:22px}}

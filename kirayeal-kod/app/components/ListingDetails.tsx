@@ -395,7 +395,7 @@ export default function ListingDetails({
                 ? `${money(item.deposit!)} ₼`
                 : item.deposit === 0
                   ? "Tələb olunmur"
-                  : "Sahibindən dəqiqləşdir"}
+                  : "Sahibindən dəqiqləşdirin"}
             </dd>
           </div>
           <div>

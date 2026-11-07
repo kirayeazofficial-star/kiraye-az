@@ -54,6 +54,8 @@ export type RentalFilters = {
   area: string;
   brand: string;
   gearbox: string;
+  // "1": only cars for taxi work / motorcycles for courier work.
+  work?: string;
   noDeposit: boolean;
   from: string;
   until: string;
@@ -70,6 +72,7 @@ export function scopeRentalFilters(
       ? filters.brand
       : "",
     gearbox: ["car", "motorcycle"].includes(category) ? filters.gearbox : "",
+    work: ["car", "motorcycle"].includes(category) ? filters.work || "" : "",
   };
 }
 export function matchesRentalFilters(
@@ -80,7 +83,7 @@ export function matchesRentalFilters(
     min_days?: number;
     available_from?: string | null;
     available_until?: string | null;
-    attributes?: { brand?: string; gearbox?: string };
+    attributes?: { brand?: string; gearbox?: string; taxi_use?: string; courier_use?: string };
   },
   filters: RentalFilters,
 ) {
@@ -99,6 +102,7 @@ export function matchesRentalFilters(
     return false;
   if (filters.gearbox && item.attributes?.gearbox !== filters.gearbox)
     return false;
+  if (filters.work && item.attributes?.taxi_use !== "Bəli" && item.attributes?.courier_use !== "Bəli") return false;
   if (filters.noDeposit && Number(item.deposit ?? 0) > 0) return false;
   if (filters.from && filters.until && filters.from > filters.until)
     return false;

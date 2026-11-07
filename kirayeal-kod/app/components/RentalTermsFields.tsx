@@ -107,7 +107,7 @@ export default function RentalTermsFields({
               min="1"
               max="5000"
               defaultValue={attributes?.included_km_day}
-              placeholder="Boş saxla — sahibindən dəqiqləşdirilsin"
+              placeholder="Boş saxlayın — sahibindən dəqiqləşdirilsin"
             />
           </label>
         </div>

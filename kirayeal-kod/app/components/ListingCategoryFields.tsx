@@ -38,7 +38,7 @@ export function SelectField({
         defaultValue={value || ""}
         onChange={(event) => onChange?.(event.target.value)}
       >
-        <option value="">Seç</option>
+        <option value="">Seçin</option>
         {value && !options.includes(value) && <option>{value}</option>}
         {options.map((option) => (
           <option key={option} value={option}>{option === "Hər ikisi" ? "Çatdırılma mümkündür" : option}</option>
@@ -105,7 +105,7 @@ function BrandModelPicker({
               notify(next === "__other__" ? "" : next, "");
             }}
           >
-            <option value="">Markanı seç</option>
+            <option value="">Markanı seçin</option>
             {Object.keys(models)
               .sort((a, b) => a.localeCompare(b, "az"))
               .map((item) => (
@@ -136,7 +136,7 @@ function BrandModelPicker({
             }}
           >
             <option value="">
-              {resolvedBrand ? "Modeli seç" : "Əvvəl markanı seç"}
+              {resolvedBrand ? "Modeli seçin" : "Əvvəlcə markanı seçin"}
             </option>
             {(Object.prototype.hasOwnProperty.call(models, resolvedBrand) ? models[resolvedBrand] : []).map((item) => (
               <option key={item}>{item}</option>
@@ -159,7 +159,7 @@ function BrandModelPicker({
                   setOtherBrand(event.target.value);
                   notify(event.target.value, resolvedModel);
                 }}
-                placeholder="Markanın adını yaz"
+                placeholder="Markanın adını yazın"
               />
             </label>
           )}
@@ -175,7 +175,7 @@ function BrandModelPicker({
                   setOtherModel(event.target.value);
                   notify(resolvedBrand, event.target.value);
                 }}
-                placeholder="Modelin adını yaz"
+                placeholder="Modelin adını yazın"
               />
             </label>
           )}
@@ -243,7 +243,7 @@ function VehicleFields({
               "Şəhər",
               "Şosse",
               "BMX",
-              "Elektrikli",
+              ...(attributes?.kind === "Elektrikli" ? ["Elektrikli"] : []),
               "Qatlanan",
               "Uşaq",
               "Digər",
@@ -383,12 +383,17 @@ function VehicleFields({
           />
           <SelectField name="seats" label="Oturacaq sayı" options={["2", "4", "5", "7", "8", "9 və çox"]} value={extra("seats")} />
           <SelectField name="insurance" label="Sığorta" options={["Qiymətə daxildir", "Daxil deyil"]} value={extra("insurance")} />
+          <SelectField name="taxi_use" label="Taksi işi üçün verilir (Bolt, Uber)" options={["Bəli", "Xeyr"]} value={extra("taxi_use")} />
+          <SelectField name="documents" label="Tələb olunan sənədlər" options={["Şəxsiyyət vəsiqəsi və sürücülük vəsiqəsi", "Yalnız sürücülük vəsiqəsi", "Pasport və beynəlxalq sürücülük vəsiqəsi", "Razılaşma ilə"]} value={extra("documents")} />
+          <SelectField name="travel_area" label="Rayonlara / ölkədən çıxış" options={["Yalnız şəhər daxilində", "Rayonlara getmək olar", "Ölkədən çıxmaq da olar", "Razılaşma ilə"]} value={extra("travel_area")} />
+          <SelectField name="fuel_policy" label="Yanacaq qaydası" options={["Dolu götür, dolu qaytar", "Eyni səviyyədə qaytar", "Yanacaq qiymətə daxildir", "Razılaşma ilə"]} value={extra("fuel_policy")} />
         </div>
       )}
       {!car && !bicycle && (
         <div className="formGrid">
           <SelectField name="helmet" label="Kask verilir" options={["Bəli", "Xeyr"]} value={extra("helmet")} />
           <SelectField name="license_class" label="Lazım olan sürücülük vəsiqəsi" options={["A", "A1", "B kifayətdir", "Vəsiqə lazım deyil"]} value={extra("license_class")} />
+          <SelectField name="courier_use" label="Kuryer işi üçün verilir (Wolt, Bolt Food)" options={["Bəli", "Xeyr"]} value={extra("courier_use")} />
         </div>
       )}
       {bicycle && (
@@ -421,6 +426,7 @@ function VehicleFields({
             />
           </div>
           <div className="formGrid">
+            <SelectField name="drive_type" label="Hərəkət növü" options={["Adi (pedallı)", "Elektrikli"]} value={extra("drive_type") || (attributes?.kind === "Elektrikli" ? "Elektrikli" : undefined)} />
             <SelectField name="bike_for" label="Kim üçün" options={["Böyük", "Uşaq"]} value={extra("bike_for")} />
             <SelectField name="helmet_lock" label="Kask və kilid verilir" options={["Bəli", "Xeyr"]} value={extra("helmet_lock")} />
           </div>
@@ -522,8 +528,13 @@ function PropertyFields({
         </div>
       )}
       {category === "property" && <div className="formGrid">
-        <SelectField name="tenant" label="Kimə verilir" options={["Ailəyə", "Tələbəyə", "İşləyən şəxsə", "Fərqi yoxdur"]} value={a("tenant")} />
+        <SelectField name="tenant" label="Kimə verilir" options={["Ailəyə", "Tələbəyə", "İşləyən şəxsə", "Turistə / qısa müddətə", "Fərqi yoxdur"]} value={a("tenant")} />
         <SelectField name="pets" label="Ev heyvanı" options={["Olar", "Olmaz"]} value={a("pets")} />
+        <label>Neçə nəfər qala bilər (istəyə bağlı)<input name="guests" type="number" min="1" max="50" step="1" defaultValue={a("guests")} placeholder="Məsələn: 4" /></label>
+      </div>}
+      {["property", "villa"].includes(category) && <div className="formGrid">
+        <label>Giriş saatı (günlük kirayə üçün, istəyə bağlı)<input name="check_in" type="time" defaultValue={a("check_in")} /></label>
+        <label>Çıxış saatı (günlük kirayə üçün, istəyə bağlı)<input name="check_out" type="time" defaultValue={a("check_out")} /></label>
       </div>}
       {category === "commercial" && <div className="formGrid">
         <SelectField name="repair" label="Təmir" options={["Təmirli", "Təmirsiz"]} value={attributes?.repair} />
@@ -579,19 +590,19 @@ function ItemFields({
   return (
     <section className="categoryFields" aria-label="Kateqoriya məlumatları">
       <SelectField name="kind" label={definition?.label || "Məhsulun növü"}
-        options={Array.from(new Set([...Object.keys(definition?.kinds || {}), ...(category === "equipment" ? Object.keys(equipmentModels).filter(item => !otherCategoryKinds.includes(item)) : []), ...(attributes?.kind && otherCategoryKinds.includes(String(attributes.kind)) ? [String(attributes.kind)] : []), "Digər"]))}
+        options={Array.from(new Set([...Object.entries(definition?.kinds || {}).filter(([name, item]) => !item.hidden || name === attributes?.kind).map(([name]) => name), ...(category === "equipment" ? Object.keys(equipmentModels).filter(item => !otherCategoryKinds.includes(item)) : []), ...(attributes?.kind && otherCategoryKinds.includes(String(attributes.kind)) ? [String(attributes.kind)] : []), "Digər"]))}
         value={kind} required onChange={(value) => { setKind(value); suggest(value ? `${value} kirayəsi` : ""); setPowerSource(value === attributes?.kind ? String(attributes?.power_source || "") : ""); }} />
-      {!kind && <p className="muted">Əvvəl növü seç. Sonra yalnız həmin məhsula uyğun suallar açılacaq.</p>}
+      {!kind && <p className="muted">Əvvəlcə növü seçin. Sonra yalnız həmin məhsula uyğun suallar açılacaq.</p>}
       {kind && <div key={kind}>
         {Object.keys(models).length ? <BrandModelPicker models={models} attributes={initial} suggest={suggest} /> : category === "event" ? null : (
           <div className="formGrid">
-            <label>Marka (istəyə bağlı)<input name="brand" maxLength={40} defaultValue={initial?.brand} onChange={(event) => suggest(`${event.target.value.trim()} ${kind} kirayəsi`.trim())} placeholder="Markasızdırsa, boş saxla" /></label>
+            <label>Marka (istəyə bağlı)<input name="brand" maxLength={40} defaultValue={initial?.brand} onChange={(event) => suggest(`${event.target.value.trim()} ${kind} kirayəsi`.trim())} placeholder="Markasızdırsa, boş saxlayın" /></label>
             {category !== "clothing" && <label>Model / kolleksiya (istəyə bağlı)<input name="model" maxLength={60} defaultValue={initial?.model} /></label>}
           </div>
         )}
         <SelectField name="condition" label="Yeni / işlənmiş" options={["Yeni", "İşlənmiş"]} value={initial?.condition} />
         {category === "clothing" && <SelectField name="color" label="Rəng" options={colors} value={initial?.color} />}
-        <p className="muted">Əlavə xüsusiyyətlər istəyə bağlıdır. Dəqiq bilmədiyini boş saxla.</p>
+        <p className="muted">Əlavə xüsusiyyətlər istəyə bağlıdır. Dəqiq bilmədiyinizi boş saxlayın.</p>
         <div className="formGrid">
           {(spec?.fields || []).filter(field => field.key !== "battery_voltage" || powerSource === "Akkumulyator").map(field => field.options ? (
             <SelectField key={field.key} name={field.key} label={field.label} options={field.options} value={String(initial?.[field.key] || "")} onChange={field.key === "power_source" ? setPowerSource : undefined} />

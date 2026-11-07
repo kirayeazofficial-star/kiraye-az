@@ -21,6 +21,10 @@ export function readListingAttributes(
       "included_km_day",
       "seats",
       "insurance",
+      "taxi_use",
+      "documents",
+      "travel_area",
+      "fuel_policy",
     ],
     motorcycle: [
       ...vehicle.filter((key) => key !== "condition"),
@@ -33,12 +37,13 @@ export function readListingAttributes(
       "included_km_day",
       "helmet",
       "license_class",
+      "courier_use",
     ],
-    bicycle: [...vehicle, "kind", "frame_size", "wheel_size", "bike_for", "helmet_lock"],
+    bicycle: [...vehicle, "kind", "frame_size", "wheel_size", "bike_for", "helmet_lock", "drive_type"],
     equipment: ["kind", "brand", "model", "condition"],
     event: ["kind", "condition", "capacity"],
-    property: ["kind", "building_type", "complex", "repair", "floor", "total_floors", "bathrooms", "bathroom_type", "tenant", "pets"],
-    villa: ["kind", "bathrooms", "total_floors", "guests", "land_sot", "pool", "events_allowed"],
+    property: ["kind", "building_type", "complex", "repair", "floor", "total_floors", "bathrooms", "bathroom_type", "tenant", "pets", "guests", "check_in", "check_out"],
+    villa: ["kind", "bathrooms", "total_floors", "guests", "land_sot", "pool", "events_allowed", "check_in", "check_out"],
     commercial: ["kind", "repair", "floor", "separate_entrance", "street_facing", "electric_kw"],
   };
   if (rentalCategorySpecs[category]) {
@@ -167,6 +172,9 @@ export function validateListingAttributes(
       Number(attributes.delivery_fee) > 1000000)
   )
     return "Çatdırılma haqqını düzgün yazın.";
+  for (const key of ["check_in", "check_out"] as const)
+    if (attributes[key] !== undefined && !/^([01]\d|2[0-3]):[0-5]\d$/.test(String(attributes[key]))) return "Giriş və çıxış saatını düzgün seçin.";
+  if (attributes.guests !== undefined && (!Number.isInteger(Number(attributes.guests)) || Number(attributes.guests) < 1 || Number(attributes.guests) > 500)) return "Neçə nəfərin qala biləcəyini düzgün yazın.";
   if(attributes.bathrooms !== undefined && (!Number.isInteger(Number(attributes.bathrooms)) || Number(attributes.bathrooms)<1 || Number(attributes.bathrooms)>20)) return "Hamam otağı sayını 1–20 arasında tam ədədlə yazın.";
   for (const [key, min, max] of [
     ["min_driver_age", 18, 100],

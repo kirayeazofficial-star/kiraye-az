@@ -3,7 +3,8 @@ export type RentalSpec = {
   key: string; label: string; options?: string[]; min?: number; max?: number;
   step?: string; placeholder?: string;
 };
-type Kind = { models: Record<string, string[]>; fields: RentalSpec[] };
+// hidden: kept for listings that already use it, not offered for new ones.
+type Kind = { models: Record<string, string[]>; fields: RentalSpec[]; hidden?: boolean };
 type Category = { label: string; kinds: Record<string, Kind> };
 const number = (key: string, label: string, min: number, max: number, step = "1"): RentalSpec => ({key,label,min,max,step});
 const choice = (key: string,label: string,options: string[]): RentalSpec => ({key,label,options});
@@ -15,6 +16,7 @@ const electricFields = [
   choice("charger","Şarj cihazı verilir",["Bəli","Xeyr"]),
 ];
 const power = choice("power_source","Enerji növü",["Şəbəkə / kabel","Akkumulyator","Benzin","Əl ilə","Digər"]);
+const operator = choice("operator","Operatorla verilir",["Bəli","Xeyr","Hər iki variant"]);
 const toolFields = [power,number("power_w","Güc (W)",1,100000),number("battery_voltage","Akkumulyator gərginliyi (V)",1,120,"0.1")];
 const clothingBrands: Record<string, Record<string,string[]>> = {
   "Kostyum": { BOSS:[], Zara:[], Mango:[], "Massimo Dutti":[], "Altınyıldız Classics":[], Kiğılı:[], Damat:[], Tween:[], "Pierre Cardin":[], Cacharel:[], Ramsey:[], Network:[], Kip:[] },
@@ -48,7 +50,7 @@ export const rentalCategorySpecs: Record<string,Category> = {
   clothing: {label:"Geyimin növü", kinds: Object.fromEntries(["Kostyum","Gəlinlik","Ziyafət geyimi","Milli geyim","Uşaq tədbir geyimi","Aksesuar","Digər"].map(kind => [kind,{models:clothingBrands[kind] || {},fields: clothingFieldsFor(kind)}]))},
   electric: {label:"Elektrik nəqliyyatının növü", kinds:{
     "Elektrik skuter":{models:{Xiaomi:["Electric Scooter 4","Electric Scooter 4 Pro","Mi Electric Scooter Pro 2"],"Segway-Ninebot":["MAX G2","F2","F2 Pro"],KuKirin:["G2","G2 Pro","G2 Max","G3","G4"],Kugoo:["S1","S3","M4","M4 Pro"],NIU:["KQi2 Pro","KQi3 Pro","KQi3 Max"],Dualtron:["Mini","Thunder","Victor"],Inokim:["Light 2","OX","OXO"],Kaabo:["Mantis 10","Wolf Warrior 11"],Apollo:["City","Ghost","Phantom"],Ultron:["X1","X3"],Joyor:["S5","Y5S"],Halten:["RS-01","RS-02"],Kugookirin:["M4","G2"],Ecodrift:["R8","Twin"]},fields:electricFields},
-    "Elektrik velosiped":{models:{ENGWE:["EP-2 Pro","Engine Pro","L20"],Fiido:["D11","M1 Pro","D4S"],ADO:["A20","Air 20"],Cube:[],Giant:[],Trek:[],Specialized:[],Merida:[],Scott:[],HIMO:["C20","Z20"],SAMEBIKE:[],Xiaomi:["Mi Smart Electric Folding Bike"],"Segway":["Xafari","Xyber"],"Haibike":[],"Cube Hybrid":[]},fields:[...electricFields,choice("frame_size","Çərçivə ölçüsü",["XS","S","M","L","XL","Digər"])]},
+    "Elektrik velosiped":{models:{ENGWE:["EP-2 Pro","Engine Pro","L20"],Fiido:["D11","M1 Pro","D4S"],ADO:["A20","Air 20"],Cube:[],Giant:[],Trek:[],Specialized:[],Merida:[],Scott:[],HIMO:["C20","Z20"],SAMEBIKE:[],Xiaomi:["Mi Smart Electric Folding Bike"],"Segway":["Xafari","Xyber"],"Haibike":[],"Cube Hybrid":[]},fields:[...electricFields,choice("frame_size","Çərçivə ölçüsü",["XS","S","M","L","XL","Digər"])],hidden:true},
   }},
   photo: {label:"Çəkiliş avadanlığının növü", kinds:{
     "Fotoaparat":{models:{Canon:["EOS R5","EOS R6","EOS R6 Mark II","EOS R8","EOS 5D Mark IV","EOS 6D Mark II","EOS 90D","EOS 250D"],Nikon:["Z5","Z6","Z6 II","Z7","Z8","D750","D850","D7500"],Sony:["A6400","A6700","A7 III","A7 IV","A7R V","A7S III","ZV-E10"],Fujifilm:["X-H2","X-S20","X-T4","X-T5","X100VI"],Panasonic:["S5 II","GH6"],Leica:["Q2","Q3"]},fields:[number("resolution_mp","Şəkil ölçüsü (MP)",1,500,"0.1"),choice("lens_included","Obyektiv daxildir",["Bəli","Xeyr"]),choice("extras_included","Batareya və yaddaş kartı daxildir",["Bəli","Xeyr"])]},
@@ -73,9 +75,13 @@ export const rentalCategorySpecs: Record<string,Category> = {
     "Kəsici / laqonda":{models:{Bosch:["GWS 750","GWS 9-125","GKS 190"],Makita:["GA5030","GA9020","9558HN"],DeWalt:["DWE4157","DWE4233"],Metabo:["W 750-125","WEV 15-125"],Hitachi:[],Ingco:[],Total:[]},fields:[...toolFields,number("disc_diameter_mm","Disk diametri (mm)",1,1000)]},
     "Generator":{models:{Honda:["EU22i","EU30is","EG5500"],Hyundai:["HHY 3000F","HHY 7000FE"],Yamaha:["EF2000iS","EF6300iSE"],Champion:[],Fubag:[],Huter:[],Ingco:[],Total:[]},fields:[power,number("power_kw","Güc (kW)",0.1,1000,"0.1")]},
     "Təmizlik avadanlığı":{models:{Kärcher:["K 2","K 4","K 5","K 7","Puzzi 10/1","SE 4001","WD 3","WD 5"],Nilfisk:["C 120","Core 140"],Bosch:["AdvancedAquatak"],Thomas:[],Numatic:[]},fields:[power,number("tank_l","Çən tutumu (litr)",0.1,1000,"0.1")]},
+    "İskele (lesa)":{models:{},fields:[number("height_m","Hündürlük (metr)",1,200,"0.5"),number("quantity","Dəstdə neçə ədəd var",1,100000),choice("assembly","Quraşdırma",["Sahibi quraşdırır","Özünüz quraşdırırsınız","Razılaşma ilə"])]},
+    "Beton qarışdıran":{models:{Altrad:[],Belle:[],Imer:[],Lescha:[],Champion:[],Ingco:[],Total:[]},fields:[power,number("volume_l","Həcm (litr)",1,10000)]},
+    "Ekskavator / traktor":{models:{CAT:[],JCB:["3CX","4CX"],Komatsu:[],Hitachi:[],Hyundai:[],Doosan:[],Bobcat:[],Volvo:[],Kubota:[]},fields:[number("weight_t","Çəkisi (ton)",0.1,200,"0.1"),operator]},
+    "Qaldırıcı / yük lifti":{models:{Genie:[],JLG:[],Haulotte:[],Manitou:[],Toyota:[],Linde:[]},fields:[number("max_load_kg","Maksimum daşıma çəkisi (kq)",1,100000),number("height_m","Qaldırma hündürlüyü (metr)",1,200,"0.5"),operator]},
     "Bağ avadanlığı":{models:{Stihl:["FS 55","FS 131","MS 180","MS 250","RE 98"],Husqvarna:["120 Mark II","135 Mark II","LC 140"],Makita:["DUC254","DUR181"],Bosch:[],Champion:[],Patriot:[]},fields:toolFields},
   }},
-  event: {label:"Tədbir üçün nə təklif edirsən?",kinds:{
+  event: {label:"Tədbir üçün nə təklif edirsiniz?",kinds:{
     "Səs və işıq":{models:{JBL:["EON 712","EON 715","PartyBox 310","PartyBox 710","PRX 815"],Yamaha:["DBR12","DXR12","MG10XU","Stagepas 1K"],Bose:["L1 Pro","S1 Pro"],RCF:["ART 712","ART 745"],"Electro-Voice":["EKX","ZLX"],Pioneer:["DDJ-FLX4","XDJ-RX3","CDJ-3000"],Behringer:["X32","XR18"],Shure:["SM58","BLX","SLX-D"],Godox:[]},fields:[number("capacity","Neçə nəfər üçün uyğundur",1,100000),number("power_w","Güc (W)",1,100000),choice("with_operator","Operator / DJ ilə",["Bəli","Xeyr"])]},
     "Masa və stul":{models:{},fields:[number("quantity","Dəstdə neçə ədəd var",1,100000),number("capacity","Neçə nəfər üçün uyğundur",1,100000)]},
     "Çadır":{models:{},fields:[number("capacity","Neçə nəfər üçün uyğundur",1,100000),number("width_m","En (metr)",0.1,1000,"0.1"),number("length_m","Uzunluq (metr)",0.1,1000,"0.1")]},

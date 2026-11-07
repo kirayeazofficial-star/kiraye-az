@@ -3467,3 +3467,13 @@ html body .kzDrawerSocial a{width:auto!important;height:42px!important;border-ra
 /* Kabinet: "Artır" düyməsi və xəbərdarlıq. */
 html body .kzHeroBalanceBtn{border:0;font:inherit;cursor:pointer;color:#fff!important;background:rgba(255,255,255,.2)!important;padding:0 18px!important}
 .kzTopUpNote{margin:10px 0 0!important;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.95);color:#8a4b00;font-size:13px;line-height:1.4}
+/* Kabinet kartı: ID və "Profilə bax" ayrı; dar kompüter kartında ad bir sətirdə. */
+html body .kzProfileSub{display:flex;flex-wrap:wrap;gap:0 6px;line-height:1.4}
+html body .kzProfileSubId+.kzProfileSubGo::before{content:"·";margin-right:6px}
+@media (min-width:768px){
+html body .kzProfileB .kzProfileHeadText h1{font-size:17px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;overflow-wrap:normal}
+html body .kzProfileB .kzProfileHead .kzUserAvatar.large{width:52px!important;height:52px!important}
+html body .kzProfileHeadLink{gap:12px}
+html body .kzProfileSub{flex-direction:column;gap:2px}
+html body .kzProfileSubId+.kzProfileSubGo::before{content:none}
+}

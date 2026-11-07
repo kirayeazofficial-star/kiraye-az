@@ -62,9 +62,9 @@ export async function POST(request:NextRequest){
       const again=old[0].plan!==plan||["rejected","expired"].includes(old[0].status);
       await hostQuery(`update public.stores set name=$2,slug=$3,description=$4,phone=$5,address=$6,hours=$7,plan=$8,logo_url=coalesce($9,logo_url),cover_url=coalesce($11,cover_url),open_from=$12,open_to=$13,status=case when $10 then 'pending' else status end,reject_reason=case when $10 then null else reject_reason end,updated_at=now() where owner_id=$1`,[user.id,name,slug,description,phone,address,hours,plan,logo,again,cover,openFrom,openTo]);
       if(logo)await removeOld(old[0].logo_url);if(cover)await removeOld(old[0].cover_url);
-      return reply({ok:true,status:again?"pending":old[0].status});
+      return reply({ok:true,status:again?"pending":old[0].status,sent:again});
     }
     await hostQuery(`insert into public.stores(id,owner_id,slug,name,description,logo_url,phone,address,hours,plan,cover_url,open_from,open_to) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,[newId(),user.id,slug,name,description,logo,phone,address,hours,plan,cover,openFrom,openTo]);
-    return reply({ok:true,status:"pending"},201);
+    return reply({ok:true,status:"pending",sent:true},201);
   }catch(error){const code=(error as Error).message;if(code==="INVALID_IMAGE")return reply({error:code},400);console.error("store save",code);return reply({error:"SAVE_FAILED"},503);}
 }

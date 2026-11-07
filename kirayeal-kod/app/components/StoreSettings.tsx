@@ -35,7 +35,7 @@ export default function StoreSettings() {
       const response = await fetch("/api/stores", { method: "POST", body });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error === "SLUG_TAKEN" ? "Bu ünvan artıq başqa mağazadadır. Başqa ad seçin." : data.error === "INVALID_NAME" ? "Mağazanın adı ən azı 3 hərf olmalıdır." : data.error === "PAYMENTS_OFF" ? "Mağaza müraciətləri müvəqqəti qəbul olunmur." : "Mağaza saxlanmadı. Yenidən cəhd edin.");
-      setLogo(null); setCover(null); setNotice(data.status === "pending" ? "Müraciət göndərildi. Administrasiya yoxlayıb aktivləşdirəndə mağazanız açılacaq." : "Dəyişikliklər saxlanıldı.");
+      setLogo(null); setCover(null); setNotice(data.sent ? "Müraciət göndərildi. Administrasiya yoxlayıb aktivləşdirəndə mağazanız açılacaq." : data.status === "pending" ? "Dəyişikliklər saxlanıldı. Müraciətiniz hələ yoxlanılır." : "Dəyişikliklər saxlanıldı.");
       await load();
     } catch (problem) { setError(problem instanceof Error ? problem.message : "Mağaza saxlanmadı."); }
     finally { setBusy(false); }

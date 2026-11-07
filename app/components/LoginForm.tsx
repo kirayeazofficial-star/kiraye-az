@@ -549,7 +549,21 @@ export default function Login({
                       </a>
                     )}
                     {mode==="login"&&<label className="rememberLogin"><input type="checkbox" checked={remember} onChange={event=>setRemember(event.target.checked)}/>Məni yadda saxla</label>}
-                    {mode === "signup" && <p className="authCodeNote"><Mail aria-hidden="true" size={18} strokeWidth={2}/><span>{emailAddress.includes("@") ? <>Təsdiq kodu <b>{emailAddress}</b> ünvanına göndəriləcək</> : "E-poçtunuza 6 rəqəmli təsdiq kodu göndəriləcək"}</span></p>}
+                    {notice && (
+                      <div className="notice authFormNotice" role="alert">
+                        {notice}
+                        {loginFailed && (
+                          <button
+                            type="button"
+                            className="recoveryAction"
+                            onClick={() => changeMode("reset")}
+                          >
+                            Şifrəni yenilə
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {mode === "signup" && !notice && <p className="authCodeNote"><Mail aria-hidden="true" size={18} strokeWidth={2}/><span>{emailAddress.includes("@") ? <>Təsdiq kodu <b>{emailAddress}</b> ünvanına göndəriləcək</> : "E-poçtunuza 6 rəqəmli təsdiq kodu göndəriləcək"}</span></p>}
                     <button
                       className="authSubmit"
                       disabled={!ready || busy || submitBlocked}
@@ -624,7 +638,7 @@ export default function Login({
                   yeni sorğu göndərilmir.
                 </p>
               )}
-              {notice && (
+              {notice && verification && (
                 <div className="notice" role="status">
                   {notice}
                   {loginFailed && (

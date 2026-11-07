@@ -3273,3 +3273,14 @@ html body .kzAccountPage .kzAccEdit form,html body .kzAccountPage .kzAccEdit lab
  html body .kzAccountPage .kzAccountGrid{display:flex!important;flex-direction:column;gap:14px;max-width:680px;margin:0 auto}
  html body .kzAccountPage .cabinetBack,html body .kzAccountPage .kzPageTitle{max-width:680px;margin-left:auto!important;margin-right:auto!important}
 }
+/* Kompüterdə profil səhifəsində geri düyməsi (kabinetə qayıdış). */
+@media(min-width:768px){
+ html body .kzAccountPage .profileBack{display:flex!important;align-items:center;gap:10px;position:static!important;max-width:680px;margin:0 auto 16px!important;padding:0!important;border:0!important;background:none!important}
+ html body .kzAccountPage .profileBack a{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;border:1px solid var(--kz-line);background:#fff;color:var(--kz-ink)!important}
+ html body .kzAccountPage .profileBack a:hover{background:var(--kz-soft)}
+ html body .kzAccountPage .profileBack strong{font-size:24px;font-weight:700;color:var(--kz-ink)}
+ html body .kzAccountPage .kzPageTitle{display:none!important}
+}
+/* Hesab menyusu: ad tünd, ID boz. */
+html body .accountMenuPanel .accountMenuHead strong,html body .accountMenuPanel .accountMenuHead b{color:var(--kz-ink)!important}
+html body .accountMenuPanel .accountMenuHead small,html body .accountMenuPanel .accountMenuHead span:not(.kzUserAvatar):not(.accountMenuAvatar){color:var(--kz-muted)!important}

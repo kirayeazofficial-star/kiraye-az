@@ -3575,3 +3575,5 @@ html body .kzMenuCopy{margin:auto 0 0!important;padding:18px 0 calc(12px + env(s
 html body .siteMenuPanel.kzSide .kzMenuIcon svg{color:#104c43}
 /* Menyu loqosu saytın başlığındakı ilə eyni ölçüdə və rəngdə. */
 html body .kzMenuHero .kzMenuLogo{font-size:21px!important;font-weight:700!important;letter-spacing:-.8px!important;color:rgb(20,63,59)!important}
+/* Sayt sonu: e-poçt, Instagram, TikTok ikonları menyudakı kimi — açıq-yaşıl kvadratda yaşıl ikon. */
+html body .kzFooterSocial a>span,html body .kzFooterSocial a.ig>span,html body .kzFooterSocial a.tt>span,html body .kzFooterSocial a.mail>span{width:30px!important;height:30px!important;border-radius:9px!important;background:#eaf5f1!important;color:#104c43!important}

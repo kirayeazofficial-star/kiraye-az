@@ -34,9 +34,9 @@ export default function Footer() {
         <div>
           <strong>{t("Bizimlə əlaqə")}</strong>
           <span className="kzDrawerSocial kzFooterSocial">
-            <a className="mail" href={`mailto:${siteContact.email}`}><span><Mail aria-hidden="true" size={12} strokeWidth={2.2} /></span>{siteContact.email}</a>
-            <a className="ig" href={siteContact.instagram} target="_blank" rel="noopener noreferrer"><span><InstagramIcon size={13} /></span>Instagram</a>
-            <a className="tt" href={siteContact.tiktok} target="_blank" rel="noopener noreferrer"><span><TikTokIcon size={12} /></span>TikTok</a>
+            <a className="mail" href={`mailto:${siteContact.email}`}><span><Mail aria-hidden="true" size={16} strokeWidth={1.9} /></span>{t("Bizə yazın")}</a>
+            <a className="ig" href={siteContact.instagram} target="_blank" rel="noopener noreferrer"><span><InstagramIcon size={16} /></span>Instagram</a>
+            <a className="tt" href={siteContact.tiktok} target="_blank" rel="noopener noreferrer"><span><TikTokIcon size={15} /></span>TikTok</a>
           </span>
         </div>
       </div>
